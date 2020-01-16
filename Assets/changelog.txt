@@ -1,0 +1,41 @@
+TableTopAudio Changelog
+
+v0.8:
+
+- Added ability to save/load button and playlist configurations
+
+- SFX Buttons no longer load audio clips into memory, they are now streamed as needed (.ogg and .MP3 still supported)
+
+- Fixed several bugs that would occur when trying to use play/pause/stop/next/previous when there were no tracks in the playlist
+
+- Added explicit error messages when errors are encountered
+
+- Added "About" page containing license and version information
+
+- Added option to enable/disable auto playlist updating
+
+- Changed MP3 decoder from MP3Sharp to NLayer
+
+- Playback progress bar on SFX buttons now auto-hides when clip is cleared
+
+- Fixed bug where first ~0.5 seconds of playlist songs would be skipped
+
+v0.7:
+
+- Fixed bug where moving songs past top or bottom of list would cause crash
+
+- Fixed bug where mouse would become severely misaligned from song item when rearranging playlist
+
+- Changed color of SFX delay indicator from pink to black for easier differentiation than pink
+
+- Enabled page buttons
+
+- Right click to edit page button label
+
+v0.6:
+
+- Initial release      
+
+- SFX buttons working
+
+- Playlist working
