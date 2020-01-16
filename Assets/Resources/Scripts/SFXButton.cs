@@ -8,6 +8,7 @@ using System.IO;
 using System;
 using NLayer;
 
+//Base class for sfx buttons
 public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     internal string clipID = null;
