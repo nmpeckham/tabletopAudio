@@ -46,7 +46,7 @@ public class MainAppController : MonoBehaviour
         mc = GetComponent<MusicController>();
 
         sep = System.IO.Path.DirectorySeparatorChar;
-        mainDirectory = System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyMusic) + sep + "RPGAudio";
+        mainDirectory = System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyMusic) + sep + "TableTopAudio";
         musicDirectory = mainDirectory + sep + "music";
         sfxDirectory = mainDirectory + sep + "sound effects";
         saveDirectory = mainDirectory + sep + "saves";

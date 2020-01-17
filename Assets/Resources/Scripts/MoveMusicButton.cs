@@ -13,7 +13,6 @@ public class MoveMusicButton : MonoBehaviour, IPointerDownHandler, IPointerUpHan
     private RectTransform buttonRectTransform;
     private Transform buttonTransform;
     private MusicController mc;
-    private MusicButton mb;
     // Start is called before the first frame update
     void Start()
     {
@@ -21,7 +20,6 @@ public class MoveMusicButton : MonoBehaviour, IPointerDownHandler, IPointerUpHan
         buttonRectTransform = musicButton.GetComponent<RectTransform>();
         buttonTransform = musicButton.transform;
         mc = Camera.main.GetComponent<MusicController>();
-        mb = GetComponentInParent<MusicButton>();
     }
 
     // Update is called once per frame
@@ -39,6 +37,7 @@ public class MoveMusicButton : MonoBehaviour, IPointerDownHandler, IPointerUpHan
                     buttonTransform.SetSiblingIndex(buttonTransform.GetSiblingIndex() - 1);
                     buttonWithMouse--;
                     mousePos = Input.mousePosition;
+                    mc.buttonID -= 1;
                 }
                 
             }
@@ -53,6 +52,7 @@ public class MoveMusicButton : MonoBehaviour, IPointerDownHandler, IPointerUpHan
                     buttonTransform.SetSiblingIndex(newIndex);
                     buttonWithMouse++;
                     mousePos = Input.mousePosition;
+                    mc.buttonID += 1;
                 }
 
             }

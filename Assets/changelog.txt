@@ -1,6 +1,19 @@
 TableTopAudio Changelog
 
-v0.8:
+v0.82
+
+ - Fixed bug where wrong song would play when clicking next or previous after moving current song in playlist during playback
+
+- Fixed bug where playback scrubber does not go back to start when changing tracks
+
+- Fixed bug where scrubbing to end of current song could cause NullReferenceExceptions
+
+
+v0.81:
+
+- Updated "About" screen with licensing information and hyperlinks
+
+- Updated application folder to reflect application name
 
 - Added ability to save/load button and playlist configurations
 

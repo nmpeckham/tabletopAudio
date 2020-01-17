@@ -21,7 +21,7 @@ public class MusicController : MonoBehaviour
     public TMP_Text nowPlayingLabel;
     private Image prevButtonImage = null;
     private string songPath = "";
-    private int buttonID = -1;
+    internal int buttonID = -1;
 
     private float musicVolume = 1f;
     private float masterVolume = 1f;
@@ -186,7 +186,9 @@ public class MusicController : MonoBehaviour
                 int totalLength = (int)stream.Length / (stream.Channels * 4);
                 AudioClip clip = AudioClip.Create("a", totalLength, stream.Channels, stream.SampleRate, true, MP3Callback);
                 aSource.clip = clip;
+                aSource.time = 0;
                 aSource.Play();
+                playbackScrubber.value = 0;
                 Image buttonImage = musicButtons[id].GetComponent<Image>();
                 if (prevButtonImage != null) prevButtonImage.color = ResourceManager.grey;
                 buttonImage.color = ResourceManager.red;
@@ -247,12 +249,14 @@ public class MusicController : MonoBehaviour
             }
 
         }
+        playbackScrubber.value = 0;
     }
 
     public void Previous()
     {
         if(musicButtons.Count > 0)
         {
+            playbackScrubber.value = 0;
             if (shuffle)
             {
                 if (playedSongs.Count > 1)
@@ -374,16 +378,18 @@ public class MusicController : MonoBehaviour
     {
         if(aSource.clip != null)
         {
-            if (Mathf.Abs(val - (aSource.time / aSource.clip.length)) > 0.01)
+            try
             {
-                float temp = aSource.volume;
-                aSource.volume = 0;
-                stream.Position = Convert.ToInt64(stream.Length * val);
-                aSource.time = val * aSource.clip.length;
-                aSource.volume = temp;
+                if (Mathf.Abs(val - (aSource.time / aSource.clip.length)) > 0.01)
+                {
+                    stream.Position = Convert.ToInt64(stream.Length * val);
+                    aSource.time = val * aSource.clip.length;
+                }
+            }
+            catch(NullReferenceException e)
+            {
             }
         }
-      
     }
 
     // Update is called once per frame
