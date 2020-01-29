@@ -92,14 +92,15 @@ public class ButtonEditorController : MonoBehaviour
     void ApplySettings()
     {
         //Applies all changed settings
-        SFXButton button = mac.SFXButtons[mac.activePage][buttonID].GetComponent<SFXButton>();
+        SFXButton button = mac.sfxButtons[mac.activePage][buttonID].GetComponent<SFXButton>();
         if (System.String.IsNullOrEmpty(fileNameLabel.text))    //No file selected
         {
             button.Stop();
+            button.ClearActiveClip();
         }
-        if((clipID != button.clipID && !String.IsNullOrEmpty(clipID)) || String.IsNullOrEmpty(button.clipID))     //Clip selected, different from current
+        if((clipID != button.clipPath && !String.IsNullOrEmpty(clipID)) || String.IsNullOrEmpty(button.clipPath))     //Clip selected, different from current
         {
-            button.clipID = clipID;
+            button.clipPath = clipID;
         }
         button.Loop = loopButton.isOn;
         button.RandomizeLoopDelay = randomizeLoopButton.isOn;
@@ -107,8 +108,8 @@ public class ButtonEditorController : MonoBehaviour
         button.MaxLoopDelay = Convert.ToInt32(maxLoopDelay.text);
         if (!String.IsNullOrEmpty(minLoopDelay.text)) button.MinLoopDelay = Convert.ToInt32(minLoopDelay.text);
         else button.MinLoopDelay = 0;
-        if(clipID == null) button.clipID = "";
-        else button.clipID = clipID;
+        if(clipID == null) button.clipPath = "";
+        else button.clipPath = clipID;
         string newText = buttonLabelInput.text.Replace(mac.sfxDirectory + mac.sep, "");
         button.Label = newText;
         button.GetComponentInChildren<TMP_Text>().text = newText;
@@ -130,12 +131,12 @@ public class ButtonEditorController : MonoBehaviour
         //Prepare UI for user to begin editing
         buttonID = id;
         
-        SFXButton button = mac.SFXButtons[mac.activePage][id].GetComponent<SFXButton>();
+        SFXButton button = mac.sfxButtons[mac.activePage][id].GetComponent<SFXButton>();
         loopButton.isOn = button.Loop;
         minLoopDelay.text = button.MinLoopDelay.ToString("N0");
         newClip = button.aSource.clip;
-        clipID = button.clipID;
-        if (!String.IsNullOrEmpty(button.clipID)) fileNameLabel.text = clipID.Replace(mac.sfxDirectory + mac.sep, "");
+        clipID = button.clipPath;
+        if (!String.IsNullOrEmpty(button.clipPath)) fileNameLabel.text = clipID.Replace(mac.sfxDirectory + mac.sep, "");
         else fileNameLabel.text = "";
         randomizeLoopButton.isOn = button.RandomizeLoopDelay;
         minLoopDelay.text = button.MinLoopDelay.ToString("N0");
@@ -146,7 +147,7 @@ public class ButtonEditorController : MonoBehaviour
         minLoopDelayLabel.text = randomizeLoopButton.isOn ? "Min Loop Delay (sec):" : "Loop Delay (sec):";
 
         editButtonPanel.SetActive(true);
-        buttonLabelInput.text = mac.SFXButtons[mac.activePage][buttonID].GetComponentInChildren<TMP_Text>().text;
+        buttonLabelInput.text = mac.sfxButtons[mac.activePage][buttonID].GetComponentInChildren<TMP_Text>().text;
     }
 
     //Called when button file is changed

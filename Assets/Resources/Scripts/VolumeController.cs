@@ -23,7 +23,7 @@ public class VolumeController : MonoBehaviour
     internal void VolumeChanged(float volume)
     {
         if (volumeSlider.value != volume) volumeSlider.value = volume;
-        foreach (GameObject obj in mac.SFXButtons[mac.activePage])
+        foreach (GameObject obj in mac.sfxButtons[mac.activePage])
         {
             obj.GetComponent<SFXButton>().ChangeMasterVolume(volume);
             volumeLabel.text = (volume * 100).ToString("N0");

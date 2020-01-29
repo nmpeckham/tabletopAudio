@@ -1,8 +1,22 @@
 TableTopAudio Changelog
 
+v0.83
+- Fixed bug where non-playable files could be loaded into playlist
+
+- Added ability to play ogg vorbis files in the playlist
+
+- Changed format of save files slightly, making transfer of saves easier between computers. 
+	Please note this will break save compatibility with previous versions of TableTopAudio.
+
+- Added workaround for very long audio clips. TableTopAudio will play the maximum possible (6 hours per channel at 44.1khz)
+
+- Fixed bug that would prevent renaming of first page
+
+- Page labels are now tracked in save files, and are restored upon loading
+
 v0.82
 
- - Fixed bug where wrong song would play when clicking next or previous after moving current song in playlist during playback
+- Fixed bug where wrong song would play when clicking next or previous after moving current song in playlist during playback
 
 - Fixed bug where playback scrubber does not go back to start when changing tracks
 
@@ -11,9 +25,7 @@ v0.82
 
 v0.81:
 
-- Updated "About" screen with licensing information and hyperlinks
-
-- Updated application folder to reflect application name
+- Updated application folder to accurately reflect application name
 
 - Added ability to save/load button and playlist configurations
 

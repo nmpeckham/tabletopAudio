@@ -6,13 +6,25 @@ using TMPro;
 using UnityEngine.EventSystems;
 
 //Class to take commands from page buttons, including menu and "Stop SFX" buttons
-public class PageButtonController : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+public class PageButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     public int id;
     private Button thisButton;
     private MainAppController mac;
     private TMP_Text label;
     private bool hasPointer = false;
+
+    public string Label
+    {
+        get 
+        {
+            return label.text;
+        }
+        set
+        {
+            label.text = value;
+        }
+    }
     // Start is called before the first frame update
     void Start()
     {
@@ -36,7 +48,7 @@ public class PageButtonController : MonoBehaviour, IPointerEnterHandler, IPointe
     void Update()
     {
         if(mac.activePage != id) GetComponent<Image>().color = ResourceManager.transWhite;
-        if(hasPointer && Input.GetMouseButtonDown(1) && id > 0 && id < 7)
+        if(hasPointer && Input.GetMouseButtonDown(1) && id >= 0 && id < 7)
         {
             //Debug.Log("Clicked " + id);
             mac.EditPageLabel(label);

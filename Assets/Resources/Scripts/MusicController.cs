@@ -7,6 +7,7 @@ using UnityEngine.UI;
 using System;
 using System.Linq;
 using NLayer;
+using NVorbis;
 
 //Controls the playing of songs in the playlist
 public class MusicController : MonoBehaviour
@@ -44,7 +45,8 @@ public class MusicController : MonoBehaviour
     private List<string> playedSongs;
     private bool autoCheckForNewFiles = true;
 
-    MpegFile stream;
+    MpegFile mp3Stream;
+    VorbisReader vorbisStream;
 
     public float MusicVolume
     {
@@ -129,10 +131,7 @@ public class MusicController : MonoBehaviour
     }
 
 
-    void MP3Callback(float[] data)
-    {
-        stream.ReadSamples(data, 0, data.Length);
-    }
+
 
     IEnumerator CheckForNewFiles()
     {
@@ -142,7 +141,7 @@ public class MusicController : MonoBehaviour
             {
                 foreach (string s in System.IO.Directory.GetFiles(mac.musicDirectory))
                 {
-                    if (!LoadedFilesData.musicClips.Contains(s))
+                    if (!LoadedFilesData.musicClips.Contains(s) && (Path.GetExtension(s) == ".mp3" || Path.GetExtension(s) == ".ogg"))
                     {
                         LoadedFilesData.musicClips.Add(s);
                         GameObject listItem = Instantiate(listItemPrefab, musicScrollView.transform);
@@ -179,41 +178,48 @@ public class MusicController : MonoBehaviour
         {
             try
             {
-                MusicButton button = musicButtons[id].GetComponent<MusicButton>();
+                MusicButton button = musicButtons[buttonID].GetComponent<MusicButton>();
                 songPath = button.file;
-                stream = new MpegFile(songPath);
-                //Debug.Log(stream.Length);
-                int totalLength = (int)stream.Length / (stream.Channels * 4);
-                AudioClip clip = AudioClip.Create("a", totalLength, stream.Channels, stream.SampleRate, true, MP3Callback);
-                aSource.clip = clip;
-                aSource.time = 0;
-                aSource.Play();
-                playbackScrubber.value = 0;
-                Image buttonImage = musicButtons[id].GetComponent<Image>();
-                if (prevButtonImage != null) prevButtonImage.color = ResourceManager.grey;
-                buttonImage.color = ResourceManager.red;
+                AudioClip clip = null;
+                long totalLength = 0;
 
-                int itemID = LoadedFilesData.musicClips.IndexOf(songPath);
-                if (playedSongs.Count > 0)
+                if (Path.GetExtension(songPath) == ".mp3")
                 {
-                    if (songPath != playedSongs[playedSongs.Count - 1]) playedSongs.Add(songPath);
+                    vorbisStream = null;
+                    mp3Stream = new MpegFile(songPath);
+                    //
+                    totalLength = mp3Stream.Length / (mp3Stream.Channels * 4);
+                    Debug.Log(mp3Stream.Length > int.MaxValue);
+                    if (totalLength > int.MaxValue) totalLength = int.MaxValue;
+                    clip = AudioClip.Create(songPath, (int)totalLength, mp3Stream.Channels, mp3Stream.SampleRate, true, MP3Callback);
+                    aSource.clip = clip;
+                    SetupInterfaceForPlay();
                 }
-                else playedSongs.Add(songPath);
+                else if(Path.GetExtension(songPath) == ".ogg")
+                {
+                    mp3Stream = null;
+                    vorbisStream = new NVorbis.VorbisReader(songPath);
+                    totalLength = vorbisStream.TotalSamples;
+                    if (totalLength > int.MaxValue) totalLength = int.MaxValue;
+                    clip = AudioClip.Create(songPath, (int)totalLength, vorbisStream.Channels, vorbisStream.SampleRate, true, VorbisCallback);
+                    aSource.clip = clip;
+                    SetupInterfaceForPlay();
+                }
+                else
+                {
+                    aSource.clip = null;
+                }
 
-                prevButtonImage = buttonImage;
-                //Debug.Log(channels);
-                nowPlayingLabel.text = songPath.Replace(mac.musicDirectory + mac.sep, "");
-                musicStatusImage.sprite = ResourceManager.playImage;
             }
             catch (IndexOutOfRangeException e)
             {
                 //Debug.Log(e.Message);
-                mac.ShowErrorMessage("MP3 Encoding Type Invalid: 0. " + e.Message);
+                mac.ShowErrorMessage("Encoding Type Invalid: 0. " + e.Message);
             }
             catch (ArgumentException e)
             {
                 //Debug.Log(e.Message);
-                mac.ShowErrorMessage("MP3 Encoding Type Invalid: 1. " + e.Message);
+                mac.ShowErrorMessage("Encoding Type Invalid: 1. " + e.Message);
             }
             catch (Exception e)
             {
@@ -221,6 +227,46 @@ public class MusicController : MonoBehaviour
                 mac.ShowErrorMessage("Unknown exception: 2. " + e.Message);
             }
         }
+    }
+
+    void SetupInterfaceForPlay()
+    {
+        
+        aSource.time = 0;
+        aSource.Play();
+        playbackScrubber.value = 0;
+        Image buttonImage = musicButtons[buttonID].GetComponent<Image>();
+        if (prevButtonImage != null) prevButtonImage.color = ResourceManager.grey;
+        buttonImage.color = ResourceManager.red;
+
+        int itemID = LoadedFilesData.musicClips.IndexOf(songPath);
+        if (playedSongs.Count > 0)
+        {
+            if (songPath != playedSongs[playedSongs.Count - 1]) playedSongs.Add(songPath);
+        }
+        else playedSongs.Add(songPath);
+
+        prevButtonImage = buttonImage;
+        //Debug.Log(channels);
+        nowPlayingLabel.text = songPath.Replace(mac.musicDirectory + mac.sep, "");
+        musicStatusImage.sprite = ResourceManager.playImage;
+    }
+
+    void MP3Callback(float[] data)
+    {
+        try
+        {
+            mp3Stream.ReadSamples(data, 0, data.Length);
+        }
+        catch(NullReferenceException e)
+        {
+            Stop();
+        }
+    }
+
+    void VorbisCallback(float[] data)
+    {
+        vorbisStream.ReadSamples(data, 0, data.Length);
     }
 
     public void Next()
@@ -290,10 +336,6 @@ public class MusicController : MonoBehaviour
                     }
                     playedSongs.RemoveAt(playedSongs.Count - 1);
                     ItemSelected(buttonID);
-                    foreach (string s in playedSongs)
-                    {
-                        print(s);
-                    }
 
                 }
                 else
@@ -321,7 +363,8 @@ public class MusicController : MonoBehaviour
         isPaused = false;
         aSource.clip = null;
         if (prevButtonImage != null) prevButtonImage.color = ResourceManager.grey;
-        if(stream != null) stream.Dispose();
+        if(mp3Stream != null) mp3Stream.Dispose();
+        if (vorbisStream != null) vorbisStream.Dispose();
         musicStatusImage.sprite = ResourceManager.stopImage;
         nowPlayingLabel.text = "";
     }
@@ -382,7 +425,8 @@ public class MusicController : MonoBehaviour
             {
                 if (Mathf.Abs(val - (aSource.time / aSource.clip.length)) > 0.01)
                 {
-                    stream.Position = Convert.ToInt64(stream.Length * val);
+                    if (mp3Stream != null) mp3Stream.Position = Convert.ToInt64(mp3Stream.Length * val);
+                    else if (vorbisStream != null) vorbisStream.DecodedPosition = Convert.ToInt64(vorbisStream.TotalSamples * val);
                     aSource.time = val * aSource.clip.length;
                 }
             }

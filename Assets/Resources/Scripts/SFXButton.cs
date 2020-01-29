@@ -11,11 +11,12 @@ using NLayer;
 //Base class for sfx buttons
 public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
-    internal string clipID = null;
+    internal string clipPath = null;
     internal int page;
     internal int id;
     private ButtonEditorController bec;
     public FileSelectViewController vc;
+    private MainAppController mac;
     private Button thisButton;
     private bool hasPointer = false;
     public AudioSource aSource;
@@ -82,14 +83,7 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     public bool RandomizeLoopDelay { get; set; } = false;
     void Start()
     {
-        //Debug.Log("Start");
-
         TMPLabel = GetComponentInChildren<TMP_Text>();
-        //if (id == 1 && page == 0)
-        //{
-        //    Debug.Log(TMPLabel.name);
-        //    TMPLabel.SetText("hello");
-        //}
         thisButton = GetComponent<Button>();
         thisButton.onClick.AddListener(Clicked);
         vc = Camera.main.GetComponent<FileSelectViewController>();
@@ -100,7 +94,7 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         playBackBar = GetComponentInChildren<PlaybackTimer>().gameObject;
         volumeSlider = GetComponentInChildren<Slider>();
         playbackBarRect = playBackBar.GetComponent<RectTransform>();
-
+        mac = Camera.main.GetComponent<MainAppController>();
         volumeSlider.onValueChanged.AddListener(ChangeLocalVolume);
     }
 
@@ -119,9 +113,16 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     private void ChangeLocalVolume(float newLocalVol)
     {
-        Debug.Log("Vol Changed");
+        //Debug.Log("Vol Changed");
         LocalVolume = newLocalVol;
         aSource.volume = LocalVolume * masterVolume;
+    }
+
+    internal void ClearActiveClip()
+    {
+        aSource.clip = null;
+        if (stream != null) stream.Dispose();
+        if (vorbis != null) vorbis.Dispose();
     }
 
     public void Stop()
@@ -130,20 +131,23 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         play = false;
         bgImage.color = ResourceManager.transWhite;
         aSource.Stop();
+        aSource.clip = null;
+        if (stream != null) stream.Dispose();
+        if (vorbis != null) vorbis.Dispose();
     }
 
     public void Play()
     {
         //if (stream != null) stream.Dispose();
 
-        if(!string.IsNullOrEmpty(clipID))
+        if(!string.IsNullOrEmpty(clipPath))
         {
-            if (clipID.Contains(".mp3"))
+            if (Path.GetExtension(clipPath) == ".mp3")
             {
                 StreamMP3File();
                 PlayValidFile();
             }
-            else if (clipID.Contains(".ogg"))
+            else if (Path.GetExtension(clipPath) == ".ogg")
             {
                 StreamOggFile();
                 PlayValidFile();
@@ -165,23 +169,40 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     void StreamMP3File()
     {
-        stream = new MpegFile(clipID);
-        int clipSize = (int)(stream.Length * 2.77f); //Clip length does not equal an integer product of samples for some reason?
-        int sampleRate = stream.SampleRate;
-        AudioClip newClip = AudioClip.Create(clipID, clipSize, 2, sampleRate, true, Mp3Callback);
-        aSource.clip = newClip;
+        if (stream != null) stream.Dispose();
+        try
+        {
+            stream = new MpegFile(clipPath);
+            long clipSize = stream.Length / (stream.Channels * 4);
+            if (int.MaxValue < stream.Length) clipSize = int.MaxValue;
+            int sampleRate = stream.SampleRate;
+            AudioClip newClip = AudioClip.Create(clipPath, (int)clipSize, stream.Channels, sampleRate, true, Mp3Callback);
+            aSource.clip = newClip;
+        }
+        catch(FileNotFoundException)
+        {
+            mac.ShowErrorMessage("File not found! Was it deleted?");
+        }
+
     }
 
     void StreamOggFile()
     {
         if (vorbis != null) vorbis.Dispose();
-        vorbis = new NVorbis.VorbisReader(clipID);
-        int clipSize = (int)vorbis.TotalSamples;
-        int sampleRate = vorbis.SampleRate;
-        AudioClip newClip = AudioClip.Create(clipID, clipSize, 2, sampleRate, true, VorbisCallback);
+        try
+        {
+            vorbis = new NVorbis.VorbisReader(clipPath);
+            long clipSize = vorbis.TotalSamples;
+            int sampleRate = vorbis.SampleRate;
+            AudioClip newClip = AudioClip.Create(clipPath, (int)clipSize, 2, sampleRate, true, VorbisCallback);
+            vorbisPosition = TimeSpan.Zero;
+            aSource.clip = newClip;
+        }
+        catch(FileNotFoundException)
+        {
+            mac.ShowErrorMessage("File not found! Was it deleted?");
+        }
 
-        vorbisPosition = TimeSpan.Zero;
-        aSource.clip = newClip;
     }
 
     void VorbisCallback(float[] data)
@@ -214,7 +235,7 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
             bec.StartEditing(id);
 
         }
-        if (!aSource.isPlaying && bgImage.color == ResourceManager.green && !Loop) bgImage.color = ResourceManager.transWhite;
+        if (!aSource.isPlaying && bgImage.color == ResourceManager.green && !Loop) Stop();
         if(!aSource.isPlaying && Loop && !waiting && play)
         {
             StartCoroutine("WaitForLoopDelay");
@@ -232,8 +253,8 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         }
 
         //prevent playback bar from showing after clip has been removed
-        if (string.IsNullOrEmpty(clipID) && playbackBarRect.gameObject.activeSelf) playbackBarRect.gameObject.SetActive(false);
-        else if (!string.IsNullOrEmpty(clipID) && !playbackBarRect.gameObject.activeSelf) playbackBarRect.gameObject.SetActive(true);
+        if (string.IsNullOrEmpty(clipPath) && playbackBarRect.gameObject.activeSelf) playbackBarRect.gameObject.SetActive(false);
+        else if (!string.IsNullOrEmpty(clipPath) && !playbackBarRect.gameObject.activeSelf) playbackBarRect.gameObject.SetActive(true);
     }
 
 

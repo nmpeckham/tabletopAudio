@@ -14,6 +14,7 @@ public class MainAppController : MonoBehaviour
 {
     internal const int NUMPAGES = 7;
     internal const int NUMBUTTONS = 35;
+    internal const string VERSION = "v0.83";
 
     internal string mainDirectory;
     internal string musicDirectory;
@@ -25,7 +26,10 @@ public class MainAppController : MonoBehaviour
 
     public PageParent[] pageParents;
     public GameObject sfxButtonPrefab;
-    public List<List<GameObject>> SFXButtons;
+
+    public List<GameObject> pageButtons;
+
+    public List<List<GameObject>> sfxButtons;
     private MusicController mc;
     private EditPageLabel epl;
 
@@ -40,16 +44,16 @@ public class MainAppController : MonoBehaviour
     {
         //Screen.fullScreen = false;
         //Screen.SetResolution(800, 500, false);
+        sfxButtons = new List<List<GameObject>>();
         epl = GetComponent<EditPageLabel>();
-        SFXButtons = new List<List<GameObject>>();
         pageParents = GameObject.FindObjectsOfType<PageParent>();
         mc = GetComponent<MusicController>();
 
         sep = System.IO.Path.DirectorySeparatorChar;
-        mainDirectory = System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyMusic) + sep + "TableTopAudio";
-        musicDirectory = mainDirectory + sep + "music";
-        sfxDirectory = mainDirectory + sep + "sound effects";
-        saveDirectory = mainDirectory + sep + "saves";
+        mainDirectory = Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyMusic) , "TableTopAudio");
+        musicDirectory = Path.Combine(mainDirectory, "music");
+        sfxDirectory = Path.Combine(mainDirectory, "sound effects");
+        saveDirectory = Path.Combine(mainDirectory, "saves");
 
         if (!System.IO.Directory.Exists(mainDirectory))
         {
@@ -80,21 +84,17 @@ public class MainAppController : MonoBehaviour
 
     internal bool MakeSFXButtons()
     {
-        SFXButtons.Clear();
+        sfxButtons.Clear();
         for (int i = 0; i < NUMPAGES; i++)
         {
-            //pageParents[i].gameObject.SetActive(false);
-            SFXButtons.Add(new List<GameObject>());
+            sfxButtons.Add(new List<GameObject>());
             for (int j = 0; j < NUMBUTTONS; j++)
             {
                 GameObject button = Instantiate(sfxButtonPrefab, pageParents[i].transform);
                 SFXButton btn = button.GetComponent<SFXButton>();
                 btn.id = j;
                 btn.page = i;
-                //btn.Label = i.ToString() + ", " + j.ToString();
-                //Debug.Log(SFXButtons.Count);
-                //Debug.Log(i);
-                SFXButtons[i].Add(button);
+                sfxButtons[i].Add(button);
             }
         }
         return true;
@@ -105,7 +105,7 @@ public class MainAppController : MonoBehaviour
         switch (id)
         {
             case "STOP-SFX":
-                foreach (List<GameObject> page in SFXButtons)
+                foreach (List<GameObject> page in sfxButtons)
                 {
                     foreach (GameObject obj in page)
                     {
