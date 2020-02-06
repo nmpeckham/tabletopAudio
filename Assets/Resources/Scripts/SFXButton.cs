@@ -48,6 +48,15 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     int vorbisCount;
     RectTransform playbackBarRect;
 
+    public Button fadeInButton;
+    public Button fadeOutButton;
+    public Button sliderButton;
+
+    Coroutine activeFadeInRoutine;
+    Coroutine activeFadeOutRoutine;
+
+    const float FADE_RATE = 0.005f;
+
     internal string Label { 
         get
         {
@@ -56,7 +65,6 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         set 
         {
             label = value;
-            //TMPLabel = GetComponentInChildren<TMP_Text>();
             TMPLabel.SetText(label);
             
         }
@@ -71,8 +79,22 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
         set
         {
+            Debug.Log(Mathf.Abs(value - localVolume));
+            if (Mathf.Abs(Mathf.Abs(value - localVolume) - FADE_RATE) > FADE_RATE)
+            {
+                if (activeFadeInRoutine != null)
+                {
+                    StopCoroutine(activeFadeInRoutine);
+                    activeFadeInRoutine = null;
+                }
+
+                if (activeFadeOutRoutine != null)
+                {
+                    StopCoroutine(activeFadeOutRoutine);
+                    activeFadeOutRoutine = null;
+                }
+            }
             localVolume = value;
-            //volumeSlider = GetComponentInChildren<Slider>();
             volumeSlider.value = value;
         }
     }
@@ -83,6 +105,8 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     public bool RandomizeLoopDelay { get; set; } = false;
     void Start()
     {
+        fadeInButton.onClick.AddListener(FadeIn);
+        fadeOutButton.onClick.AddListener(FadeOut);
         TMPLabel = GetComponentInChildren<TMP_Text>();
         thisButton = GetComponent<Button>();
         thisButton.onClick.AddListener(Clicked);
@@ -96,7 +120,63 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         playbackBarRect = playBackBar.GetComponent<RectTransform>();
         mac = Camera.main.GetComponent<MainAppController>();
         volumeSlider.onValueChanged.AddListener(ChangeLocalVolume);
+        sliderButton = volumeSlider.GetComponentInChildren<Button>();
+        sliderButton.onClick.AddListener(SliderButtonClicked);
     }
+
+    void SliderButtonClicked()
+    {
+        Debug.Log("clicked");
+        if (activeFadeOutRoutine != null) StopCoroutine(activeFadeOutRoutine);
+        if (activeFadeInRoutine != null) StopCoroutine(activeFadeInRoutine);
+    }
+
+    void FadeIn()
+    {
+        if (activeFadeOutRoutine != null)
+        {
+            StopCoroutine(activeFadeOutRoutine);
+            activeFadeOutRoutine = null;
+        }
+        activeFadeInRoutine = StartCoroutine(FadeInRoutine());
+    }
+
+    void FadeOut()
+    {
+        if (activeFadeInRoutine != null)
+        {
+            StopCoroutine(activeFadeInRoutine);
+            activeFadeInRoutine = null;
+        }
+        activeFadeOutRoutine = StartCoroutine(FadeOutRoutine());
+    }
+
+    IEnumerator FadeInRoutine()
+    {
+        for(int i = 0; i < 100; i++)
+        {
+            while (localVolume < 1f)
+            {
+                ChangeLocalVolume(localVolume + FADE_RATE);
+                yield return new WaitForSecondsRealtime(0.01f);
+            }
+        }
+        yield return null;
+    }
+
+    IEnumerator FadeOutRoutine()
+    {
+        for (int i = 0; i < 100; i++)
+        {
+            while (localVolume > 0f)
+            {
+                ChangeLocalVolume(localVolume - FADE_RATE);
+                yield return new WaitForSecondsRealtime(0.01f);
+            }
+        }
+        yield return null;
+    }
+
 
     void Clicked()
     {
@@ -284,11 +364,13 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     public void OnPointerEnter(PointerEventData eventData)
     {
+
         hasPointer = true;
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
+
         hasPointer = false;
     }
 }

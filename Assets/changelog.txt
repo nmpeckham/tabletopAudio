@@ -1,6 +1,11 @@
 TableTopAudio Changelog
 
+v0.84
+
+- Added fade-in and fade-out buttons to sound effects
+
 v0.83
+
 - Fixed bug where non-playable files could be loaded into playlist
 
 - Added ability to play ogg vorbis files in the playlist
