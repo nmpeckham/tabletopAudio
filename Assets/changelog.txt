@@ -1,5 +1,17 @@
 TableTopAudio Changelog
 
+v0.85
+
+- Fixed file name text alignment in SFX button edit page
+
+- Removed file extension from button label by default
+
+- Enabled scrolling on playlist
+
+- Fixed items overflowing when selecting file for SFX button
+
+- Added more explicit errors on filetype not supported
+
 v0.84
 
 - Added fade-in and fade-out buttons to sound effects

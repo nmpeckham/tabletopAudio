@@ -110,6 +110,8 @@ public class ButtonEditorController : MonoBehaviour
         else button.MinLoopDelay = 0;
         if(clipID == null) button.clipPath = "";
         else button.clipPath = clipID;
+
+        Debug.Log(System.IO.Path.GetExtension(buttonLabelInput.text));
         string newText = buttonLabelInput.text.Replace(mac.sfxDirectory + mac.sep, "");
         button.Label = newText;
         button.GetComponentInChildren<TMP_Text>().text = newText;
@@ -156,8 +158,10 @@ public class ButtonEditorController : MonoBehaviour
 
         newClip = clip;
         clipID = newClipID;
-        fileNameLabel.text = clipID.Replace(mac.sfxDirectory+mac.sep, "");
-        buttonLabelInput.text = clipID.Replace(mac.sfxDirectory + mac.sep, "");
+        //Debug.Log(clipID.Replace(mac.sfxDirectory + mac.sep, ""));
+        string newLabel = clipID.Replace(mac.sfxDirectory + mac.sep, "").Replace(System.IO.Path.GetExtension(clipID), "");
+        fileNameLabel.text = newLabel;
+        buttonLabelInput.text = newLabel;
     }
 
     //Called when file is cleared
