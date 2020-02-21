@@ -1,6 +1,6 @@
 TableTopAudio Changelog
 
-v0.85
+v0.85 
 
 - Fixed file name text alignment in SFX button edit page
 
