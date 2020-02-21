@@ -17,7 +17,7 @@ public class FadeButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     }
     public void OnPointerEnter(PointerEventData eventData)
     {
-        //Debug.Log("entered");
+        Debug.Log("entered");
         tooltip = Instantiate(tooltipPrefab, tooltipParent.transform);
         tooltip.transform.position = (new Vector3(Input.mousePosition.x + tooltip.GetComponent<RectTransform>().rect.width / 2, Input.mousePosition.y + tooltip.GetComponent<RectTransform>().rect.height / 2, -1));
         tooltip.GetComponentInChildren<TMP_Text>().text = id == 0 ? "Fade In": "Fade Out";

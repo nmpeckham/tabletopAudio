@@ -18,12 +18,11 @@ public class MusicController : MonoBehaviour
 
     public GameObject listItemPrefab;
     public GameObject musicScrollView;
-    public GameObject rightClickMenu;
 
     public TMP_Text nowPlayingLabel;
     private Image prevButtonImage = null;
     private string songPath = "";
-    internal int nowPlayingButtonID = -1;
+    internal int buttonID = -1;
 
     private float musicVolume = 1f;
     private float masterVolume = 1f;
@@ -48,25 +47,6 @@ public class MusicController : MonoBehaviour
 
     MpegFile mp3Stream;
     VorbisReader vorbisStream;
-
-    int buttonWithCursor;
-    private GameObject activeRightClickMenu;
-
-    public int ButtonWithCursor
-    {
-        get
-        {
-            return buttonWithCursor;
-        }
-        set
-        {
-            if(buttonWithCursor != -1)
-            {
-                Destroy(activeRightClickMenu);
-            }
-            buttonWithCursor = value;
-        }
-    }
 
     public float MusicVolume
     {
@@ -103,7 +83,6 @@ public class MusicController : MonoBehaviour
 
         set
         {
-            LoadedFilesData.deletedMusicClips.Clear();
             autoCheckForNewFiles = value;
         }
     }
@@ -124,7 +103,6 @@ public class MusicController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        buttonWithCursor = -1;
         vc = GetComponent<VolumeController>();
         playedSongs = new List<string>();
         musicButtons = new List<GameObject>();
@@ -163,7 +141,7 @@ public class MusicController : MonoBehaviour
             {
                 foreach (string s in System.IO.Directory.GetFiles(mac.musicDirectory))
                 {
-                    if (!LoadedFilesData.musicClips.Contains(s) && (Path.GetExtension(s) == ".mp3" || Path.GetExtension(s) == ".ogg") && !LoadedFilesData.deletedMusicClips.Contains(s))
+                    if (!LoadedFilesData.musicClips.Contains(s) && (Path.GetExtension(s) == ".mp3" || Path.GetExtension(s) == ".ogg"))
                     {
                         LoadedFilesData.musicClips.Add(s);
                         GameObject listItem = Instantiate(listItemPrefab, musicScrollView.transform);
@@ -195,12 +173,12 @@ public class MusicController : MonoBehaviour
 
     public void ItemSelected(int id)
     {
-        nowPlayingButtonID = id;
+        buttonID = id;
         if (musicButtons.Count > 0)
         {
             try
             {
-                MusicButton button = musicButtons[nowPlayingButtonID].GetComponent<MusicButton>();
+                MusicButton button = musicButtons[buttonID].GetComponent<MusicButton>();
                 songPath = button.file;
                 AudioClip clip = null;
                 long totalLength = 0;
@@ -257,10 +235,11 @@ public class MusicController : MonoBehaviour
         aSource.time = 0;
         aSource.Play();
         playbackScrubber.value = 0;
-        Image buttonImage = musicButtons[nowPlayingButtonID].GetComponent<Image>();
+        Image buttonImage = musicButtons[buttonID].GetComponent<Image>();
         if (prevButtonImage != null) prevButtonImage.color = ResourceManager.grey;
         buttonImage.color = ResourceManager.red;
 
+        int itemID = LoadedFilesData.musicClips.IndexOf(songPath);
         if (playedSongs.Count > 0)
         {
             if (songPath != playedSongs[playedSongs.Count - 1]) playedSongs.Add(songPath);
@@ -295,24 +274,24 @@ public class MusicController : MonoBehaviour
         if(shuffle)
         {
             int newButtonID = UnityEngine.Random.Range(0, LoadedFilesData.musicClips.Count);
-            while(nowPlayingButtonID == newButtonID)
+            while(buttonID == newButtonID)
             {
                 newButtonID = UnityEngine.Random.Range(0, LoadedFilesData.musicClips.Count);
             }
-            nowPlayingButtonID = newButtonID;
-            ItemSelected(nowPlayingButtonID);
+            buttonID = newButtonID;
+            ItemSelected(buttonID);
         }
         else
         {
-            if (nowPlayingButtonID == musicButtons.Count - 1)
+            if (buttonID == musicButtons.Count - 1)
             {
-                nowPlayingButtonID = 0;
+                buttonID = 0;
                 ItemSelected(0);
             }
             else
             {
-                nowPlayingButtonID++;
-                ItemSelected(nowPlayingButtonID);
+                buttonID++;
+                ItemSelected(buttonID);
             }
 
         }
@@ -330,20 +309,20 @@ public class MusicController : MonoBehaviour
                 {
                     foreach (GameObject mb in musicButtons)
                     {
-                        if (mb.GetComponent<MusicButton>().file == playedSongs[playedSongs.Count - 2]) nowPlayingButtonID = mb.GetComponent<MusicButton>().id;
+                        if (mb.GetComponent<MusicButton>().file == playedSongs[playedSongs.Count - 2]) buttonID = mb.GetComponent<MusicButton>().id;
                     }
                     playedSongs.RemoveAt(playedSongs.Count - 1);
-                    ItemSelected(nowPlayingButtonID);
+                    ItemSelected(buttonID);
                 }
                 else
                 {
                     int newButtonID = UnityEngine.Random.Range(0, LoadedFilesData.musicClips.Count);
-                    while (nowPlayingButtonID == newButtonID)
+                    while (buttonID == newButtonID)
                     {
                         newButtonID = UnityEngine.Random.Range(0, LoadedFilesData.musicClips.Count);
                     }
-                    nowPlayingButtonID = newButtonID;
-                    ItemSelected(nowPlayingButtonID);
+                    buttonID = newButtonID;
+                    ItemSelected(buttonID);
                 }
             }
 
@@ -353,24 +332,24 @@ public class MusicController : MonoBehaviour
                 {
                     foreach (GameObject mb in musicButtons)
                     {
-                        if (mb.GetComponent<MusicButton>().file == playedSongs[playedSongs.Count - 2]) nowPlayingButtonID = mb.GetComponent<MusicButton>().id;
+                        if (mb.GetComponent<MusicButton>().file == playedSongs[playedSongs.Count - 2]) buttonID = mb.GetComponent<MusicButton>().id;
                     }
                     playedSongs.RemoveAt(playedSongs.Count - 1);
-                    ItemSelected(nowPlayingButtonID);
+                    ItemSelected(buttonID);
 
                 }
                 else
                 {
-                    if (nowPlayingButtonID > 0)
+                    if (buttonID > 0)
                     {
-                        nowPlayingButtonID--;
-                        ItemSelected(nowPlayingButtonID);
+                        buttonID--;
+                        ItemSelected(buttonID);
                         playedSongs.RemoveAt(playedSongs.Count - 1);
                     }
                     else
                     {
-                        nowPlayingButtonID = musicButtons.Count - 1;
-                        ItemSelected(nowPlayingButtonID);
+                        buttonID = musicButtons.Count - 1;
+                        ItemSelected(buttonID);
                         playedSongs.RemoveAt(playedSongs.Count - 1);
                     }
                 }
@@ -409,8 +388,8 @@ public class MusicController : MonoBehaviour
         }
         else if(shuffle)
         {
-            nowPlayingButtonID = UnityEngine.Random.Range(0, LoadedFilesData.musicClips.Count - 1);
-            ItemSelected(nowPlayingButtonID);
+            buttonID = UnityEngine.Random.Range(0, LoadedFilesData.musicClips.Count - 1);
+            ItemSelected(buttonID);
         }
         else ItemSelected(0);
     }
@@ -420,7 +399,6 @@ public class MusicController : MonoBehaviour
         musicButtons[oldID].GetComponent<MusicButton>().id = newID;
         musicButtons[newID].GetComponent<MusicButton>().id = oldID;
         GameObject item = musicButtons[oldID];
-        nowPlayingButtonID = newID;
         musicButtons.Remove(item);
         musicButtons.Insert(newID, item);
     }
@@ -464,26 +442,26 @@ public class MusicController : MonoBehaviour
         if(!aSource.isPlaying && aSource.clip != null && !isPaused)
         {
             prevButtonImage.color = ResourceManager.grey;
-            if (nowPlayingButtonID < musicButtons.Count - 1)
+            if (buttonID < musicButtons.Count - 1)
             {
-                int newbuttonID = shuffle ? UnityEngine.Random.Range(0, musicButtons.Count - 1) : nowPlayingButtonID + 1;
-                while (newbuttonID == nowPlayingButtonID)
+                int newbuttonID = shuffle ? UnityEngine.Random.Range(0, musicButtons.Count - 1) : buttonID + 1;
+                while (newbuttonID == buttonID)
                 {
                     newbuttonID = shuffle ? UnityEngine.Random.Range(0, musicButtons.Count - 1) : 0;
                 }
-                nowPlayingButtonID = newbuttonID;
-                ItemSelected(nowPlayingButtonID);
+                buttonID = newbuttonID;
+                ItemSelected(buttonID);
             }
             else
             {
 
                 int newbuttonID = shuffle ? UnityEngine.Random.Range(0, musicButtons.Count - 1) : 0;
-                while(newbuttonID == nowPlayingButtonID)
+                while(newbuttonID == buttonID)
                 {
                     newbuttonID = shuffle ? UnityEngine.Random.Range(0, musicButtons.Count - 1) : 0;
                 }
-                nowPlayingButtonID = newbuttonID;
-                ItemSelected(nowPlayingButtonID);
+                buttonID = newbuttonID;
+                ItemSelected(buttonID);
             }
 
         }
@@ -492,36 +470,5 @@ public class MusicController : MonoBehaviour
             playbackScrubber.value = aSource.time / aSource.clip.length;
             playbackTimerText.text = Mathf.Floor(aSource.time / 60).ToString() + ":" + (Mathf.FloorToInt(aSource.time % 60)).ToString("D2") + "/" + Mathf.FloorToInt(aSource.clip.length / 60) + ":" + Mathf.FloorToInt(aSource.clip.length % 60).ToString("D2");
         }
-    }
-    public void ShowRightClickMenu()
-    {
-        Destroy(activeRightClickMenu);
-        activeRightClickMenu = Instantiate(rightClickMenu, Input.mousePosition, Quaternion.identity, musicButtons[ButtonWithCursor].transform);
-        RectTransform menuRect = rightClickMenu.GetComponent<RectTransform>();
-        //Debug.Log(menuRect.rect.width);
-        activeRightClickMenu.transform.position += new Vector3(menuRect.rect.width, menuRect.rect.height);
-    }
-    public void DeleteItem()
-
-    {
-        if (nowPlayingButtonID == buttonWithCursor)
-        {
-            Stop();
-            nowPlayingButtonID = -1;
-        }
-        LoadedFilesData.deletedMusicClips.Add(LoadedFilesData.musicClips[buttonWithCursor]);
-        LoadedFilesData.musicClips.Remove(LoadedFilesData.musicClips[buttonWithCursor]);
-        Destroy(musicButtons[buttonWithCursor]);
-        musicButtons.RemoveAt(buttonWithCursor);
-        int currentID = 0;
-        foreach(GameObject mbObj in musicButtons)
-        {
-            MusicButton mb = mbObj.GetComponent<MusicButton>();
-            Debug.Log(mb.id);
-            Debug.Log(currentID);
-            mb.id = currentID;
-            currentID++;
-        }
-        
     }
 }

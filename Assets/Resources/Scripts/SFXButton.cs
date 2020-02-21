@@ -79,7 +79,7 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
         set
         {
-            //Debug.Log(Mathf.Abs(value - localVolume));
+            Debug.Log(Mathf.Abs(value - localVolume));
             if (Mathf.Abs(Mathf.Abs(value - localVolume) - FADE_RATE) > FADE_RATE)
             {
                 if (activeFadeInRoutine != null)
@@ -222,20 +222,19 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
         if(!string.IsNullOrEmpty(clipPath))
         {
-            string extension = Path.GetExtension(clipPath);
-            if (extension == ".mp3")
+            if (Path.GetExtension(clipPath) == ".mp3")
             {
                 StreamMP3File();
                 PlayValidFile();
             }
-            else if (extension == ".ogg")
+            else if (Path.GetExtension(clipPath) == ".ogg")
             {
                 StreamOggFile();
                 PlayValidFile();
             }
             else
             {
-                mac.ShowErrorMessage(extension + " file type not supported");
+                //TODO: Error message for unsupported file type;
             }
         }
     }

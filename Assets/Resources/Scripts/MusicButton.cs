@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 //Class for music items in the playlist
-public class MusicButton : MonoBehaviour, IPointerEnterHandler
+public class MusicButton : MonoBehaviour
 {
     Button thisButton;
     public int id = -1;
@@ -34,15 +34,6 @@ public class MusicButton : MonoBehaviour, IPointerEnterHandler
     // Update is called once per frame
     void Update()
     {
-        timeSinceClick += 0.1f;     
-        if(Input.GetMouseButtonDown(1) && mc.ButtonWithCursor == id)
-        {
-            mc.ShowRightClickMenu();
-        }
-    }
-
-    public void OnPointerEnter(PointerEventData eventData)
-    {
-        mc.ButtonWithCursor = id;
+        timeSinceClick += 0.1f;        
     }
 }
