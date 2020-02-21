@@ -27,36 +27,33 @@ public class MoveMusicButton : MonoBehaviour, IPointerDownHandler, IPointerUpHan
     {
         if (buttonWithMouse == buttonTransform.GetSiblingIndex() && Input.GetMouseButton(0))
         {
-
             if ((Input.mousePosition.y - mousePos.y) > buttonRectTransform.rect.height)
             {
-                //mb.id--;
                 if ((buttonTransform.GetSiblingIndex() - 1) >= 0)
                 {
-                    mc.RefreshSongOrder(buttonTransform.GetSiblingIndex(), buttonTransform.GetSiblingIndex() - 1);
-                    buttonTransform.SetSiblingIndex(buttonTransform.GetSiblingIndex() - 1);
+                    int newIndex = buttonTransform.GetSiblingIndex() - 1;
+                    mc.RefreshSongOrder(newIndex + 1, newIndex);
+                    buttonTransform.SetSiblingIndex(newIndex);
+
                     buttonWithMouse--;
                     mousePos = Input.mousePosition;
-                    mc.buttonID -= 1;
+                    mc.nowPlayingButtonID -= 1;
                 }
-                
             }
+
             if ((Input.mousePosition.y - mousePos.y) < -buttonRectTransform.rect.height)
             {
-                //mb.id++;
                 if ((buttonTransform.GetSiblingIndex() + 1) <= buttonTransform.parent.childCount - 1)
                 {
                     int newIndex = buttonTransform.GetSiblingIndex() + 1;
-                    //Debug.Log(newIndex);
-                    mc.RefreshSongOrder(buttonTransform.GetSiblingIndex(), newIndex);
+                    mc.RefreshSongOrder(newIndex - 1, newIndex);
                     buttonTransform.SetSiblingIndex(newIndex);
+
                     buttonWithMouse++;
                     mousePos = Input.mousePosition;
-                    mc.buttonID += 1;
+                    mc.nowPlayingButtonID += 1;
                 }
-
             }
-
         }
     }
 
@@ -68,6 +65,11 @@ public class MoveMusicButton : MonoBehaviour, IPointerDownHandler, IPointerUpHan
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        buttonWithMouse = -1;
+        // Using a scroll view with this movable item setup triggers "OnpointerUp" when the mouse leaves the button
+        // So double check if the mouse has _really_ been released
+        if(!Input.GetMouseButton(0))
+        {
+            buttonWithMouse = -1;
+        }
     }
 }
