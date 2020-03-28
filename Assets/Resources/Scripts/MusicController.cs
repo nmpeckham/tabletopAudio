@@ -44,7 +44,7 @@ public class MusicController : MonoBehaviour
     private VolumeController vc;
 
     private List<string> playedSongs;
-    private bool autoCheckForNewFiles = true;
+    private bool autoCheckForNewFiles = false;
 
     MpegFile mp3Stream;
     VorbisReader vorbisStream;
@@ -161,6 +161,22 @@ public class MusicController : MonoBehaviour
         {
             if (autoCheckForNewFiles)
             {
+                List<GameObject> toDelete = new List<GameObject>();
+                foreach (string s in LoadedFilesData.musicClips)
+                {
+                    string[] files = System.IO.Directory.GetFiles(mac.musicDirectory);
+                    if (!files.Contains(s))
+                    {
+                        toDelete.Add(musicButtons[LoadedFilesData.musicClips.IndexOf(s)]);
+                    }
+                }
+                foreach (GameObject g in toDelete)
+                {
+                    LoadedFilesData.musicClips.Remove(g.GetComponent<MusicButton>().file);
+                    musicButtons.Remove(g);
+                    Destroy(g);
+
+                }
                 foreach (string s in System.IO.Directory.GetFiles(mac.musicDirectory))
                 {
                     if (!LoadedFilesData.musicClips.Contains(s) && (Path.GetExtension(s) == ".mp3" || Path.GetExtension(s) == ".ogg") && !LoadedFilesData.deletedMusicClips.Contains(s))
@@ -173,21 +189,14 @@ public class MusicController : MonoBehaviour
                         musicButtons.Add(listItem);
                     }
                 }
-                List<GameObject> toDelete = new List<GameObject>();
-                foreach (string s in LoadedFilesData.musicClips)
+                int id = 0;
+                foreach(GameObject g in musicButtons)
                 {
-                    string[] files = System.IO.Directory.GetFiles(mac.musicDirectory);
-                    if (!files.Contains(s))
-                    {
-                        toDelete.Add(musicButtons[LoadedFilesData.musicClips.IndexOf(s)]);
-                    }
-                }
-                foreach (GameObject g in toDelete)
-                {
-                    LoadedFilesData.musicClips.RemoveAt(g.GetComponent<MusicButton>().id);
-                    Destroy(g);
 
+                    g.GetComponent<MusicButton>().id = id;
+                    id++;
                 }
+                
             }
             yield return new WaitForSeconds(1);
         }
@@ -200,6 +209,8 @@ public class MusicController : MonoBehaviour
         {
             try
             {
+                Debug.Log(musicButtons.Count);
+                Debug.Log(nowPlayingButtonID);
                 MusicButton button = musicButtons[nowPlayingButtonID].GetComponent<MusicButton>();
                 songPath = button.file;
                 AudioClip clip = null;
@@ -232,23 +243,23 @@ public class MusicController : MonoBehaviour
                     aSource.clip = null;
                 }
 
-            }
-            catch (IndexOutOfRangeException e)
-            {
-                //Debug.Log(e.Message);
-                mac.ShowErrorMessage("Encoding Type Invalid: 0. " + e.Message);
-            }
-            catch (ArgumentException e)
-            {
-                //Debug.Log(e.Message);
-                mac.ShowErrorMessage("Encoding Type Invalid: 1. " + e.Message);
-            }
-            catch (Exception e)
-            {
-                //Debug.Log(e.Message);
-                mac.ShowErrorMessage("Unknown exception: 2. " + e.Message);
-            }
         }
+            catch (IndexOutOfRangeException e)
+        {
+            //Debug.Log(e.Message);
+            mac.ShowErrorMessage("Encoding Type Invalid: 0. " + e.Message);
+        }
+        catch (ArgumentException e)
+        {
+            //Debug.Log(e.Message);
+            mac.ShowErrorMessage("Encoding Type Invalid: 1. " + e.Message);
+        }
+        catch (Exception e)
+        {
+            //Debug.Log(e.Message);
+            mac.ShowErrorMessage("Unknown exception: 2. " + e.Message);
+        }
+    }
     }
 
     void SetupInterfaceForPlay()

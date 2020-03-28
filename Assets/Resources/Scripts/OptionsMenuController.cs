@@ -17,6 +17,14 @@ public class OptionsMenuController : MonoBehaviour
     public Button about;
     public Button closeAbout;
     public Button closeLoadSelection;
+    public Button changeSaveRootDirectoryButton;
+    public Button changeDefaultRootDirectoryButton;
+
+    public Button confirmChangeRootDirectory;
+    public Button cancelChangeRootDirectory;
+
+    public Button cancelChangeCurrentDirectoryWarningButton;
+    public Button confirmChangeCurrentDirectoryWarningButton;
 
     public Button acceptSaveName;
     public Button closeSaveNameMenu;
@@ -30,13 +38,27 @@ public class OptionsMenuController : MonoBehaviour
     public GameObject loadGameSelectionView;
     public GameObject loadGameScrollView;
     public GameObject loadGameItemPrefab;
+
+    public GameObject rootDirectoryPanel;
+    public GameObject rootDirectoryItemPrefab;
+    public GameObject rootDirectoryScrollList;
+    public TMP_InputField rootDirectoryInputField;
+    public TMP_Text changeDirectoryTitle;
+
     private static MainAppController mac;
     private static MusicController mc;
 
+    bool editingDefaultSaveDirectory = false;
+
+    public GameObject changeDirectoryWarningPanel;
+    string selectedRootDirectory;
 
     // Start is called before the first frame update
     void Start()
     {
+
+        //Debug.Log(Application.persistentDataPath);
+        Debug.Log(PlayerPrefs.GetInt("setupComplete"));
         mc = GetComponent<MusicController>();
         mac = GetComponent<MainAppController>();
         autoUpdatePlaylistToggle.onValueChanged.AddListener(AutoUpdateChanged);
@@ -48,6 +70,109 @@ public class OptionsMenuController : MonoBehaviour
         closeLoadSelection.onClick.AddListener(CloseLoadSelection);
         acceptSaveName.onClick.AddListener(AcceptSaveName);
         closeSaveNameMenu.onClick.AddListener(CloseSaveMenu);
+        changeSaveRootDirectoryButton.onClick.AddListener(delegate { ShowRootSelectionMenu(false); });
+        changeDefaultRootDirectoryButton.onClick.AddListener(delegate { ShowRootSelectionMenu(true); });
+
+        confirmChangeRootDirectory.onClick.AddListener(ConfirmChangeCurrentDirectory);
+        cancelChangeRootDirectory.onClick.AddListener(CancelChangeCurrentDirectory);
+        cancelChangeCurrentDirectoryWarningButton.onClick.AddListener(CancelChangeCurrentDirectoryWarning);
+        confirmChangeCurrentDirectoryWarningButton.onClick.AddListener(ConfirmChangeCurrentDirectoryWarning);
+    }
+
+    void ConfirmChangeCurrentDirectoryWarning()
+    {
+        changeDirectoryWarningPanel.SetActive(false);
+        rootDirectoryPanel.SetActive(false);
+        mac.mainDirectory = Path.Combine(selectedRootDirectory, "TableTopAudio");
+        mac.musicDirectory = Path.Combine(mac.mainDirectory, "music");
+        mac.sfxDirectory = Path.Combine(mac.mainDirectory, "sound effects");
+        mac.saveDirectory = Path.Combine(mac.mainDirectory, "saves");
+
+    }
+
+    void CancelChangeCurrentDirectoryWarning()
+    {
+        rootDirectoryPanel.SetActive(false);
+    }
+
+    internal void ShowRootSelectionMenu(bool changeDefault)
+    {
+        editingDefaultSaveDirectory = changeDefault;
+        rootDirectoryPanel.SetActive(true);
+
+        foreach (string path in Directory.GetDirectories("/")) 
+        {
+            //Debug.Log(path);
+            GameObject item = Instantiate(rootDirectoryItemPrefab, rootDirectoryScrollList.transform);
+            item.GetComponentInChildren<TMP_Text>().text = path;
+            item.GetComponentInChildren<RootDirectoryItem>().location = path;
+        }
+    }
+
+    public void RootFolderSelected(string folder) {
+        Debug.Log(folder);
+        rootDirectoryInputField.text = folder;
+        
+        selectedRootDirectory = folder;
+        Debug.Log(selectedRootDirectory);
+    }
+
+    public void RootFolderOpened(string folder)
+    {
+        try
+        {
+            rootDirectoryInputField.text = folder;
+            foreach (RootDirectoryItem a in rootDirectoryScrollList.GetComponentsInChildren<RootDirectoryItem>())
+            {
+                Destroy(a.gameObject);
+            }
+            GameObject upItem = Instantiate(rootDirectoryItemPrefab, rootDirectoryScrollList.transform);
+            //Debug.Log(folder);
+            //Debug.Log(System.IO.Directory.GetParent(folder).FullName);
+            //Debug.Log(System.IO.Directory.GetParent(folder).Name);
+
+            string parentDirectory = System.IO.Directory.GetParent(folder) == null ? "/" : System.IO.Directory.GetParent(folder).FullName;
+            upItem.GetComponentInChildren<TMP_Text>().text = parentDirectory;
+            upItem.GetComponentInChildren<RootDirectoryItem>().location = parentDirectory;
+
+            foreach (string path in System.IO.Directory.GetDirectories(folder))
+            {
+                //Debug.Log(path);
+                GameObject item = Instantiate(rootDirectoryItemPrefab, rootDirectoryScrollList.transform);
+                item.GetComponentInChildren<TMP_Text>().text = path.Replace(folder, "");
+                item.GetComponentInChildren<RootDirectoryItem>().location = path;
+
+            }
+        }
+        catch(UnauthorizedAccessException)
+        {
+            RootFolderOpened(System.IO.Directory.GetParent(folder).FullName);
+            mac.ShowErrorMessage("Permission Denied. Run the program as an administrator to fix");
+        }
+        
+    }
+
+    void ConfirmChangeCurrentDirectory()
+    {
+        if (editingDefaultSaveDirectory)
+        {
+            mac.mainDirectory = Path.Combine(selectedRootDirectory, "TableTopAudio");
+            mac.musicDirectory = Path.Combine(mac.mainDirectory, "music");
+            mac.sfxDirectory = Path.Combine(mac.mainDirectory, "sound effects");
+            mac.saveDirectory = Path.Combine(mac.mainDirectory, "saves");
+            rootDirectoryPanel.SetActive(false);
+            mac.SetupFolderStructure(mac.mainDirectory);
+            PlayerPrefs.SetString("defaultSaveDirectory", "");
+        }
+        else
+        {
+            changeDirectoryWarningPanel.SetActive(true);
+        }
+    }
+
+    void CancelChangeCurrentDirectory()
+    {
+        rootDirectoryPanel.SetActive(false);
     }
 
     void OpenSaveNamePanel()

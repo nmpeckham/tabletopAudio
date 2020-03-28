@@ -1,5 +1,15 @@
 TableTopAudio Changelog
 
+v0.9
+
+- Fixed multiple bugs that would occur when deleting files from music folder
+
+- Added option to change default directory
+
+- Added option to change current directory
+
+- Changed text alignment consistency in menus
+
 v0.85 
 
 - Fixed file name text alignment in SFX button edit page
