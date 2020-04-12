@@ -8,9 +8,7 @@ using UnityEngine.UI;
 public class FileSelectViewController : MonoBehaviour
 {
     MainAppController mac;
-    GameObject itemListPrefab;
     public Button closeButton;
-    int activeButtonID = -1;
     private ButtonEditorController bec;
     public GameObject fileSelectionView;
     private List<string> itemsToCreate;
@@ -33,7 +31,6 @@ public class FileSelectViewController : MonoBehaviour
 
     internal void LoadFileSelectionView(int buttonID)
     {
-        activeButtonID = buttonID;
         fileSelectionView.gameObject.SetActive(true);
 
         

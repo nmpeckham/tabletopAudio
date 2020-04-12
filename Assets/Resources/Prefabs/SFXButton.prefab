@@ -131,10 +131,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3717dfeb8dc532247b109796725b6d30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  id: 1
   tooltipPrefab: {fileID: 4301701412826880622, guid: 0e04225d1edef2845ab8123e93d9c52d,
     type: 3}
-  tooltipParent: {fileID: 0}
+  tooltipText: Fade Out
 --- !u!1 &533592889859041518
 GameObject:
   m_ObjectHideFlags: 0
@@ -521,10 +520,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3717dfeb8dc532247b109796725b6d30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  id: 0
   tooltipPrefab: {fileID: 4301701412826880622, guid: 0e04225d1edef2845ab8123e93d9c52d,
     type: 3}
-  tooltipParent: {fileID: 0}
+  tooltipText: Fade In
 --- !u!1 &2937558269764026667
 GameObject:
   m_ObjectHideFlags: 0

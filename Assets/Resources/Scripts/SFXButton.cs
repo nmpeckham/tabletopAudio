@@ -11,7 +11,9 @@ using NLayer;
 //Base class for sfx buttons
 public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
-    internal string clipPath = null;
+    //Stores only clip path, without directory information. Ex: song.mp3
+    internal string FileName { get; set; } = null;
+
     internal int page;
     internal int id;
     private ButtonEditorController bec;
@@ -26,26 +28,23 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     MpegFile stream;
     NVorbis.VorbisReader vorbis;
-    MemoryStream audioData;
-    byte[] buffer;
-    byte[] convertedAudioData;
 
-
-    float localVolume = 1;
+    private float localVolume = 1;
     string label;
 
     private Slider volumeSlider;
     private float rectWidth;
 
     private float masterVolume = 1f;
-    private bool waiting = false;
-    private bool play = false;
+    internal float minimumFadeVolume = 0f;
+    internal float maximumFadeVolume = 1f;
+
+    private bool isWaiting = false;
+    internal bool isPlaying = false;
 
     private float waitStartedTime;
     private float timeToWait;
 
-    TimeSpan vorbisPosition;
-    int vorbisCount;
     RectTransform playbackBarRect;
 
     public Button fadeInButton;
@@ -55,7 +54,7 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     Coroutine activeFadeInRoutine;
     Coroutine activeFadeOutRoutine;
 
-    const float FADE_RATE = 0.005f;
+    const float FADE_RATE = 0.004f;
 
     internal string Label { 
         get
@@ -131,7 +130,7 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         if (activeFadeInRoutine != null) StopCoroutine(activeFadeInRoutine);
     }
 
-    void FadeIn()
+    internal void FadeIn()
     {
         if (activeFadeOutRoutine != null)
         {
@@ -141,38 +140,34 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         activeFadeInRoutine = StartCoroutine(FadeInRoutine());
     }
 
-    void FadeOut()
+    internal void FadeOut()
     {
         if (activeFadeInRoutine != null)
         {
             StopCoroutine(activeFadeInRoutine);
             activeFadeInRoutine = null;
+            
         }
         activeFadeOutRoutine = StartCoroutine(FadeOutRoutine());
     }
 
     IEnumerator FadeInRoutine()
-    {
-        for(int i = 0; i < 100; i++)
+    {        
+        while (LocalVolume < maximumFadeVolume)
         {
-            while (localVolume < 1f)
-            {
-                ChangeLocalVolume(localVolume + FADE_RATE);
-                yield return new WaitForSecondsRealtime(0.01f);
-            }
+            ChangeLocalVolume(LocalVolume + FADE_RATE);
+            yield return new WaitForFixedUpdate();
         }
+
         yield return null;
     }
 
     IEnumerator FadeOutRoutine()
     {
-        for (int i = 0; i < 100; i++)
+        while (localVolume > minimumFadeVolume)
         {
-            while (localVolume > 0f)
-            {
-                ChangeLocalVolume(localVolume - FADE_RATE);
-                yield return new WaitForSecondsRealtime(0.01f);
-            }
+            ChangeLocalVolume(LocalVolume - FADE_RATE);
+            yield return new WaitForFixedUpdate();
         }
         yield return null;
     }
@@ -181,7 +176,7 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     void Clicked()
     {
         //Debug.Log("Clicked");
-        if (aSource.isPlaying || waiting)
+        if (aSource.isPlaying || isWaiting)
         {
             Stop();
         }
@@ -193,7 +188,8 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     private void ChangeLocalVolume(float newLocalVol)
     {
-        //Debug.Log("Vol Changed");
+        if(newLocalVol > 0 && LocalVolume <= 0 && isPlaying && !isWaiting) mac.pageButtons[page].GetComponent<PageButton>().ActiveAudioSources++;
+        else if(newLocalVol <= 0 && LocalVolume > 0 && isPlaying && !isWaiting) mac.pageButtons[page].GetComponent<PageButton>().ActiveAudioSources--;
         LocalVolume = newLocalVol;
         aSource.volume = LocalVolume * masterVolume;
     }
@@ -205,24 +201,27 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         if (vorbis != null) vorbis.Dispose();
     }
 
-    public void Stop()
+    internal void Stop()
     {
         //if(stream != null) stream.Dispose();
-        play = false;
+        if (LocalVolume > 0 && isPlaying && !isWaiting) mac.pageButtons[page].GetComponent<PageButton>().ActiveAudioSources--;
+        isPlaying = false;
         bgImage.color = ResourceManager.transWhite;
         aSource.Stop();
         aSource.clip = null;
         if (stream != null) stream.Dispose();
         if (vorbis != null) vorbis.Dispose();
+
+        
     }
 
-    public void Play()
+    internal void Play()
     {
         //if (stream != null) stream.Dispose();
 
-        if(!string.IsNullOrEmpty(clipPath))
+        if(!string.IsNullOrEmpty(FileName))
         {
-            string extension = Path.GetExtension(clipPath);
+            string extension = Path.GetExtension(FileName);
             if (extension == ".mp3")
             {
                 StreamMP3File();
@@ -241,7 +240,8 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     }
     void PlayValidFile()
     {
-        play = true;
+        if(LocalVolume > 0) mac.pageButtons[page].GetComponent<PageButton>().ActiveAudioSources++;
+        isPlaying = true;
         bgImage.color = ResourceManager.green;
         Image rect = playBackBar.GetComponent<Image>();
         rect.color = ResourceManager.red;
@@ -253,11 +253,11 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         if (stream != null) stream.Dispose();
         try
         {
-            stream = new MpegFile(clipPath);
+            stream = new MpegFile(System.IO.Path.Combine(mac.sfxDirectory, FileName));
             long clipSize = stream.Length / (stream.Channels * 4);
             if (int.MaxValue < stream.Length) clipSize = int.MaxValue;
             int sampleRate = stream.SampleRate;
-            AudioClip newClip = AudioClip.Create(clipPath, (int)clipSize, stream.Channels, sampleRate, true, Mp3Callback);
+            AudioClip newClip = AudioClip.Create(FileName, (int)clipSize, stream.Channels, sampleRate, true, Mp3Callback);
             aSource.clip = newClip;
         }
         catch(FileNotFoundException)
@@ -272,11 +272,10 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         if (vorbis != null) vorbis.Dispose();
         try
         {
-            vorbis = new NVorbis.VorbisReader(clipPath);
+            vorbis = new NVorbis.VorbisReader(System.IO.Path.Combine(mac.sfxDirectory, FileName));
             long clipSize = vorbis.TotalSamples;
             int sampleRate = vorbis.SampleRate;
-            AudioClip newClip = AudioClip.Create(clipPath, (int)clipSize, 2, sampleRate, true, VorbisCallback);
-            vorbisPosition = TimeSpan.Zero;
+            AudioClip newClip = AudioClip.Create(FileName, (int)clipSize, 2, sampleRate, true, VorbisCallback);
             aSource.clip = newClip;
         }
         catch(FileNotFoundException)
@@ -290,8 +289,6 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     {
         //Debug.Log(data.Length);
         vorbis.ReadSamples(data, 0, data.Length);
-        vorbisCount += data.Length;
-        vorbisPosition = vorbis.DecodedTime;
     }
 
     private void Mp3Callback(float[] data)
@@ -299,7 +296,7 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         stream.ReadSamples(data, 0, data.Length);
     }
 
-    public void ChangeMasterVolume(float newMasterVolume)
+    internal void ChangeMasterVolume(float newMasterVolume)
     {
         masterVolume = newMasterVolume;
         aSource.volume = LocalVolume * masterVolume;
@@ -317,7 +314,7 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
         }
         if (!aSource.isPlaying && bgImage.color == ResourceManager.green && !Loop) Stop();
-        if(!aSource.isPlaying && Loop && !waiting && play)
+        if(!aSource.isPlaying && Loop && !isWaiting && isPlaying)
         {
             StartCoroutine("WaitForLoopDelay");
         }
@@ -326,7 +323,7 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
             float percentPlayed = (aSource.time / aSource.clip.length);
             playbackBarRect.sizeDelta = new Vector2((percentPlayed * rectWidth), playbackBarRect.rect.height);
         }
-        if(waiting && play)
+        if(isWaiting && isPlaying)
         {
 
             float percentWaited = ((Time.time - waitStartedTime) / timeToWait);
@@ -334,15 +331,16 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         }
 
         //prevent playback bar from showing after clip has been removed
-        if (string.IsNullOrEmpty(clipPath) && playbackBarRect.gameObject.activeSelf) playbackBarRect.gameObject.SetActive(false);
-        else if (!string.IsNullOrEmpty(clipPath) && !playbackBarRect.gameObject.activeSelf) playbackBarRect.gameObject.SetActive(true);
+        if (string.IsNullOrEmpty(FileName) && playbackBarRect.gameObject.activeSelf) playbackBarRect.gameObject.SetActive(false);
+        else if (!string.IsNullOrEmpty(FileName) && !playbackBarRect.gameObject.activeSelf) playbackBarRect.gameObject.SetActive(true);
     }
 
 
 
     IEnumerator WaitForLoopDelay()
     {
-        waiting = true;
+        if (LocalVolume > 0) mac.pageButtons[page].GetComponent<PageButton>().ActiveAudioSources--;
+        isWaiting = true;
         waitStartedTime = Time.time;
         Image rect = playBackBar.GetComponent<Image>();
         rect.color = ResourceManager.black;
@@ -350,16 +348,17 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         timeToWait = RandomizeLoopDelay ? UnityEngine.Random.Range(MinLoopDelay, MaxLoopDelay) : MinLoopDelay;
         while (timeToWait + waitStartedTime > Time.time)
         {
-            if (!play) break;
+            if (!isPlaying) break;
             yield return new WaitForEndOfFrame();
         }
 
-        if (play)
+        if (isPlaying)
         {
             Play();
             rect.color = ResourceManager.red;
         }
-        waiting = false;
+        isWaiting = false;
+        
         yield return null;
     }
 

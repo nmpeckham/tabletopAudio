@@ -4,12 +4,12 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using TMPro;
 
-public class FadeButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+public class Tooltip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
-    public int id;  //0 = fade in, 1 = fade out;
     public GameObject tooltipPrefab;
-    GameObject tooltip;
-    public GameObject tooltipParent;
+    private GameObject tooltip;
+    private GameObject tooltipParent;
+    public string tooltipText;
 
     void Start()
     {
@@ -20,7 +20,7 @@ public class FadeButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         //Debug.Log("entered");
         tooltip = Instantiate(tooltipPrefab, tooltipParent.transform);
         tooltip.transform.position = (new Vector3(Input.mousePosition.x + tooltip.GetComponent<RectTransform>().rect.width / 2, Input.mousePosition.y + tooltip.GetComponent<RectTransform>().rect.height / 2, -1));
-        tooltip.GetComponentInChildren<TMP_Text>().text = id == 0 ? "Fade In": "Fade Out";
+        tooltip.GetComponentInChildren<TMP_Text>().text = tooltipText;
         StartCoroutine(UpdateTooltipPosition());
     }
 

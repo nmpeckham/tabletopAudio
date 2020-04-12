@@ -13,7 +13,7 @@ public class ButtonEditorController : MonoBehaviour
     public Button applyButton;
     public Button cancelButton;
     public Button changeFileButton;
-    public Button closeEditorButton;
+
     public Toggle loopButton;
     public Toggle randomizeLoopButton;
     private MainAppController mac;
@@ -22,6 +22,12 @@ public class ButtonEditorController : MonoBehaviour
     public TMP_Text fileNameLabel;
     public TMP_InputField minLoopDelay;
     public TMP_InputField maxLoopDelay;
+
+    public Slider minimumVolumeSlider;
+    public Slider maximumVolumeSlider;
+
+    public TMP_Text minVolumeLabel;
+    public TMP_Text maxVolumeLabel;
 
     public GameObject randomizeLoopPanel;
     public GameObject minLoopTimePanel;
@@ -41,12 +47,34 @@ public class ButtonEditorController : MonoBehaviour
         applyButton.onClick.AddListener(ApplySettings);
         cancelButton.onClick.AddListener(CancelEditing);
         changeFileButton.onClick.AddListener(ChangeFile);
-        closeEditorButton.onClick.AddListener(CloseEditor);
         clearFileButton.onClick.AddListener(ClearFile);
         mac = Camera.main.GetComponent<MainAppController>();
         fsvc = Camera.main.GetComponent<FileSelectViewController>();
         loopButton.onValueChanged.AddListener(LoopChanged);
         randomizeLoopButton.onValueChanged.AddListener(RandomizeChanged);
+
+        minimumVolumeSlider.onValueChanged.AddListener(MinVolumeChanged);
+        maximumVolumeSlider.onValueChanged.AddListener(maxVolumeChanged);
+    }
+
+    void MinVolumeChanged(float val)
+    {
+        if (val < maximumVolumeSlider.value) minVolumeLabel.text = (val).ToString("N0") + "%";
+        else
+        {
+            minimumVolumeSlider.SetValueWithoutNotify(maximumVolumeSlider.value - 1);
+            minVolumeLabel.text = (maximumVolumeSlider.value - 1).ToString("N0") + "%";
+        }
+    }
+
+    void maxVolumeChanged(float val)
+    {
+        if (val > minimumVolumeSlider.value) maxVolumeLabel.text = (val).ToString("N0") + "%";
+        else
+        {
+            maximumVolumeSlider.SetValueWithoutNotify(minimumVolumeSlider.value + 1);
+            maxVolumeLabel.text = (minimumVolumeSlider.value + 1).ToString("N0") + "%";
+        }
     }
 
     //Called when "Randomize Loop Delay" is changed
@@ -84,11 +112,6 @@ public class ButtonEditorController : MonoBehaviour
         }
     }
 
-    void CloseEditor()
-    {
-        editButtonPanel.SetActive(false);
-    }
-
     void ApplySettings()
     {
         //Applies all changed settings
@@ -98,18 +121,21 @@ public class ButtonEditorController : MonoBehaviour
             button.Stop();
             button.ClearActiveClip();
         }
-        if((clipID != button.clipPath && !String.IsNullOrEmpty(clipID)) || String.IsNullOrEmpty(button.clipPath))     //Clip selected, different from current
+        if((clipID != button.FileName && !String.IsNullOrEmpty(clipID)) || String.IsNullOrEmpty(button.FileName))     //Clip selected, different from current
         {
-            button.clipPath = clipID;
+            button.FileName = clipID;
         }
         button.Loop = loopButton.isOn;
         button.RandomizeLoopDelay = randomizeLoopButton.isOn;
         button.MinLoopDelay = Convert.ToInt32(minLoopDelay.text);
         button.MaxLoopDelay = Convert.ToInt32(maxLoopDelay.text);
+        button.minimumFadeVolume = minimumVolumeSlider.value / 100;
+        button.maximumFadeVolume = maximumVolumeSlider.value / 100;
+
         if (!String.IsNullOrEmpty(minLoopDelay.text)) button.MinLoopDelay = Convert.ToInt32(minLoopDelay.text);
         else button.MinLoopDelay = 0;
-        if(clipID == null) button.clipPath = "";
-        else button.clipPath = clipID;
+        if(clipID == null) button.FileName = "";
+        else button.FileName = clipID;
 
         Debug.Log(System.IO.Path.GetExtension(buttonLabelInput.text));
         string newText = buttonLabelInput.text.Replace(mac.sfxDirectory + mac.sep, "");
@@ -137,9 +163,16 @@ public class ButtonEditorController : MonoBehaviour
         loopButton.isOn = button.Loop;
         minLoopDelay.text = button.MinLoopDelay.ToString("N0");
         newClip = button.aSource.clip;
-        clipID = button.clipPath;
-        if (!String.IsNullOrEmpty(button.clipPath)) fileNameLabel.text = clipID.Replace(mac.sfxDirectory + mac.sep, "");
+        clipID = button.FileName;
+        if (!String.IsNullOrEmpty(button.FileName)) fileNameLabel.text = clipID.Replace(mac.sfxDirectory + mac.sep, "");
         else fileNameLabel.text = "";
+
+        minimumVolumeSlider.value = button.minimumFadeVolume * 100;
+        maximumVolumeSlider.value = button.maximumFadeVolume * 100;
+
+        maxVolumeLabel.text = (button.maximumFadeVolume * 100).ToString("N0") + "%";
+        minVolumeLabel.text = (button.minimumFadeVolume * 100).ToString("N0") + "%";
+
         randomizeLoopButton.isOn = button.RandomizeLoopDelay;
         minLoopDelay.text = button.MinLoopDelay.ToString("N0");
         maxLoopDelay.text = button.MaxLoopDelay.ToString("N0");
@@ -148,8 +181,9 @@ public class ButtonEditorController : MonoBehaviour
         maxLoopTimePanel.SetActive(randomizeLoopButton.isOn);
         minLoopDelayLabel.text = randomizeLoopButton.isOn ? "Min Loop Delay (sec):" : "Loop Delay (sec):";
 
+        string currentLabel = mac.sfxButtons[mac.activePage][buttonID].GetComponentInChildren<TMP_Text>().text;
         editButtonPanel.SetActive(true);
-        buttonLabelInput.text = mac.sfxButtons[mac.activePage][buttonID].GetComponentInChildren<TMP_Text>().text;
+        buttonLabelInput.text = String.IsNullOrEmpty(currentLabel) ? "Button Label..." : currentLabel;
     }
 
     //Called when button file is changed
