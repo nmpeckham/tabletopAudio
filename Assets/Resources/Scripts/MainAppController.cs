@@ -12,9 +12,9 @@ using TMPro;
 //Main controller for the app. Handles various tasks
 public class MainAppController : MonoBehaviour
 {
-    internal const int NUMPAGES = 7;
+    internal const int NUMPAGES = 8;
     internal const int NUMBUTTONS = 35;
-    internal const string VERSION = "v0.83";
+    internal const string VERSION = "v0.9"; //save version
 
     internal string mainDirectory;
     internal string musicDirectory;
@@ -24,12 +24,17 @@ public class MainAppController : MonoBehaviour
 
     internal int activePage = 0;
 
-    public PageParent[] pageParents;
+    public GameObject pageParentParent; // parent for page parents
+    public GameObject pageParentPrefab;
+    internal List<PageParent> pageParents;
+
     public GameObject sfxButtonPrefab;
+    internal List<List<GameObject>> sfxButtons;
 
-    public List<GameObject> pageButtons;
+    public GameObject pageButtonPrefab;
+    internal List<GameObject> pageButtons;
+    public GameObject pageButtonParent;
 
-    public List<List<GameObject>> sfxButtons;
     private MusicController mc;
     private EditPageLabel epl;
 
@@ -38,27 +43,17 @@ public class MainAppController : MonoBehaviour
     public GameObject errorMessagesPanel;
     public GameObject errorPrefab;
 
-    public GameObject setupPanel;
-    public Button keepButton;
-    public Button changeButton;
-
-    public TMP_Text mainText;
-
-    private Color stopColor;
     // Start is called before the first frame update
     public void Start()
     {
-        //Screen.fullScreen = false;
-        //Screen.SetResolution(800, 500, false);
-        //PlayerPrefs.SetInt("setupComplete", 0);
-
+        pageParents = new List<PageParent>();
+        pageButtons = new List<GameObject>();
         sfxButtons = new List<List<GameObject>>();
+
         epl = GetComponent<EditPageLabel>();
-        pageParents = GameObject.FindObjectsOfType<PageParent>();
         mc = GetComponent<MusicController>();
 
         sep = System.IO.Path.DirectorySeparatorChar;
-
 
         MakeSFXButtons();
 
@@ -68,47 +63,12 @@ public class MainAppController : MonoBehaviour
         ResourceManager.pauseImage = Resources.Load<Sprite>("pause");
         ResourceManager.stopImage = Resources.Load<Sprite>("stop");
         ResourceManager.playImage = Resources.Load<Sprite>("play");
-
-        if (PlayerPrefs.GetInt("setupComplete") == 0)
-        {
-            setupPanel.SetActive(true);
-            keepButton.onClick.AddListener(KeepDirectory);
-            changeButton.onClick.AddListener(ChangeDirectory);
-
-            string directory = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyMusic), "TableTopAudio");
-            mainText.text = "The default directory for new saves will be " + directory + ". Would you like to keep or change this directory? This can be changed at any time from the options menu.";
-        }
-
-        else
-        {
-            mainDirectory = PlayerPrefs.GetString("defaultSaveDirectory");
-            musicDirectory = Path.Combine(mainDirectory, "music");
-            sfxDirectory = Path.Combine(mainDirectory, "sound effects");
-            saveDirectory = Path.Combine(mainDirectory, "saves");
-
-            SetupFolderStructure(mainDirectory);
-        }
-
-    }
-
-    void KeepDirectory()
-    {
-        PlayerPrefs.SetInt("setupComplete", 1);
-        mainDirectory = System.IO.Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyMusic), "TableTopAudio");
+        mainDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyMusic), "TableTopAudio");
         musicDirectory = Path.Combine(mainDirectory, "music");
         sfxDirectory = Path.Combine(mainDirectory, "sound effects");
         saveDirectory = Path.Combine(mainDirectory, "saves");
 
-        PlayerPrefs.SetString("defaultSaveDirectory", mainDirectory);
-        mc.AutoCheckForNewFiles = true;
-        setupPanel.SetActive(false);
-    }
-
-    void ChangeDirectory()
-    {
-        //PlayerPrefs.SetInt("setupComplete", 1);
-        GetComponent<OptionsMenuController>().ShowRootSelectionMenu(true);
-        setupPanel.SetActive(false);
+        SetupFolderStructure(mainDirectory);
     }
 
     internal void SetupFolderStructure(string directory)
@@ -134,10 +94,33 @@ public class MainAppController : MonoBehaviour
 
     internal bool MakeSFXButtons()
     {
+        foreach(GameObject g in pageButtons)
+        {
+            Destroy(g);
+        }
+
+        foreach(PageParent o in pageParents)
+        {
+            Destroy(o.gameObject);
+        }
+
+        pageButtons.Clear();
+
         sfxButtons.Clear();
+        pageParents = new List<PageParent>();
         for (int i = 0; i < NUMPAGES; i++)
         {
+            GameObject go = Instantiate(pageButtonPrefab, pageButtonParent.transform);
+            go.GetComponentInChildren<TMP_Text>().text = (i + 1).ToString() ;
+            go.GetComponent<PageButton>().id = i;
+            pageButtons.Add(go);
+            go.transform.SetSiblingIndex(i + 1);
+            if (i == 0) go.GetComponent<Image>().color = Color.red;
+
+            GameObject pp = Instantiate(pageParentPrefab, pageParentParent.transform);
+            pageParents.Add(pp.GetComponent<PageParent>());
             sfxButtons.Add(new List<GameObject>());
+
             for (int j = 0; j < NUMBUTTONS; j++)
             {
                 GameObject button = Instantiate(sfxButtonPrefab, pageParents[i].transform);
@@ -204,6 +187,6 @@ public class MainAppController : MonoBehaviour
     {
         GameObject error = Instantiate(errorPrefab, errorMessagesPanel.transform);
         error.GetComponentInChildren<TMP_Text>().text = "Error: " + message;
+        Debug.LogError(message);
     }
-
 }

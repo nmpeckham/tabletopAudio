@@ -2,17 +2,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
 
 //Class for error message objects
 public class ErrorMessage : MonoBehaviour
 {
-    Color textColor;
     TMP_Text thisText;
+    Image thisImage;
     // Start is called before the first frame update
     void Start()
     {
-        textColor = Color.red;
-        thisText = GetComponent<TMP_Text>();
+        thisText = GetComponentInChildren<TMP_Text>();
+        thisImage = GetComponent<Image>();
         StartCoroutine("FadeOut");
     }
 
@@ -21,7 +22,8 @@ public class ErrorMessage : MonoBehaviour
         yield return new WaitForSecondsRealtime(8);
         while(thisText.color.a > 0)
         {
-            thisText.color = new Color(thisText.color.r, thisText.color.g, thisText.color.b, thisText.color.a - 0.01f);
+            thisText.color = new Color(thisText.color.r, thisText.color.g, thisText.color.b, thisText.color.a - 0.01f); ;
+            thisImage.color = new Color(thisImage.color.r, thisImage.color.g, thisImage.color.b, thisImage.color.a - 0.01f); ;
             yield return new WaitForEndOfFrame();
         }
         Destroy(gameObject);

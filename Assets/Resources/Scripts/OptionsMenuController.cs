@@ -17,14 +17,6 @@ public class OptionsMenuController : MonoBehaviour
     public Button about;
     public Button closeAbout;
     public Button closeLoadSelection;
-    public Button changeSaveRootDirectoryButton;
-    public Button changeDefaultRootDirectoryButton;
-
-    public Button confirmChangeRootDirectory;
-    public Button cancelChangeRootDirectory;
-
-    public Button cancelChangeCurrentDirectoryWarningButton;
-    public Button confirmChangeCurrentDirectoryWarningButton;
 
     public Button acceptSaveName;
     public Button closeSaveNameMenu;
@@ -39,26 +31,15 @@ public class OptionsMenuController : MonoBehaviour
     public GameObject loadGameScrollView;
     public GameObject loadGameItemPrefab;
 
-    public GameObject rootDirectoryPanel;
-    public GameObject rootDirectoryItemPrefab;
-    public GameObject rootDirectoryScrollList;
-    public TMP_InputField rootDirectoryInputField;
-    public TMP_Text changeDirectoryTitle;
-
     private static MainAppController mac;
     private static MusicController mc;
-
-    bool editingDefaultSaveDirectory = false;
-
-    public GameObject changeDirectoryWarningPanel;
-    string selectedRootDirectory;
 
     // Start is called before the first frame update
     void Start()
     {
 
         //Debug.Log(Application.persistentDataPath);
-        Debug.Log(PlayerPrefs.GetInt("setupComplete"));
+        //Debug.Log(PlayerPrefs.GetInt("setupComplete"));
         mc = GetComponent<MusicController>();
         mac = GetComponent<MainAppController>();
         autoUpdatePlaylistToggle.onValueChanged.AddListener(AutoUpdateChanged);
@@ -70,109 +51,6 @@ public class OptionsMenuController : MonoBehaviour
         closeLoadSelection.onClick.AddListener(CloseLoadSelection);
         acceptSaveName.onClick.AddListener(AcceptSaveName);
         closeSaveNameMenu.onClick.AddListener(CloseSaveMenu);
-        changeSaveRootDirectoryButton.onClick.AddListener(delegate { ShowRootSelectionMenu(false); });
-        changeDefaultRootDirectoryButton.onClick.AddListener(delegate { ShowRootSelectionMenu(true); });
-
-        confirmChangeRootDirectory.onClick.AddListener(ConfirmChangeCurrentDirectory);
-        cancelChangeRootDirectory.onClick.AddListener(CancelChangeCurrentDirectory);
-        cancelChangeCurrentDirectoryWarningButton.onClick.AddListener(CancelChangeCurrentDirectoryWarning);
-        confirmChangeCurrentDirectoryWarningButton.onClick.AddListener(ConfirmChangeCurrentDirectoryWarning);
-    }
-
-    void ConfirmChangeCurrentDirectoryWarning()
-    {
-        changeDirectoryWarningPanel.SetActive(false);
-        rootDirectoryPanel.SetActive(false);
-        mac.mainDirectory = Path.Combine(selectedRootDirectory, "TableTopAudio");
-        mac.musicDirectory = Path.Combine(mac.mainDirectory, "music");
-        mac.sfxDirectory = Path.Combine(mac.mainDirectory, "sound effects");
-        mac.saveDirectory = Path.Combine(mac.mainDirectory, "saves");
-
-    }
-
-    void CancelChangeCurrentDirectoryWarning()
-    {
-        rootDirectoryPanel.SetActive(false);
-    }
-
-    internal void ShowRootSelectionMenu(bool changeDefault)
-    {
-        editingDefaultSaveDirectory = changeDefault;
-        rootDirectoryPanel.SetActive(true);
-
-        foreach (string path in Directory.GetDirectories("/")) 
-        {
-            //Debug.Log(path);
-            GameObject item = Instantiate(rootDirectoryItemPrefab, rootDirectoryScrollList.transform);
-            item.GetComponentInChildren<TMP_Text>().text = path;
-            item.GetComponentInChildren<RootDirectoryItem>().location = path;
-        }
-    }
-
-    public void RootFolderSelected(string folder) {
-        Debug.Log(folder);
-        rootDirectoryInputField.text = folder;
-        
-        selectedRootDirectory = folder;
-        Debug.Log(selectedRootDirectory);
-    }
-
-    public void RootFolderOpened(string folder)
-    {
-        try
-        {
-            rootDirectoryInputField.text = folder;
-            foreach (RootDirectoryItem a in rootDirectoryScrollList.GetComponentsInChildren<RootDirectoryItem>())
-            {
-                Destroy(a.gameObject);
-            }
-            GameObject upItem = Instantiate(rootDirectoryItemPrefab, rootDirectoryScrollList.transform);
-            //Debug.Log(folder);
-            //Debug.Log(System.IO.Directory.GetParent(folder).FullName);
-            //Debug.Log(System.IO.Directory.GetParent(folder).Name);
-
-            string parentDirectory = System.IO.Directory.GetParent(folder) == null ? "/" : System.IO.Directory.GetParent(folder).FullName;
-            upItem.GetComponentInChildren<TMP_Text>().text = parentDirectory;
-            upItem.GetComponentInChildren<RootDirectoryItem>().location = parentDirectory;
-
-            foreach (string path in System.IO.Directory.GetDirectories(folder))
-            {
-                //Debug.Log(path);
-                GameObject item = Instantiate(rootDirectoryItemPrefab, rootDirectoryScrollList.transform);
-                item.GetComponentInChildren<TMP_Text>().text = path.Replace(folder, "");
-                item.GetComponentInChildren<RootDirectoryItem>().location = path;
-
-            }
-        }
-        catch(UnauthorizedAccessException)
-        {
-            RootFolderOpened(System.IO.Directory.GetParent(folder).FullName);
-            mac.ShowErrorMessage("Permission Denied. Run the program as an administrator to fix");
-        }
-        
-    }
-
-    void ConfirmChangeCurrentDirectory()
-    {
-        if (editingDefaultSaveDirectory)
-        {
-            mac.mainDirectory = Path.Combine(selectedRootDirectory, "TableTopAudio");
-            mac.musicDirectory = Path.Combine(mac.mainDirectory, "music");
-            mac.sfxDirectory = Path.Combine(mac.mainDirectory, "sound effects");
-            mac.saveDirectory = Path.Combine(mac.mainDirectory, "saves");
-            rootDirectoryPanel.SetActive(false);
-            mac.SetupFolderStructure(mac.mainDirectory);
-            PlayerPrefs.SetString("defaultSaveDirectory", "");
-        }
-        else
-        {
-            changeDirectoryWarningPanel.SetActive(true);
-        }
-    }
-
-    void CancelChangeCurrentDirectory()
-    {
-        rootDirectoryPanel.SetActive(false);
     }
 
     void OpenSaveNamePanel()
@@ -246,12 +124,15 @@ public class OptionsMenuController : MonoBehaviour
         XmlDocument file = new XmlDocument();
         file.Load(fileLocation);
         string version = Convert.ToString(file.SelectSingleNode("/TableTopAudio-Save-File/version").InnerText);
-        if(version == MainAppController.VERSION)
+        if(true)//version == MainAppController.VERSION) //No version checking yet
         {
+            LoadedFilesData.musicClips.Clear();
+            LoadedFilesData.sfxClips.Clear();
+            LoadedFilesData.deletedMusicClips.Clear();
+
             float masterVolume = Convert.ToSingle(file.SelectSingleNode("/TableTopAudio-Save-File/masterVolume").InnerText);
             float musicVolume = Convert.ToSingle(file.SelectSingleNode("/TableTopAudio-Save-File/musicVolume").InnerText);
             bool shuffle = Convert.ToBoolean(file.SelectSingleNode("/TableTopAudio-Save-File/shuffle").InnerText);
-
             mc.MasterVolume = masterVolume;
             mc.MusicVolume = musicVolume;
 
@@ -266,44 +147,70 @@ public class OptionsMenuController : MonoBehaviour
                     //Debug.Log(b.SelectSingleNode("label").InnerText);
                     string label = b.SelectSingleNode("label").InnerText;
                     int id = Convert.ToInt32(b.SelectSingleNode("id").InnerText);
-                    string clipID = mac.mainDirectory + b.SelectSingleNode("clipID").InnerText;
+                    string clipPath = null;
+                    try
+                    {
+                        clipPath = b.SelectSingleNode("clipPath").InnerText;
+                    }
+                    catch(NullReferenceException)
+                    {
+                        try
+                        {
+                            clipPath = b.SelectSingleNode("clipID").InnerText.Replace(Path.DirectorySeparatorChar + "sound effects" + Path.DirectorySeparatorChar, "");                        }
+                        catch (Exception)
+                        {
+                            mac.ShowErrorMessage("Could not load save file. Error finding clip path");
+                        }
+                    }
                     float localVolume = Convert.ToSingle(b.SelectSingleNode("localVolume").InnerText);
                     //Debug.Log(b.SelectSingleNode("localVolume").InnerText);
                     bool loop = Convert.ToBoolean(b.SelectSingleNode("loop").InnerText);
                     bool randomizeLoopTime = Convert.ToBoolean(b.SelectSingleNode("randomizeLoopDelay").InnerText);
                     float minLoopDelay = Convert.ToSingle(b.SelectSingleNode("minLoopDelay").InnerText);
                     float maxLoopDelay = Convert.ToSingle(b.SelectSingleNode("maxLoopDelay").InnerText);
-
+                    float minFadeVolume = 0;
+                    float maxFadeVolume = 1;
+                    try
+                    {
+                        minFadeVolume = Convert.ToSingle(b.SelectSingleNode("minFadeVolume").InnerText);
+                        maxFadeVolume = Convert.ToSingle(b.SelectSingleNode("maxFadeVolume").InnerText);
+                    }
+                    catch(NullReferenceException)
+                    {
+                    }
                     SFXButton sfxBtn = mac.sfxButtons[page][id].GetComponent<SFXButton>();
                     sfxBtn.Label = label;
                     sfxBtn.id = id;
-                    sfxBtn.clipPath = clipID;
+                    sfxBtn.FileName = clipPath;
                     //Debug.Log(clipID);
                     sfxBtn.LocalVolume = localVolume;
+                    sfxBtn.ChangeMasterVolume(masterVolume);
                     sfxBtn.Loop = loop;
                     sfxBtn.RandomizeLoopDelay = randomizeLoopTime;
                     sfxBtn.MinLoopDelay = minLoopDelay;
                     sfxBtn.MaxLoopDelay = maxLoopDelay;
+                    sfxBtn.minimumFadeVolume = minFadeVolume;
+                    sfxBtn.maximumFadeVolume = maxFadeVolume;
                 }
 
             }
             List<string> files = new List<string>();
             string[] HDfiles = System.IO.Directory.GetFiles(mac.musicDirectory);
-            Debug.Log(mac.mainDirectory);
             foreach (XmlNode n in file.SelectNodes("/TableTopAudio-Save-File/SFX-Buttons/playlist/song"))
             {
-                if (HDfiles.Contains(mac.mainDirectory + n.InnerText))
+                if (HDfiles.Contains(Path.Combine(mac.musicDirectory, n.InnerText.Replace(Path.DirectorySeparatorChar + "music" + Path.DirectorySeparatorChar, ""))))
                 {
-                    files.Add(mac.mainDirectory + n.InnerText);
+                    files.Add(n.InnerText.Replace(Path.DirectorySeparatorChar + "music" + Path.DirectorySeparatorChar, ""));
                 }
                 else
                 {
-                    mac.ShowErrorMessage("Could not find file " + mac.mainDirectory + n.InnerText);
+                    mac.ShowErrorMessage("Could not find file " + Path.Combine(n.InnerText));
                 }
 
             }
             mc.InitLoadFiles(files);
             loadGameSelectionView.SetActive(false);
+            mac.pageParents[0].gameObject.transform.SetSiblingIndex(MainAppController.NUMPAGES);
             yield return null;
         }
         else
@@ -368,12 +275,15 @@ public class OptionsMenuController : MonoBehaviour
                                         {
                                             writer.WriteElementString("id", button.id.ToString());
                                             writer.WriteElementString("label", button.Label);
-                                            writer.WriteElementString("clipID", button.clipPath.Replace(mac.mainDirectory, ""));
-                                            writer.WriteElementString("localVolume", button.LocalVolume.ToString("N1"));
+                                            writer.WriteElementString("clipPath", button.FileName);
+                                            writer.WriteElementString("localVolume", button.LocalVolume.ToString("N2"));
                                             writer.WriteElementString("loop", button.Loop.ToString());
                                             writer.WriteElementString("minLoopDelay", button.MinLoopDelay.ToString("N0"));
                                             writer.WriteElementString("randomizeLoopDelay", button.RandomizeLoopDelay.ToString());
                                             writer.WriteElementString("maxLoopDelay", button.MaxLoopDelay.ToString("N0"));
+                                            writer.WriteElementString("minFadeVolume", button.minimumFadeVolume.ToString("N2"));
+                                            writer.WriteElementString("maxFadeVolume", button.maximumFadeVolume.ToString("N2"));
+                                        
                                         }
                                         writer.WriteEndElement();
                                     }
@@ -387,7 +297,7 @@ public class OptionsMenuController : MonoBehaviour
                         //Debug.Log(mc.musicScrollView.name);
                         foreach (MusicButton mb in mc.musicScrollView.GetComponentsInChildren<MusicButton>())
                         {
-                            writer.WriteElementString("song", mb.file.Replace(mac.mainDirectory, ""));
+                            writer.WriteElementString("song", mb.FileName);
                         }
                     }
                     writer.WriteEndElement();

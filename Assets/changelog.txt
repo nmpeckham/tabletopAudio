@@ -2,13 +2,30 @@ TableTopAudio Changelog
 
 v0.9
 
-- Fixed multiple bugs that would occur when deleting files from music folder
-
-- Added option to change default directory
-
-- Added option to change current directory
+- Fixed multiple bugs that could occur when deleting files from music folder
 
 - Changed text alignment consistency in menus
+
+- Changed method of storing of file paths
+
+- Added play all, stop all, fade-in all, and fade-out all buttons for each page.
+
+- Added an extra page, bringing the total number of buttons to 280
+
+- Added audio indicator for each page, to easily identify which pages are playing audio
+
+- Added option to set minimum and maximum volume levels for each SFX button when fading in/out
+
+- Slightly altered save file format. Saves from previous versions are still compatible, 
+	but are recommended to be re-saved using this version.
+
+- Made some menu items look nicer and fixed some alignment issues
+
+- Fixed items overflowing scroll list when loading save
+
+- Fixed bug where rearranging items in playlist that could cause them to continue moving on every click, even after releasing mouse
+
+- Made error text more easily readable
 
 v0.85 
 

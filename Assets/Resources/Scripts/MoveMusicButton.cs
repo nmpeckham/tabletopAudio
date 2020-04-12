@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 //Controls the reordering of songs in the playlist
-public class MoveMusicButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
+public class MoveMusicButton : MonoBehaviour, IPointerDownHandler, IPointerExitHandler
 {
     private Vector3 mousePos;
     private static int buttonWithMouse = -1;
@@ -63,13 +63,18 @@ public class MoveMusicButton : MonoBehaviour, IPointerDownHandler, IPointerUpHan
         buttonWithMouse = buttonTransform.GetSiblingIndex();
     }
 
-    public void OnPointerUp(PointerEventData eventData)
+    public void OnPointerExit(PointerEventData eventData)
     {
-        // Using a scroll view with this movable item setup triggers "OnpointerUp" when the mouse leaves the button
-        // So double check if the mouse has _really_ been released
-        if(!Input.GetMouseButton(0))
+        StartCoroutine(CheckMouse());
+    }
+
+    IEnumerator CheckMouse()
+    {
+        while(Input.GetMouseButton(0))
         {
-            buttonWithMouse = -1;
+            yield return new WaitForEndOfFrame();
         }
+        buttonWithMouse = -1;
+        yield return null;
     }
 }

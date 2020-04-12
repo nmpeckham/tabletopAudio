@@ -9,10 +9,17 @@ public class MusicButton : MonoBehaviour, IPointerEnterHandler
 {
     Button thisButton;
     public int id = -1;
-    public string file;
+    private string fileName;
     MusicController mc;
     float doubleClickTime = 2f;
     float timeSinceClick = 100f;
+
+    public string FileName
+    {
+        get { return fileName; }
+        set { fileName = value; }
+    }
+
 
     // Start is called before the first frame update
     void Start()
