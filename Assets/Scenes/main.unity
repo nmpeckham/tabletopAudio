@@ -5582,7 +5582,7 @@ MonoBehaviour:
   pageButtonParent: {fileID: 1722038227}
   optionsPanel: {fileID: 641351718}
   errorMessagesPanel: {fileID: 287596287}
-  errorPrefab: {fileID: 4786092913530491944, guid: e1e33382803e59e4f9858541da3454a5,
+  errorPrefab: {fileID: 9008613465266601209, guid: b5139cb644e79b147adb9c4431990b2e,
     type: 3}
 --- !u!20 &519420031
 Camera:
