@@ -26,7 +26,10 @@ public class OptionsMenuController : MonoBehaviour
     public Toggle autoUpdatePlaylistToggle;
 
     public GameObject optionsPanel;
+
     public GameObject aboutMenu;
+    public TMP_Text versionText;
+
     public GameObject loadGameSelectionView;
     public GameObject loadGameScrollView;
     public GameObject loadGameItemPrefab;
@@ -83,6 +86,7 @@ public class OptionsMenuController : MonoBehaviour
 
     void OpenAboutMenu()
     {
+        versionText.text = "TableTop Audio " + MainAppController.VERSION;
         aboutMenu.SetActive(true);
         mac.currentMenuState = MainAppController.MenuState.aboutMenu;
     }

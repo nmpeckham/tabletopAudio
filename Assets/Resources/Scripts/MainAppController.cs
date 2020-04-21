@@ -14,7 +14,7 @@ public class MainAppController : MonoBehaviour
 {
     internal const int NUMPAGES = 8;
     internal const int NUMBUTTONS = 35;
-    internal const string VERSION = "v0.9"; //save version
+    internal const string VERSION = "v0.91"; //save version
 
     internal string mainDirectory;
     internal string musicDirectory;

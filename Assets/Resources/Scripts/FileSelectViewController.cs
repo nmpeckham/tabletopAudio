@@ -13,7 +13,7 @@ public class FileSelectViewController : MonoBehaviour
     public GameObject fileSelectionView;
     private List<string> itemsToCreate;
     public GameObject fileLoadListScrollView;
-    public GameObject fileSelecetItemPrefab;
+    public GameObject fileSelectItemPrefab;
 
     private void Start()
     {
@@ -47,7 +47,7 @@ public class FileSelectViewController : MonoBehaviour
         }
         foreach (string file in itemsToCreate)
         {
-            GameObject item = Instantiate(fileSelecetItemPrefab, fileLoadListScrollView.transform);
+            GameObject item = Instantiate(fileSelectItemPrefab, fileLoadListScrollView.transform);
             string text = file.Replace(mac.sfxDirectory + mac.sep, "");
             item.GetComponentInChildren<TMP_Text>().SetText(text);
             item.GetComponent<FileSelectItem>().id = file;

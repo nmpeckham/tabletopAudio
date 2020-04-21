@@ -17,9 +17,7 @@ public class Tooltip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     }
     public void OnPointerEnter(PointerEventData eventData)
     {
-        //Debug.Log("entered");
         tooltip = Instantiate(tooltipPrefab, Input.mousePosition, Quaternion.identity, tooltipParent.transform);
-        //tooltip.transform.position = (new Vector3(Input.mousePosition.x + tooltip.GetComponent<RectTransform>().rect.width / 2, Input.mousePosition.y + tooltip.GetComponent<RectTransform>().rect.height / 2, -1));
         tooltip.GetComponentInChildren<TMP_Text>().text = tooltipText;
         StartCoroutine(UpdateTooltipPosition());
     }

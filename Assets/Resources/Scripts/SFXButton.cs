@@ -334,7 +334,7 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         isWaiting = true;
         waitStartedTime = Time.time;
         Image rect = playBackBar.GetComponent<Image>();
-        rect.color = ResourceManager.black;
+        rect.color = Color.yellow;
 
         timeToWait = RandomizeLoopDelay ? UnityEngine.Random.Range(MinLoopDelay, MaxLoopDelay) : MinLoopDelay;
         while (timeToWait + waitStartedTime > Time.time)

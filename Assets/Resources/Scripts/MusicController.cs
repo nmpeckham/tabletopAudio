@@ -25,6 +25,7 @@ public class MusicController : MonoBehaviour
     private string songPath = "";
     private string songName = "";
     internal int nowPlayingButtonID = -1;
+    private int toDeleteId = -1;
 
     private float musicVolume = 1f;
     private float masterVolume = 1f;
@@ -54,6 +55,8 @@ public class MusicController : MonoBehaviour
 
     public GameObject fftParent;
     public FftBar[] pieces;
+
+    public GameObject TooltipParent;
     public int ButtonWithCursor
     {
         get
@@ -62,11 +65,12 @@ public class MusicController : MonoBehaviour
         }
         set
         {
-            if(buttonWithCursor != -1)
+            //Debug.Log(value);
+            if (buttonWithCursor != value)
             {
-                Destroy(activeRightClickMenu);
+                //Destroy(activeRightClickMenu);
+                buttonWithCursor = value;
             }
-            buttonWithCursor = value;
         }
     }
     public float MusicVolume
@@ -116,7 +120,7 @@ public class MusicController : MonoBehaviour
         {
             shuffle = value;
             if (shuffle) shuffleImage.color = ResourceManager.green;
-            else shuffleImage.color = ResourceManager.transWhite;
+            else shuffleImage.color = Color.white;
         }
     }
 
@@ -541,25 +545,46 @@ public class MusicController : MonoBehaviour
             playbackTimerText.text = Mathf.Floor(aSource.time / 60).ToString() + ":" + (Mathf.FloorToInt(aSource.time % 60)).ToString("D2") + "/" + Mathf.FloorToInt(aSource.clip.length / 60) + ":" + Mathf.FloorToInt(aSource.clip.length % 60).ToString("D2");
         }
     }
-    public void ShowRightClickMenu()
+    public void ShowRightClickMenu(int id)
     {
-        Destroy(activeRightClickMenu);
-        activeRightClickMenu = Instantiate(playlistRightClickMenuPrefab, Input.mousePosition, Quaternion.identity, musicButtons[ButtonWithCursor].transform);
-        RectTransform menuRect = playlistRightClickMenuPrefab.GetComponent<RectTransform>();
-        activeRightClickMenu.transform.position += new Vector3(menuRect.rect.width, menuRect.rect.height);
+        toDeleteId = id;
+        //StopAllCoroutines();
+        if(activeRightClickMenu) Destroy(activeRightClickMenu);
+        activeRightClickMenu = Instantiate(playlistRightClickMenuPrefab, Input.mousePosition, Quaternion.identity, TooltipParent.transform);
+        StartCoroutine(CheckMousePos(Input.mousePosition));
     }
+
+    IEnumerator CheckMousePos(Vector3 mousePos)
+    {
+        while(true)
+        {
+            if(Vector3.Distance(mousePos, Input.mousePosition) > 80) {
+                Destroy(activeRightClickMenu);
+                break;
+            }
+            if(mac.currentMenuState == MainAppController.MenuState.none && Input.GetKey(KeyCode.Escape))
+            {
+                Destroy(activeRightClickMenu);
+                break;
+            }
+
+            yield return new WaitForEndOfFrame();
+        }
+        yield return null;
+    }
+
     public void DeleteItem()
 
     {
-        if (nowPlayingButtonID == buttonWithCursor)
+        if (nowPlayingButtonID == toDeleteId)
         {
             Stop();
             nowPlayingButtonID = -1;
         }
-        LoadedFilesData.deletedMusicClips.Add(LoadedFilesData.musicClips[buttonWithCursor]);
-        LoadedFilesData.musicClips.Remove(LoadedFilesData.musicClips[buttonWithCursor]);
-        Destroy(musicButtons[buttonWithCursor]);
-        musicButtons.RemoveAt(buttonWithCursor);
+        LoadedFilesData.deletedMusicClips.Add(LoadedFilesData.musicClips[toDeleteId]);
+        LoadedFilesData.musicClips.Remove(LoadedFilesData.musicClips[toDeleteId]);
+        Destroy(musicButtons[toDeleteId]);
+        musicButtons.RemoveAt(toDeleteId);
         int currentID = 0;
         foreach(GameObject mbObj in musicButtons)
         {
@@ -567,6 +592,6 @@ public class MusicController : MonoBehaviour
             mb.id = currentID;
             currentID++;
         }
-        
+        Destroy(activeRightClickMenu);
     }
 }

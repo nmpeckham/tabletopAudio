@@ -1,6 +1,6 @@
 TableTopAudio Changelog
 
-v1.0
+v0.91 - Preparing for 1.0
 
 - Fixed button label resetting to default on load
 
@@ -20,7 +20,7 @@ v1.0
 
 - Added small FFT viewer when playing music
 
-- 
+- Various other small tweaks and code cleanup
 
 v0.9
 
