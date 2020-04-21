@@ -37,7 +37,7 @@ public class MoveMusicButton : MonoBehaviour, IPointerDownHandler, IPointerExitH
 
                     buttonWithMouse--;
                     mousePos = Input.mousePosition;
-                    mc.nowPlayingButtonID -= 1;
+                    //mc.nowPlayingButtonID -= 1;
                 }
             }
 
@@ -51,7 +51,7 @@ public class MoveMusicButton : MonoBehaviour, IPointerDownHandler, IPointerExitH
 
                     buttonWithMouse++;
                     mousePos = Input.mousePosition;
-                    mc.nowPlayingButtonID += 1;
+                    //mc.nowPlayingButtonID += 1;
                 }
             }
         }

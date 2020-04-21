@@ -10,16 +10,21 @@ public class ButtonEditorController : MonoBehaviour
 {
     private int buttonID;
     public TMP_InputField buttonLabelInput;
+    public TMP_Text placeholderText;
+
     public Button applyButton;
     public Button cancelButton;
     public Button changeFileButton;
 
     public Toggle loopButton;
     public Toggle randomizeLoopButton;
+
     private MainAppController mac;
     public GameObject editButtonPanel;
     private FileSelectViewController fsvc;
+
     public TMP_Text fileNameLabel;
+
     public TMP_InputField minLoopDelay;
     public TMP_InputField maxLoopDelay;
 
@@ -28,14 +33,14 @@ public class ButtonEditorController : MonoBehaviour
 
     public TMP_Text minVolumeLabel;
     public TMP_Text maxVolumeLabel;
+    public TMP_Text minLoopDelayLabel;
 
     public GameObject randomizeLoopPanel;
     public GameObject minLoopTimePanel;
     public GameObject maxLoopTimePanel;
 
-    public TMP_Text minLoopDelayLabel;
 
-    internal AudioClip newClip;
+
     internal string clipID = null;
 
     public Button clearFileButton;
@@ -43,7 +48,7 @@ public class ButtonEditorController : MonoBehaviour
     void Start()
     {
         //Assign listeners
-        newClip = null;
+        clipID = null;
         applyButton.onClick.AddListener(ApplySettings);
         cancelButton.onClick.AddListener(CancelEditing);
         changeFileButton.onClick.AddListener(ChangeFile);
@@ -55,6 +60,13 @@ public class ButtonEditorController : MonoBehaviour
 
         minimumVolumeSlider.onValueChanged.AddListener(MinVolumeChanged);
         maximumVolumeSlider.onValueChanged.AddListener(maxVolumeChanged);
+
+        buttonLabelInput.onSelect.AddListener(TextSelected);
+    }
+
+    void TextSelected(string val)
+    {
+        placeholderText.text = "";
     }
 
     void MinVolumeChanged(float val)
@@ -112,7 +124,7 @@ public class ButtonEditorController : MonoBehaviour
         }
     }
 
-    void ApplySettings()
+    internal void ApplySettings()
     {
         //Applies all changed settings
         SFXButton button = mac.sfxButtons[mac.activePage][buttonID].GetComponent<SFXButton>();
@@ -137,21 +149,23 @@ public class ButtonEditorController : MonoBehaviour
         if(clipID == null) button.FileName = "";
         else button.FileName = clipID;
 
-        Debug.Log(System.IO.Path.GetExtension(buttonLabelInput.text));
         string newText = buttonLabelInput.text.Replace(mac.sfxDirectory + mac.sep, "");
         button.Label = newText;
         button.GetComponentInChildren<TMP_Text>().text = newText;
+        mac.currentMenuState = MainAppController.MenuState.none;
         editButtonPanel.SetActive(false);
     }
 
-    void CancelEditing()
+    internal void CancelEditing()
     {
         editButtonPanel.SetActive(false);
+        mac.currentMenuState = MainAppController.MenuState.none;
     }
 
     void ChangeFile()
     {
         fsvc.LoadFileSelectionView(buttonID);
+        mac.currentMenuState = MainAppController.MenuState.selectSFXFile;
     }
 
     public void StartEditing(int id)
@@ -162,7 +176,6 @@ public class ButtonEditorController : MonoBehaviour
         SFXButton button = mac.sfxButtons[mac.activePage][id].GetComponent<SFXButton>();
         loopButton.isOn = button.Loop;
         minLoopDelay.text = button.MinLoopDelay.ToString("N0");
-        newClip = button.aSource.clip;
         clipID = button.FileName;
         if (!String.IsNullOrEmpty(button.FileName)) fileNameLabel.text = clipID.Replace(mac.sfxDirectory + mac.sep, "");
         else fileNameLabel.text = "";
@@ -183,28 +196,39 @@ public class ButtonEditorController : MonoBehaviour
 
         string currentLabel = mac.sfxButtons[mac.activePage][buttonID].GetComponentInChildren<TMP_Text>().text;
         editButtonPanel.SetActive(true);
-        buttonLabelInput.text = String.IsNullOrEmpty(currentLabel) ? "Button Label..." : currentLabel;
+        if (String.IsNullOrEmpty(currentLabel))
+        {
+            buttonLabelInput.text = "";
+            placeholderText.text = "Type a button label...";
+        }
+        else
+        {
+            buttonLabelInput.text = currentLabel;
+            placeholderText.text = "";
+        }
+        mac.currentMenuState = MainAppController.MenuState.editingSFXButton;
     }
 
     //Called when button file is changed
-    internal void UpdateFile(AudioClip clip, string newClipID)
+    internal void UpdateFile(string newClipID)
     {
 
-        newClip = clip;
         clipID = newClipID;
-        //Debug.Log(clipID.Replace(mac.sfxDirectory + mac.sep, ""));
+
         string newLabel = clipID.Replace(mac.sfxDirectory + mac.sep, "").Replace(System.IO.Path.GetExtension(clipID), "");
         fileNameLabel.text = newLabel;
         buttonLabelInput.text = newLabel;
+        placeholderText.text = "";
+        mac.currentMenuState = MainAppController.MenuState.editingSFXButton;
     }
 
     //Called when file is cleared
     internal void ClearFile()
     {
         clipID = null;
-        newClip = null;
         
         fileNameLabel.text = "";
         buttonLabelInput.text = "";
+        placeholderText.text = "Type a button label...";
     }
 }

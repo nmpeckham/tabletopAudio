@@ -20,7 +20,7 @@ public class ErrorMessage : MonoBehaviour
     IEnumerator FadeOut()
     {
         yield return new WaitForSecondsRealtime(8);
-        while(thisText.color.a > 0)
+        while (thisText.color.a > 0)
         {
             thisText.color = new Color(thisText.color.r, thisText.color.g, thisText.color.b, thisText.color.a - 0.01f); ;
             thisImage.color = new Color(thisImage.color.r, thisImage.color.g, thisImage.color.b, thisImage.color.a - 0.01f); ;

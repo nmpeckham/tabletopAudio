@@ -11,7 +11,7 @@ public class MusicButton : MonoBehaviour, IPointerEnterHandler
     public int id = -1;
     private string fileName;
     MusicController mc;
-    float doubleClickTime = 2f;
+    float doubleClickTime = 0.5f;
     float timeSinceClick = 100f;
 
     public string FileName
@@ -27,21 +27,22 @@ public class MusicButton : MonoBehaviour, IPointerEnterHandler
         mc = Camera.main.GetComponent<MusicController>();
         thisButton = GetComponent<Button>();
         thisButton.onClick.AddListener(ItemSelected);
+        timeSinceClick = Time.time;
     }
 
     void ItemSelected()
     {
-        if(timeSinceClick < doubleClickTime)
+        if(Time.time - timeSinceClick < doubleClickTime)
         {
             mc.ItemSelected(id);
         }
-        timeSinceClick = 0f;
+        timeSinceClick = Time.time;
     }
 
     // Update is called once per frame
     void Update()
     {
-        timeSinceClick += 0.1f;     
+        //timeSinceClick = Time.time;   
         if(Input.GetMouseButtonDown(1) && mc.ButtonWithCursor == id)
         {
             mc.ShowRightClickMenu();

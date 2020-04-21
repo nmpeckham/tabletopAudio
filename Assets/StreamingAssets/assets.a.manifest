@@ -1,0 +1,89 @@
+ManifestFileVersion: 0
+CRC: 1447290269
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: be7ba99cb09b03dc828352a0f1c8dba6
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 462572d3131e5b88182c0284c2942794
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 82
+  Script: {instanceID: 0}
+- Class: 114
+  Script: {fileID: 11500000, guid: eb882b20ed8781a42ab5e40174f8599b, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 8a8695521f0d02e499659fee002a26c2, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 5aeb5c522ee4f76458c9791804ec051a, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 9ee861b65251049458d93c7ce3641959, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: c0cdc248b5f16c443b0df42464dec89a, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 59f8146938fff824cb5fd77236b75775, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 30649d3a9faa99c48a7b1166b86bf2a0, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 71c1514a6bd24e1e882cebbe1904ce04, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 7d186c6bea8fa684cb78e14abd07145e, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: ada88c9ba6a938a44a61353c23d81652, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: f14e03aba471c144a8ab00f3a1913aee, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 3717dfeb8dc532247b109796725b6d30, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: ec40faccbeea2d647a1fd8364b0eae7d, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 767b9afcf1482ce4d9fc833421772b91, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 9787c18e33336a646a18adfd107c6608, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 261e31be6793cac4580b34fbac8be6a6, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
+- Class: 115
+  Script: {instanceID: 0}
+- Class: 128
+  Script: {instanceID: 0}
+- Class: 213
+  Script: {instanceID: 0}
+- Class: 222
+  Script: {instanceID: 0}
+- Class: 224
+  Script: {instanceID: 0}
+Assets:
+- Assets/Resources/Prefabs/PageParent.prefab
+- Assets/Resources/stop.png
+- Assets/Resources/Prefabs/LoadGameItem.prefab
+- Assets/Resources/Prefabs/PlaylistItem.prefab
+- Assets/Resources/Prefabs/ErrorPrefab.prefab
+- Assets/Resources/pause.png
+- Assets/Resources/Prefabs/PlaylistRightClickMenu.prefab
+- Assets/Resources/Prefabs/File.prefab
+- Assets/Resources/Prefabs/SFXButton.prefab
+- Assets/Resources/Prefabs/SettingsButton.prefab
+- Assets/Resources/Prefabs/FlieSelectItem.prefab
+- Assets/Resources/Prefabs/PageButton.prefab
+- Assets/Resources/Prefabs/Tooltip.prefab
+- Assets/Resources/play.png
+Dependencies: []
