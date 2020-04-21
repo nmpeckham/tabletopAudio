@@ -13,7 +13,7 @@ public class FileSelectViewController : MonoBehaviour
     public GameObject fileSelectionView;
     private List<string> itemsToCreate;
     public GameObject fileLoadListScrollView;
-    public GameObject fileListItemPrefab;
+    public GameObject fileSelectItemPrefab;
 
     private void Start()
     {
@@ -24,7 +24,7 @@ public class FileSelectViewController : MonoBehaviour
         itemsToCreate = new List<string>();
     }
 
-    private void CloseFileSelection()
+    internal void CloseFileSelection()
     {
         fileSelectionView.gameObject.SetActive(false);
     }
@@ -37,8 +37,6 @@ public class FileSelectViewController : MonoBehaviour
 
         foreach (string file in System.IO.Directory.GetFiles(mac.sfxDirectory))
         {
-            //Debug.Log(LoadedFilesData.sfxClips.Count);
-            //Debug.Log(LoadedFilesData.sfxClips.ContainsKey(file));
             if (!LoadedFilesData.sfxClips.ContainsKey(file))
             {
 
@@ -49,8 +47,7 @@ public class FileSelectViewController : MonoBehaviour
         }
         foreach (string file in itemsToCreate)
         {
-            //Debug.Log(file);
-            GameObject item = Instantiate(fileListItemPrefab, fileLoadListScrollView.transform);
+            GameObject item = Instantiate(fileSelectItemPrefab, fileLoadListScrollView.transform);
             string text = file.Replace(mac.sfxDirectory + mac.sep, "");
             item.GetComponentInChildren<TMP_Text>().SetText(text);
             item.GetComponent<FileSelectItem>().id = file;
@@ -61,8 +58,7 @@ public class FileSelectViewController : MonoBehaviour
     internal void ItemSelected(string id)
     {
         fileSelectionView.gameObject.SetActive(false);
-        string clipName = id;
-        AudioClip clip = Resources.Load<AudioClip>(clipName);
-        bec.UpdateFile(clip, id);
+
+        bec.UpdateFile(id);
     }
 }

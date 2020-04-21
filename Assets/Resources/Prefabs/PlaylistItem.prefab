@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   id: 0
-  file: 
 --- !u!1 &6997503123785362511
 GameObject:
   m_ObjectHideFlags: 0
@@ -219,17 +218,22 @@ PrefabInstance:
     - target: {fileID: 5073017128516442655, guid: 17ea4418c9625ee4d8164124389d46ef,
         type: 3}
       propertyPath: m_Color.r
-      value: 0.38679248
+      value: 0.4433962
       objectReference: {fileID: 0}
     - target: {fileID: 5073017128516442655, guid: 17ea4418c9625ee4d8164124389d46ef,
         type: 3}
       propertyPath: m_Color.g
-      value: 0.38679248
+      value: 0.4433962
       objectReference: {fileID: 0}
     - target: {fileID: 5073017128516442655, guid: 17ea4418c9625ee4d8164124389d46ef,
         type: 3}
       propertyPath: m_Color.b
-      value: 0.38679248
+      value: 0.4433962
+      objectReference: {fileID: 0}
+    - target: {fileID: 5073017128516442655, guid: 17ea4418c9625ee4d8164124389d46ef,
+        type: 3}
+      propertyPath: m_Color.a
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6674413647118620973, guid: 17ea4418c9625ee4d8164124389d46ef,
         type: 3}

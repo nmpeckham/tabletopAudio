@@ -11,8 +11,14 @@ public class EditPageLabel : MonoBehaviour
     public TMP_InputField input;
     public Button cancel;
     public Button confirm;
-    internal TMP_Text buttonLabel;
+    private TMP_Text buttonLabel;
     private MainAppController mac;
+
+    internal TMP_Text ButtonLabel
+    {
+        get { return buttonLabel; }
+        set { buttonLabel = value; }
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -22,21 +28,23 @@ public class EditPageLabel : MonoBehaviour
         confirm.onClick.AddListener(Confirm);
     }
 
-    void Cancel()
+    internal void Cancel()
     {
         input.text = "";
         editLabelPanel.SetActive(false);
-
+        mac.currentMenuState = MainAppController.MenuState.none;
     }
 
-    void Confirm()
+    internal void Confirm()
     {
         buttonLabel.text = input.text;
         editLabelPanel.SetActive(false);
+        mac.currentMenuState = MainAppController.MenuState.none;
     }
 
     public void StartEditing()
     {
+        mac.currentMenuState = MainAppController.MenuState.editingPageLabel;
         input.text = buttonLabel.text;
         editLabelPanel.SetActive(true);
     }

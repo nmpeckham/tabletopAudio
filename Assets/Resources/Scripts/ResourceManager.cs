@@ -4,19 +4,14 @@ using UnityEngine;
 using UnityEngine.UI;
 
 //Holds data for colors and images
-public static class ResourceManager
+internal static class ResourceManager
 {
-    public static GameObject fileLoadListScrollView;
-
-    public static Sprite pauseImage;
-    public static Sprite stopImage;
-    public static Sprite playImage;
-
-    public static Color transWhite = new Color(1, 1, 1, 0.39f);
-    public static Color red = Color.red;
-    public static Color green = Color.green;
-    public static Color black = Color.black;
-    public static Color orange = new Color(1, 0.56f, 0, 1);
-    public static Color grey = new Color(0.39f, 0.39f, 0.39f, 0.39f);
+    internal static Color transWhite = new Color(1, 1, 1, 0.6f);
+    internal static Color red = Color.red;
+    internal static Color green = Color.green;
+    internal static Color black = Color.black;
+    internal static Color orange = new Color(1, 0.56f, 0, 1);
+    internal static Color grey = new Color(0.878f, 0.878f, 0.878f, 1f);
+    internal static Color musicButtonGrey = new Color(0.443f, 0.443f, 0.443f, 1f);
 
 }

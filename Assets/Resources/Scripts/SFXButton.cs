@@ -78,7 +78,6 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
         set
         {
-            //Debug.Log(Mathf.Abs(value - localVolume));
             if (Mathf.Abs(Mathf.Abs(value - localVolume) - FADE_RATE) > FADE_RATE)
             {
                 if (activeFadeInRoutine != null)
@@ -121,6 +120,7 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         volumeSlider.onValueChanged.AddListener(ChangeLocalVolume);
         sliderButton = volumeSlider.GetComponentInChildren<Button>();
         sliderButton.onClick.AddListener(SliderButtonClicked);
+
     }
 
     void SliderButtonClicked()
@@ -206,7 +206,7 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         //if(stream != null) stream.Dispose();
         if (LocalVolume > 0 && isPlaying && !isWaiting) mac.pageButtons[page].GetComponent<PageButton>().ActiveAudioSources--;
         isPlaying = false;
-        bgImage.color = ResourceManager.transWhite;
+        bgImage.color = ResourceManager.grey;
         aSource.Stop();
         aSource.clip = null;
         if (stream != null) stream.Dispose();
@@ -217,8 +217,6 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     internal void Play()
     {
-        //if (stream != null) stream.Dispose();
-
         if(!string.IsNullOrEmpty(FileName))
         {
             string extension = Path.GetExtension(FileName);
@@ -287,7 +285,6 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     void VorbisCallback(float[] data)
     {
-        //Debug.Log(data.Length);
         vorbis.ReadSamples(data, 0, data.Length);
     }
 
@@ -304,10 +301,6 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     void Update()
     {
-        if(rectWidth < 0)
-        {
-            rectWidth = GetComponent<RectTransform>().sizeDelta.x;
-        }
         if (Input.GetMouseButtonDown(1) && hasPointer)
         {
             bec.StartEditing(id);
@@ -335,15 +328,13 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         else if (!string.IsNullOrEmpty(FileName) && !playbackBarRect.gameObject.activeSelf) playbackBarRect.gameObject.SetActive(true);
     }
 
-
-
     IEnumerator WaitForLoopDelay()
     {
         if (LocalVolume > 0) mac.pageButtons[page].GetComponent<PageButton>().ActiveAudioSources--;
         isWaiting = true;
         waitStartedTime = Time.time;
         Image rect = playBackBar.GetComponent<Image>();
-        rect.color = ResourceManager.black;
+        rect.color = Color.yellow;
 
         timeToWait = RandomizeLoopDelay ? UnityEngine.Random.Range(MinLoopDelay, MaxLoopDelay) : MinLoopDelay;
         while (timeToWait + waitStartedTime > Time.time)

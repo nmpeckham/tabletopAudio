@@ -14,7 +14,7 @@ public class MainAppController : MonoBehaviour
 {
     internal const int NUMPAGES = 8;
     internal const int NUMBUTTONS = 35;
-    internal const string VERSION = "v0.9"; //save version
+    internal const string VERSION = "v0.91"; //save version
 
     internal string mainDirectory;
     internal string musicDirectory;
@@ -43,9 +43,36 @@ public class MainAppController : MonoBehaviour
     public GameObject errorMessagesPanel;
     public GameObject errorPrefab;
 
+    public GameObject pause;
+    public GameObject play;
+    public GameObject stop;
+
+    internal Sprite pauseImage;
+    internal Sprite playImage;
+    internal Sprite stopImage;
+
+    internal enum MenuState
+    {
+        editingSFXButton,
+        editingPageLabel,
+        optionsMenu,
+        selectFileToLoad,
+        enterSaveFileName,
+        selectSFXFile,
+        aboutMenu,
+        none
+    }
+
+    internal MenuState currentMenuState = MenuState.none;
+
     // Start is called before the first frame update
     public void Start()
     {
+
+        pauseImage = pause.GetComponent<SpriteRenderer>().sprite;
+        playImage = play.GetComponent<SpriteRenderer>().sprite;
+        stopImage = stop.GetComponent<SpriteRenderer>().sprite;
+
         pageParents = new List<PageParent>();
         pageButtons = new List<GameObject>();
         sfxButtons = new List<List<GameObject>>();
@@ -60,9 +87,6 @@ public class MainAppController : MonoBehaviour
 
         pageParents[0].gameObject.transform.SetSiblingIndex(NUMPAGES);
 
-        ResourceManager.pauseImage = Resources.Load<Sprite>("pause");
-        ResourceManager.stopImage = Resources.Load<Sprite>("stop");
-        ResourceManager.playImage = Resources.Load<Sprite>("play");
         mainDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyMusic), "TableTopAudio");
         musicDirectory = Path.Combine(mainDirectory, "music");
         sfxDirectory = Path.Combine(mainDirectory, "sound effects");
@@ -110,12 +134,12 @@ public class MainAppController : MonoBehaviour
         pageParents = new List<PageParent>();
         for (int i = 0; i < NUMPAGES; i++)
         {
-            GameObject go = Instantiate(pageButtonPrefab, pageButtonParent.transform);
-            go.GetComponentInChildren<TMP_Text>().text = (i + 1).ToString() ;
-            go.GetComponent<PageButton>().id = i;
-            pageButtons.Add(go);
-            go.transform.SetSiblingIndex(i + 1);
-            if (i == 0) go.GetComponent<Image>().color = Color.red;
+            GameObject pageButton = Instantiate(pageButtonPrefab, pageButtonParent.transform);
+            pageButton.GetComponentInChildren<TMP_Text>().text = (i + 1).ToString() ;
+            pageButton.GetComponent<PageButton>().id = i;
+            pageButtons.Add(pageButton);
+            pageButton.transform.SetSiblingIndex(i + 1);
+            if (i == 0) pageButton.GetComponent<Image>().color = Color.red;
 
             GameObject pp = Instantiate(pageParentPrefab, pageParentParent.transform);
             pageParents.Add(pp.GetComponent<PageParent>());
@@ -140,14 +164,15 @@ public class MainAppController : MonoBehaviour
             case "STOP-SFX":
                 foreach (List<GameObject> page in sfxButtons)
                 {
-                    foreach (GameObject obj in page)
+                    foreach (GameObject sfxButton in page)
                     {
-                        obj.GetComponent<SFXButton>().Stop();
+                        sfxButton.GetComponent<SFXButton>().Stop();
                     }
                 }
                 break;                
             case "OPTIONS":
                 optionsPanel.SetActive(true);
+                currentMenuState = MenuState.optionsMenu;
                 break;
             case "STOP-MUSIC":
                 mc.Stop();
@@ -179,7 +204,7 @@ public class MainAppController : MonoBehaviour
 
     internal void EditPageLabel(TMP_Text label)
     {
-        epl.buttonLabel = label;
+        epl.ButtonLabel = label;
         epl.StartEditing();
     }
 
@@ -188,5 +213,63 @@ public class MainAppController : MonoBehaviour
         GameObject error = Instantiate(errorPrefab, errorMessagesPanel.transform);
         error.GetComponentInChildren<TMP_Text>().text = "Error: " + message;
         Debug.LogError(message);
+    }
+
+    private void Update()
+    {
+        if(Input.GetKeyDown(KeyCode.Escape))
+        {
+            switch(currentMenuState)
+            {
+                case MenuState.optionsMenu:
+                    GetComponent<OptionsMenuController>().Close();
+                    break;
+                case MenuState.aboutMenu:
+                    GetComponent<OptionsMenuController>().CloseAboutMenu();
+                    break;
+                case MenuState.enterSaveFileName:
+                    GetComponent<OptionsMenuController>().CloseSaveMenu();
+                    break;
+                case MenuState.selectFileToLoad:
+                    GetComponent<OptionsMenuController>().CloseLoadSelection();
+                    break;
+                case MenuState.editingPageLabel:
+                    GetComponent<EditPageLabel>().Cancel();
+                    break;
+                case MenuState.selectSFXFile:
+                    GetComponent<FileSelectViewController>().CloseFileSelection();
+                    break;
+                case MenuState.editingSFXButton:
+                    GetComponent<ButtonEditorController>().CancelEditing();
+                    break;
+                case MenuState.none:
+                    break;
+            }
+        }
+        if(Input.GetKeyDown(KeyCode.Return))
+        {
+            switch(currentMenuState)
+            {
+                case MenuState.optionsMenu:
+                    break;
+                case MenuState.aboutMenu:
+                    break;
+                case MenuState.enterSaveFileName:
+                    GetComponent<OptionsMenuController>().AcceptSaveName();
+                    break;
+                case MenuState.selectFileToLoad:
+                    break;
+                case MenuState.editingPageLabel:
+                    GetComponent<EditPageLabel>().Confirm();
+                    break;
+                case MenuState.selectSFXFile:
+                    break;
+                case MenuState.editingSFXButton:
+                    GetComponent<ButtonEditorController>().ApplySettings();
+                    break;
+                case MenuState.none:
+                    break;
+            }
+        }
     }
 }

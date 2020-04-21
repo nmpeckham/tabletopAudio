@@ -1,5 +1,27 @@
 TableTopAudio Changelog
 
+v0.91 - Preparing for 1.0
+
+- Fixed button label resetting to default on load
+
+- Made placeholder text on button editing page prettier
+
+- Fixed error with rearranging the current song playing in playlist
+
+- Fixed alignment of error messages
+
+- Modified save file format. This does not break save compatibility. It is recommended to re-save with this version
+
+- UI overhaul: Menu items formatted nicer, new button textures
+
+- Added support for using enter/escape keys on various menus
+
+- Double click speed is no longer framerate dependant
+
+- Added small FFT viewer when playing music
+
+- Various other small tweaks and code cleanup
+
 v0.9
 
 - Fixed multiple bugs that could occur when deleting files from music folder

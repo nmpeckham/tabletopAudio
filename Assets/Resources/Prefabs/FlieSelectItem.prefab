@@ -25,6 +25,21 @@ PrefabInstance:
       propertyPath: m_Name
       value: FlieSelectItem
       objectReference: {fileID: 0}
+    - target: {fileID: 5073017128516442655, guid: 17ea4418c9625ee4d8164124389d46ef,
+        type: 3}
+      propertyPath: m_Color.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5073017128516442655, guid: 17ea4418c9625ee4d8164124389d46ef,
+        type: 3}
+      propertyPath: m_Color.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5073017128516442655, guid: 17ea4418c9625ee4d8164124389d46ef,
+        type: 3}
+      propertyPath: m_Color.b
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6674413647118620973, guid: 17ea4418c9625ee4d8164124389d46ef,
         type: 3}
       propertyPath: m_LocalPosition.x
