@@ -192,6 +192,9 @@ public class MainAppController : MonoBehaviour
             case "PREVIOUS":
                 mc.Previous();
                 break;
+            case "CROSSFADE":
+                mc.Crossfade = !mc.Crossfade;
+                break;
         }
         return true;
     }

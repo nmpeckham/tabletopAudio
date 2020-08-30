@@ -14,7 +14,6 @@ public class MusicController : MonoBehaviour
 {
 
     private MainAppController mac;
-    public AudioSource aSource;
 
     public GameObject playlistItemPrefab;
     public GameObject musicScrollView;
@@ -42,13 +41,24 @@ public class MusicController : MonoBehaviour
     public TMP_Text playbackTimerText;
     public Image shuffleImage;
     private bool shuffle;
+    private Button crossfadeButton;
+    private bool crossfade = false;
+    private bool crossfadeActive = false;
+    public Image crossfadeImage;
 
     private VolumeController vc;
 
     private bool autoCheckForNewFiles = false;
 
-    MpegFile mp3Stream;
-    VorbisReader vorbisStream;
+    private AudioSource activeAudioSource;
+    private AudioSource inactiveAudioSource;
+
+
+    MpegFile activeMp3Stream;
+    MpegFile inactiveMp3Stream;
+
+    VorbisReader activeVorbisStream;
+    VorbisReader inactiveVorbisStream;
 
     int buttonWithCursor;
     private GameObject activeRightClickMenu;
@@ -57,6 +67,18 @@ public class MusicController : MonoBehaviour
     public FftBar[] pieces;
 
     public GameObject TooltipParent;
+
+    private const float fixedUpdateTime = 1f / .02f;
+    private const float crossfadeTime = 1f / (5f * fixedUpdateTime);
+    public PlaylistAudioSources plas;
+
+    bool useInactiveCallback = true;
+
+    bool shouldStop1 = false;
+    bool shouldStop2 = false;
+
+    bool usingInactiveAudioSource = false;
+
     public int ButtonWithCursor
     {
         get
@@ -124,9 +146,28 @@ public class MusicController : MonoBehaviour
         }
     }
 
+    public bool Crossfade
+    {
+        get 
+        {
+            return crossfade;
+        }
+        set 
+        {
+            Debug.Log(value);
+            crossfade = value;
+            if (crossfade) crossfadeImage.color = ResourceManager.green;
+            else crossfadeImage.color = Color.white;
+        }
+    }
+
     // Start is called before the first frame update
     void Start()
     {
+        Debug.Log(crossfadeTime);
+        activeAudioSource = plas.a1;
+        inactiveAudioSource = plas.a2;
+
         pieces = fftParent.GetComponentsInChildren<FftBar>();
         mac = Camera.main.GetComponent<MainAppController>();
         buttonWithCursor = -1;
@@ -145,13 +186,16 @@ public class MusicController : MonoBehaviour
         float[] data = new float[fftSize];
         while (true)
         {
-            aSource.GetSpectrumData(data, 0, FFTWindow.BlackmanHarris);
+            activeAudioSource.GetSpectrumData(data, 0, FFTWindow.BlackmanHarris);
             for (int i = 0; i < 4;)
             {
                 float sum = 0;
+                float max = 0;
                 for (int j = 0; j < Mathf.Pow(2, i) * 2; j++)
                 {
+                    //Debug.Log(data[4 * i + j]);
                     sum += data[i + j];
+                    if (data[i + j] > max) max = data[i + j];
                 }
                 sum /= Mathf.Pow(2, i) * 2;
                 StartCoroutine(AdjustScale(sum * Mathf.Pow(1.2f, i + 1) * 3.5f, pieces[i].transform));   
@@ -165,7 +209,7 @@ public class MusicController : MonoBehaviour
     {
         float oldScale = obj.localScale.y;
         for(int i = 0; i < 5; i++) {
-            obj.localScale = new Vector3(1, Mathf.Min(Mathf.Lerp(oldScale, newScale, i / 5f), 1));
+            obj.localScale.Set(1, Mathf.Min(Mathf.Lerp(oldScale, newScale, i / 5f), 1), 1);
             yield return new WaitForEndOfFrame();
         }
         yield return null;
@@ -217,11 +261,11 @@ public class MusicController : MonoBehaviour
 
     IEnumerator CheckForNewFiles()
     {
-        while(true)
+        List<GameObject> toDelete = new List<GameObject>();
+        while (true)
         {
             if (autoCheckForNewFiles)
             {
-                List<GameObject> toDelete = new List<GameObject>();
                 foreach (string s in LoadedFilesData.musicClips)
                 {
                     //Debug.Log(s);
@@ -238,8 +282,8 @@ public class MusicController : MonoBehaviour
                     LoadedFilesData.musicClips.Remove(g.GetComponent<MusicButton>().FileName);
                     musicButtons.Remove(g);
                     Destroy(g);
-
                 }
+                toDelete.Clear();
                 foreach (string s in System.IO.Directory.GetFiles(mac.musicDirectory))
                 {
                     if (!LoadedFilesData.musicClips.Contains(s.Replace(mac.musicDirectory + Path.DirectorySeparatorChar, "")) && (Path.GetExtension(s) == ".mp3" || Path.GetExtension(s) == ".ogg") && !LoadedFilesData.deletedMusicClips.Contains(s.Replace(mac.musicDirectory + Path.DirectorySeparatorChar, "")))
@@ -279,34 +323,79 @@ public class MusicController : MonoBehaviour
                 songName = button.FileName;
                 AudioClip clip = null;
                 long totalLength = 0;
-
-                if (Path.GetExtension(songPath) == ".mp3")
+                if (crossfade)
                 {
-                    vorbisStream = null;
-                    mp3Stream = new MpegFile(songPath);
+                    if (Path.GetExtension(songPath) == ".mp3")
+                    {
+                        if(useInactiveCallback)
+                        {
+                            if (inactiveMp3Stream != null) Debug.Log(inactiveMp3Stream.Duration);
+                            inactiveMp3Stream = new MpegFile(songPath);
 
-                    totalLength = mp3Stream.Length / (mp3Stream.Channels * 4);
-                    //Debug.Log(mp3Stream.Length > int.MaxValue);
-                    if (totalLength > int.MaxValue) totalLength = int.MaxValue;
-                    clip = AudioClip.Create(songPath, (int)totalLength, mp3Stream.Channels, mp3Stream.SampleRate, true, MP3Callback);
-                    //clip. = AudioClipLoadType.DecompressOnLoad();
-                    aSource.clip = clip;
-                    SetupInterfaceForPlay();
-                    //StartCoroutine(FFTDisplay());
-                }
-                else if(Path.GetExtension(songPath) == ".ogg")
-                {
-                    mp3Stream = null;
-                    vorbisStream = new NVorbis.VorbisReader(songPath);
-                    totalLength = vorbisStream.TotalSamples;
-                    if (totalLength > int.MaxValue) totalLength = int.MaxValue;
-                    clip = AudioClip.Create(songPath, (int)totalLength, vorbisStream.Channels, vorbisStream.SampleRate, true, VorbisCallback);
-                    aSource.clip = clip;
-                    SetupInterfaceForPlay();
+                            totalLength = inactiveMp3Stream.Length / (inactiveMp3Stream.Channels * 4);
+                            //Debug.Log(mp3Stream.Length > int.MaxValue);
+                            if (totalLength > int.MaxValue) totalLength = int.MaxValue;
+                            clip = AudioClip.Create(songPath, (int)totalLength, inactiveMp3Stream.Channels, inactiveMp3Stream.SampleRate, true, InactiveMP3Callback);
+                            useInactiveCallback = !useInactiveCallback;
+                            SetupInterfaceForPlay(inactiveAudioSource, clip);
+                        }
+                        else
+                        {
+                            if (activeMp3Stream != null) Debug.Log(activeMp3Stream.Duration);
+                            activeMp3Stream = new MpegFile(songPath);
+
+                            totalLength = activeMp3Stream.Length / (activeMp3Stream.Channels * 4);
+                            //Debug.Log(mp3Stream.Length > int.MaxValue);
+                            if (totalLength > int.MaxValue) totalLength = int.MaxValue;
+                            clip = AudioClip.Create(songPath, (int)totalLength, activeMp3Stream.Channels, activeMp3Stream.SampleRate, true, ActiveMP3Callback);
+                            useInactiveCallback = !useInactiveCallback;
+                            SetupInterfaceForPlay(inactiveAudioSource, clip);
+                        }
+                        usingInactiveAudioSource = !usingInactiveAudioSource;
+                        //if (!activeAudioSource.isPlaying) SwapActiveAudioSources();
+
+                    }
+                    else if (Path.GetExtension(songPath) == ".ogg")
+                    {
+                        //activeMp3Stream = null;
+                        inactiveVorbisStream = new NVorbis.VorbisReader(songPath);
+                        totalLength = inactiveVorbisStream.TotalSamples;
+                        if (totalLength > int.MaxValue) totalLength = int.MaxValue;
+                        //clip = AudioClip.Create(songPath, (int)totalLength, inactiveVorbisStream.Channels, inactiveVorbisStream.SampleRate, true, VorbisCallback);
+                        //SetupInterfaceForPlay(clip);
+                    }
+                    else
+                    {
+                        activeAudioSource.clip = null;
+                    }
                 }
                 else
                 {
-                    aSource.clip = null;
+                    if (Path.GetExtension(songPath) == ".mp3")
+                    {
+                        //activeVorbisStream = null;
+                        activeMp3Stream = new MpegFile(songPath);
+
+                        totalLength = activeMp3Stream.Length / (activeMp3Stream.Channels * 4);
+                        //Debug.Log(mp3Stream.Length > int.MaxValue);
+                        if (totalLength > int.MaxValue) totalLength = int.MaxValue;
+                        clip = AudioClip.Create(songPath, (int)totalLength, activeMp3Stream.Channels, activeMp3Stream.SampleRate, true, ActiveMP3Callback);
+                        //if (!activeAudioSource.isPlaying) SwapActiveAudioSources();
+                        SetupInterfaceForPlay(activeAudioSource, clip);
+                    }
+                    else if (Path.GetExtension(songPath) == ".ogg")
+                    {
+                        //activeMp3Stream = null;
+                        activeVorbisStream = new NVorbis.VorbisReader(songPath);
+                        totalLength = activeVorbisStream.TotalSamples;
+                        if (totalLength > int.MaxValue) totalLength = int.MaxValue;
+                        //clip = AudioClip.Create(songPath, (int)totalLength, inactiveVorbisStream.Channels, inactiveVorbisStream.SampleRate, true, VorbisCallback);
+                        //SetupInterfaceForPlay(clip);
+                    }
+                    else
+                    {
+                        activeAudioSource.clip = null;
+                    }
                 }
 
         }
@@ -320,13 +409,20 @@ public class MusicController : MonoBehaviour
             //Debug.Log(e.Message);
             mac.ShowErrorMessage("Encoding Type Invalid: 1. " + e.Message);
         }
-        catch (Exception e)
-        {
-            //Debug.Log(e.Message);
-            mac.ShowErrorMessage("Unknown exception: 2. " + e.Message);
-        }
+        //catch (Exception e)
+        //{
+        //    //Debug.Log(e.Message);
+        //    mac.ShowErrorMessage("Unknown exception: 2. " + e.Message);
+        //}
     }
     }
+
+    //internal void SwapActiveAudioSources()
+    //{
+    //    AudioSource temp = activeAudioSource;
+    //    activeAudioSource = inactiveAudioSource;
+    //    inactiveAudioSource = temp;
+    //}
 
     internal void ClearPlaylist()
     {
@@ -336,11 +432,32 @@ public class MusicController : MonoBehaviour
         }
     }
 
-    void SetupInterfaceForPlay()
+    void SetupInterfaceForPlay(AudioSource aSource, AudioClip clip = null)
     {
-        
+        if(clip == null) 
+        {
+            Debug.Log("Clip was null");
+        }
+        else
+        {
+            Debug.Log("Item Selected");
+            //Debug.Log(activeAudioSource.clip.name);
+            Debug.Log("playing?: " + activeAudioSource.isPlaying);
+            Debug.Log("Crossfade?: " + crossfade);
+        }
+        if(crossfade)
+        {
+            Debug.Log("swapping sources");
+            AudioSource temp = inactiveAudioSource;
+            inactiveAudioSource = activeAudioSource;
+            activeAudioSource = temp;
+        }
+        //aSource.volume = 0f;
+        aSource.clip = clip;
         aSource.time = 0;
         aSource.Play();
+        if(crossfade) StartCoroutine(CrossfadeAudioSources());
+
         playbackScrubber.value = 0;
         Image buttonImage = musicButtons[nowPlayingButtonID].GetComponent<Image>();
         if (prevButtonImage != null) prevButtonImage.color = ResourceManager.musicButtonGrey;
@@ -352,25 +469,70 @@ public class MusicController : MonoBehaviour
         musicStatusImage.sprite = mac.playImage;
     }
 
-    void MP3Callback(float[] data)
+    IEnumerator CrossfadeAudioSources()
+    {
+        Debug.Log("Crossfade Started");
+        crossfadeActive = true;
+        int counter = 0;
+        while (true)
+        {
+            Debug.Log(inactiveAudioSource.volume);
+            activeAudioSource.volume += crossfadeTime;
+            inactiveAudioSource.volume -= crossfadeTime;
+            
+
+            if (activeAudioSource.volume >= MusicVolume) break;
+            counter++;
+            if (counter > 1000)
+            {
+                Debug.Log("breaking audio fade");
+                break;
+            }
+            yield return new WaitForFixedUpdate();
+
+        }
+        activeAudioSource.volume = MusicVolume;
+        inactiveAudioSource.volume = 0f;
+        Debug.Log("crossfade finished");
+        inactiveAudioSource.clip = null;
+        inactiveAudioSource.Stop();
+        crossfadeActive = false;
+        yield return null;
+    }
+
+    void ActiveMP3Callback(float[] data)
     {
         try
         {
-            mp3Stream.ReadSamples(data, 0, data.Length);
+            activeMp3Stream.ReadSamples(data, 0, data.Length);
         }
         catch(NullReferenceException)
         {
-            Stop();
+            Debug.Log("NRE1");
+            shouldStop1 = true;
+        }
+    }
+    void InactiveMP3Callback(float[] data)
+    {
+        try
+        {
+            inactiveMp3Stream.ReadSamples(data, 0, data.Length);
+        }
+        catch (NullReferenceException)
+        {
+            Debug.Log("NRE2");
+            shouldStop2 = true;
         }
     }
 
     void VorbisCallback(float[] data)
     {
-        vorbisStream.ReadSamples(data, 0, data.Length);
+        activeVorbisStream.ReadSamples(data, 0, data.Length);
     }
 
     public void Next()
     {
+        StopAllCoroutines();
         if(shuffle)
         {
             int newButtonID = UnityEngine.Random.Range(0, LoadedFilesData.musicClips.Count);
@@ -400,9 +562,9 @@ public class MusicController : MonoBehaviour
 
     public void Previous()
     {
+        StopAllCoroutines();
         if(musicButtons.Count > 0)
         {
-            playbackScrubber.value = 0;
             if (shuffle)
             {
                 int newButtonID = UnityEngine.Random.Range(0, LoadedFilesData.musicClips.Count);
@@ -427,24 +589,26 @@ public class MusicController : MonoBehaviour
                     ItemSelected(nowPlayingButtonID);
                 }
             }
+            playbackScrubber.value = 0;
         }
     }
 
     public void Stop()
     {
-        aSource.Stop();
+        Debug.Log("Stopping");
+        activeAudioSource.Stop();
         isPaused = false;
-        aSource.clip = null;
+        activeAudioSource.clip = null;
         if (prevButtonImage != null) prevButtonImage.color = ResourceManager.musicButtonGrey;
-        if(mp3Stream != null) mp3Stream.Dispose();
-        if (vorbisStream != null) vorbisStream.Dispose();
+        //if(activeMp3Stream != null) activeMp3Stream.Dispose();
+        //if (activeVorbisStream != null) activeVorbisStream.Dispose();
         musicStatusImage.sprite = mac.stopImage;
         nowPlayingLabel.text = "";
     }
 
     public void Pause()
     {
-        aSource.Pause();
+        activeAudioSource.Pause();
         isPaused = true;
         if (prevButtonImage != null) prevButtonImage.color = ResourceManager.orange;
         musicStatusImage.sprite = mac.pauseImage;
@@ -452,9 +616,10 @@ public class MusicController : MonoBehaviour
 
     public void Play()
     {
-        if(aSource.clip != null)
+        
+        if(activeAudioSource.clip != null)
         {
-            aSource.UnPause();
+            activeAudioSource.UnPause();
             isPaused = false;
             if (prevButtonImage != null) prevButtonImage.color = ResourceManager.red;
             musicStatusImage.sprite = mac.playImage;
@@ -465,6 +630,7 @@ public class MusicController : MonoBehaviour
             ItemSelected(nowPlayingButtonID);
         }
         else ItemSelected(0);
+        activeAudioSource.volume = MusicVolume;
     }
 
     public void RefreshSongOrder(int oldID, int newID)
@@ -480,89 +646,49 @@ public class MusicController : MonoBehaviour
     public void ChangeMasterVolume(float newMasterVolume)
     {
         masterVolume = newMasterVolume;
-        aSource.volume = masterVolume * musicVolume;
+        activeAudioSource.volume = masterVolume * musicVolume;
     }
 
     private void ChangeLocalVolume(float newLocalVolume)
     {
         if (localVolumeSlider.value != newLocalVolume) localVolumeSlider.value = newLocalVolume;
         musicVolume = newLocalVolume;
-        aSource.volume = masterVolume * musicVolume;
+        activeAudioSource.volume = masterVolume * musicVolume;
         localVolumeLabel.text = (musicVolume * 100).ToString("N0");
     }
 
     private void PlaybackTimeValueChanged(float val)
     {
-        if(aSource.clip != null)
+        if(!crossfadeActive)
         {
+            MpegFile streamToUse = usingInactiveAudioSource ? inactiveMp3Stream : activeMp3Stream;
             try
             {
-                if (Mathf.Abs(val - (aSource.time / aSource.clip.length)) > 0.01)
+                if (Mathf.Abs(val - (activeAudioSource.time / activeAudioSource.clip.length)) > 0.01)
                 {
-                    if (mp3Stream != null) mp3Stream.Position = Convert.ToInt64(mp3Stream.Length * val);
-                    else if (vorbisStream != null) vorbisStream.DecodedPosition = Convert.ToInt64(vorbisStream.TotalSamples * val);
-                    aSource.time = val * aSource.clip.length;
+                    if (streamToUse != null) streamToUse.Position = Convert.ToInt64(streamToUse.Length * val);
+                    else if (activeVorbisStream != null) activeVorbisStream.DecodedPosition = Convert.ToInt64(activeVorbisStream.TotalSamples * val);
+                    activeAudioSource.time = val * activeAudioSource.clip.length;
                 }
             }
-            catch(NullReferenceException)
+            catch (NullReferenceException)
             {
+                Debug.Log(activeMp3Stream.Length);
+                Debug.Log(inactiveMp3Stream.Length);
+                Debug.Log("NRE Playback Time Changed");
             }
         }
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-        if(!aSource.isPlaying && aSource.clip != null && !isPaused)
-        {
-            prevButtonImage.color = ResourceManager.musicButtonGrey;
-            if (nowPlayingButtonID < musicButtons.Count - 1)
-            {
-                int newbuttonID = shuffle ? UnityEngine.Random.Range(0, musicButtons.Count - 1) : nowPlayingButtonID + 1;
-                while (newbuttonID == nowPlayingButtonID)
-                {
-                    newbuttonID = shuffle ? UnityEngine.Random.Range(0, musicButtons.Count - 1) : nowPlayingButtonID + 1;
-                }
-                nowPlayingButtonID = newbuttonID;
-                ItemSelected(nowPlayingButtonID);
-            }
-            else
-            {
-
-                int newbuttonID = shuffle ? UnityEngine.Random.Range(0, musicButtons.Count - 1) : 0;
-                while(newbuttonID == nowPlayingButtonID)
-                {
-                    newbuttonID = shuffle ? UnityEngine.Random.Range(0, musicButtons.Count - 1) : 0;
-                }
-                nowPlayingButtonID = newbuttonID;
-                ItemSelected(nowPlayingButtonID);
-            }
-
-        }
-        if(aSource.clip != null)
-        {
-            playbackScrubber.value = aSource.time / aSource.clip.length;
-            playbackTimerText.text = Mathf.Floor(aSource.time / 60).ToString() + ":" + (Mathf.FloorToInt(aSource.time % 60)).ToString("D2") + "/" + Mathf.FloorToInt(aSource.clip.length / 60) + ":" + Mathf.FloorToInt(aSource.clip.length % 60).ToString("D2");
-        }
-    }
-    public void ShowRightClickMenu(int id)
-    {
-        toDeleteId = id;
-        //StopAllCoroutines();
-        if(activeRightClickMenu) Destroy(activeRightClickMenu);
-        activeRightClickMenu = Instantiate(playlistRightClickMenuPrefab, Input.mousePosition, Quaternion.identity, TooltipParent.transform);
-        StartCoroutine(CheckMousePos(Input.mousePosition));
-    }
-
     IEnumerator CheckMousePos(Vector3 mousePos)
     {
-        while(true)
+        while (true)
         {
-            if(Vector3.Distance(mousePos, Input.mousePosition) > 80) {
+            if (Vector3.Distance(mousePos, Input.mousePosition) > 80)
+            {
                 Destroy(activeRightClickMenu);
                 break;
             }
-            if(mac.currentMenuState == MainAppController.MenuState.none && Input.GetKey(KeyCode.Escape))
+            if (mac.currentMenuState == MainAppController.MenuState.none && Input.GetKey(KeyCode.Escape))
             {
                 Destroy(activeRightClickMenu);
                 break;
@@ -574,7 +700,6 @@ public class MusicController : MonoBehaviour
     }
 
     public void DeleteItem()
-
     {
         if (nowPlayingButtonID == toDeleteId)
         {
@@ -586,12 +711,69 @@ public class MusicController : MonoBehaviour
         Destroy(musicButtons[toDeleteId]);
         musicButtons.RemoveAt(toDeleteId);
         int currentID = 0;
-        foreach(GameObject mbObj in musicButtons)
+        foreach (GameObject mbObj in musicButtons)
         {
             MusicButton mb = mbObj.GetComponent<MusicButton>();
             mb.id = currentID;
             currentID++;
         }
         Destroy(activeRightClickMenu);
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (shouldStop1)
+        {
+            Stop();
+            shouldStop1 = false;
+            Debug.Log("stoping 1");
+        }
+        if (shouldStop2)
+        {
+            Stop();
+            shouldStop2 = false;
+            Debug.Log("stopping 2");
+        }
+        if(!activeAudioSource.isPlaying && activeAudioSource.clip != null && !isPaused)
+        {
+            prevButtonImage.color = ResourceManager.musicButtonGrey;
+            if (nowPlayingButtonID < musicButtons.Count - 1)
+            {
+                Debug.Log("FUCKED");
+                int newbuttonID = shuffle ? UnityEngine.Random.Range(0, musicButtons.Count - 1) : nowPlayingButtonID + 1;
+                while (newbuttonID == nowPlayingButtonID)
+                {
+                    newbuttonID = shuffle ? UnityEngine.Random.Range(0, musicButtons.Count - 1) : nowPlayingButtonID + 1;
+                }
+                nowPlayingButtonID = newbuttonID;
+                ItemSelected(nowPlayingButtonID);
+            }
+            else
+            {
+                Debug.Log("Double Fucked");
+                int newbuttonID = shuffle ? UnityEngine.Random.Range(0, musicButtons.Count - 1) : 0;
+                while(newbuttonID == nowPlayingButtonID)
+                {
+                    newbuttonID = shuffle ? UnityEngine.Random.Range(0, musicButtons.Count - 1) : 0;
+                }
+                nowPlayingButtonID = newbuttonID;
+                ItemSelected(nowPlayingButtonID);
+            }
+
+        }
+        if(activeAudioSource.clip != null)
+        {
+            playbackScrubber.value = activeAudioSource.time / activeAudioSource.clip.length;
+            playbackTimerText.text = Mathf.Floor(activeAudioSource.time / 60).ToString() + ":" + (Mathf.FloorToInt(activeAudioSource.time % 60)).ToString("D2") + "/" + Mathf.FloorToInt(activeAudioSource.clip.length / 60) + ":" + Mathf.FloorToInt(activeAudioSource.clip.length % 60).ToString("D2");
+        }
+    }
+    public void ShowRightClickMenu(int id)
+    {
+        toDeleteId = id;
+        //StopAllCoroutines();
+        if(activeRightClickMenu) Destroy(activeRightClickMenu);
+        activeRightClickMenu = Instantiate(playlistRightClickMenuPrefab, Input.mousePosition, Quaternion.identity, TooltipParent.transform);
+        StartCoroutine(CheckMousePos(Input.mousePosition));
     }
 }

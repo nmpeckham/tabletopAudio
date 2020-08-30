@@ -314,13 +314,14 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         if(aSource.isPlaying)
         {
             float percentPlayed = (aSource.time / aSource.clip.length);
-            playbackBarRect.sizeDelta = new Vector2((percentPlayed * rectWidth), playbackBarRect.rect.height);
+            playbackBarRect.sizeDelta.Set((percentPlayed * rectWidth), playbackBarRect.rect.height);
+            //playbackBarRect.sizeDelta = new Vector2((percentPlayed * rectWidth), playbackBarRect.rect.height);
         }
         if(isWaiting && isPlaying)
         {
-
             float percentWaited = ((Time.time - waitStartedTime) / timeToWait);
-            playbackBarRect.sizeDelta = new Vector2((percentWaited * rectWidth), playbackBarRect.rect.height);
+            playbackBarRect.sizeDelta.Set((percentWaited * rectWidth), playbackBarRect.rect.height);
+            //playbackBarRect.sizeDelta = new Vector2((percentWaited * rectWidth), playbackBarRect.rect.height);
         }
 
         //prevent playback bar from showing after clip has been removed
