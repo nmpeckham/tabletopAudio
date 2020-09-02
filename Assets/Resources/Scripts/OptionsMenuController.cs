@@ -34,6 +34,9 @@ public class OptionsMenuController : MonoBehaviour
     public GameObject loadGameScrollView;
     public GameObject loadGameItemPrefab;
 
+    public TMP_InputField crossfadeField;
+    private bool hadFormatException = false;
+
     private static MainAppController mac;
     private static MusicController mc;
 
@@ -51,6 +54,30 @@ public class OptionsMenuController : MonoBehaviour
         closeLoadSelection.onClick.AddListener(CloseLoadSelection);
         acceptSaveName.onClick.AddListener(AcceptSaveName);
         closeSaveNameMenu.onClick.AddListener(CloseSaveMenu);
+        crossfadeField.onValueChanged.AddListener(CrossfadeTimeChanged);
+    }
+
+    void CrossfadeTimeChanged(string value)
+    {
+        try
+        {
+            float val = 0;
+            if (hadFormatException)
+            {
+                if (value[value.Length - 1] == '0') val = Convert.ToSingle(value.Remove(value.Length - 1, 1));
+                hadFormatException = false;
+            }
+
+            else val = Math.Min(30, Convert.ToSingle(value));
+            mc.CrossfadeTime = val;
+            crossfadeField.text = val.ToString();
+        }
+        catch(FormatException)
+        {
+            crossfadeField.text = "0";
+            mc.CrossfadeTime = 0;
+            hadFormatException = true;
+        }
     }
 
     void OpenSaveNamePanel()
