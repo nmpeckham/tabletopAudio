@@ -81,6 +81,8 @@ public class MusicController : MonoBehaviour
 
     bool usingInactiveAudioSource = false;
 
+    float[] fadeTargets;
+
     public float CrossfadeTime
     {
         get { return (int)crossfadeTime; }
@@ -176,6 +178,7 @@ public class MusicController : MonoBehaviour
         inactiveAudioSource = plas.a2;
 
         pieces = fftParent.GetComponentsInChildren<FftBar>();
+        fadeTargets = new float[pieces.Length];
         mac = Camera.main.GetComponent<MainAppController>();
         buttonWithCursor = -1;
         vc = GetComponent<VolumeController>();
@@ -183,7 +186,7 @@ public class MusicController : MonoBehaviour
         StartCoroutine("CheckForNewFiles");
         localVolumeSlider.onValueChanged.AddListener(ChangeLocalVolume);
         playbackScrubber.onValueChanged.AddListener(PlaybackTimeValueChanged);
-
+        StartCoroutine(AdjustScale());
         StartCoroutine(Fft());
     }
 
@@ -194,31 +197,38 @@ public class MusicController : MonoBehaviour
         while (true)
         {
             activeAudioSource.GetSpectrumData(data, 0, FFTWindow.BlackmanHarris);
-            for (int i = 0; i < 4;)
+            // Debug.Log(data.Length);
+            for (int i = 0; i < 4; i++)
             {
                 float sum = 0;
                 float max = 0;
-                for (int j = 0; j < Mathf.Pow(2, i) * 2; j++)
+                for (int j = 0; j < Mathf.Pow(4, i) * 2; j++)
                 {
                     sum += data[i + j];
                     if (data[i + j] > max) max = data[i + j];
                 }
                 sum /= Mathf.Pow(2, i) * 2;
-                StartCoroutine(AdjustScale(sum * Mathf.Pow(1.2f, i + 1) * 3.5f, pieces[i].transform));   
-                i++;
+                sum *= Mathf.Pow(1.2f, i + 1) * 3.5f;
+                fadeTargets[i] = sum;
             }
-            yield return new WaitForSecondsRealtime(0.03f);
+            yield return new WaitForEndOfFrame();
         }
     }
 
-    IEnumerator AdjustScale(float newScale, Transform obj)
+    IEnumerator AdjustScale()
     {
-        float oldScale = obj.localScale.y;
-        for(int i = 0; i < 5; i++) {
-            obj.localScale.Set(1, Mathf.Min(Mathf.Lerp(oldScale, newScale, i / 5f), 1), 1);
+        while(true) {
+            for(int i = 0; i < pieces.Length; i++)
+            {
+                Transform obj = pieces[i].transform;
+                float oldScale = obj.localScale.y;
+                float newScale = (oldScale + fadeTargets[i]) / 2f;
+                int fadeFrames = 3;
+                // Fades between values for 5 frames
+                obj.localScale = new Vector3(1, Mathf.Min(newScale, 1), 1);
+            }
             yield return new WaitForEndOfFrame();
         }
-        yield return null;
     }
 
     internal void InitLoadFiles(List<string> files = null)
