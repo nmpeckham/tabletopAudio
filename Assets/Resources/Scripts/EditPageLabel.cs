@@ -25,7 +25,7 @@ public class EditPageLabel : MonoBehaviour
     {
         mac = Camera.main.GetComponent<MainAppController>();
         cancel.onClick.AddListener(Cancel);
-        confirm.onClick.AddListener(Confirm);
+        confirm.onClick.AddListener(Confirm);        
     }
 
     internal void Cancel()

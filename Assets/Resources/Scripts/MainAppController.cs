@@ -32,7 +32,7 @@ public class MainAppController : MonoBehaviour
     internal List<List<GameObject>> sfxButtons;
 
     public GameObject pageButtonPrefab;
-    internal List<GameObject> pageButtons;
+    public List<GameObject> pageButtons;
     public GameObject pageButtonParent;
 
     private MusicController mc;
@@ -53,6 +53,7 @@ public class MainAppController : MonoBehaviour
 
     internal enum MenuState
     {
+        mainAppView,
         editingSFXButton,
         editingPageLabel,
         optionsMenu,
@@ -63,7 +64,7 @@ public class MainAppController : MonoBehaviour
         none
     }
 
-    internal MenuState currentMenuState = MenuState.none;
+    internal MenuState currentMenuState = MenuState.mainAppView;
 
     // Start is called before the first frame update
     public void Start()
@@ -224,6 +225,9 @@ public class MainAppController : MonoBehaviour
         {
             switch(currentMenuState)
             {
+                case MenuState.mainAppView:
+                    ControlButtonClicked("OPTIONS");
+                    break;
                 case MenuState.optionsMenu:
                     GetComponent<OptionsMenuController>().Close();
                     break;
@@ -273,6 +277,50 @@ public class MainAppController : MonoBehaviour
                 case MenuState.none:
                     break;
             }
+        }
+        if(Input.GetKeyDown(KeyCode.Space) && currentMenuState == MenuState.mainAppView)
+        {
+            mc.SpacebarPressed();
+        }
+        if((Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1)) && currentMenuState == MenuState.mainAppView)
+        {
+            ChangeSFXPage(0);
+            pageButtons[0].GetComponent<Image>().color = Color.red;
+        }
+        if ((Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Keypad2)) && currentMenuState == MenuState.mainAppView)
+        {
+            ChangeSFXPage(1);
+            pageButtons[1].GetComponent<Image>().color = Color.red;
+        }
+        if ((Input.GetKeyDown(KeyCode.Alpha3) || Input.GetKeyDown(KeyCode.Keypad3)) && currentMenuState == MenuState.mainAppView)
+        {
+            ChangeSFXPage(2);
+            pageButtons[2].GetComponent<Image>().color = Color.red;
+        }
+        if ((Input.GetKeyDown(KeyCode.Alpha4) || Input.GetKeyDown(KeyCode.Keypad4)) && currentMenuState == MenuState.mainAppView)
+        {
+            ChangeSFXPage(3);
+            pageButtons[3].GetComponent<Image>().color = Color.red;
+        }
+        if ((Input.GetKeyDown(KeyCode.Alpha5) || Input.GetKeyDown(KeyCode.Keypad5)) && currentMenuState == MenuState.mainAppView)
+        {
+            ChangeSFXPage(4);
+            pageButtons[4].GetComponent<Image>().color = Color.red;
+        }
+        if ((Input.GetKeyDown(KeyCode.Alpha6) || Input.GetKeyDown(KeyCode.Keypad6)) && currentMenuState == MenuState.mainAppView)
+        {
+            ChangeSFXPage(5);
+            pageButtons[5].GetComponent<Image>().color = Color.red;
+        }
+        if ((Input.GetKeyDown(KeyCode.Alpha7) || Input.GetKeyDown(KeyCode.Keypad7)) && currentMenuState == MenuState.mainAppView)
+        {
+            ChangeSFXPage(6);
+            pageButtons[6].GetComponent<Image>().color = Color.red;
+        }
+        if ((Input.GetKeyDown(KeyCode.Alpha8) || Input.GetKeyDown(KeyCode.Keypad8)) && currentMenuState == MenuState.mainAppView)
+        {
+            ChangeSFXPage(7);
+            pageButtons[7].GetComponent<Image>().color = Color.red;
         }
     }
 }
