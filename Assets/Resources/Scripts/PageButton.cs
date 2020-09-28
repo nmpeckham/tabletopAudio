@@ -112,7 +112,7 @@ public class PageButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         // Fixes weird behaviour of page sibling indexes. Are different in builds and editor, and can change randomly
         if (id == -2 && gameObject.transform.GetSiblingIndex() != MainAppController.NUMPAGES + 1) gameObject.transform.SetSiblingIndex(MainAppController.NUMPAGES + 1);
         if(id == -1 && gameObject.transform.GetSiblingIndex() != 0) gameObject.transform.SetSiblingIndex(0);
-        if (mac.activePage != id) GetComponent<Image>().color = ResourceManager.transWhite;
+        if (mac.activePage != id) GetComponent<Image>().color = Color.white;
         if(hasPointer && Input.GetMouseButtonDown(1) && id >= 0 && id < MainAppController.NUMPAGES)
         {
             //Debug.Log("Clicked " + id);

@@ -207,6 +207,7 @@ public class ButtonEditorController : MonoBehaviour
             placeholderText.text = "";
         }
         mac.currentMenuState = MainAppController.MenuState.editingSFXButton;
+
     }
 
     //Called when button file is changed

@@ -34,12 +34,31 @@ public class OptionsMenuController : MonoBehaviour
     public GameObject loadGameScrollView;
     public GameObject loadGameItemPrefab;
 
+    public TMP_InputField crossfadeField;
+    private bool hadFormatException = false;
+
     private static MainAppController mac;
     private static MusicController mc;
+
+    public TMP_Text saveErrorText;
+
+    private char[] bannedCharacters =
+    {
+        ':',
+        '\\',
+        '/',
+        '<',
+        '>',
+        '"',
+        '|',
+        '?',
+        '*'
+    };
 
     // Start is called before the first frame update
     void Start()
     {
+        saveErrorText.enabled = false;
         mc = GetComponent<MusicController>();
         mac = GetComponent<MainAppController>();
         autoUpdatePlaylistToggle.onValueChanged.AddListener(AutoUpdateChanged);
@@ -51,6 +70,30 @@ public class OptionsMenuController : MonoBehaviour
         closeLoadSelection.onClick.AddListener(CloseLoadSelection);
         acceptSaveName.onClick.AddListener(AcceptSaveName);
         closeSaveNameMenu.onClick.AddListener(CloseSaveMenu);
+        crossfadeField.onValueChanged.AddListener(CrossfadeTimeChanged);
+    }
+
+    void CrossfadeTimeChanged(string value)
+    {
+        try
+        {
+            float val = 0;
+            if (hadFormatException)
+            {
+                if (value[value.Length - 1] == '0') val = Convert.ToSingle(value.Remove(value.Length - 1, 1));
+                hadFormatException = false;
+            }
+
+            else val = Math.Min(30, Convert.ToSingle(value));
+            mc.CrossfadeTime = val;
+            crossfadeField.text = val.ToString();
+        }
+        catch(FormatException)
+        {
+            crossfadeField.text = "0";
+            mc.CrossfadeTime = 0;
+            hadFormatException = true;
+        }
     }
 
     void OpenSaveNamePanel()
@@ -61,9 +104,24 @@ public class OptionsMenuController : MonoBehaviour
 
     internal void AcceptSaveName()
     {
-        Save(saveNameField.text);
-        mac.currentMenuState = MainAppController.MenuState.optionsMenu;
-        saveNamePanel.SetActive(false);
+        bool errorFound = false;
+        string text = saveNameField.text;
+        foreach (char item in bannedCharacters)
+        {
+            if (text.Contains(item))
+            {
+                errorFound = true;
+                saveErrorText.enabled = true;
+                break;
+            }
+        }
+
+        if(!errorFound)
+        {
+            Save(saveNameField.text);
+            mac.currentMenuState = MainAppController.MenuState.optionsMenu;
+            saveNamePanel.SetActive(false);
+        }
     }
 
     internal void CloseSaveMenu()
@@ -100,7 +158,7 @@ public class OptionsMenuController : MonoBehaviour
     internal void Close()
     {
         optionsPanel.SetActive(false);
-        mac.currentMenuState = MainAppController.MenuState.none;
+        mac.currentMenuState = MainAppController.MenuState.mainAppView;
     }
 
     void Load()
@@ -155,7 +213,13 @@ public class OptionsMenuController : MonoBehaviour
                 foreach (XmlNode p in pages)
                 {
                     int page = Convert.ToInt32(p.SelectSingleNode("id").InnerText);
-                    string pageLabel = p.SelectSingleNode("label").InnerText;
+                    string pageLabel = page.ToString();
+                    try
+                    {
+                        pageLabel = p.SelectSingleNode("label").InnerText;
+                    }
+                    catch (NullReferenceException) { }
+
                     mac.pageButtons[page].GetComponent<PageButton>().Label = pageLabel;
                     foreach (XmlNode b in p.SelectNodes("button"))
                     {

@@ -1,5 +1,21 @@
 TableTopAudio Changelog
 
+v0.92 - Continued preparations for v1.0
+
+- Added crossfading for music playlist. Enable using button in control panel, set crossfade time from options menu.
+
+- Big optimizations to fft bar, now features 8 bands, and all display (mostly) correct intensity (relative to others).
+
+- FFT now properly displays intensity for both channels of stereo tracks.
+
+- Aligned page buttons with music control buttons.
+
+- Added keyboard shortcuts for opening menu (esc), play/pause music (spacebar), and for changing pages (Top row 1-8 or numpad 1-8).
+
+- Basic input sanitization for save names.
+
+- Fixed bug where time elapsed/remaining field would overflow onto 2 lines.
+
 v0.91 - Preparing for 1.0
 
 - Fixed button label resetting to default on load
