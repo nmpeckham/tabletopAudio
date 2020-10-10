@@ -68,7 +68,7 @@ public class PageButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         foreach(GameObject btn in mac.sfxButtons[id])
         {
             SFXButton sfxBtn = btn.GetComponent<SFXButton>();
-            if(!sfxBtn.isPlaying) sfxBtn.Play();
+            if (!sfxBtn.isPlaying) sfxBtn.Play(true);
         }
     }
 
@@ -76,7 +76,7 @@ public class PageButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     {
         foreach (GameObject btn in mac.sfxButtons[id])
         {
-            btn.GetComponent<SFXButton>().Stop();
+            btn.GetComponent<SFXButton>().Stop(true);
         }
     }
 
@@ -84,7 +84,7 @@ public class PageButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     {
         foreach (GameObject btn in mac.sfxButtons[id])
         {
-            btn.GetComponent<SFXButton>().FadeIn();
+            btn.GetComponent<SFXButton>().FadeIn(true);
         }
     }
 
@@ -92,7 +92,7 @@ public class PageButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     {
         foreach (GameObject btn in mac.sfxButtons[id])
         {
-            btn.GetComponent<SFXButton>().FadeOut();
+            btn.GetComponent<SFXButton>().FadeOut(true);
         }
     }
 
@@ -112,19 +112,16 @@ public class PageButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         // Fixes weird behaviour of page sibling indexes. Are different in builds and editor, and can change randomly
         if (id == -2 && gameObject.transform.GetSiblingIndex() != MainAppController.NUMPAGES + 1) gameObject.transform.SetSiblingIndex(MainAppController.NUMPAGES + 1);
         if(id == -1 && gameObject.transform.GetSiblingIndex() != 0) gameObject.transform.SetSiblingIndex(0);
-        if (mac.activePage != id) GetComponent<Image>().color = Color.white;
+        if (mac.activePage != id) GetComponent<Image>().color = mac.darkModeEnabled ? Color.gray : Color.white;
         if(hasPointer && Input.GetMouseButtonDown(1) && id >= 0 && id < MainAppController.NUMPAGES)
         {
-            //Debug.Log("Clicked " + id);
             mac.EditPageLabel(label);
         }
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        //Debug.Log(id);
         hasPointer = true;
-        //Debug.Log(hasPointer);
     }
 
     public void OnPointerExit(PointerEventData eventData)

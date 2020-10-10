@@ -1,5 +1,29 @@
 TableTopAudio Changelog
 
+v1.0.0 Preview - It's Happening
+
+ - Fixed SFX progress bars not being displayed
+
+ - Fixed wrong version displayed in "about" menu
+
+ - Dark mode added
+
+ - Fixed % missing from volume sliders
+
+ - Added fade in & fade out buttons for music playlist
+
+ - Fixed bug when crossfading from an mp3 file to an ogg file in the music playlist
+
+ - Fixed bug where seeking on pause could cause weird behaviour
+
+ - Added option for SFX buttons to be ignored on play all/stop all/fade in all/fade out all
+
+ - Added ability to overwrite save files if they already exist. Use carefully, there's no way to restore an overwritten save
+
+ - Added menu option to start a new save file. This will wipe all sfx buttons and restore all songs to the playlist
+
+ - Optimized behaviour of "Remove" tooltip for music playlist items
+
 v0.92 - Continued preparations for v1.0
 
 - Added crossfading for music playlist. Enable using button in control panel, set crossfade time from options menu.

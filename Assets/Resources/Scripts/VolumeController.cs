@@ -26,7 +26,7 @@ public class VolumeController : MonoBehaviour
         foreach (GameObject obj in mac.sfxButtons[mac.activePage])
         {
             obj.GetComponent<SFXButton>().ChangeMasterVolume(volume);
-            volumeLabel.text = (volume * 100).ToString("N0");
+            volumeLabel.text = (volume * 100).ToString("N0") + "%";
         }
         mc.ChangeMasterVolume(volume);
     }

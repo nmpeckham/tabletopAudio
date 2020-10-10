@@ -16,6 +16,7 @@ public class ButtonEditorController : MonoBehaviour
     public Button cancelButton;
     public Button changeFileButton;
 
+    public Toggle ignoreOnPlayAllButton;
     public Toggle loopButton;
     public Toggle randomizeLoopButton;
 
@@ -143,6 +144,7 @@ public class ButtonEditorController : MonoBehaviour
         button.MaxLoopDelay = Convert.ToInt32(maxLoopDelay.text);
         button.minimumFadeVolume = minimumVolumeSlider.value / 100;
         button.maximumFadeVolume = maximumVolumeSlider.value / 100;
+        button.IgnorePlayAll = ignoreOnPlayAllButton.isOn;
 
         if (!String.IsNullOrEmpty(minLoopDelay.text)) button.MinLoopDelay = Convert.ToInt32(minLoopDelay.text);
         else button.MinLoopDelay = 0;
@@ -193,6 +195,7 @@ public class ButtonEditorController : MonoBehaviour
         minLoopTimePanel.SetActive(loopButton.isOn);
         maxLoopTimePanel.SetActive(randomizeLoopButton.isOn);
         minLoopDelayLabel.text = randomizeLoopButton.isOn ? "Min Loop Delay (sec):" : "Loop Delay (sec):";
+        ignoreOnPlayAllButton.isOn = button.IgnorePlayAll;
 
         string currentLabel = mac.sfxButtons[mac.activePage][buttonID].GetComponentInChildren<TMP_Text>().text;
         editButtonPanel.SetActive(true);

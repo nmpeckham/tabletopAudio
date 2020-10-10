@@ -41,6 +41,7 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     private bool isWaiting = false;
     internal bool isPlaying = false;
+    private bool ignorePlayAll = false;
 
     private float waitStartedTime;
     private float timeToWait;
@@ -55,6 +56,22 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     Coroutine activeFadeOutRoutine;
 
     const float FADE_RATE = 0.004f;
+
+    public TMP_Text ignorePlayAllIndicator;
+
+    internal bool IgnorePlayAll
+    {
+        get
+        {
+            return ignorePlayAll;
+        }
+        set
+        {
+            ignorePlayAll = value;
+            ignorePlayAllIndicator.gameObject.SetActive(ignorePlayAll ? true : false);
+        }
+    }
+
 
     internal string Label { 
         get
@@ -103,8 +120,8 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     public bool RandomizeLoopDelay { get; set; } = false;
     void Start()
     {
-        fadeInButton.onClick.AddListener(FadeIn);
-        fadeOutButton.onClick.AddListener(FadeOut);
+        fadeInButton.onClick.AddListener(delegate { FadeIn(false); });
+        fadeOutButton.onClick.AddListener(delegate { FadeOut(false); });
         TMPLabel = GetComponentInChildren<TMP_Text>();
         thisButton = GetComponent<Button>();
         thisButton.onClick.AddListener(Clicked);
@@ -125,30 +142,36 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     void SliderButtonClicked()
     {
-        Debug.Log("clicked");
         if (activeFadeOutRoutine != null) StopCoroutine(activeFadeOutRoutine);
         if (activeFadeInRoutine != null) StopCoroutine(activeFadeInRoutine);
     }
 
-    internal void FadeIn()
+    internal void FadeIn(bool fromFadeInAll=false)
     {
-        if (activeFadeOutRoutine != null)
+        if (fromFadeInAll && IgnorePlayAll) { }
+        else
         {
-            StopCoroutine(activeFadeOutRoutine);
-            activeFadeOutRoutine = null;
+            if (activeFadeOutRoutine != null)
+            {
+                StopCoroutine(activeFadeOutRoutine);
+                activeFadeOutRoutine = null;
+            }
+            activeFadeInRoutine = StartCoroutine(FadeInRoutine());
         }
-        activeFadeInRoutine = StartCoroutine(FadeInRoutine());
     }
 
-    internal void FadeOut()
+    internal void FadeOut(bool fromFadeOutAll=false)
     {
-        if (activeFadeInRoutine != null)
+        if (fromFadeOutAll && IgnorePlayAll) { }
+        else
         {
-            StopCoroutine(activeFadeInRoutine);
-            activeFadeInRoutine = null;
-            
+            if (activeFadeInRoutine != null)
+            {
+                StopCoroutine(activeFadeInRoutine);
+                activeFadeInRoutine = null;
+            }
+            activeFadeOutRoutine = StartCoroutine(FadeOutRoutine());
         }
-        activeFadeOutRoutine = StartCoroutine(FadeOutRoutine());
     }
 
     IEnumerator FadeInRoutine()
@@ -174,8 +197,7 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
 
     void Clicked()
-    {
-        //Debug.Log("Clicked");
+    {;
         if (aSource.isPlaying || isWaiting)
         {
             Stop();
@@ -201,38 +223,43 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         if (vorbis != null) vorbis.Dispose();
     }
 
-    internal void Stop()
+    internal void Stop(bool fromStopAll=false)
     {
-        //if(stream != null) stream.Dispose();
-        if (LocalVolume > 0 && isPlaying && !isWaiting) mac.pageButtons[page].GetComponent<PageButton>().ActiveAudioSources--;
-        isPlaying = false;
-        bgImage.color = ResourceManager.grey;
-        aSource.Stop();
-        aSource.clip = null;
-        if (stream != null) stream.Dispose();
-        if (vorbis != null) vorbis.Dispose();
-
-        
+        if(fromStopAll && IgnorePlayAll) { }
+        else
+        {
+            if (LocalVolume > 0 && isPlaying && !isWaiting) mac.pageButtons[page].GetComponent<PageButton>().ActiveAudioSources--;
+            isPlaying = false;
+            bgImage.color = mac.darkModeEnabled ? ResourceManager.sfxButtonDark : ResourceManager.sfxButtonLight;
+            aSource.Stop();
+            aSource.clip = null;
+            if (stream != null) stream.Dispose();
+            if (vorbis != null) vorbis.Dispose();
+        }
     }
 
-    internal void Play()
+    internal void Play(bool fromPlayAll=false)
     {
-        if(!string.IsNullOrEmpty(FileName))
+        if (fromPlayAll && IgnorePlayAll) { }
+        else
         {
-            string extension = Path.GetExtension(FileName);
-            if (extension == ".mp3")
+            if (!string.IsNullOrEmpty(FileName))
             {
-                StreamMP3File();
-                PlayValidFile();
-            }
-            else if (extension == ".ogg")
-            {
-                StreamOggFile();
-                PlayValidFile();
-            }
-            else
-            {
-                mac.ShowErrorMessage(extension + " file type not supported");
+                string extension = Path.GetExtension(FileName);
+                if (extension == ".mp3")
+                {
+                    StreamMP3File();
+                    PlayValidFile();
+                }
+                else if (extension == ".ogg")
+                {
+                    StreamOggFile();
+                    PlayValidFile();
+                }
+                else
+                {
+                    mac.ShowErrorMessage(extension + " file type not supported");
+                }
             }
         }
     }
@@ -251,7 +278,9 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         if (stream != null) stream.Dispose();
         try
         {
-            stream = new MpegFile(System.IO.Path.Combine(mac.sfxDirectory, FileName));
+            string filePath = System.IO.Path.Combine(mac.sfxDirectory, FileName);
+            stream = new MpegFile(filePath);
+            
             long clipSize = stream.Length / (stream.Channels * 4);
             if (int.MaxValue < stream.Length) clipSize = int.MaxValue;
             int sampleRate = stream.SampleRate;
@@ -260,7 +289,7 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         }
         catch(FileNotFoundException)
         {
-            mac.ShowErrorMessage("File not found! Was it deleted?");
+            mac.ShowErrorMessage("File " + FileName + " not found! Was it deleted?");
         }
 
     }
@@ -278,7 +307,7 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         }
         catch(FileNotFoundException)
         {
-            mac.ShowErrorMessage("File not found! Was it deleted?");
+            mac.ShowErrorMessage("File " + FileName + " not found! Was it deleted?");
         }
 
     }
@@ -314,14 +343,14 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         if(aSource.isPlaying)
         {
             float percentPlayed = (aSource.time / aSource.clip.length);
-            playbackBarRect.sizeDelta.Set((percentPlayed * rectWidth), playbackBarRect.rect.height);
-            //playbackBarRect.sizeDelta = new Vector2((percentPlayed * rectWidth), playbackBarRect.rect.height);
+            //playbackBarRect.sizeDelta.Set((percentPlayed * rectWidth), playbackBarRect.rect.height);
+            playbackBarRect.sizeDelta = new Vector2((percentPlayed * rectWidth), playbackBarRect.rect.height);
         }
         if(isWaiting && isPlaying)
         {
             float percentWaited = ((Time.time - waitStartedTime) / timeToWait);
-            playbackBarRect.sizeDelta.Set((percentWaited * rectWidth), playbackBarRect.rect.height);
-            //playbackBarRect.sizeDelta = new Vector2((percentWaited * rectWidth), playbackBarRect.rect.height);
+            //playbackBarRect.sizeDelta.Set((percentWaited * rectWidth), playbackBarRect.rect.height);
+            playbackBarRect.sizeDelta = new Vector2((percentWaited * rectWidth), playbackBarRect.rect.height);
         }
 
         //prevent playback bar from showing after clip has been removed

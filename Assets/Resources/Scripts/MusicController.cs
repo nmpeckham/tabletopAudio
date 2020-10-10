@@ -29,6 +29,8 @@ public class MusicController : MonoBehaviour
     private float musicVolume = 1f;
     private float masterVolume = 1f;
 
+    public Button fadeInButton;
+    public Button fadeOutButton;
     public Slider localVolumeSlider;
     public Slider playbackScrubber;
 
@@ -79,7 +81,7 @@ public class MusicController : MonoBehaviour
     bool shouldStop1 = false;
     bool shouldStop2 = false;
 
-    bool usingInactiveAudioSource = false;
+    bool usingInactiveAudioSource = true;
 
     double[] fadeTargets;
 
@@ -154,7 +156,7 @@ public class MusicController : MonoBehaviour
         {
             shuffle = value;
             if (shuffle) shuffleImage.color = ResourceManager.green;
-            else shuffleImage.color = Color.white;
+            else shuffleImage.color = mac.darkModeEnabled ? ResourceManager.darkModeGrey : Color.white;
         }
     }
 
@@ -168,13 +170,16 @@ public class MusicController : MonoBehaviour
         {
             crossfade = value;
             if (crossfade) crossfadeImage.color = ResourceManager.green;
-            else crossfadeImage.color = Color.white;
+            else crossfadeImage.color = mac.darkModeEnabled ? ResourceManager.darkModeGrey : Color.white;
         }
     }
 
     // Start is called before the first frame update
     void Start()
     {
+        LoadedFilesData.deletedMusicClips.Clear();
+        LoadedFilesData.musicClips.Clear();
+        LoadedFilesData.sfxClips.Clear();
         crossfadeValue = 1 / (crossfadeTime * fixedUpdateTime);
         activeAudioSource = plas.a1;
         inactiveAudioSource = plas.a2;
@@ -186,10 +191,48 @@ public class MusicController : MonoBehaviour
         vc = GetComponent<VolumeController>();
         musicButtons = new List<GameObject>();
         StartCoroutine("CheckForNewFiles");
-        localVolumeSlider.onValueChanged.AddListener(ChangeLocalVolume);
+        localVolumeSlider.onValueChanged.AddListener(LocalVolumeSliderChanged);
         playbackScrubber.onValueChanged.AddListener(PlaybackTimeValueChanged);
+        fadeInButton.onClick.AddListener(StartFadeInMusicVolume);
+        fadeOutButton.onClick.AddListener(StartFadeOutMusicVolume);
         StartCoroutine(AdjustScale());
         StartCoroutine(Fft());
+    }
+
+    void StartFadeInMusicVolume()
+    {
+        StopCoroutine("FadeInMusicVolume");
+        StopCoroutine("FadeOutMusicVolume");
+
+        StartCoroutine("FadeInMusicVolume");
+    }
+
+    void StartFadeOutMusicVolume()
+    {
+        StopCoroutine("FadeInMusicVolume");
+        StopCoroutine("FadeOutMusicVolume");
+
+        StartCoroutine("FadeOutMusicVolume");
+    }
+
+    IEnumerator FadeInMusicVolume()
+    {
+        float fadeInValue = 1 / (crossfadeTime * fixedUpdateTime);
+        while (MusicVolume < 1f)
+        {
+            ChangeLocalVolume(musicVolume + fadeInValue);
+            yield return new WaitForFixedUpdate();
+        }
+    }
+
+    IEnumerator FadeOutMusicVolume()
+    {
+        float fadeOutValue = 1 / (crossfadeTime * fixedUpdateTime);
+        while (MusicVolume > 0f)
+        {
+            ChangeLocalVolume(musicVolume - fadeOutValue);
+            yield return new WaitForFixedUpdate();
+        }
     }
 
     IEnumerator Fft()
@@ -304,6 +347,7 @@ public class MusicController : MonoBehaviour
                 toDelete.Clear();
                 foreach (string s in System.IO.Directory.GetFiles(mac.musicDirectory))
                 {
+                    
                     if (!LoadedFilesData.musicClips.Contains(s.Replace(mac.musicDirectory + Path.DirectorySeparatorChar, "")) && (Path.GetExtension(s) == ".mp3" || Path.GetExtension(s) == ".ogg") && !LoadedFilesData.deletedMusicClips.Contains(s.Replace(mac.musicDirectory + Path.DirectorySeparatorChar, "")))
                     {
                         LoadedFilesData.musicClips.Add(s.Replace(mac.musicDirectory + Path.DirectorySeparatorChar, ""));
@@ -458,7 +502,7 @@ public class MusicController : MonoBehaviour
         aSource.Play();
         if (crossfade) StartCoroutine(CrossfadeAudioSources());
 
-        playbackScrubber.value = 0;
+        playbackScrubber.SetValueWithoutNotify(0);
         Image buttonImage = musicButtons[nowPlayingButtonID].GetComponent<Image>();
         if (prevButtonImage != null) prevButtonImage.color = ResourceManager.musicButtonGrey;
         buttonImage.color = ResourceManager.red;
@@ -502,7 +546,6 @@ public class MusicController : MonoBehaviour
         catch (NullReferenceException)
         {
             shouldStop1 = true;
-            Debug.Log("NRE! Mp3 1");
             mac.ShowErrorMessage("Error decoding audio from active MP3 stream, stopping playback");
         }
     }
@@ -516,7 +559,6 @@ public class MusicController : MonoBehaviour
         catch (NullReferenceException)
         {
             shouldStop2 = true;
-            Debug.Log("NRE! Mp3 2");
             mac.ShowErrorMessage("Error decoding audio from inactive MP3 stream, stopping playback");
         }
     }
@@ -558,7 +600,7 @@ public class MusicController : MonoBehaviour
             }
 
         }
-        playbackScrubber.value = 0;
+        playbackScrubber.SetValueWithoutNotify(0);
     }
 
     public void Previous()
@@ -591,7 +633,7 @@ public class MusicController : MonoBehaviour
                     ItemSelected(musicButtons.Count - 1);
                 }
             }
-            playbackScrubber.value = 0;
+            playbackScrubber.SetValueWithoutNotify(0);
         }
     }
 
@@ -679,76 +721,72 @@ public class MusicController : MonoBehaviour
         activeAudioSource.volume = masterVolume * musicVolume;
     }
 
+    private void LocalVolumeSliderChanged(float value)
+    {
+        StopCoroutine("FadeInMusicVolume");
+        StopCoroutine("FadeOutMusicVolume");
+        ChangeLocalVolume(value);
+    }
+
     private void ChangeLocalVolume(float newLocalVolume)
     {
-        if (localVolumeSlider.value != newLocalVolume) localVolumeSlider.value = newLocalVolume;
+        if (localVolumeSlider.value != newLocalVolume) localVolumeSlider.SetValueWithoutNotify(newLocalVolume);
         musicVolume = newLocalVolume;
         activeAudioSource.volume = masterVolume * musicVolume;
-        localVolumeLabel.text = (musicVolume * 100).ToString("N0");
+        localVolumeLabel.text = (musicVolume * 100).ToString("N0") + "%";
     }
 
     private void PlaybackTimeValueChanged(float val)
     {
-
-        if(fileTypeIsMp3)
+        try
         {
-            try
+            if (fileTypeIsMp3)
             {
-                MpegFile streamToUse = usingInactiveAudioSource ? inactiveMp3Stream : activeMp3Stream;
-                if (Mathf.Abs(val - (activeAudioSource.time / activeAudioSource.clip.length)) > 0.005)
-                {
-                    if (streamToUse != null) streamToUse.Position = Convert.ToInt64(streamToUse.Length * val);
-                    activeAudioSource.time = val * activeAudioSource.clip.length;
-                }
+                MpegFile streamToUse = useInactiveMp3Callback ? activeMp3Stream : inactiveMp3Stream;
+                if (streamToUse != null) streamToUse.Position = Convert.ToInt64(streamToUse.Length * val);
+                activeAudioSource.time = val * activeAudioSource.clip.length;
             }
+            else
+            {
+                NVorbis.VorbisReader streamToUse = useInactiveOggCallback ? activeVorbisStream : inactiveVorbisStream;
+                if (streamToUse != null) streamToUse.DecodedPosition = Convert.ToInt64(streamToUse.TotalSamples * val);
+                activeAudioSource.time = val * activeAudioSource.clip.length;
+            }
+        }
         catch (NullReferenceException)
-            {
-                Debug.Log(activeMp3Stream.Length);
-                Debug.Log(inactiveMp3Stream.Length);
-                Debug.Log("NRE Playback Time Changed");
-                activeAudioSource.Stop();
-            }
-        }
-        else
         {
-            try
-            {
-                NVorbis.VorbisReader streamToUse = usingInactiveAudioSource ? inactiveVorbisStream : activeVorbisStream;
-                if (Mathf.Abs(val - (activeAudioSource.time / activeAudioSource.clip.length)) > 0.01)
-                {
-                    if (streamToUse != null) streamToUse.DecodedPosition = Convert.ToInt64(streamToUse.TotalSamples * val);
-                    activeAudioSource.time = val * activeAudioSource.clip.length;
-                }
-            }
-            catch (NullReferenceException)
-            {
-                Debug.Log(activeMp3Stream.Length);
-                Debug.Log(inactiveMp3Stream.Length);
-                Debug.Log("NRE Playback Time Changed");
-                activeAudioSource.Stop();
-
-            }
+            activeAudioSource.Stop();
+            mac.ShowErrorMessage("NullReferenceException on playback time changed. Stopping");
         }
-
     }
     IEnumerator CheckMousePos(Vector3 mousePos)
     {
-        while (true)
+        while (activeRightClickMenu)
         {
-            if (Vector3.Distance(mousePos, Input.mousePosition) > 80)
+            float yDelta = Input.mousePosition.y - mousePos.y;
+            float xDelta = Input.mousePosition.x - mousePos.x;
+            if (yDelta < -10 || yDelta > 40 || xDelta < -10 || xDelta > 80)
             {
                 Destroy(activeRightClickMenu);
+                mac.currentMenuState = MainAppController.MenuState.mainAppView;
                 break;
             }
-            if (mac.currentMenuState == MainAppController.MenuState.none && Input.GetKey(KeyCode.Escape))
+            else if (mac.currentMenuState == MainAppController.MenuState.mainAppView && Input.GetKey(KeyCode.Escape))
             {
                 Destroy(activeRightClickMenu);
+                mac.currentMenuState = MainAppController.MenuState.mainAppView;
                 break;
             }
 
             yield return new WaitForEndOfFrame();
         }
         yield return null;
+    }
+
+    public void CloseDeleteMusicItemTooltip()
+    {
+        Destroy(activeRightClickMenu);
+        mac.currentMenuState = MainAppController.MenuState.mainAppView;
     }
 
     public void DeleteItem()
@@ -779,13 +817,11 @@ public class MusicController : MonoBehaviour
         {
             Stop();
             shouldStop1 = false;
-            Debug.Log("stoping 1");
         }
         if (shouldStop2)
         {
             Stop();
             shouldStop2 = false;
-            Debug.Log("stopping 2");
         }
         
         if(activeAudioSource.clip != null)
@@ -823,11 +859,11 @@ public class MusicController : MonoBehaviour
                 }
                 ItemSelected(newButtonID);
             }
-
         }
     }
     public void ShowRightClickMenu(int id)
     {
+        mac.currentMenuState = MainAppController.MenuState.deleteMusicFile;
         toDeleteId = id;
         if(activeRightClickMenu) Destroy(activeRightClickMenu);
         activeRightClickMenu = Instantiate(playlistRightClickMenuPrefab, Input.mousePosition, Quaternion.identity, TooltipParent.transform);

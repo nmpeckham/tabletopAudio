@@ -6,6 +6,15 @@ TagManager:
   tags:
   - PlaybackTimer
   - TooltipParent
+  - changesOnDarkMode
+  - imageChangeOnDarkMode
+  - textChangeOnDarkMode
+  - sfxButton
+  - mainBackground
+  - sfxText
+  - pageButtonText
+  - sfxButtonBG
+  - fftBar
   layers:
   - Default
   - TransparentFX
