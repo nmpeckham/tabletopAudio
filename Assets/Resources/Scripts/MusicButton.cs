@@ -11,7 +11,7 @@ public class MusicButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     public int id = -1;
     private string fileName;
     MusicController mc;
-    float doubleClickTime = 0.5f;
+    float doubleClickTime = 0.8f;
     float timeSinceClick = 100f;
 
     public string FileName

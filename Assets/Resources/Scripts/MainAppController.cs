@@ -14,7 +14,7 @@ public class MainAppController : MonoBehaviour
 {
     internal const int NUMPAGES = 8;
     internal const int NUMBUTTONS = 35;
-    internal const string VERSION = "v0.91"; //save version
+    internal string VERSION;  //save version
 
     internal string mainDirectory;
     internal string musicDirectory;
@@ -37,6 +37,7 @@ public class MainAppController : MonoBehaviour
 
     private MusicController mc;
     private EditPageLabel epl;
+    private DarkModeController dmc;
 
     public GameObject optionsPanel;
 
@@ -51,6 +52,8 @@ public class MainAppController : MonoBehaviour
     internal Sprite playImage;
     internal Sprite stopImage;
 
+    internal bool darkModeEnabled = false;
+
     internal enum MenuState
     {
         mainAppView,
@@ -61,6 +64,9 @@ public class MainAppController : MonoBehaviour
         enterSaveFileName,
         selectSFXFile,
         aboutMenu,
+        overwriteSaveFile,
+        startNewFile,
+        deleteMusicFile,
         none
     }
 
@@ -69,7 +75,7 @@ public class MainAppController : MonoBehaviour
     // Start is called before the first frame update
     public void Start()
     {
-
+        VERSION = Application.version;
         pauseImage = pause.GetComponent<SpriteRenderer>().sprite;
         playImage = play.GetComponent<SpriteRenderer>().sprite;
         stopImage = stop.GetComponent<SpriteRenderer>().sprite;
@@ -80,11 +86,11 @@ public class MainAppController : MonoBehaviour
 
         epl = GetComponent<EditPageLabel>();
         mc = GetComponent<MusicController>();
+        dmc = GetComponent<DarkModeController>();
 
         sep = System.IO.Path.DirectorySeparatorChar;
 
         MakeSFXButtons();
-
 
         pageParents[0].gameObject.transform.SetSiblingIndex(NUMPAGES);
 
@@ -94,6 +100,9 @@ public class MainAppController : MonoBehaviour
         saveDirectory = Path.Combine(mainDirectory, "saves");
 
         SetupFolderStructure(mainDirectory);
+
+        bool darkMode = Convert.ToBoolean(PlayerPrefs.GetString("darkMode"));
+        swapDarkLightMode(darkMode);
     }
 
     internal void SetupFolderStructure(string directory)
@@ -140,8 +149,7 @@ public class MainAppController : MonoBehaviour
             pageButton.GetComponent<PageButton>().id = i;
             pageButtons.Add(pageButton);
             pageButton.transform.SetSiblingIndex(i + 1);
-            if (i == 0) pageButton.GetComponent<Image>().color = Color.red;
-
+            
             GameObject pp = Instantiate(pageParentPrefab, pageParentParent.transform);
             pageParents.Add(pp.GetComponent<PageParent>());
             sfxButtons.Add(new List<GameObject>());
@@ -154,6 +162,7 @@ public class MainAppController : MonoBehaviour
                 btn.page = i;
                 sfxButtons[i].Add(button);
             }
+            if (i == 0) pageButton.GetComponent<Image>().color = Color.red;
         }
         return true;
     }
@@ -249,6 +258,15 @@ public class MainAppController : MonoBehaviour
                 case MenuState.editingSFXButton:
                     GetComponent<ButtonEditorController>().CancelEditing();
                     break;
+                case MenuState.overwriteSaveFile:
+                    GetComponent<OptionsMenuController>().CancelOverwriteSave();
+                    break;
+                case MenuState.startNewFile:
+                    GetComponent<OptionsMenuController>().CancelNewFile();
+                    break;
+                case MenuState.deleteMusicFile:
+                    GetComponent<MusicController>().CloseDeleteMusicItemTooltip();
+                    break;
                 case MenuState.none:
                     break;
             }
@@ -322,5 +340,11 @@ public class MainAppController : MonoBehaviour
             ChangeSFXPage(7);
             pageButtons[7].GetComponent<Image>().color = Color.red;
         }
+    }
+    public void swapDarkLightMode(bool enable)
+    {
+        darkModeEnabled = enable;
+        dmc.SwapDarkMode(darkModeEnabled);
+        PlayerPrefs.SetString("darkMode", enable.ToString());
     }
 }

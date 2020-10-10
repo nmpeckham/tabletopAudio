@@ -7,6 +7,7 @@ using System.Xml;
 using TMPro;
 using System;
 using System.Linq;
+using UnityEngine.SceneManagement;
 
 //Controls the options menu
 public class OptionsMenuController : MonoBehaviour
@@ -17,6 +18,11 @@ public class OptionsMenuController : MonoBehaviour
     public Button about;
     public Button closeAbout;
     public Button closeLoadSelection;
+    public Button newFileButton;
+
+    public GameObject confirmNewFilePanel;
+    public Button confirmNewFileButton;
+    public Button cancelNewFileButton;
 
     public Button acceptSaveName;
     public Button closeSaveNameMenu;
@@ -42,6 +48,14 @@ public class OptionsMenuController : MonoBehaviour
 
     public TMP_Text saveErrorText;
 
+    public Toggle darkModeToggle;
+
+    public GameObject overwriteSavePanel;
+    public Button cancelOverwriteSavePanel;
+    public Button confirmOverwriteSavePanel;
+
+    private string saveFileName;
+
     private char[] bannedCharacters =
     {
         ':',
@@ -61,6 +75,7 @@ public class OptionsMenuController : MonoBehaviour
         saveErrorText.enabled = false;
         mc = GetComponent<MusicController>();
         mac = GetComponent<MainAppController>();
+        darkModeToggle.onValueChanged.AddListener(DarkModeChanged);
         autoUpdatePlaylistToggle.onValueChanged.AddListener(AutoUpdateChanged);
         close.onClick.AddListener(Close);
         load.onClick.AddListener(Load);
@@ -71,6 +86,46 @@ public class OptionsMenuController : MonoBehaviour
         acceptSaveName.onClick.AddListener(AcceptSaveName);
         closeSaveNameMenu.onClick.AddListener(CloseSaveMenu);
         crossfadeField.onValueChanged.AddListener(CrossfadeTimeChanged);
+        confirmOverwriteSavePanel.onClick.AddListener(ConfirmOverwriteSave);
+        cancelOverwriteSavePanel.onClick.AddListener(CancelOverwriteSave);
+        confirmNewFileButton.onClick.AddListener(ConfirmNewFile);
+        cancelNewFileButton.onClick.AddListener(CancelNewFile);
+        newFileButton.onClick.AddListener(StartNewFile);
+        darkModeToggle.SetIsOnWithoutNotify(mac.darkModeEnabled);
+    }
+
+    void StartNewFile()
+    {
+        confirmNewFilePanel.SetActive(true);
+        mac.currentMenuState = MainAppController.MenuState.startNewFile;
+    }
+
+    void ConfirmNewFile()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    internal void CancelNewFile()
+    {
+        confirmNewFilePanel.SetActive(false);
+        mac.currentMenuState = MainAppController.MenuState.optionsMenu;
+    }
+
+    void ConfirmOverwriteSave()
+    {
+        Save(saveFileName, true);
+        overwriteSavePanel.SetActive(false);
+    }
+
+    internal void CancelOverwriteSave()
+    {
+        overwriteSavePanel.SetActive(false);
+        mac.currentMenuState = MainAppController.MenuState.enterSaveFileName;
+    }
+
+    void DarkModeChanged(bool value)
+    {
+        mac.swapDarkLightMode(value);
     }
 
     void CrossfadeTimeChanged(string value)
@@ -118,9 +173,8 @@ public class OptionsMenuController : MonoBehaviour
 
         if(!errorFound)
         {
+            saveErrorText.enabled = false;
             Save(saveNameField.text);
-            mac.currentMenuState = MainAppController.MenuState.optionsMenu;
-            saveNamePanel.SetActive(false);
         }
     }
 
@@ -144,7 +198,7 @@ public class OptionsMenuController : MonoBehaviour
 
     void OpenAboutMenu()
     {
-        versionText.text = "TableTop Audio " + MainAppController.VERSION;
+        versionText.text = "TableTop Audio v" + mac.VERSION;
         aboutMenu.SetActive(true);
         mac.currentMenuState = MainAppController.MenuState.aboutMenu;
     }
@@ -223,7 +277,6 @@ public class OptionsMenuController : MonoBehaviour
                     mac.pageButtons[page].GetComponent<PageButton>().Label = pageLabel;
                     foreach (XmlNode b in p.SelectNodes("button"))
                     {
-                        //Debug.Log(b.SelectSingleNode("label").InnerText);
                         string label = b.SelectSingleNode("label").InnerText;
                         int id = Convert.ToInt32(b.SelectSingleNode("id").InnerText);
                         string clipPath = null;
@@ -235,21 +288,27 @@ public class OptionsMenuController : MonoBehaviour
                         {
                             try
                             {
-                                clipPath = b.SelectSingleNode("clipID").InnerText.Replace(Path.DirectorySeparatorChar + "sound effects" + Path.DirectorySeparatorChar, "");
+                                clipPath = b.SelectSingleNode("clipID").InnerText;
                             }
                             catch (Exception)
                             {
                                 mac.ShowErrorMessage("Could not load save file. Error finding clip path");
                             }
                         }
+                        clipPath = clipPath.Replace(Path.DirectorySeparatorChar.ToString(), "");
                         float localVolume = Convert.ToSingle(b.SelectSingleNode("localVolume").InnerText);
-                        //Debug.Log(b.SelectSingleNode("localVolume").InnerText);
                         bool loop = Convert.ToBoolean(b.SelectSingleNode("loop").InnerText);
                         bool randomizeLoopTime = Convert.ToBoolean(b.SelectSingleNode("randomizeLoopDelay").InnerText);
                         float minLoopDelay = Convert.ToSingle(b.SelectSingleNode("minLoopDelay").InnerText);
                         float maxLoopDelay = Convert.ToSingle(b.SelectSingleNode("maxLoopDelay").InnerText);
                         float minFadeVolume = 0;
                         float maxFadeVolume = 1;
+                        bool ignoreOnPlayAll = false;
+                        try
+                        {
+                            ignoreOnPlayAll = Convert.ToBoolean(b.SelectSingleNode("ignoreOnPlayAll").InnerText);
+                        }
+                        catch (NullReferenceException) { }
                         try
                         {
                             minFadeVolume = Convert.ToSingle(b.SelectSingleNode("minFadeVolume").InnerText);
@@ -269,6 +328,8 @@ public class OptionsMenuController : MonoBehaviour
                         sfxBtn.MaxLoopDelay = maxLoopDelay;
                         sfxBtn.minimumFadeVolume = minFadeVolume;
                         sfxBtn.maximumFadeVolume = maxFadeVolume;
+                        sfxBtn.IgnorePlayAll = ignoreOnPlayAll;
+
                     }
                 }
                 List<string> files = new List<string>();
@@ -308,6 +369,8 @@ public class OptionsMenuController : MonoBehaviour
         {
             mac.ShowErrorMessage("Loading failed: Malformed save file format");
         }
+
+        if (mac.darkModeEnabled) mac.swapDarkLightMode(true);
         yield return null;
         //else
         //{
@@ -339,17 +402,17 @@ public class OptionsMenuController : MonoBehaviour
         return true;
     }
 
-    void Save(string filename)
+    void Save(string filename, bool overwrite=false)
     {
-        //TODO: Add option to overwrite existing save file
-        if(!System.IO.Directory.GetFiles(mac.saveDirectory).Contains(Path.Combine(mac.saveDirectory, filename +".txt")))
+        saveFileName = filename;
+        if ((!System.IO.Directory.GetFiles(mac.saveDirectory).Contains(Path.Combine(mac.saveDirectory, filename +".txt"))) || overwrite)
         {
             using (XmlWriter writer = XmlWriter.Create(Path.Combine(mac.saveDirectory, filename + ".txt")))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartElement("TableTopAudio-Save-File");
                 {
-                    writer.WriteElementString("version", MainAppController.VERSION);
+                    writer.WriteElementString("version", mac.VERSION);
                     writer.WriteElementString("masterVolume", mc.MasterVolume.ToString("N1"));
                     writer.WriteElementString("musicVolume", mc.MusicVolume.ToString("N1"));
                     writer.WriteElementString("shuffle", mc.Shuffle.ToString());
@@ -371,7 +434,7 @@ public class OptionsMenuController : MonoBehaviour
                                         {
                                             writer.WriteElementString("id", button.id.ToString());
                                             writer.WriteElementString("label", button.Label);
-                                            writer.WriteElementString("clipPath", button.FileName);
+                                            writer.WriteElementString("clipPath", button.FileName.Replace(mac.sfxDirectory, ""));
                                             writer.WriteElementString("localVolume", button.LocalVolume.ToString("N2"));
                                             writer.WriteElementString("loop", button.Loop.ToString());
                                             writer.WriteElementString("minLoopDelay", button.MinLoopDelay.ToString("N0"));
@@ -379,7 +442,7 @@ public class OptionsMenuController : MonoBehaviour
                                             writer.WriteElementString("maxLoopDelay", button.MaxLoopDelay.ToString("N0"));
                                             writer.WriteElementString("minFadeVolume", button.minimumFadeVolume.ToString("N2"));
                                             writer.WriteElementString("maxFadeVolume", button.maximumFadeVolume.ToString("N2"));
-                                        
+                                            writer.WriteElementString("ignoreOnPlayAll", button.IgnorePlayAll.ToString());
                                         }
                                         writer.WriteEndElement();
                                     }
@@ -391,7 +454,6 @@ public class OptionsMenuController : MonoBehaviour
                     writer.WriteEndElement();
                 writer.WriteStartElement("playlist");
                 {
-                    //Debug.Log(mc.musicScrollView.name);
                     foreach (MusicButton mb in mc.musicScrollView.GetComponentsInChildren<MusicButton>())
                     {
                         writer.WriteElementString("song", mb.FileName);
@@ -399,13 +461,16 @@ public class OptionsMenuController : MonoBehaviour
                 }
                 writer.WriteEndElement();
             }
-
             writer.WriteEndDocument();
             }
+            saveNamePanel.SetActive(false);
+            optionsPanel.SetActive(false);
+            mac.currentMenuState = MainAppController.MenuState.mainAppView;
         }
         else
         {
-            mac.ShowErrorMessage("Save with that name already exists");
+            mac.currentMenuState = MainAppController.MenuState.overwriteSaveFile;
+            overwriteSavePanel.SetActive(true);
         }
     }
 }
