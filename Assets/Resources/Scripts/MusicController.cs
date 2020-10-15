@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using NLayer;
 using NVorbis;
+using System.Net.Http.Headers;
 
 //Controls the playing of songs in the playlist
 public class MusicController : MonoBehaviour
@@ -86,6 +87,9 @@ public class MusicController : MonoBehaviour
     double[] fadeTargets;
 
     bool fileTypeIsMp3 = false;
+    OptionsMenuController omc;
+
+    public GameObject crossfadeIndicator;
 
     public float CrossfadeTime
     {
@@ -183,6 +187,7 @@ public class MusicController : MonoBehaviour
         crossfadeValue = 1 / (crossfadeTime * fixedUpdateTime);
         activeAudioSource = plas.a1;
         inactiveAudioSource = plas.a2;
+        omc = GetComponent<OptionsMenuController>();
 
         pieces = fftParent.GetComponentsInChildren<FftBar>();
         fadeTargets = new double[pieces.Length];
@@ -197,6 +202,7 @@ public class MusicController : MonoBehaviour
         fadeOutButton.onClick.AddListener(StartFadeOutMusicVolume);
         StartCoroutine(AdjustScale());
         StartCoroutine(Fft());
+        crossfadeIndicator.SetActive(false);
     }
 
     void StartFadeInMusicVolume()
@@ -510,30 +516,53 @@ public class MusicController : MonoBehaviour
         prevButtonImage = buttonImage;
         nowPlayingLabel.text = songName;
         musicStatusImage.sprite = mac.playImage;
+        Debug.Log(aSource.isPlaying);
     }
 
     IEnumerator CrossfadeAudioSources()
     {
+        crossfadeIndicator.transform.localScale = new Vector3(0, 1);
+        crossfadeIndicator.SetActive(true);
         int counter = 0;
+        float maxVolume = MusicVolume * MasterVolume;
         while (true)
         {
+            if(counter % 20 == 0)
+            {
+                if(counter % 40 == 0)
+                {
+                    crossfadeImage.color = Color.green;
+
+                }
+                else
+                {
+                    crossfadeImage.color = Color.red;
+                }
+            }
+            if (crossfadeIndicator.transform.localScale.x >= 1)
+            {
+                crossfadeIndicator.SetActive(false);
+            }
+
             activeAudioSource.volume += crossfadeValue;
             inactiveAudioSource.volume -= crossfadeValue;
+            crossfadeIndicator.transform.localScale = new Vector3(activeAudioSource.volume / maxVolume, 1);
 
 
-            if (activeAudioSource.volume >= MusicVolume) break;
+            if (activeAudioSource.volume >= MusicVolume * MasterVolume) break;
             counter++;
-            if (counter > 1500)
+            if (counter > 5000)
             {
                 break;
             }
             yield return new WaitForFixedUpdate();
 
         }
-        activeAudioSource.volume = MusicVolume;
+        crossfadeImage.color = Color.green;
+        crossfadeIndicator.SetActive(false);
+        activeAudioSource.volume = MusicVolume * MasterVolume;
         inactiveAudioSource.volume = 0f;
         inactiveAudioSource.clip = null;
-        inactiveAudioSource.Stop();
         yield return null;
     }
 
@@ -578,7 +607,7 @@ public class MusicController : MonoBehaviour
         StopCoroutine(CrossfadeAudioSources());
         inactiveAudioSource.volume = 0f;
         inactiveAudioSource.clip = null;
-        inactiveAudioSource.Stop();
+        //inactiveAudioSource.Stop();
         if (shuffle)
         {
             int newButtonID = UnityEngine.Random.Range(0, LoadedFilesData.musicClips.Count);
@@ -608,7 +637,7 @@ public class MusicController : MonoBehaviour
         StopCoroutine(CrossfadeAudioSources());
         inactiveAudioSource.volume = 0f;
         inactiveAudioSource.clip = null;
-        inactiveAudioSource.Stop();
+        //inactiveAudioSource.Stop();
 
         if (musicButtons.Count > 0)
         {
@@ -639,6 +668,7 @@ public class MusicController : MonoBehaviour
 
     public void Stop()
     {
+        Debug.Log("stop");
         activeAudioSource.Stop();
         inactiveAudioSource.Stop();
         StopCoroutine(CrossfadeAudioSources());
@@ -738,27 +768,53 @@ public class MusicController : MonoBehaviour
 
     private void PlaybackTimeValueChanged(float val)
     {
-        try
+        TryChangePlaybackTime(val);
+    }
+
+    private void TryChangePlaybackTime(float val)
+    {
+        bool error = false;
+        if(!error)
         {
             if (fileTypeIsMp3)
             {
                 MpegFile streamToUse = useInactiveMp3Callback ? activeMp3Stream : inactiveMp3Stream;
-                if (streamToUse != null) streamToUse.Position = Convert.ToInt64(streamToUse.Length * val);
-                activeAudioSource.time = val * activeAudioSource.clip.length;
+                try
+                {
+                    if (streamToUse != null) streamToUse.Position = Convert.ToInt64(streamToUse.Length * val);
+                }
+                catch (NullReferenceException e)
+                {
+                    Next();
+                    error = true;
+                }
+                if(!error) activeAudioSource.time = val * activeAudioSource.clip.length;
             }
             else
             {
                 NVorbis.VorbisReader streamToUse = useInactiveOggCallback ? activeVorbisStream : inactiveVorbisStream;
-                if (streamToUse != null) streamToUse.DecodedPosition = Convert.ToInt64(streamToUse.TotalSamples * val);
-                activeAudioSource.time = val * activeAudioSource.clip.length;
+                try
+                {
+                    if (streamToUse != null) streamToUse.DecodedPosition = Convert.ToInt64(streamToUse.TotalSamples * val);
+                }
+                catch (NullReferenceException e)
+                {
+                    Next();
+                    error = true;
+                }
+                if(!error) activeAudioSource.time = val * activeAudioSource.clip.length;
+
             }
         }
-        catch (NullReferenceException)
-        {
-            activeAudioSource.Stop();
-            mac.ShowErrorMessage("NullReferenceException on playback time changed. Stopping");
-        }
+            //catch (NullReferenceException e)
+            //{
+            //    //activeAudioSource.Stop();
+            //    mac.ShowErrorMessage("NullReferenceException on playback time changed. Stopping");
+            //    yield return new WaitForEndOfFrame();
+            //    //throw e;
+            //}
     }
+
     IEnumerator CheckMousePos(Vector3 mousePos)
     {
         while (activeRightClickMenu)
@@ -791,6 +847,7 @@ public class MusicController : MonoBehaviour
 
     public void DeleteItem()
     {
+        //omc.AutoUpdateChanged(false);
         if (nowPlayingButtonID == toDeleteId)
         {
             Stop();
@@ -831,35 +888,40 @@ public class MusicController : MonoBehaviour
         }
     }
 
-    private void FixedUpdate()
+    private void LateUpdate()
     {
+        //Debug.Log(activeAudioSource.isPlaying);
         bool shouldStartCrossfade = false;
         if (activeAudioSource.clip)
         {
             shouldStartCrossfade = activeAudioSource.time > activeAudioSource.clip.length - crossfadeTime;
         }
-        if ((!activeAudioSource.isPlaying && activeAudioSource.clip != null && !isPaused) || (crossfade && shouldStartCrossfade))
+        if(activeAudioSource.clip)
         {
-            prevButtonImage.color = ResourceManager.musicButtonGrey;
-            if (nowPlayingButtonID < musicButtons.Count - 1)
+            if ((!activeAudioSource.isPlaying && !isPaused) || (crossfade && shouldStartCrossfade))
             {
-                int newButtonID = shuffle ? UnityEngine.Random.Range(0, musicButtons.Count - 1) : nowPlayingButtonID + 1;
-                while (newButtonID == nowPlayingButtonID)
+                prevButtonImage.color = ResourceManager.musicButtonGrey;
+                if (nowPlayingButtonID < musicButtons.Count - 1)
                 {
-                    newButtonID = shuffle ? UnityEngine.Random.Range(0, musicButtons.Count - 1) : nowPlayingButtonID + 1;
+                    int newButtonID = shuffle ? UnityEngine.Random.Range(0, musicButtons.Count - 1) : nowPlayingButtonID + 1;
+                    while (newButtonID == nowPlayingButtonID)
+                    {
+                        newButtonID = shuffle ? UnityEngine.Random.Range(0, musicButtons.Count - 1) : nowPlayingButtonID + 1;
+                    }
+                    ItemSelected(newButtonID);
                 }
-                ItemSelected(newButtonID);
-            }
-            else
-            {
-                int newButtonID = shuffle ? UnityEngine.Random.Range(0, musicButtons.Count - 1) : 0;
-                while (newButtonID == nowPlayingButtonID)
+                else
                 {
-                    newButtonID = shuffle ? UnityEngine.Random.Range(0, musicButtons.Count - 1) : 0;
+                    int newButtonID = shuffle ? UnityEngine.Random.Range(0, musicButtons.Count - 1) : 0;
+                    while (newButtonID == nowPlayingButtonID)
+                    {
+                        newButtonID = shuffle ? UnityEngine.Random.Range(0, musicButtons.Count - 1) : 0;
+                    }
+                    ItemSelected(newButtonID);
                 }
-                ItemSelected(newButtonID);
             }
         }
+        
     }
     public void ShowRightClickMenu(int id)
     {
