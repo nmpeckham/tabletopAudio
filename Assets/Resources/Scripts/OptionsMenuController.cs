@@ -184,7 +184,7 @@ public class OptionsMenuController : MonoBehaviour
         mac.currentMenuState = MainAppController.MenuState.optionsMenu;
     }
 
-    void AutoUpdateChanged(bool val)
+    internal void AutoUpdateChanged(bool val)
     {
         if (autoUpdatePlaylistToggle.isOn != val) autoUpdatePlaylistToggle.isOn = val;
         if(mc.AutoCheckForNewFiles != val) mc.AutoCheckForNewFiles = val;

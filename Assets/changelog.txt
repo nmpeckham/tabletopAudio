@@ -1,6 +1,16 @@
 TableTopAudio Changelog
 
-v1.0.0 Preview - It's Happening
+v1.0.1 "Paene" - Bug Fixes to 1.0.0
+
+ - Fixed critical bug that could occur on repeatedly scrubbing to end of songs
+
+ - Fixed bug where master audio level wouldn't be applied to music tracks when crossfading
+
+ - Added new indicators for crossfade. Crossfade toggle now flashes, and a bar indicates crossfade progress
+
+ - Made "about" menu more readable
+
+v1.0.0 "Vixit" - 1.0.0 Release WOOO!
 
  - Fixed SFX progress bars not being displayed
 
@@ -24,7 +34,7 @@ v1.0.0 Preview - It's Happening
 
  - Optimized behaviour of "Remove" tooltip for music playlist items
 
-v0.92 - Continued preparations for v1.0
+v0.92 "Vidi" - Continued preparations for v1.0
 
 - Added crossfading for music playlist. Enable using button in control panel, set crossfade time from options menu.
 
@@ -40,7 +50,7 @@ v0.92 - Continued preparations for v1.0
 
 - Fixed bug where time elapsed/remaining field would overflow onto 2 lines.
 
-v0.91 - Preparing for 1.0
+v0.91 "Veni" - Preparing for 1.0
 
 - Fixed button label resetting to default on load
 
