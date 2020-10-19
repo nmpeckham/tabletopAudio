@@ -46,7 +46,8 @@ public class MusicController : MonoBehaviour
     private bool shuffle;
     private Button crossfadeButton;
     private bool crossfade = false;
-    public Image crossfadeImage;
+
+    public Material crossfadeMaterial;
 
     private VolumeController vc;
 
@@ -67,11 +68,13 @@ public class MusicController : MonoBehaviour
 
     public GameObject fftParent;
     public FftBar[] pieces;
+    private Material[] fftBarMaterials;
 
     public GameObject TooltipParent;
 
 
-    private const float fixedUpdateTime = 1f / .02f;
+    private const float fixedUpdateStep = 0.02f;
+    private const float fixedUpdateTime = 1f / fixedUpdateStep;
     private float crossfadeTime = 5f;
     private float crossfadeValue;
     public PlaylistAudioSources plas;
@@ -88,8 +91,6 @@ public class MusicController : MonoBehaviour
 
     bool fileTypeIsMp3 = false;
     OptionsMenuController omc;
-
-    public GameObject crossfadeIndicator;
 
     public float CrossfadeTime
     {
@@ -173,8 +174,8 @@ public class MusicController : MonoBehaviour
         set
         {
             crossfade = value;
-            if (crossfade) crossfadeImage.color = ResourceManager.green;
-            else crossfadeImage.color = mac.darkModeEnabled ? ResourceManager.darkModeGrey : Color.white;
+            if (crossfade) crossfadeMaterial.SetColor("ButtonColor", Color.green);
+            else crossfadeMaterial.SetColor("ButtonColor", mac.darkModeEnabled ? ResourceManager.darkModeGrey : Color.white);
         }
     }
 
@@ -190,6 +191,15 @@ public class MusicController : MonoBehaviour
         omc = GetComponent<OptionsMenuController>();
 
         pieces = fftParent.GetComponentsInChildren<FftBar>();
+        fftBarMaterials = new Material[pieces.Length];
+        Debug.Log(pieces.Length);
+        int i = 0;
+        foreach (FftBar bar in pieces)
+        {
+            fftBarMaterials[i] = bar.gameObject.GetComponent<Image>().material;
+            i++;
+        }
+
         fadeTargets = new double[pieces.Length];
         mac = Camera.main.GetComponent<MainAppController>();
         buttonWithCursor = -1;
@@ -202,7 +212,8 @@ public class MusicController : MonoBehaviour
         fadeOutButton.onClick.AddListener(StartFadeOutMusicVolume);
         StartCoroutine(AdjustScale());
         StartCoroutine(Fft());
-        crossfadeIndicator.SetActive(false);
+
+        crossfadeMaterial.SetColor("ButtonColor", mac.darkModeEnabled ? Crossfade ? Color.green : ResourceManager.darkModeGrey : ResourceManager.lightModeGrey);
     }
 
     void StartFadeInMusicVolume()
@@ -264,7 +275,7 @@ public class MusicController : MonoBehaviour
                     if (!mono) sum += data1[j]; // only add from second track if stereo
                 }
                 sum *= mono ? 1f : 0.5f;    // mono vs. stereo amplitude correction
-                 sum *= 0.9f; // scale down to reduce overall amplitude
+                sum *= 0.9f; // scale down to reduce overall amplitude
                 fadeTargets[i] = sum;
             }
             yield return new WaitForEndOfFrame();
@@ -273,16 +284,19 @@ public class MusicController : MonoBehaviour
 
     IEnumerator AdjustScale()
     {
+        float oldScale;
+        float newScale;
         while (true)
         {
             for (int i = 0; i < pieces.Length; i++)
             {
                 Transform obj = pieces[i].transform;
 
-                float oldScale = obj.localScale.y;
-                float newScale = (float)(fadeTargets[i] * 0.75f) + (oldScale * 0.25f); //average slightly
-                obj.localScale = new Vector3(1, Mathf.Min(newScale, 1), 1);
-
+                oldScale = obj.localScale.y;
+                newScale = (float)(fadeTargets[i] * 0.70f) + (oldScale * 0.3f); //average slightly
+                newScale = Mathf.Min(newScale, 1);
+                obj.localScale = new Vector3(1, newScale, 1);
+                fftBarMaterials[i].SetFloat("Height", newScale);
             }
             yield return new WaitForEndOfFrame();
         }
@@ -516,53 +530,50 @@ public class MusicController : MonoBehaviour
         prevButtonImage = buttonImage;
         nowPlayingLabel.text = songName;
         musicStatusImage.sprite = mac.playImage;
-        Debug.Log(aSource.isPlaying);
+        //Debug.Log(aSource.isPlaying);
     }
 
     IEnumerator CrossfadeAudioSources()
     {
-        crossfadeIndicator.transform.localScale = new Vector3(0, 1);
-        crossfadeIndicator.SetActive(true);
         int counter = 0;
         float maxVolume = MusicVolume * MasterVolume;
+        activeAudioSource.volume = 0;
+        float changeVolumeAmount = Mathf.Lerp(0, maxVolume, crossfadeValue);
         while (true)
         {
             if(counter % 20 == 0)
             {
-                if(counter % 40 == 0)
-                {
-                    crossfadeImage.color = Color.green;
-
-                }
-                else
-                {
-                    crossfadeImage.color = Color.red;
-                }
+                if (counter % 40 == 0) crossfadeMaterial.SetColor("ButtonColor", Color.green);
+                else crossfadeMaterial.SetColor("ButtonColor", Color.red);
             }
-            if (crossfadeIndicator.transform.localScale.x >= 1)
-            {
-                crossfadeIndicator.SetActive(false);
+            activeAudioSource.volume += changeVolumeAmount;
+            inactiveAudioSource.volume -= changeVolumeAmount;
+
+            // can become NaN if master vloume is 0
+            float newXScale = activeAudioSource.volume / maxVolume;
+            if(float.IsNaN(newXScale)) {
+                newXScale = 0;
             }
 
-            activeAudioSource.volume += crossfadeValue;
-            inactiveAudioSource.volume -= crossfadeValue;
-            crossfadeIndicator.transform.localScale = new Vector3(activeAudioSource.volume / maxVolume, 1);
-
+            float currentScale = crossfadeMaterial.GetFloat("Progress");
+            crossfadeMaterial.SetFloat("Progress", newXScale);
 
             if (activeAudioSource.volume >= MusicVolume * MasterVolume) break;
             counter++;
             if (counter > 5000)
             {
+                Debug.Log("Breaking");
                 break;
             }
             yield return new WaitForFixedUpdate();
 
         }
-        crossfadeImage.color = Color.green;
-        crossfadeIndicator.SetActive(false);
+        crossfadeMaterial.SetColor("ButtonColor", mac.darkModeEnabled ? Crossfade ? Color.green : ResourceManager.darkModeGrey : ResourceManager.lightModeGrey);
+        crossfadeMaterial.SetFloat("Progress", 0);
         activeAudioSource.volume = MusicVolume * MasterVolume;
         inactiveAudioSource.volume = 0f;
         inactiveAudioSource.clip = null;
+
         yield return null;
     }
 
@@ -732,7 +743,7 @@ public class MusicController : MonoBehaviour
             ItemSelected(0);
 
         }
-        activeAudioSource.volume = MusicVolume;
+        //activeAudioSource.volume = MusicVolume;
     }
 
     public void RefreshSongOrder(int oldID, int newID)
@@ -900,6 +911,9 @@ public class MusicController : MonoBehaviour
         {
             if ((!activeAudioSource.isPlaying && !isPaused) || (crossfade && shouldStartCrossfade))
             {
+                Debug.Log(activeAudioSource.isPlaying);
+                Debug.Log(isPaused);
+
                 prevButtonImage.color = ResourceManager.musicButtonGrey;
                 if (nowPlayingButtonID < musicButtons.Count - 1)
                 {
