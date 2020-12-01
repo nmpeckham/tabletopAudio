@@ -8,4 +8,6 @@ public static class LoadedFilesData
     public static List<string> musicClips = new List<string>();
     public static List<string> deletedMusicClips = new List<string>();
     public static Dictionary<string, AudioClip> sfxClips = new Dictionary<string, AudioClip>();
+
+    public static Dictionary<string, List<Dictionary<string, dynamic>>> qrdFiles = new System.Collections.Generic.Dictionary<string, List<Dictionary<string, dynamic>>>();
 }

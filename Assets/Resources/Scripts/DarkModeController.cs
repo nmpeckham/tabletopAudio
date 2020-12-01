@@ -78,6 +78,10 @@ public class DarkModeController : MonoBehaviour
                     {
                         buttonImg.color = Color.green;
                     }
+                    if (buttonId == "PAUSE" && mc.isPaused)
+                    {
+                        buttonImg.color = ResourceManager.orange;
+                    }
                 }
                 catch (NullReferenceException) { }
                 try
@@ -157,6 +161,10 @@ public class DarkModeController : MonoBehaviour
                     if (buttonId == "SHUFFLE" && mc.Shuffle)
                     {
                         buttonImg.color = Color.green;
+                    }
+                    if (buttonId == "PAUSE" && mc.isPaused)
+                    {
+                        buttonImg.color = ResourceManager.orange;
                     }
                 }
                 catch (NullReferenceException) { }

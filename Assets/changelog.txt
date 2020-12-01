@@ -1,5 +1,25 @@
 TableTopAudio Changelog
 
+v1.0.2 "Notitia" - D&D 5e Quick Reference Added
+
+ - Notitia is the largest update so far. Big stability improvements and reference system added
+
+ - Further refinements to FFT display. VLC eat my dust. Revel in its glory
+
+ - Added quick reference panel accessible by clicking "`" or "~"
+
+	- Contains all information freely released as part of the fifth edition standard reference document (SRD)
+
+ - Switched to using a shader for FFT display, now gives additional intensity feedback through colors
+
+ - Music pause button now turns orange when paused
+
+ - Music play button now turns green when playing
+
+ - Fixed bug where changing songs while crossfade was in progress would cause crossfade time to be incorrect
+
+ - (Maybe) Fixed more critical bugs when repeatedly scrubbing to end of songs. Have not been able to reproduce. $30 bug bounty if able to reproduce with proof and replication steps.
+
 v1.0.1 "Paene" - Bug Fixes to 1.0.0
 
  - Fixed critical bug that could occur on repeatedly scrubbing to end of songs
