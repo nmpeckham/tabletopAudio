@@ -36,6 +36,6 @@ Material:
     - Progress: 0
     - Vector1_40F02E7D: 0
     m_Colors:
-    - ButtonColor: {r: 0.14901961, g: 0.14901961, b: 0.14901961, a: 1}
+    - ButtonColor: {r: 0, g: 1, b: 0, a: 1}
     - Color_8A8899AD: {r: 0, g: 1, b: 0, a: 1}
   m_BuildTextureStacks: []

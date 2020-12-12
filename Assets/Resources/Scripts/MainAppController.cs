@@ -55,8 +55,8 @@ public class MainAppController : MonoBehaviour
     internal Sprite stopImage;
 
     internal bool darkModeEnabled = false;
-    private QuickReferenceController qrc;
-    private QuickRefDetailView qrd;
+    //private QuickReferenceController qrc;
+    //private QuickRefDetailView qrd;
 
     internal enum MenuState
     {
@@ -94,8 +94,8 @@ public class MainAppController : MonoBehaviour
         epl = GetComponent<EditPageLabel>();
         mc = GetComponent<MusicController>();
         dmc = GetComponent<DarkModeController>();
-        qrc = GetComponent<QuickReferenceController>();
-        qrd = GetComponent<QuickRefDetailView>();
+        //qrc = GetComponent<QuickReferenceController>();
+        //qrd = GetComponent<QuickRefDetailView>();
 
         sep = System.IO.Path.DirectorySeparatorChar;
 
@@ -118,21 +118,21 @@ public class MainAppController : MonoBehaviour
         }
         catch (FormatException){ }
         swapDarkLightMode(darkMode);
-        LoadQrdObjects();
+        //LoadQrdObjects();
 
-        MakeCategoryColors();
+        //MakeCategoryColors();
         this.currentMenuState = MenuState.mainAppView;
     }
 
-    void MakeCategoryColors()
-    {
-        int i = 0;
-        foreach (string category in ResourceManager.dbFiles)
-        {
-            ResourceManager.categoryColors.Add(category, UIntToColor(ResourceManager.kellysMaxContrastSet[i]));
-            i++;
-        }
-    }
+    //void MakeCategoryColors()
+    //{
+    //    int i = 0;
+    //    foreach (string category in ResourceManager.dbFiles)
+    //    {
+    //        ResourceManager.categoryColors.Add(category, UIntToColor(ResourceManager.kellysMaxContrastSet[i]));
+    //        i++;
+    //    }
+    //}
 
     static public Color UIntToColor(uint color)
     {
@@ -267,19 +267,19 @@ public class MainAppController : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Tilde) || Input.GetKeyDown(KeyCode.BackQuote))
-        {
-            switch (currentMenuState)
-            {
-                case MenuState.mainAppView:
-                    qrc.ShowLookupMenu();
-                    break;
-                case MenuState.quickReference:
-                    qrc.HideLookupMenu();
-                    break;
-            }
+        //if (Input.GetKeyDown(KeyCode.Tilde) || Input.GetKeyDown(KeyCode.BackQuote))
+        //{
+        //    switch (currentMenuState)
+        //    {
+        //        case MenuState.mainAppView:
+        //            qrc.ShowLookupMenu();
+        //            break;
+        //        case MenuState.quickReference:
+        //            qrc.HideLookupMenu();
+        //            break;
+        //    }
 
-        }
+        //}
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             switch(currentMenuState)
@@ -317,12 +317,12 @@ public class MainAppController : MonoBehaviour
                 case MenuState.deleteMusicFile:
                     GetComponent<MusicController>().CloseDeleteMusicItemTooltip();
                     break;
-                case MenuState.quickReference:
-                    qrc.HideLookupMenu();
-                    break;
-                case MenuState.quickReferenceDetail:
-                    qrd.CloseQuickReferenceDetail();
-                    break;
+                //case MenuState.quickReference:
+                //    qrc.HideLookupMenu();
+                //    break;
+                //case MenuState.quickReferenceDetail:
+                //    qrd.CloseQuickReferenceDetail();
+                //    break;
                 case MenuState.none:
                     break;
             }
@@ -404,31 +404,31 @@ public class MainAppController : MonoBehaviour
         PlayerPrefs.SetString("darkMode", enable.ToString());
     }
 
-    public void LoadQrdObjects()
-    {
-        foreach(string s in ResourceManager.dbFiles)
-        {
-            try
-            {
-                string fileLocation = Path.Combine(Application.streamingAssetsPath, s);
-                string contents = System.IO.File.ReadAllText(fileLocation);
-                QuickRefObject data = JsonSerializer.Deserialize<QuickRefObject>(contents);
-                Dictionary<string, Dictionary<string, dynamic>> categoryItems = new Dictionary<string, Dictionary<string, dynamic>>();
-                foreach (var item in data.contents)
-                {
-                    var attributes = new Dictionary<string, dynamic>();
-                    foreach (var dict in item)
-                    {
-                        attributes.Add(dict.Key, dict.Value);
-                    }
-                    categoryItems.Add(item["index"].ToString(), attributes);
-                }
-                LoadedFilesData.qrdFiles[s.Replace(".json", "")] = categoryItems;
-            }
-            catch (FileNotFoundException) 
-            {
-                ShowErrorMessage("Could not load quick reference file " + s + ". Check that it exists.");
-            }
-        }
-    }
+    //public void LoadQrdObjects()
+    //{
+    //    foreach(string s in ResourceManager.dbFiles)
+    //    {
+    //        try
+    //        {
+    //            string fileLocation = Path.Combine(Application.streamingAssetsPath, s);
+    //            string contents = System.IO.File.ReadAllText(fileLocation);
+    //            QuickRefObject data = JsonSerializer.Deserialize<QuickRefObject>(contents);
+    //            Dictionary<string, Dictionary<string, dynamic>> categoryItems = new Dictionary<string, Dictionary<string, dynamic>>();
+    //            foreach (var item in data.contents)
+    //            {
+    //                var attributes = new Dictionary<string, dynamic>();
+    //                foreach (var dict in item)
+    //                {
+    //                    attributes.Add(dict.Key, dict.Value);
+    //                }
+    //                categoryItems.Add(item["index"].ToString(), attributes);
+    //            }
+    //            LoadedFilesData.qrdFiles[s.Replace(".json", "")] = categoryItems;
+    //        }
+    //        catch (FileNotFoundException) 
+    //        {
+    //            ShowErrorMessage("Could not load quick reference file " + s + ". Check that it exists.");
+    //        }
+    //    }
+    //}
 }

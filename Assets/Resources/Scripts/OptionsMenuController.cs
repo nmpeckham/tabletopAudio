@@ -94,7 +94,6 @@ public class OptionsMenuController : MonoBehaviour
         darkModeToggle.SetIsOnWithoutNotify(mac.darkModeEnabled);
         float val = PlayerPrefs.GetFloat("Crossfade");
         if (val == 0) val = 10;
-        print(val);
         mc.CrossfadeTime = val;
         crossfadeField.text = val.ToString();
     }
