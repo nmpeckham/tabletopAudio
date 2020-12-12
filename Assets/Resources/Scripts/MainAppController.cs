@@ -81,6 +81,7 @@ public class MainAppController : MonoBehaviour
     // Start is called before the first frame update
     public void Start()
     {
+        if(PlayerPrefs.GetFloat("Crossfade") == 0) PlayerPrefs.SetFloat("Crossfade", 10);
         VERSION = Application.version;
         pauseImage = pause.GetComponent<SpriteRenderer>().sprite;
         playImage = play.GetComponent<SpriteRenderer>().sprite;
@@ -266,9 +267,9 @@ public class MainAppController : MonoBehaviour
 
     private void Update()
     {
-        if(Input.GetKeyDown(KeyCode.Tilde) || Input.GetKeyDown(KeyCode.BackQuote))
+        if (Input.GetKeyDown(KeyCode.Tilde) || Input.GetKeyDown(KeyCode.BackQuote))
         {
-            switch(currentMenuState)
+            switch (currentMenuState)
             {
                 case MenuState.mainAppView:
                     qrc.ShowLookupMenu();
@@ -279,7 +280,7 @@ public class MainAppController : MonoBehaviour
             }
 
         }
-        if(Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
             switch(currentMenuState)
             {
@@ -412,8 +413,17 @@ public class MainAppController : MonoBehaviour
                 string fileLocation = Path.Combine(Application.streamingAssetsPath, s);
                 string contents = System.IO.File.ReadAllText(fileLocation);
                 QuickRefObject data = JsonSerializer.Deserialize<QuickRefObject>(contents);
-                //print(data.contents[0]["index"]);
-                LoadedFilesData.qrdFiles[s.Replace(".json", "")] = data.contents;
+                Dictionary<string, Dictionary<string, dynamic>> categoryItems = new Dictionary<string, Dictionary<string, dynamic>>();
+                foreach (var item in data.contents)
+                {
+                    var attributes = new Dictionary<string, dynamic>();
+                    foreach (var dict in item)
+                    {
+                        attributes.Add(dict.Key, dict.Value);
+                    }
+                    categoryItems.Add(item["index"].ToString(), attributes);
+                }
+                LoadedFilesData.qrdFiles[s.Replace(".json", "")] = categoryItems;
             }
             catch (FileNotFoundException) 
             {

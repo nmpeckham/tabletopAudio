@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1600958382412202002}
   - component: {fileID: 8054770855901748705}
   m_Layer: 5
-  m_Name: Text (TMP) (1)
+  m_Name: Detail
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -146,8 +146,9 @@ GameObject:
   - component: {fileID: 173118993795728036}
   - component: {fileID: 3479138032190322171}
   - component: {fileID: 7947736146670935818}
+  - component: {fileID: 225204500387429561}
   m_Layer: 5
-  m_Name: QuickRefDetailItem
+  m_Name: QuickRefDetailAttribute
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -172,7 +173,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -53.02, y: 3.46}
-  m_SizeDelta: {x: 138.15808, y: 47.297417}
+  m_SizeDelta: {x: 122, y: 55}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &173118993795728036
 CanvasRenderer:
@@ -227,10 +228,10 @@ MonoBehaviour:
   m_Padding:
     m_Left: 5
     m_Right: 0
-    m_Top: -5
+    m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 0
-  m_Spacing: -11.17
+  m_Spacing: -4.99
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 0
@@ -238,6 +239,20 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &225204500387429561
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5772917055227376971}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff500245fc7b802449129aac8f0a1230, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  titleText: {fileID: 6887801580091878606}
+  detailText: {fileID: 8054770855901748705}
 --- !u!1 &7472211111189872586
 GameObject:
   m_ObjectHideFlags: 0
@@ -250,7 +265,7 @@ GameObject:
   - component: {fileID: 5433481920513433869}
   - component: {fileID: 6887801580091878606}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: Title
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -273,7 +288,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 117.65094, y: 20.214146}
+  m_SizeDelta: {x: 112.1189, y: 20.214146}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5433481920513433869
 CanvasRenderer:
@@ -330,11 +345,11 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 13.3
+  m_fontSize: 12.65
   m_fontSizeBase: 16
   m_fontWeight: 400
   m_enableAutoSizing: 1
-  m_fontSizeMin: 12
+  m_fontSizeMin: 8
   m_fontSizeMax: 16
   m_fontStyle: 1
   m_HorizontalAlignment: 1

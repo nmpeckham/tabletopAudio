@@ -292,8 +292,8 @@ public class MusicController : MonoBehaviour
                 if (i == 0) sum *= 0.75; // correct for first band being larger than it "should" be
                 if (i == 7) sum *= 1.4; // correct for last band being smaller than it "should" be
                 sum *= mono ? 1f : 0.5f;    // mono vs. stereo amplitude correction
-                sum = Mathf.Pow((float)sum, 0.75f); // make low sounds show as a little louder
-                sum *= 0.9;
+                sum = Mathf.Pow((float)sum, 0.7f); // make low sounds show as a little louder
+                sum *= 0.85;
 
                 fadeTargets[i] = sum;
             }

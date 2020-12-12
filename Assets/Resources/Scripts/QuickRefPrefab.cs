@@ -57,7 +57,7 @@ public class QuickRefPrefab : MonoBehaviour
     {
         string itemCategory = category.Replace(" ", "-");
         string itemId = title.ToLower().Replace(" ", "-").Replace(",", "").Replace("/", "-");
-        print(LoadedFilesData.qrdFiles[category.Replace(" ", "-")].Count);
+
         qrd.ItemSelected(itemCategory, itemId);
     }
 }

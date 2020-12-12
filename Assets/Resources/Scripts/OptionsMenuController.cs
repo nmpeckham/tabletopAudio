@@ -92,6 +92,11 @@ public class OptionsMenuController : MonoBehaviour
         cancelNewFileButton.onClick.AddListener(CancelNewFile);
         newFileButton.onClick.AddListener(StartNewFile);
         darkModeToggle.SetIsOnWithoutNotify(mac.darkModeEnabled);
+        float val = PlayerPrefs.GetFloat("Crossfade");
+        if (val == 0) val = 10;
+        print(val);
+        mc.CrossfadeTime = val;
+        crossfadeField.text = val.ToString();
     }
 
     void StartNewFile()
@@ -135,13 +140,15 @@ public class OptionsMenuController : MonoBehaviour
             float val = 0;
             if (hadFormatException)
             {
-                if (value[value.Length - 1] == '0') val = Convert.ToSingle(value.Remove(value.Length - 1, 1));
+                // will remove the default 1 that is inputed after an error, when the user types a new value. I think.
+                if (value[value.Length - 1] == '1') val = Convert.ToSingle(value.Remove(value.Length - 1, 1));
                 hadFormatException = false;
             }
 
-            else val = Math.Min(30, Convert.ToSingle(value));
+            else val = Mathf.Max(1, Math.Min(30, Convert.ToSingle(value)));
             mc.CrossfadeTime = val;
             crossfadeField.text = val.ToString();
+            PlayerPrefs.SetFloat("Crossfade", val);
         }
         catch(FormatException)
         {

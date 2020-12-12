@@ -116,8 +116,7 @@ public class QuickReferenceController : MonoBehaviour
 
     private IEnumerator DbQuery(string query)
     {
-        print("".Contains("Apple"));
-        if(String.IsNullOrEmpty(query))
+        if (String.IsNullOrEmpty(query))
         {
             foreach (QuickRefPrefab go in scrollViewContent.GetComponentsInChildren<QuickRefPrefab>(true))
             {
@@ -132,10 +131,9 @@ public class QuickReferenceController : MonoBehaviour
         foreach (string queryItem in queries)
         {
             queryItem.Replace(" ", "");
-            if(String.IsNullOrEmpty(queryItem)) toRemove.Add(queryItem);
-            print(queryItem);
+            if (String.IsNullOrEmpty(queryItem)) toRemove.Add(queryItem);
         }
-        foreach(string queryItemToRemove in toRemove)
+        foreach (string queryItemToRemove in toRemove)
         {
             queries.Remove(queryItemToRemove);
         }
@@ -153,14 +151,15 @@ public class QuickReferenceController : MonoBehaviour
             foreach (var section in LoadedFilesData.qrdFiles)
             {
                 if (numFound > 20) break;
-                foreach (Dictionary<string, dynamic> dbItem in section.Value)
+                foreach (var dbItem in section.Value)
                 {
+                    //print(dbItem.Key);
                     if (numFound > 20) break;
-                    string index = dbItem["index"].ToString().ToUpper().Replace("-", "");
+                    string index = dbItem.Key.ToString().ToUpper().Replace("-", "");
                     string alias = "";
-                    if(dbItem.ContainsKey("alias"))
+                    if (dbItem.Value.ContainsKey("alias"))
                     {
-                        alias = dbItem["alias"].ToString().ToUpper();
+                        alias = dbItem.Value["alias"].ToString().ToUpper();
                     }
 
                     if (index.Contains(queryItem) || alias.Contains(queryItem))
@@ -173,32 +172,32 @@ public class QuickReferenceController : MonoBehaviour
                             qrp.Category = section.Key.Replace("-", " ");
                             try
                             {
-                                foreach (var item in dbItem["desc"].EnumerateArray())
+                                foreach (var item in dbItem.Value["desc"].EnumerateArray())
                                 {
                                     qrp.Description += item.ToString().Replace("- ", "") + "\n";
                                 }
                             }
                             catch (InvalidOperationException)
                             {
-                                qrp.Description += dbItem["desc"].ToString();
+                                qrp.Description += dbItem.Value["desc"].ToString();
                             }
                             catch (KeyNotFoundException)
                             {
                                 qrp.Description = "";
                             }
-                            if (dbItem.ContainsKey("name"))
+                            if (dbItem.Value.ContainsKey("name"))
                             {
                                 //move items that start with the same first letter to top
-                                if(dbItem["name"].ToString().ToUpper()[0] == queryItem[0])
+                                if (dbItem.Value["name"].ToString().ToUpper()[0] == queryItem[0])
                                 {
                                     prefab.transform.SetSiblingIndex(1);
                                 }
                                 //move items that are an exact match to top
-                                if (dbItem["name"].ToString().ToUpper() == queryItem)
+                                if (dbItem.Value["name"].ToString().ToUpper() == queryItem)
                                 {
                                     prefab.transform.SetSiblingIndex(1);
                                 }
-                                qrp.Title = dbItem["name"].ToString();
+                                qrp.Title = dbItem.Value["name"].ToString();
                             }
                             else
                             {
@@ -215,7 +214,7 @@ public class QuickReferenceController : MonoBehaviour
             yield return new WaitForEndOfFrame();
         }
         //destroy after search finished to prevent items in list disappearing for a frame
-        foreach(GameObject goToDestroy in toDestroy)
+        foreach (GameObject goToDestroy in toDestroy)
         {
             Destroy(goToDestroy);
         }
