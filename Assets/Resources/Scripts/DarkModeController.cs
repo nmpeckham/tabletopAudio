@@ -9,6 +9,7 @@ public class DarkModeController : MonoBehaviour
 {
     private MusicController mc;
     private MainAppController mac;
+    public Material crossfadeMaterial;
     internal void SwapDarkMode(bool enable)
     {
         mc = GetComponent<MusicController>();
@@ -77,6 +78,10 @@ public class DarkModeController : MonoBehaviour
                     {
                         buttonImg.color = Color.green;
                     }
+                    if (buttonId == "PAUSE" && mc.isPaused)
+                    {
+                        buttonImg.color = ResourceManager.orange;
+                    }
                 }
                 catch (NullReferenceException) { }
                 try
@@ -87,19 +92,13 @@ public class DarkModeController : MonoBehaviour
                         buttonImg.color = Color.red;
                     }
                 }
-                catch (NullReferenceException) {
-                }
-            }
-            GameObject[] fftBars = GameObject.FindGameObjectsWithTag("fftBar");
-            foreach(GameObject bar in fftBars)
-            {
-                bar.GetComponent<Image>().color = Color.white;
+                catch (NullReferenceException) {}
+                crossfadeMaterial.SetColor("ButtonColor", ResourceManager.darkModeGrey);
             }
         }
+
         else
         {
-           
-
             GameObject[] imgToChange = GameObject.FindGameObjectsWithTag("imageChangeOnDarkMode");
             foreach (GameObject obj in imgToChange)
             {
@@ -163,6 +162,10 @@ public class DarkModeController : MonoBehaviour
                     {
                         buttonImg.color = Color.green;
                     }
+                    if (buttonId == "PAUSE" && mc.isPaused)
+                    {
+                        buttonImg.color = ResourceManager.orange;
+                    }
                 }
                 catch (NullReferenceException) { }
                 try
@@ -174,14 +177,8 @@ public class DarkModeController : MonoBehaviour
                     }
                 }
                 catch (NullReferenceException) { }
-
-            }
-            GameObject[] fftBars = GameObject.FindGameObjectsWithTag("fftBar");
-            foreach (GameObject bar in fftBars)
-            {
-                bar.GetComponent<Image>().color = Color.black;
+                crossfadeMaterial.SetColor("ButtonColor", ResourceManager.lightModeGrey);
             }
         }
     }
-
 }

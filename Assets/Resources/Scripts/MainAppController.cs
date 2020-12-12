@@ -7,6 +7,7 @@ using System.Linq;
 using UnityEngine.UI;
 using System.IO;
 using TMPro;
+using System.Text.Json;
 
 
 //Main controller for the app. Handles various tasks
@@ -20,6 +21,7 @@ public class MainAppController : MonoBehaviour
     internal string musicDirectory;
     internal string sfxDirectory;
     internal string saveDirectory;
+    internal string videoDirectory;
     internal char sep;
 
     internal int activePage = 0;
@@ -53,6 +55,8 @@ public class MainAppController : MonoBehaviour
     internal Sprite stopImage;
 
     internal bool darkModeEnabled = false;
+    //private QuickReferenceController qrc;
+    //private QuickRefDetailView qrd;
 
     internal enum MenuState
     {
@@ -67,14 +71,17 @@ public class MainAppController : MonoBehaviour
         overwriteSaveFile,
         startNewFile,
         deleteMusicFile,
+        quickReference,
+        quickReferenceDetail,
         none
     }
 
-    internal MenuState currentMenuState = MenuState.mainAppView;
+    internal MenuState currentMenuState;
 
     // Start is called before the first frame update
     public void Start()
     {
+        if(PlayerPrefs.GetFloat("Crossfade") == 0) PlayerPrefs.SetFloat("Crossfade", 10);
         VERSION = Application.version;
         pauseImage = pause.GetComponent<SpriteRenderer>().sprite;
         playImage = play.GetComponent<SpriteRenderer>().sprite;
@@ -87,6 +94,8 @@ public class MainAppController : MonoBehaviour
         epl = GetComponent<EditPageLabel>();
         mc = GetComponent<MusicController>();
         dmc = GetComponent<DarkModeController>();
+        //qrc = GetComponent<QuickReferenceController>();
+        //qrd = GetComponent<QuickRefDetailView>();
 
         sep = System.IO.Path.DirectorySeparatorChar;
 
@@ -98,11 +107,39 @@ public class MainAppController : MonoBehaviour
         musicDirectory = Path.Combine(mainDirectory, "music");
         sfxDirectory = Path.Combine(mainDirectory, "sound effects");
         saveDirectory = Path.Combine(mainDirectory, "saves");
+        videoDirectory = Path.Combine(mainDirectory, "videos");
 
         SetupFolderStructure(mainDirectory);
 
-        bool darkMode = Convert.ToBoolean(PlayerPrefs.GetString("darkMode"));
+        bool darkMode = false;
+        try
+        {
+            darkMode = Convert.ToBoolean(PlayerPrefs.GetString("darkMode"));
+        }
+        catch (FormatException){ }
         swapDarkLightMode(darkMode);
+        //LoadQrdObjects();
+
+        //MakeCategoryColors();
+        this.currentMenuState = MenuState.mainAppView;
+    }
+
+    //void MakeCategoryColors()
+    //{
+    //    int i = 0;
+    //    foreach (string category in ResourceManager.dbFiles)
+    //    {
+    //        ResourceManager.categoryColors.Add(category, UIntToColor(ResourceManager.kellysMaxContrastSet[i]));
+    //        i++;
+    //    }
+    //}
+
+    static public Color UIntToColor(uint color)
+    {
+        float r = (byte)(color >> 16) / 255f;
+        float g = (byte)(color >> 8) / 255f;
+        float b = (byte)(color >> 0) / 255f;
+        return new Color(r, g, b);
     }
 
     internal void SetupFolderStructure(string directory)
@@ -230,7 +267,20 @@ public class MainAppController : MonoBehaviour
 
     private void Update()
     {
-        if(Input.GetKeyDown(KeyCode.Escape))
+        //if (Input.GetKeyDown(KeyCode.Tilde) || Input.GetKeyDown(KeyCode.BackQuote))
+        //{
+        //    switch (currentMenuState)
+        //    {
+        //        case MenuState.mainAppView:
+        //            qrc.ShowLookupMenu();
+        //            break;
+        //        case MenuState.quickReference:
+        //            qrc.HideLookupMenu();
+        //            break;
+        //    }
+
+        //}
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
             switch(currentMenuState)
             {
@@ -267,6 +317,12 @@ public class MainAppController : MonoBehaviour
                 case MenuState.deleteMusicFile:
                     GetComponent<MusicController>().CloseDeleteMusicItemTooltip();
                     break;
+                //case MenuState.quickReference:
+                //    qrc.HideLookupMenu();
+                //    break;
+                //case MenuState.quickReferenceDetail:
+                //    qrd.CloseQuickReferenceDetail();
+                //    break;
                 case MenuState.none:
                     break;
             }
@@ -347,4 +403,32 @@ public class MainAppController : MonoBehaviour
         dmc.SwapDarkMode(darkModeEnabled);
         PlayerPrefs.SetString("darkMode", enable.ToString());
     }
+
+    //public void LoadQrdObjects()
+    //{
+    //    foreach(string s in ResourceManager.dbFiles)
+    //    {
+    //        try
+    //        {
+    //            string fileLocation = Path.Combine(Application.streamingAssetsPath, s);
+    //            string contents = System.IO.File.ReadAllText(fileLocation);
+    //            QuickRefObject data = JsonSerializer.Deserialize<QuickRefObject>(contents);
+    //            Dictionary<string, Dictionary<string, dynamic>> categoryItems = new Dictionary<string, Dictionary<string, dynamic>>();
+    //            foreach (var item in data.contents)
+    //            {
+    //                var attributes = new Dictionary<string, dynamic>();
+    //                foreach (var dict in item)
+    //                {
+    //                    attributes.Add(dict.Key, dict.Value);
+    //                }
+    //                categoryItems.Add(item["index"].ToString(), attributes);
+    //            }
+    //            LoadedFilesData.qrdFiles[s.Replace(".json", "")] = categoryItems;
+    //        }
+    //        catch (FileNotFoundException) 
+    //        {
+    //            ShowErrorMessage("Could not load quick reference file " + s + ". Check that it exists.");
+    //        }
+    //    }
+    //}
 }
