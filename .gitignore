@@ -62,3 +62,6 @@ crashlytics-build.properties
 # Media files
 *.mp4
 *.mp3
+
+*.mp3.meta
+*.mp4.meta
