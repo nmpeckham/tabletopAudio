@@ -23,7 +23,7 @@ public class QuickReferenceController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        quickRefPanel.SetActive(false);
+        //quickRefPanel.SetActive(false);
         mac = GetComponent<MainAppController>();
         searchBox.onValueChanged.AddListener(TextEntered);
         clearTextButton.onClick.AddListener(ClearText);
@@ -115,7 +115,7 @@ public class QuickReferenceController : MonoBehaviour
     }
 
     private IEnumerator DbQuery(string query)
-    {
+    { 
         if (String.IsNullOrEmpty(query))
         {
             foreach (QuickRefPrefab go in scrollViewContent.GetComponentsInChildren<QuickRefPrefab>(true))

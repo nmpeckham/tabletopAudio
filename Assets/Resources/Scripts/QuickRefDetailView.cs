@@ -245,7 +245,7 @@ public class QuickRefDetailView : MonoBehaviour
             descriptionText.text = listItem["desc"].ToString();
         }
         else if (category == "Monster")
-        {
+        {//AC, Resistances, Hit dice/hp, immunities, speed, vulnerabilities, condition immunities, type & subtype, CR/xp, languages
             quickRefObj.SetActive(true);
             attributesPanel.SetActive(true);
             Dictionary<string, dynamic> listItem = LoadedFilesData.qrdFiles[category][item];

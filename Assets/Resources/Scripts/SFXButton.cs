@@ -59,6 +59,8 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     public TMP_Text ignorePlayAllIndicator;
 
+    private bool discoModeActive = false;
+
     internal bool IgnorePlayAll
     {
         get
@@ -151,12 +153,54 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         if (fromFadeInAll && IgnorePlayAll) { }
         else
         {
+            //stop active fade out routines, if any
             if (activeFadeOutRoutine != null)
             {
                 StopCoroutine(activeFadeOutRoutine);
                 activeFadeOutRoutine = null;
             }
-            activeFadeInRoutine = StartCoroutine(FadeInRoutine());
+            if (activeFadeInRoutine == null) activeFadeInRoutine = StartCoroutine(FadeInRoutine());
+            else
+            {
+                StopCoroutine(activeFadeInRoutine);
+                activeFadeInRoutine = null;
+            }
+        }
+    }
+
+    internal void ToggleDiscoMode()
+    {
+        if (discoModeActive)
+        {
+            discoModeActive = false;
+            StopCoroutine("DiscoModeUpdate");
+            GetComponent<Image>().color = mac.darkModeEnabled ? ResourceManager.sfxButtonDark : ResourceManager.sfxButtonLight;
+        }
+        else StartCoroutine("DiscoModeUpdate");
+    }
+
+    IEnumerator DiscoModeUpdate()
+    {
+        discoModeActive = true;
+        while (true)
+        {
+            Image btnImage = GetComponent<Image>();
+            int colorIndex = UnityEngine.Random.Range(0, ResourceManager.kellysMaxContrastSet.Count - 1);
+            Color newColor = MainAppController.UIntToColor(ResourceManager.kellysMaxContrastSet[colorIndex]);
+
+            Color currentColor = btnImage.color;
+            for (int i = 0; i < 100; i++)
+            {
+                float fadeRatio = (float)i / 100;
+
+                float newR = Mathf.Lerp(currentColor.r, newColor.r, fadeRatio);
+                float newG = Mathf.Lerp(currentColor.g, newColor.g, fadeRatio);
+                float newB = Mathf.Lerp(currentColor.b, newColor.b, fadeRatio);
+                btnImage.color = new Color(newR, newG, newB);
+                //print(fadeRatio);
+                yield return new WaitForEndOfFrame();
+                if (UnityEngine.Random.Range(0, 1) == 1) yield return new WaitForEndOfFrame();
+            }
         }
     }
 
@@ -170,7 +214,12 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
                 StopCoroutine(activeFadeInRoutine);
                 activeFadeInRoutine = null;
             }
-            activeFadeOutRoutine = StartCoroutine(FadeOutRoutine());
+            if (activeFadeOutRoutine == null) activeFadeOutRoutine = StartCoroutine(FadeOutRoutine());
+            else
+            {
+                StopCoroutine(activeFadeOutRoutine);
+                activeFadeOutRoutine = null;
+            }
         }
     }
 

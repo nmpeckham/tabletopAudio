@@ -1,5 +1,23 @@
 TableTopAudio Changelog
 
+v1.0.3 "Inveniet" - Added DnD 5e quick reference tool
+
+ - Fixed bug that could cause freeze when only one song in music playlist
+
+ - Save name input field now assumes text cursor focus when save panel is opened
+
+ - Clicking on a fade in/out button while a fade in/out is active will cancel the active fade
+
+ - Fixed pause button didn't turn orange when using space bar to pause
+
+ - Further FFT refinements - # of bins and bin size adjusted, blah blah blah. Guaranteed to be 12% more accurate, 9 times out of 10
+
+ - New experimental features section. Contains features that are incomplete, buggy, or not applicable to a wide audience. May be removed in a future release. Accessible from options menu
+
+ - *Experimental* Added new backgrounds to songs in playlist showing song intensity. Has issues with some imperfect mp3 files. No .ogg support at this time
+
+ - *Experimental* Added disco mode. Can be activated using ctrl + d
+
 v1.0.2 "Firmum" - Big stability & QoL improvements
 
  - Further refinements to FFT display. VLC eat my dust. Revel in its glory
@@ -14,7 +32,7 @@ v1.0.2 "Firmum" - Big stability & QoL improvements
 
  - (Probably) Fixed more critical bugs when repeatedly scrubbing to end of songs. Have not been able to reproduce. $30 bug bounty if able to reproduce with proof and replication steps.
 
-  - Fixed bug where crossfade could be set to 0s on first launch
+ - Fixed bug where crossfade could be set to 0s on first launch
 
 v1.0.1 "Paene" - Bug Fixes to 1.0.0
 

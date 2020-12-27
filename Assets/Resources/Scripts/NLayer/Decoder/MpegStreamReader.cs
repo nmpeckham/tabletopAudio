@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using UnityEngine;
 
 namespace NLayer.Decoder
 {
@@ -242,7 +243,7 @@ namespace NLayer.Decoder
                 lock (_localLock)
                 {
                     var startIdx = EnsureFilled(reader, offset, ref count);
-                    
+                    //Debug.Log(startIdx);
                     Buffer.BlockCopy(Data, startIdx, buffer, index, count);
                 }
                 return count;
@@ -485,7 +486,7 @@ namespace NLayer.Decoder
                     #endregion
                 }
 
-                return startIdx;
+                return startIdx >= 0 ? startIdx : 0;
             }
 
             public void DiscardThrough(long offset)

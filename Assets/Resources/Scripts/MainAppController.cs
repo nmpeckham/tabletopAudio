@@ -8,6 +8,7 @@ using UnityEngine.UI;
 using System.IO;
 using TMPro;
 using System.Text.Json;
+using UnityEngine.Video;
 
 
 //Main controller for the app. Handles various tasks
@@ -40,6 +41,7 @@ public class MainAppController : MonoBehaviour
     private MusicController mc;
     private EditPageLabel epl;
     private DarkModeController dmc;
+    private DiscoMode dm;
 
     public GameObject optionsPanel;
 
@@ -58,6 +60,9 @@ public class MainAppController : MonoBehaviour
     private QuickReferenceController qrc;
     private QuickRefDetailView qrd;
 
+    private GenerateMusicFFTBackgrounds gmfb;
+
+    private VideoPlayer player;
     internal enum MenuState
     {
         mainAppView,
@@ -81,6 +86,8 @@ public class MainAppController : MonoBehaviour
     // Start is called before the first frame update
     public void Start()
     {
+        PlayerPrefs.DeleteKey("Crossfade");
+        //print(PlayerPrefs.GetFloat("Crossfade") == 0);
         if(PlayerPrefs.GetFloat("Crossfade") == 0) PlayerPrefs.SetFloat("Crossfade", 10);
         VERSION = Application.version;
         pauseImage = pause.GetComponent<SpriteRenderer>().sprite;
@@ -96,6 +103,8 @@ public class MainAppController : MonoBehaviour
         dmc = GetComponent<DarkModeController>();
         qrc = GetComponent<QuickReferenceController>();
         qrd = GetComponent<QuickRefDetailView>();
+        gmfb = GetComponent<GenerateMusicFFTBackgrounds>();
+        dm = GetComponent<DiscoMode>();
 
         sep = System.IO.Path.DirectorySeparatorChar;
 
@@ -111,26 +120,34 @@ public class MainAppController : MonoBehaviour
 
         SetupFolderStructure(mainDirectory);
 
-        bool darkMode = false;
+        bool darkModeEnabled = false;
         try
         {
-            darkMode = Convert.ToBoolean(PlayerPrefs.GetString("darkMode"));
+            darkModeEnabled = Convert.ToBoolean(PlayerPrefs.GetString("darkMode"));
         }
         catch (FormatException){ }
-        swapDarkLightMode(darkMode);
+        SwapDarkLightMode(darkModeEnabled);
         LoadQrdObjects();
 
         MakeCategoryColors();
         this.currentMenuState = MenuState.mainAppView;
+        //player = GetComponentInChildren<VideoPlayer>();
+        //player.url = Path.Combine(Application.streamingAssetsPath, "avicii.mp4");
+        //player.Play();
+        //player.audioOutputMode = VideoAudioOutputMode.AudioSource;
+        //player.SetTargetAudioSource(1, GetComponent<AudioSource>());
     }
 
     void MakeCategoryColors()
     {
-        int i = 0;
-        foreach (string category in ResourceManager.dbFiles)
+        if (ResourceManager.categoryColors.Count == 0)
         {
-            ResourceManager.categoryColors.Add(category, UIntToColor(ResourceManager.kellysMaxContrastSet[i]));
-            i++;
+            int i = 0;
+            foreach (string category in ResourceManager.dbFiles)
+            {
+                ResourceManager.categoryColors.Add(category, UIntToColor(ResourceManager.kellysMaxContrastSet[i]));
+                i++;
+            }
         }
     }
 
@@ -396,8 +413,11 @@ public class MainAppController : MonoBehaviour
             ChangeSFXPage(7);
             pageButtons[7].GetComponent<Image>().color = Color.red;
         }
+        if((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.D)) {
+            dm.ToggleDiscoMode();
+        }
     }
-    public void swapDarkLightMode(bool enable)
+    public void SwapDarkLightMode(bool enable)
     {
         darkModeEnabled = enable;
         dmc.SwapDarkMode(darkModeEnabled);

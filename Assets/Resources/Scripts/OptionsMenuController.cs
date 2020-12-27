@@ -12,20 +12,7 @@ using UnityEngine.SceneManagement;
 //Controls the options menu
 public class OptionsMenuController : MonoBehaviour
 {
-    public Button load;
-    public Button save;
-    public Button close;
-    public Button about;
-    public Button closeAbout;
-    public Button closeLoadSelection;
-    public Button newFileButton;
-
     public GameObject confirmNewFilePanel;
-    public Button confirmNewFileButton;
-    public Button cancelNewFileButton;
-
-    public Button acceptSaveName;
-    public Button closeSaveNameMenu;
     public TMP_InputField saveNameField;
     public GameObject saveNamePanel;
 
@@ -51,8 +38,6 @@ public class OptionsMenuController : MonoBehaviour
     public Toggle darkModeToggle;
 
     public GameObject overwriteSavePanel;
-    public Button cancelOverwriteSavePanel;
-    public Button confirmOverwriteSavePanel;
 
     private string saveFileName;
 
@@ -72,29 +57,16 @@ public class OptionsMenuController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        if(!Application.isEditor) optionsPanel.SetActive(false);
         saveErrorText.enabled = false;
         mc = GetComponent<MusicController>();
         mac = GetComponent<MainAppController>();
         darkModeToggle.onValueChanged.AddListener(DarkModeChanged);
         autoUpdatePlaylistToggle.onValueChanged.AddListener(AutoUpdateChanged);
-        close.onClick.AddListener(Close);
-        load.onClick.AddListener(Load);
-        save.onClick.AddListener(OpenSaveNamePanel);
-        about.onClick.AddListener(OpenAboutMenu);
-        closeAbout.onClick.AddListener(CloseAboutMenu);
-        closeLoadSelection.onClick.AddListener(CloseLoadSelection);
-        acceptSaveName.onClick.AddListener(AcceptSaveName);
-        closeSaveNameMenu.onClick.AddListener(CloseSaveMenu);
         crossfadeField.onValueChanged.AddListener(CrossfadeTimeChanged);
-        confirmOverwriteSavePanel.onClick.AddListener(ConfirmOverwriteSave);
-        cancelOverwriteSavePanel.onClick.AddListener(CancelOverwriteSave);
-        confirmNewFileButton.onClick.AddListener(ConfirmNewFile);
-        cancelNewFileButton.onClick.AddListener(CancelNewFile);
-        newFileButton.onClick.AddListener(StartNewFile);
         darkModeToggle.SetIsOnWithoutNotify(mac.darkModeEnabled);
         float val = PlayerPrefs.GetFloat("Crossfade");
         if (val == 0) val = 10;
-        print(val);
         mc.CrossfadeTime = val;
         crossfadeField.text = val.ToString();
     }
@@ -130,7 +102,7 @@ public class OptionsMenuController : MonoBehaviour
 
     void DarkModeChanged(bool value)
     {
-        mac.swapDarkLightMode(value);
+        mac.SwapDarkLightMode(value);
     }
 
     void CrossfadeTimeChanged(string value)
@@ -161,6 +133,7 @@ public class OptionsMenuController : MonoBehaviour
     void OpenSaveNamePanel()
     {
         saveNamePanel.SetActive(true);
+        saveNameField.ActivateInputField();
         mac.currentMenuState = MainAppController.MenuState.enterSaveFileName;
     }
 
@@ -377,7 +350,7 @@ public class OptionsMenuController : MonoBehaviour
             mac.ShowErrorMessage("Loading failed: Malformed save file format");
         }
 
-        if (mac.darkModeEnabled) mac.swapDarkLightMode(true);
+        if (mac.darkModeEnabled) mac.SwapDarkLightMode(true);
         yield return null;
         //else
         //{
@@ -478,6 +451,56 @@ public class OptionsMenuController : MonoBehaviour
         {
             mac.currentMenuState = MainAppController.MenuState.overwriteSaveFile;
             overwriteSavePanel.SetActive(true);
+        }
+    }
+
+    internal void OptionMenuButtonClicked(string id)
+    {
+        print(id);
+        switch (id)
+        {
+            case "close":
+                Close();
+                break;
+            case "load":
+                Load();
+                break;
+            case "save":
+                OpenSaveNamePanel();
+                break;
+            case "open about":
+                OpenAboutMenu();
+                break;
+            case "close about":
+                CloseAboutMenu();
+                break;
+            case "close load selection":
+                CloseLoadSelection();
+                break;
+            case "accept save name":
+                AcceptSaveName();
+                break;
+            case "close save menu":
+                CloseSaveMenu();
+                break;
+            case "confirm overwrite":
+                ConfirmOverwriteSave();
+                break;
+            case "cancel overwrite":
+                CancelOverwriteSave();
+                break;
+            case "confirm new file":
+                ConfirmNewFile();
+                break;
+            case "cancel new file":
+                CancelNewFile();
+                break;
+            case "new file":
+                StartNewFile();
+                break;
+            default:
+                print("No action for button " + id);
+                break;
         }
     }
 }
