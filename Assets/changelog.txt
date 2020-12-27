@@ -14,7 +14,11 @@ v1.0.3 "Inveniet" - Added DnD 5e quick reference tool
 
  - New experimental features section. Contains features that are incomplete, buggy, or not applicable to a wide audience. May be removed in a future release. Accessible from options menu
 
- - *Experimental* Added new backgrounds to songs in playlist showing song intensity. Has issues with some imperfect mp3 files. No .ogg support at this time
+ - Fixed bug where FFT display textures could be incorrectly scaled for loud music intensities
+
+ - Logarithmic volume control now correctly applied to music playlist items and sfx buttons
+
+ - *Experimental* Added new backgrounds to songs in playlist showing song intensity. Has issues with some imperfect mp3 files. No ogg vorbis support at this time
 
  - *Experimental* Added disco mode. Can be activated using ctrl + d
 

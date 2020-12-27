@@ -872,7 +872,7 @@ public class MusicController : MonoBehaviour
 
     public void ChangeMasterVolume(float newMasterVolume)
     {
-        masterVolume = newMasterVolume;
+        masterVolume = (float)Math.Pow(newMasterVolume, 2f);
         activeAudioSource.volume = masterVolume * musicVolume;
     }
 
@@ -886,7 +886,7 @@ public class MusicController : MonoBehaviour
     private void ChangeLocalVolume(float newLocalVolume)
     {
         if (localVolumeSlider.value != newLocalVolume) localVolumeSlider.SetValueWithoutNotify(newLocalVolume);
-        musicVolume = newLocalVolume;
+        musicVolume = (float)Math.Pow(newLocalVolume, 2f);
         activeAudioSource.volume = masterVolume * musicVolume;
         localVolumeLabel.text = (musicVolume * 100).ToString("N0") + "%";
     }

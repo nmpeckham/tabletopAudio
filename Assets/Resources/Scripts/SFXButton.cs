@@ -111,7 +111,7 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
                     activeFadeOutRoutine = null;
                 }
             }
-            localVolume = value;
+            localVolume = Mathf.Pow(value, 2f);
             volumeSlider.value = value;
         }
     }
@@ -186,8 +186,11 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         {
             Image btnImage = GetComponent<Image>();
             int colorIndex = UnityEngine.Random.Range(0, ResourceManager.kellysMaxContrastSet.Count - 1);
-            Color newColor = MainAppController.UIntToColor(ResourceManager.kellysMaxContrastSet[colorIndex]);
-
+            Color newColor = btnImage.color;
+            while(btnImage.color == newColor)
+            {
+                newColor = MainAppController.UIntToColor(ResourceManager.kellysMaxContrastSet[colorIndex]);
+            }
             Color currentColor = btnImage.color;
             for (int i = 0; i < 100; i++)
             {
