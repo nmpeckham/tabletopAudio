@@ -56,7 +56,7 @@ public class MusicController : MonoBehaviour
 
     private bool autoCheckForNewFiles = false;
 
-    private AudioSource activeAudioSource;
+    internal AudioSource activeAudioSource;
     private AudioSource inactiveAudioSource;
 
 
@@ -206,8 +206,10 @@ public class MusicController : MonoBehaviour
         LoadedFilesData.deletedMusicClips.Clear();
         LoadedFilesData.musicClips.Clear();
         LoadedFilesData.sfxClips.Clear();
+        plas = GetComponent<PlaylistAudioSources>();
+        activeAudioSource = GetComponent<AudioSource>();
         crossfadeValue = 1 / (crossfadeTime * fixedUpdateTime);
-        activeAudioSource = plas.a1;
+        //activeAudioSource = plas.a1;
         inactiveAudioSource = plas.a2;
         omc = GetComponent<OptionsMenuController>();
 
@@ -238,7 +240,20 @@ public class MusicController : MonoBehaviour
         crossfadeMaterial.SetFloat("Progress", 0);
         GetComponent<GenerateMusicFFTBackgrounds>().Begin();
 
-        //videoAudioSource = vp.GetComponent<AudioSource>();
+        //ItemSelected(0);
+        mac.PlayVideo();
+        StartCoroutine(StartAudioDelayed());
+    }
+
+    IEnumerator StartAudioDelayed()
+    {
+        //ItemSelected(0);
+        for (int i = 0; i < 1; i++)
+        {
+            yield return new WaitForEndOfFrame();
+            ItemSelected(0);
+        }
+        yield return null;
     }
 
     void StartFadeInMusicVolume()
@@ -303,6 +318,7 @@ public class MusicController : MonoBehaviour
 
     IEnumerator Fft()
     {
+        print(activeAudioSource.gameObject.name);
         // Much of this is based on making the fft display _look_ nice, rather than to be mathematically correct
         int fftSize = 4096;
         float[] data0 = new float[fftSize];
@@ -329,7 +345,7 @@ public class MusicController : MonoBehaviour
                 //if (i == 7) sum *= 1.4; // correct for last band being smaller than it "should" be
                 sum *= mono ? 1f : 0.5f;    // mono vs. stereo amplitude correction
                 sum = Mathf.Pow((float)sum, 0.75f); // make low sounds show as a little louder
-                sum *= 0.5;
+                //sum *= 1.5;
 
                 fadeTargets[i] = sum;
             }
@@ -925,6 +941,7 @@ public class MusicController : MonoBehaviour
                 {
                     long position = Convert.ToInt64(streamToUse.Length * val);
                     if (streamToUse != null && position > 0) streamToUse.Position = position;
+                    mac.ChangeVideoTime(val);
                 }
                 catch (NullReferenceException e)
                 {
@@ -1057,46 +1074,50 @@ public class MusicController : MonoBehaviour
     private void LateUpdate()
     {
         bool shouldStartCrossfade = false;
-        if (activeAudioSource.clip)
+        try
         {
-            shouldStartCrossfade = activeAudioSource.time > activeAudioSource.clip.length - crossfadeTime;
-        }
-        if(activeAudioSource.clip)
-        {
-            if (((!activeAudioSource.isPlaying && !isPaused) || (crossfade && shouldStartCrossfade))) 
+            if (activeAudioSource.clip)
             {
-                prevButtonImage.color = ResourceManager.musicButtonGrey;
-                if (musicButtons.Count > 1) //edge case if only one track is present in playlist
+                shouldStartCrossfade = activeAudioSource.time > activeAudioSource.clip.length - crossfadeTime;
+            }
+            if (activeAudioSource.clip)
+            {
+                if (((!activeAudioSource.isPlaying && !isPaused) || (crossfade && shouldStartCrossfade)))
                 {
-                    if (nowPlayingButtonID < musicButtons.Count - 1)
+                    prevButtonImage.color = ResourceManager.musicButtonGrey;
+                    if (musicButtons.Count > 1) //edge case if only one track is present in playlist
                     {
-                        int newButtonID = shuffle ? UnityEngine.Random.Range(0, musicButtons.Count - 1) : nowPlayingButtonID + 1;
-                        while (newButtonID == nowPlayingButtonID)
+                        if (nowPlayingButtonID < musicButtons.Count - 1)
                         {
-                            newButtonID = shuffle ? UnityEngine.Random.Range(0, musicButtons.Count - 1) : nowPlayingButtonID + 1;
+                            int newButtonID = shuffle ? UnityEngine.Random.Range(0, musicButtons.Count - 1) : nowPlayingButtonID + 1;
+                            while (newButtonID == nowPlayingButtonID)
+                            {
+                                newButtonID = shuffle ? UnityEngine.Random.Range(0, musicButtons.Count - 1) : nowPlayingButtonID + 1;
+                            }
+                            ItemSelected(newButtonID);
                         }
-                        ItemSelected(newButtonID);
+                        else
+                        {
+                            int newButtonID = shuffle ? UnityEngine.Random.Range(0, musicButtons.Count - 1) : 0;
+                            while (newButtonID == nowPlayingButtonID)
+                            {
+                                newButtonID = shuffle ? UnityEngine.Random.Range(0, musicButtons.Count - 1) : 0;
+                            }
+                            ItemSelected(newButtonID);
+                        }
                     }
                     else
                     {
-                        int newButtonID = shuffle ? UnityEngine.Random.Range(0, musicButtons.Count - 1) : 0;
-                        while (newButtonID == nowPlayingButtonID)
-                        {
-                            newButtonID = shuffle ? UnityEngine.Random.Range(0, musicButtons.Count - 1) : 0;
-                        }
-                        ItemSelected(newButtonID);
+                        Stop();
                     }
                 }
-                else
+                if (nextDelayTimer > 0)
                 {
-                    Stop();
+                    nextDelayTimer -= 1;
                 }
             }
-            if(nextDelayTimer > 0)
-            {
-                nextDelayTimer -= 1;
-            }
         }
+        catch (Exception) { };
         
     }
     public void ShowRightClickMenu(int id)
@@ -1106,5 +1127,13 @@ public class MusicController : MonoBehaviour
         if(activeRightClickMenu) Destroy(activeRightClickMenu);
         activeRightClickMenu = Instantiate(playlistRightClickMenuPrefab, Input.mousePosition, Quaternion.identity, TooltipParent.transform);
         StartCoroutine(CheckMousePos(Input.mousePosition));
+    }
+
+    private void OnApplicationQuit()
+    {
+        activeMp3Stream.Dispose();
+        inactiveMp3Stream.Dispose();
+        activeVorbisStream.Dispose();
+        inactiveVorbisStream.Dispose();
     }
 }

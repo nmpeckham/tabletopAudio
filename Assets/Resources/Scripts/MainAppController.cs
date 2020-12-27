@@ -126,16 +126,19 @@ public class MainAppController : MonoBehaviour
             darkModeEnabled = Convert.ToBoolean(PlayerPrefs.GetString("darkMode"));
         }
         catch (FormatException){ }
-        SwapDarkLightMode(darkModeEnabled);
+        //SwapDarkLightMode(darkModeEnabled);
         LoadQrdObjects();
 
         MakeCategoryColors();
         this.currentMenuState = MenuState.mainAppView;
-        //player = GetComponentInChildren<VideoPlayer>();
-        //player.url = Path.Combine(Application.streamingAssetsPath, "avicii.mp4");
-        //player.Play();
-        //player.audioOutputMode = VideoAudioOutputMode.AudioSource;
-        //player.SetTargetAudioSource(1, GetComponent<AudioSource>());
+        player = GetComponentInChildren<VideoPlayer>();
+        player.url = Path.Combine(Application.streamingAssetsPath, "Parcels.mp4");
+
+    }
+
+    internal void PlayVideo()
+    {
+        player.Play();
     }
 
     void MakeCategoryColors()
@@ -178,6 +181,11 @@ public class MainAppController : MonoBehaviour
             System.IO.Directory.CreateDirectory(saveDirectory);
         }
         mc.AutoCheckForNewFiles = true;
+    }
+
+    internal void ChangeVideoTime(double val)
+    {
+        player.time = (val * player.length);
     }
 
     internal bool MakeSFXButtons()
@@ -372,6 +380,8 @@ public class MainAppController : MonoBehaviour
         if(Input.GetKeyDown(KeyCode.Space) && currentMenuState == MenuState.mainAppView)
         {
             mc.SpacebarPressed();
+            if (player.isPaused) player.Play();
+            else player.Pause();
         }
         if((Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1)) && currentMenuState == MenuState.mainAppView)
         {

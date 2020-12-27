@@ -47,8 +47,11 @@ public class DarkModeController : MonoBehaviour
                 }
                 catch (NullReferenceException) { }
             }
-
-            GameObject.FindGameObjectWithTag("mainBackground").GetComponent<Image>().color = ResourceManager.lightModeGrey;
+            try
+            {
+                GameObject.FindGameObjectWithTag("mainBackground").GetComponent<Image>().color = ResourceManager.lightModeGrey;
+            }
+            catch (NullReferenceException) { };
 
             GameObject[] sfxPageBGs = GameObject.FindGameObjectsWithTag("sfxButtonBG");
             foreach (GameObject obj in sfxPageBGs)

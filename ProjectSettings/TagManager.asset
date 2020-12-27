@@ -15,6 +15,7 @@ TagManager:
   - pageButtonText
   - sfxButtonBG
   - fftBar
+  - videoSource
   layers:
   - Default
   - TransparentFX
