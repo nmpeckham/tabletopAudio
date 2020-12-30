@@ -247,12 +247,13 @@ public class MusicController : MonoBehaviour
 
     IEnumerator StartAudioDelayed()
     {
+        ItemSelected(0);
         //ItemSelected(0);
-        for (int i = 0; i < 1; i++)
-        {
-            yield return new WaitForEndOfFrame();
-            ItemSelected(0);
-        }
+        //for (int i = 0; i < 60; i++)
+        //{
+        //    yield return new WaitForEndOfFrame();
+        //    ItemSelected(0);
+        //}
         yield return null;
     }
 
@@ -940,7 +941,7 @@ public class MusicController : MonoBehaviour
                 try
                 {
                     long position = Convert.ToInt64(streamToUse.Length * val);
-                    if (streamToUse != null && position > 0) streamToUse.Position = position;
+                    if (streamToUse != null && position > 0) streamToUse.Position = position -520000;
                     mac.ChangeVideoTime(val);
                 }
                 catch (NullReferenceException e)

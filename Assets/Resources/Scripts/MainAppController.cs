@@ -132,13 +132,22 @@ public class MainAppController : MonoBehaviour
         MakeCategoryColors();
         this.currentMenuState = MenuState.mainAppView;
         player = GetComponentInChildren<VideoPlayer>();
-        player.url = Path.Combine(Application.streamingAssetsPath, "Parcels.mp4");
+        player.url = Path.Combine(Application.streamingAssetsPath, "Zimmer.mp4");
 
     }
 
     internal void PlayVideo()
     {
+        StartCoroutine(PlayVideoDelay());
+    }
+    IEnumerator PlayVideoDelay()
+    {
+        for (int i = 0; i < 30; i++)
+        {
+            yield return new WaitForEndOfFrame();
+        }
         player.Play();
+        yield return null;
     }
 
     void MakeCategoryColors()
