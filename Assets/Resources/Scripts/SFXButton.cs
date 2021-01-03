@@ -168,11 +168,10 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         }
     }
 
-    internal void ToggleDiscoMode()
+    internal void SetDiscoMode(bool active)
     {
-        if (discoModeActive)
+        if (!active)
         {
-            discoModeActive = false;
             StopCoroutine("DiscoModeUpdate");
             GetComponent<Image>().color = mac.darkModeEnabled ? ResourceManager.sfxButtonDark : ResourceManager.sfxButtonLight;
         }
@@ -181,26 +180,26 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     IEnumerator DiscoModeUpdate()
     {
-        discoModeActive = true;
+        const int numSteps = 100;
         while (true)
         {
             Image btnImage = GetComponent<Image>();
-            int colorIndex = UnityEngine.Random.Range(0, ResourceManager.kellysMaxContrastSet.Count - 1);
             Color newColor = btnImage.color;
             while(btnImage.color == newColor)
             {
-                newColor = MainAppController.UIntToColor(ResourceManager.kellysMaxContrastSet[colorIndex]);
+                int colorIndex = UnityEngine.Random.Range(0, ResourceManager.kellysMaxContrastSet.Count - 1);
+                newColor = MainAppController.UIntToColor(ResourceManager.kellysMaxContrastSet[colorIndex]);            
             }
             Color currentColor = btnImage.color;
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < numSteps; i++)
             {
-                float fadeRatio = (float)i / 100;
+                float fadeRatio = (float)i / numSteps;
 
                 float newR = Mathf.Lerp(currentColor.r, newColor.r, fadeRatio);
                 float newG = Mathf.Lerp(currentColor.g, newColor.g, fadeRatio);
                 float newB = Mathf.Lerp(currentColor.b, newColor.b, fadeRatio);
                 btnImage.color = new Color(newR, newG, newB);
-                //print(fadeRatio);
+
                 yield return new WaitForEndOfFrame();
                 if (UnityEngine.Random.Range(0, 1) == 1) yield return new WaitForEndOfFrame();
             }

@@ -19,17 +19,18 @@ public class DiscoMode : MonoBehaviour
 
     internal void ToggleDiscoMode()
     {
-        StartCoroutine(StartDiscoModes());
+        discoModeActive = !discoModeActive;
+        StartCoroutine(ToggleDiscoModes());
     }
-    IEnumerator StartDiscoModes()
+    IEnumerator ToggleDiscoModes()
     {
         foreach (GameObject go in GameObject.FindGameObjectsWithTag("sfxButton"))
         {
-            go.GetComponent<SFXButton>().ToggleDiscoMode();
-            int rand = Random.Range(2, 10);
+            go.GetComponent<SFXButton>().SetDiscoMode(discoModeActive);
+            int rand = Random.Range(0, 5);
             for(int i = 0; i < rand; i++)
             {
-                yield return new WaitForEndOfFrame();
+                if(discoModeActive) yield return new WaitForEndOfFrame();
             }
         }
     }

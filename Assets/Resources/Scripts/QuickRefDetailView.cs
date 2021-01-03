@@ -288,7 +288,10 @@ public class QuickRefDetailView : MonoBehaviour
             string conditionImmunities = "";
             foreach (var immunity in listItem["condition_immunities"].EnumerateArray())
             {
-                conditionImmunities += Capitalize(immunity.ToString()) + " ";
+                immunity.TryGetProperty("name", out extractedJsonValue);
+                conditionImmunities += Capitalize(extractedJsonValue.ToString() + " ");
+                print(extractedJsonValue.ToString() + " ");
+                //conditionImmunities += Capitalize(immunity.ToString()) + " ";
             }
             attributes.Add("Condition Immunities", string.IsNullOrEmpty(conditionImmunities) ? "N/A" : conditionImmunities);
         }
