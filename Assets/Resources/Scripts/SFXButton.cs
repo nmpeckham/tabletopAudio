@@ -60,6 +60,9 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     public TMP_Text ignorePlayAllIndicator;
 
     private bool discoModeActive = false;
+    private float framesSinceColorUpdate;
+
+    Color currentColor;
 
     internal bool IgnorePlayAll
     {
@@ -139,7 +142,7 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         volumeSlider.onValueChanged.AddListener(ChangeLocalVolume);
         sliderButton = volumeSlider.GetComponentInChildren<Button>();
         sliderButton.onClick.AddListener(SliderButtonClicked);
-
+        currentColor = GetComponent<Image>().color;
     }
 
     void SliderButtonClicked()
@@ -174,6 +177,7 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         {
             StopCoroutine("DiscoModeUpdate");
             GetComponent<Image>().color = mac.darkModeEnabled ? ResourceManager.sfxButtonDark : ResourceManager.sfxButtonLight;
+            currentColor = GetComponent<Image>().color;
         }
         else StartCoroutine("DiscoModeUpdate");
     }
@@ -188,9 +192,10 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
             while(btnImage.color == newColor)
             {
                 int colorIndex = UnityEngine.Random.Range(0, ResourceManager.kellysMaxContrastSet.Count - 1);
-                newColor = MainAppController.UIntToColor(ResourceManager.kellysMaxContrastSet[colorIndex]);            
+                newColor = MainAppController.UIntToColor(ResourceManager.kellysMaxContrastSet[colorIndex]);
+                yield return new WaitForEndOfFrame();
             }
-            Color currentColor = btnImage.color;
+            currentColor = btnImage.color;
             for (int i = 0; i < numSteps; i++)
             {
                 float fadeRatio = (float)i / numSteps;
@@ -198,12 +203,26 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
                 float newR = Mathf.Lerp(currentColor.r, newColor.r, fadeRatio);
                 float newG = Mathf.Lerp(currentColor.g, newColor.g, fadeRatio);
                 float newB = Mathf.Lerp(currentColor.b, newColor.b, fadeRatio);
+                newR = newR - (framesSinceColorUpdate / 100f);
+                newG = newG - (framesSinceColorUpdate / 100f);
+                newB = newB - (framesSinceColorUpdate / 100f);
                 btnImage.color = new Color(newR, newG, newB);
 
                 yield return new WaitForEndOfFrame();
-                if (UnityEngine.Random.Range(0, 1) == 1) yield return new WaitForEndOfFrame();
+                if (UnityEngine.Random.Range(0, 2) == 1) yield return new WaitForEndOfFrame();
             }
         }
+    }
+
+    internal void ChangeColor()
+    {
+        StopAllCoroutines();
+        Image btnImage = GetComponent<Image>();
+        int colorIndex = UnityEngine.Random.Range(0, ResourceManager.kellysMaxContrastSet.Count - 1);
+        Color newColor = MainAppController.UIntToColor(ResourceManager.kellysMaxContrastSet[colorIndex]);
+        btnImage.color = newColor;
+        StartCoroutine(DiscoModeUpdate());
+        framesSinceColorUpdate = 0;
     }
 
     internal void FadeOut(bool fromFadeOutAll=false)
@@ -407,6 +426,9 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         //prevent playback bar from showing after clip has been removed
         if (string.IsNullOrEmpty(FileName) && playbackBarRect.gameObject.activeSelf) playbackBarRect.gameObject.SetActive(false);
         else if (!string.IsNullOrEmpty(FileName) && !playbackBarRect.gameObject.activeSelf) playbackBarRect.gameObject.SetActive(true);
+
+        framesSinceColorUpdate = Mathf.Max(framesSinceColorUpdate, framesSinceColorUpdate + 1);
+        //print(framesSinceColorUpdate);
     }
 
     IEnumerator WaitForLoopDelay()

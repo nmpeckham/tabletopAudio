@@ -56,7 +56,11 @@ public class QuickRefPrefab : MonoBehaviour
     private void Clicked()
     {
         string itemCategory = category.Replace(" ", "-");
-        string itemId = title.ToLower().Replace(" ", "-").Replace(",", "").Replace("/", "-");
+        string itemId = title.ToLower().Replace(" ", "-").Replace(",", "").Replace("/", "-").Replace("(", "").Replace(")", "").Replace(":", "");
+        if (itemCategory == "Monster")
+        {
+            itemId = title;
+        }
 
         qrd.ItemSelected(itemCategory, itemId);
     }

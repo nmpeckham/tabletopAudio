@@ -2,25 +2,35 @@ TableTopAudio Changelog
 
 v1.0.3 "Inveniet" - Added DnD 5e quick reference tool
 
+//TODO: add tooltips to experimental options
+
  - Fixed bug that could cause freeze when only one song in music playlist
 
  - Save name input field now assumes text cursor focus when save panel is opened
 
  - Clicking on a fade in/out button while a fade in/out is active will cancel the active fade
 
- - Fixed pause button didn't turn orange when using space bar to pause
+ - Fixed: pause button didn't turn orange when using space bar to pause
 
- - Further FFT refinements - # of bins and bin size adjusted, blah blah blah. Guaranteed to be 12% more accurate, 9 times out of 10
-
- - New experimental features section. Contains features that are incomplete, buggy, or not applicable to a wide audience. May be removed in a future release. Accessible from options menu
+ - Further FFT refinements - # of bins and bin size adjusted, blah blah blah. Guaranteed to be 12% more appealing, 9 times out of 10
 
  - Fixed bug where FFT display textures could be incorrectly scaled for loud music intensities
 
  - Logarithmic volume control now correctly applied to music playlist items and sfx buttons
 
- - *Experimental* Added new backgrounds to songs in playlist showing song intensity. Has issues with some imperfect mp3 files. No ogg vorbis support at this time
+ - Fixed bug that could (rarely) cause playlist to skip to next song if an mp3 artifact was encountered
 
- - *Experimental* Added disco mode. Can be activated using ctrl + d
+ - Fixed bug that would cause music playlist audio to become glitched if crossfade was disabled while crossfade was in progress and another song was immediately started. This was an absolute nightmare to trackdown and fix
+ 
+ - Added search field to music playlist
+
+ - New experimental features section. Contains features that are incomplete, buggy, or not applicable to a wide audience. May be removed in a future release. Accessible from options menu
+
+ - *Experimental* Added new backgrounds to songs in playlist showing song intensity. Has issues with some imperfect mp3 files. No ogg vorbis support at this time. Can be enabled in advanced menu
+
+ - *Experimental* Added disco mode. Can be enabled in advanced menu, then activated using ctrl + d. Additional tuning options are available
+
+
 
 v1.0.2 "Firmum" - Big stability & QoL improvements
 

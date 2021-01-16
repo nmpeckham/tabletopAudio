@@ -63,6 +63,9 @@ public class MainAppController : MonoBehaviour
     private GenerateMusicFFTBackgrounds gmfb;
 
     private VideoPlayer player;
+
+    private OptionsMenuController omc;
+    internal bool discoModeAvailable = false;
     internal enum MenuState
     {
         mainAppView,
@@ -78,6 +81,8 @@ public class MainAppController : MonoBehaviour
         deleteMusicFile,
         quickReference,
         quickReferenceDetail,
+        playlistSearch,
+        advancedOptionsMenu,
         none
     }
 
@@ -86,7 +91,7 @@ public class MainAppController : MonoBehaviour
     // Start is called before the first frame update
     public void Start()
     {
-        PlayerPrefs.DeleteKey("Crossfade");
+        //PlayerPrefs.DeleteKey("Crossfade");
         //print(PlayerPrefs.GetFloat("Crossfade") == 0);
         if(PlayerPrefs.GetFloat("Crossfade") == 0) PlayerPrefs.SetFloat("Crossfade", 10);
         VERSION = Application.version;
@@ -105,6 +110,7 @@ public class MainAppController : MonoBehaviour
         qrd = GetComponent<QuickRefDetailView>();
         gmfb = GetComponent<GenerateMusicFFTBackgrounds>();
         dm = GetComponent<DiscoMode>();
+        omc = GetComponent<OptionsMenuController>();
 
         sep = System.IO.Path.DirectorySeparatorChar;
 
@@ -305,16 +311,16 @@ public class MainAppController : MonoBehaviour
                     ControlButtonClicked("OPTIONS");
                     break;
                 case MenuState.optionsMenu:
-                    GetComponent<OptionsMenuController>().Close();
+                    omc.Close();
                     break;
                 case MenuState.aboutMenu:
-                    GetComponent<OptionsMenuController>().CloseAboutMenu();
+                    omc.CloseAboutMenu();
                     break;
                 case MenuState.enterSaveFileName:
-                    GetComponent<OptionsMenuController>().CloseSaveMenu();
+                    omc.CloseSaveMenu();
                     break;
                 case MenuState.selectFileToLoad:
-                    GetComponent<OptionsMenuController>().CloseLoadSelection();
+                    omc.CloseLoadSelection();
                     break;
                 case MenuState.editingPageLabel:
                     GetComponent<EditPageLabel>().Cancel();
@@ -326,10 +332,10 @@ public class MainAppController : MonoBehaviour
                     GetComponent<ButtonEditorController>().CancelEditing();
                     break;
                 case MenuState.overwriteSaveFile:
-                    GetComponent<OptionsMenuController>().CancelOverwriteSave();
+                    omc.CancelOverwriteSave();
                     break;
                 case MenuState.startNewFile:
-                    GetComponent<OptionsMenuController>().CancelNewFile();
+                    omc.CancelNewFile();
                     break;
                 case MenuState.deleteMusicFile:
                     GetComponent<MusicController>().CloseDeleteMusicItemTooltip();
@@ -339,6 +345,12 @@ public class MainAppController : MonoBehaviour
                     break;
                 case MenuState.quickReferenceDetail:
                     qrd.CloseQuickReferenceDetail();
+                    break;
+                case MenuState.playlistSearch:
+                    mc.SearchFieldLostFocus();
+                    break;
+                case MenuState.advancedOptionsMenu:
+                    omc.CloseAdvancedOptionsMenu();
                     break;
                 case MenuState.none:
                     break;
@@ -353,7 +365,7 @@ public class MainAppController : MonoBehaviour
                 case MenuState.aboutMenu:
                     break;
                 case MenuState.enterSaveFileName:
-                    GetComponent<OptionsMenuController>().AcceptSaveName();
+                    omc.AcceptSaveName();
                     break;
                 case MenuState.selectFileToLoad:
                     break;
@@ -413,8 +425,8 @@ public class MainAppController : MonoBehaviour
             ChangeSFXPage(7);
             pageButtons[7].GetComponent<Image>().color = Color.red;
         }
-        if((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.D)) {
-            dm.ToggleDiscoMode();
+        if((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.D) && discoModeAvailable) {
+            dm.SetDiscoMode(!dm.discoModeActive); //terribly disgusting. Please fix :/
         }
     }
     public void SwapDarkLightMode(bool enable)
@@ -450,5 +462,11 @@ public class MainAppController : MonoBehaviour
                 ShowErrorMessage("Could not load quick reference file " + s + ". Check that it exists.");
             }
         }
+    }
+
+    internal void ToggleDiscoMode()
+    {
+        this.discoModeAvailable = !this.discoModeAvailable;
+        dm.SetDiscoMode(false);
     }
 }

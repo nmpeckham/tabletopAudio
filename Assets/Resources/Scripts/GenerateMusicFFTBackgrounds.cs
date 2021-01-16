@@ -13,21 +13,30 @@ public class GenerateMusicFFTBackgrounds : MonoBehaviour
     private MainAppController mac;
     public GameObject musicButtonParent;
 
+    private Coroutine generatorCoroutine;
+
     private List<GameObject> buttons = new List<GameObject>();
     // Start is called before the first frame update
     internal void Begin()
     {
         mac = GetComponent<MainAppController>();
         GetSongs();
-        //StartCoroutine(GenerateBackgrounds());
+        generatorCoroutine = StartCoroutine(GenerateBackgrounds());
     }
 
     void GetSongs()
     {
+        buttons.Clear();
         foreach(MusicButton mb in musicButtonParent.GetComponentsInChildren<MusicButton>())
         {
             buttons.Add(mb.gameObject);
         }
+    }
+
+    internal void StopGeneration()
+    {
+        StopCoroutine(generatorCoroutine);
+        generatorCoroutine = null;
     }
 
     private IEnumerator GenerateBackgrounds()
@@ -35,7 +44,7 @@ public class GenerateMusicFFTBackgrounds : MonoBehaviour
         yield return new WaitForSecondsRealtime(1);
         print("started");
         print(buttons.Count);
-        int minBufferSize = 2048;
+        int minBufferSize = 1024;
         foreach (GameObject btn in buttons)
         {
             string filePath = Path.Combine(mac.musicDirectory, LoadedFilesData.musicClips[btn.GetComponent<MusicButton>().id]);
@@ -53,36 +62,36 @@ public class GenerateMusicFFTBackgrounds : MonoBehaviour
                 long newPosition;
                 for(int i = 1; i  < 456; i++)
                 {
-                    try
-                    {
-                        actualRead = reader.ReadSamples(buf, 0, buf.Length);
-                        samplesRead += actualRead;
-                        rmsEnergy = CalculateRMS(buf);
-                        samples.Add(rmsEnergy);
-                        if (actualRead == 0 ) break;
-                        newPosition = (reader.Length / 455) * i;
-                        reader.Position = newPosition;
-                    }
-                    catch (ArgumentOutOfRangeException e)
-                    {
-                        Debug.LogError(e);
-                        print("out of range");
-                    }
-                    catch(OutOfMemoryException e)
-                    {
-                        Debug.LogError(e);
-                        print("out of memory");
-                    }
-                    catch(IndexOutOfRangeException e)
-                    {
-                        Debug.LogError(e);
-                        print("index out of range");
-                    }
-                    catch(ArgumentException e)
-                    {
-                        Debug.LogError(e);
-                        print("argument exception");
-                    }
+
+                    actualRead = reader.ReadSamples(buf, 0, buf.Length-1);
+                    samplesRead += actualRead;
+                    rmsEnergy = CalculateRMS(buf);
+                    samples.Add(rmsEnergy);
+                    if (actualRead == 0 ) break;
+                    newPosition = (reader.Length  / 455) * i;
+                    reader.Position = newPosition;
+
+                    //catch (ArgumentOutOfRangeException e)
+                    //{
+                    //    Debug.LogError(e);
+                    //    print("out of range");
+                    //}
+                    //catch (OutOfMemoryException e)
+                    //{
+                    //    Debug.LogError(e);
+                    //    print("out of memory");
+                    //}
+                    //catch(IndexOutOfRangeException e)
+                    //{
+                    //    Debug.LogError(e);
+                    //    print("index out of range");
+                    //}
+                    //catch(ArgumentException e)
+                    //{
+                    //    Debug.LogError(e);
+                    //    print("argument exception");
+                    //    break;
+                    //}
                     for (int x = 0; x < samples.Count; x++)
                     {
                         for (int y = 0; y < (Mathf.Abs(samples[x]) * 1200f + 3f); y++)

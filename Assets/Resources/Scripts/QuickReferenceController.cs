@@ -185,17 +185,23 @@ public class QuickReferenceController : MonoBehaviour
                             {
                                 qrp.Description = "";
                             }
-                            if (dbItem.Value.ContainsKey("name"))
+                            if (dbItem.Value.ContainsKey("index"))
                             {
                                 //move items that start with the same first letter to top
                                 if (dbItem.Value["name"].ToString().ToUpper()[0] == queryItem[0])
                                 {
-                                    prefab.transform.SetSiblingIndex(1);
+                                    prefab.transform.SetSiblingIndex(0);
                                 }
                                 //move items that are an exact match to top
-                                if (dbItem.Value["name"].ToString().ToUpper() == queryItem)
+                                //TODO: wtf is this???
+
+
+                                if (dbItem.Value["name"].ToString().ToUpper() == queryItem.ToUpper())
                                 {
-                                    prefab.transform.SetSiblingIndex(1);
+                                    print(dbItem.Value["name"].ToString().ToUpper());
+                                    print(queryItem.ToUpper());
+                                    prefab.transform.SetSiblingIndex(0);
+                                    print(prefab.transform.GetSiblingIndex());
                                 }
                                 qrp.Title = dbItem.Value["name"].ToString();
                             }

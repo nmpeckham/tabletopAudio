@@ -16,7 +16,7 @@
     "url": "/api/magic-items/adamantine-armor"
   },
   {
-    "index": "ammunition",
+    "index": "ammunition-+1-+2-or-+3",
     "name": "Ammunition, +1, +2, or +3",
     "equipment_category": {
       "index": "ammunition",
@@ -119,7 +119,7 @@
     ]
   },
   {
-    "index": "armor",
+    "index": "armor-+1-+2-or-+3",
     "name": "Armor, +1, +2, or +3",
     "equipment_category": {
       "index": "armor",
@@ -158,7 +158,6 @@
       "Armor (light, medium, or heavy), rare (requires attunement)",
       "You have resistance to one type of damage while you wear this armor. The GM chooses the type or determines it randomly from the options below.",
       "| d10 | Damage Type |",
-      "|---|---|",
       "| 1 | Acid |",
       "| 2 | Cold |",
       "| 3 | Fire |",
@@ -231,7 +230,6 @@
       "If you dump the bag’s contents out on the ground,  they explode in a 10-foot radius, extending from the beans. Each creature in the area, including you, must  make a DC 15 Dexterity saving throw, taking 5d4 fire  damage on a failed save, or half as much damage on  a successful one. The fire ignites flammable objects  in the area that aren’t being worn or carried.",
       "If you remove a bean from the bag, plant it in dirt  or sand, and then water it, the bean produces an  effect 1 minute later from the ground where it was  planted. The GM can choose an effect from the  following table, determine it randomly, or create an  effect.",
       "| d100 | Effect |",
-      "|---|---|",
       "| 01 | 5d4 toadstools sprout. If a creature eats a toadstool, roll any die. On an odd roll, the eater must succeed on a DC 15 Constitution saving throw or take 5d6 poison damage and become poisoned for 1 hour. On an even roll, the eater gains 5d6 temporary hit points for 1 hour. |",
       "| 02-10 | A geyser erupts and spouts water, beer, berry juice, tea, vinegar, wine, or oil (GM’s choice) 30 feet into the air for 1d12 rounds. |",
       "| 11-20 | A treant sprouts. There’s a 50 percent chance that the treant is chaotic evil and attacks. |",
@@ -296,7 +294,6 @@
       "Once three fuzzy Objects have been pulled from the bag, the bag can't be used again until the next dawn.",
       "Gray Bag:",
       "| d8 | Creature |",
-      "|---|---|",
       "| 01 | Weasel |",
       "| 02 | Giant Rat |",
       "| 03 | Badger |",
@@ -307,7 +304,6 @@
       "| 08 | Giant Elk |",
       "Rust Bag:",
       "| d8 | Creature |",
-      "|---|---|",
       "| 01 | Rat |",
       "| 02 | Owl |",
       "| 03 | Mastiff |",
@@ -318,7 +314,6 @@
       "| 08 | Brown Bear |",
       "Tan Bag:",
       "| d8 | Creature |",
-      "|---|---|",
       "| 01 | Jackal |",
       "| 02 | Ape |",
       "| 03 | Baboon |",
@@ -577,7 +572,6 @@
       "Wondrous item, very rare (requires attunement)",
       "This slender taper is dedicated to a deity and shares that deity’s alignment. The candle’s alignment can be detected with the detect evil and good spell. The GM chooses the god and associated alignment or determines the alignment randomly.",
       "| d20 | Alignment |",
-      "|---|---|",
       "| 1–2 | Chaotic evil |",
       "| 3–4 | Chaotic neutral |",
       "| 5–7 | Chaotic good |",
@@ -806,7 +800,6 @@
       "| 6 | 0 | The barrier deactivates.",
       "The cube loses charges when the barrier is targeted by certain spells or comes into contact with certain spell or magic item effects, as shown in the table below.",
       "| Spell or Item | Charges Lost |",
-      "|---|---|",
       "| Disintegrate | 1d12 |",
       "| Horn of blasting | 1d10 |",
       "| Passwall | 1d6 |",
@@ -895,7 +888,6 @@
       "An illusion of one or more creatures forms over the thrown card and remains until dispelled. An illusory creature appears real, of the appropriate size, and behaves as if it were a real creature except that it can do no harm. While you are within 120 feet of the illusory creature and can see it, you can use an action to move it magically anywhere within 30 feet of its card. Any physical interaction with the illusory creature reveals it to be an illusion, because objects pass through it. Someone who uses an action to visually inspect the creature identifies it as illusory with a successful DC 15 Intelligence (Investigation) check. The creature then appears translucent.",
       "The illusion lasts until its card is moved or the illusion is dispelled. When the illusion ends, the image on its card disappears, and that card can't be used again.",
       "| Playing Card | Illusion |",
-      "|---|---|",
       "| Ace of hearts | Red dragon |",
       "| King of hearts | Knight and four guards |",
       "| Queen of hearts | Succubus or incubus |",
@@ -946,7 +938,6 @@
       "Before you draw a card, you must declare how many cards you intend to draw and then draw them randomly (you can use an altered deck of playing cards to simulate the deck). Any cards drawn in excess of this number have no effect. Otherwise, as soon as you draw a card from the deck, its magic takes effect. You must draw each card no more than 1 hour after the previous draw. If you fail to draw the chosen number, the remaining number of cards fly from the deck on their own and take effect all at once.",
       "Once a card is drawn, it fades from existence. Unless the card is the Fool or the Jester, the card reappears in the deck, making it possible to draw the same card twice.",
       "| Playing Card | Card |",
-      "|---|---|",
       "| Ace of diamonds | Vizier |",
       "| King of diamonds | Sun |",
       "| Queen of diamonds | Moon |",
@@ -1048,7 +1039,6 @@
       "While wearing this armor, you gain a +1 bonus to AC, you have advantage on saving throws against the Frightful Presence and breath weapons of dragons, and you have resistance to one damage type that is determined by the kind of dragon that provided the scales (see the table).",
       "Additionally, you can focus your senses as an action to magically discern the distance and direction to the closest dragon within 30 miles of you that is of the same type as the armor. This special action can't be used again until the next dawn.",
       "| Dragon | Resistance |",
-      "|---|---|",
       "| Black | Acid |",
       "| Blue | Lightning |",
       "| Brass | Fire |",
@@ -1178,7 +1168,6 @@
       "This painted brass bottle weighs 1 pound. When you use an action to remove the stopper, a cloud of thick smoke flows out of the bottle. At the end of your turn, the smoke disappears with a flash of harmless fire, and an efreeti appears in an unoccupied space within 30 feet of you.",
       "The first time the bottle is opened, the GM rolls to determine what happens.",
       "| d100 | Effect |",
-      "|---|---|",
       "| 01-10 | The efreeti attacks you. After fighting for 5 rounds, the efreeti disappears, and the bottle loses its magic. |",
       "| 11-90 | The efreeti serves you for 1 hour, doing as you command. Then the efreeti returns to the bottle, and a new stopper contains it. The stopper can't be removed for 24 hours. The next two times the bottle is opened, the same effect occurs. If the bottle is opened a fourth time, the efreeti escapes and disappears, and the bottle loses its magic. |",
       "| 91-100 | The efreeti can cast the wish spell three times for you. It disappears when it grants the final wish or after 1 hour, and the bottle loses its magic. |"
@@ -1197,7 +1186,6 @@
       "Wondrous item, uncommon",
       "This gem contains a mote of elemental energy. When you use an action to break the gem, an elemental is summoned as if you had cast the conjure elemental spell, and the gem's magic is lost. The type of gem determines the elemental summoned by the spell.",
       "| Gem | Summoned Elemental |",
-      "|---|---|",
       "| Blue sapphire | Air elemental |",
       "| Yellow diamond | Earth elemental |",
       "| Red corundum | Fire elemental |",
@@ -1288,7 +1276,6 @@
       "Wondrous item, rare",
       "This tiny object looks like a feather. Different types of feather tokens exist, each with a different single use effect. The GM chooses the kind of token or determines it randomly.",
       "| d100 | Feather Token |",
-      "|---|---|",
       "| 01-20 | Anchor |",
       "| 21-35 | Bird |",
       "| 36-50 | Fan |",
@@ -1812,7 +1799,6 @@
       "You can use an action to remove the flask's stopper and release the creature the flask contains. The creature is friendly to you and your companions for 1 hour and obeys your commands for that duration. If you give no commands or give it a command that is likely to result in its death, it defends itself but otherwise takes no actions. At the end of the duration, the creature acts in accordance with its normal disposition and alignment.",
       "An identify spell reveals that a creature is inside the flask, but the only way to determine the type of creature is to open the flask. A newly discovered bottle might already contain a creature chosen by the GM or determined randomly.",
       "| d100 | Contents |",
-      "|---|---|",
       "| 1-50 | Empty |",
       "| 51-54 | Demon (type 1) |",
       "| 55-58 | Demon (type 2) |",
@@ -2538,7 +2524,6 @@
       "Potion, uncommon",
       "When you drink this potion, you gain resistance to one type of damage for 1 hour. The GM chooses the type or determines it randomly from the options below.",
       "| d10 | Damage Type |",
-      "|---|---|",
       "| 1 | Acid |",
       "| 2 | Cold |",
       "| 3 | Fire |",
@@ -2819,7 +2804,6 @@
       "Each sphere appears in an unoccupied space you can see within 120 feet of you. The spheres last as long as you concentrate (as if concentrating on a spell), up to 1 minute. Each sphere sheds dim light in a 30-foot radius.",
       "As a bonus action, you can move each sphere up to 30 feet, but no farther than 120 feet away from you. When a creature other than you comes within 5 feet of a sphere, the sphere discharges lightning at that creature and disappears. That creature must make a DC 15 Dexterity saving throw. On a failed save, the creature takes lightning damage based on the number of spheres you created.",
       "| Spheres | Lightning Damage |",
-      "|---|---|",
       "| 4 | 2d4 |",
       "| 3 | 2d6 |",
       "| 2 | 5d4 |",
@@ -3045,7 +3029,6 @@
       "Sack",
       "In addition, the robe has 4d4 other patches. The GM chooses the patches or determines them randomly.",
       "| d100 | Patch |",
-      "|---|---|",
       "| 01-08 | Bag of 100 gp |",
       "| 09-15 | Silver coffer (1 foot long, 6 inches wide and deep) worth 500 gp |",
       "| 16-22 | Iron door (up to 10 feet wide and 10 feet high, barred on one side of your choice), which you can place in an opening you can reach; it conforms to fit the opening, attaching and hinging itself |",
@@ -3316,7 +3299,6 @@
       "If you attempt to control a sphere that is under another creature's control, you make an Intelligence (Arcana) check contested by the other creature's Intelligence (Arcana) check. The winner of the contest gains control of the sphere and can levitate it as normal.",
       "If the sphere comes into contact with a planar portal, such as that created by the gate spell, or an extradimensional space, such as that within a portable hole, the GM determines randomly what happens, using the following table.",
       "| d100 | Result |",
-      "|---|---|",
       "| 01-50 | The sphere is destroyed. |",
       "| 51-85 | The sphere moves through the portal or into the extradimensional space. |",
       "| 86-00 | A spatial rift sends each creature and object within 180 feet of the sphere, including the sphere, to a random plane of existence. |"
@@ -3403,7 +3385,6 @@
       "Retributive Strike. You can use an action to break the staff over your knee or against a solid surface, performing a retributive strike. The staff is destroyed and releases its remaining magic in an explosion that expands to fill a 30-foot-radius sphere centered on it.",
       "You have a 50 percent chance to instantly travel to a random plane of existence, avoiding the explosion. If you fail to avoid the effect, you take force damage equal to 16 × the number of charges in the staff. Every other creature in the area must make a DC 17 Dexterity saving throw. On a failed save, a creature takes an amount of damage based on how far away it is from the point of origin, as shown in the following table. On a successful save, a creature takes half as much damage.",
       "| Distance from Origin | Damage |",
-      "|---|---|",
       "| 10 ft. away or closer | 8 × the number of charges in the staff |",
       "| 11 to 20 ft. away | 6 × the number of charges in the staff |",
       "| 21 to 30 ft. away | 4 × the number of charges in the staff |"
@@ -3459,7 +3440,6 @@
       "Retributive Strike. You can use an action to break the staff over your knee or against a solid surface, performing a retributive strike. The staff is destroyed and releases its remaining magic in an explosion that expands to fill a 30-foot-radius sphere centered on it.",
       "You have a 50 percent chance to instantly travel to a random plane of existence, avoiding the explosion. If you fail to avoid the effect, you take force damage equal to 16 × the number of charges in the staff. Every other creature in the area must make a DC 17 Dexterity saving throw. On a failed save, a creature takes an amount of damage based on how far away it is from the point of origin, as shown in the following table. On a successful save, a creature takes half as much damage.",
       "| Distance from Origin | Damage |",
-      "|---|---|",
       "| 10 ft. away or closer | 8 × the number of charges in the staff |",
       "| 11 to 20 ft. away | 6 × the number of charges in the staff |",
       "| 21 to 30 ft. away | 4 × the number of charges in the staff |"
@@ -3919,7 +3899,7 @@
     "url": "/api/magic-items/wand-of-secrets"
   },
   {
-    "index": "wand-of-the-war-mage",
+    "index": "wand-of-the-war-mage-+1-+2-or-+3",
     "name": "Wand of the War Mage, +1, +2, or +3",
     "equipment_category": {
       "index": "wand",
@@ -3962,7 +3942,6 @@
       "If an effect covers an area, you must center the spell on and include the target. If an effect has multiple possible subjects, the GM randomly determines which ones are affected.",
       "The wand regains 1d6 + 1 expended charges daily at dawn. If you expend the wand's last charge, roll a d20. On a 1, the wand crumbles into dust and is destroyed.",
       "| d100 | Effect |",
-      "|---|---|",
       "| 01-05 | You cast slow. 06-10 You cast faerie fire. |",
       "| 11-15 | You are stunned until the start of your next turn, believing something awesome just happened. 16-20 You cast gust of wind. |",
       "| 21-25 | You cast detect thoughts on the target you chose. If you didn't target a creature, you instead take 1d6 psychic damage. |",
@@ -3987,7 +3966,7 @@
     "url": "/api/magic-items/wand-of-wonder"
   },
   {
-    "index": "weapon",
+    "index": "weapon-+1-+2-or-+3",
     "name": "Weapon, +1, +2, or +3",
     "equipment_category": {
       "index": "weapon",

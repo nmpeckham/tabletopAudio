@@ -54,10 +54,19 @@ public class OptionsMenuController : MonoBehaviour
         '*'
     };
 
+    public GameObject advancedOptionsMenu;
+
+    private DiscoMode dm;
+    private GenerateMusicFFTBackgrounds gmfb;
+
+    public TMP_Text dmCooldownText;
+    public TMP_Text dmMinSumText;
+    public TMP_Text dmNumFreqText;
+
     // Start is called before the first frame update
     void Start()
     {
-        if(!Application.isEditor) optionsPanel.SetActive(false);
+        if (!Application.isEditor) optionsPanel.SetActive(false);
         saveErrorText.enabled = false;
         mc = GetComponent<MusicController>();
         mac = GetComponent<MainAppController>();
@@ -69,6 +78,40 @@ public class OptionsMenuController : MonoBehaviour
         if (val == 0) val = 10;
         mc.CrossfadeTime = val;
         crossfadeField.text = val.ToString();
+
+        dm = GetComponent<DiscoMode>();
+        gmfb = GetComponent<GenerateMusicFFTBackgrounds>();
+    }
+
+    internal void CloseAdvancedOptionsMenu()
+    {
+        advancedOptionsMenu.SetActive(false);
+        mac.currentMenuState = MainAppController.MenuState.optionsMenu;
+    }
+
+    private void OpenAdvancedOptionsMenu()
+    {
+        advancedOptionsMenu.SetActive(true);
+        mac.currentMenuState = MainAppController.MenuState.advancedOptionsMenu;
+    }
+
+    internal void OptionMenuSliderChanged(string id, float val)
+    {
+        switch(id)
+        {
+            case "DiscoModeCooldown":
+                dm.cooldown = val;
+                dmCooldownText.text = val.ToString();
+                break;
+            case "DiscoModeNumFreq":
+                mc.discoModeNumFreq = val;
+                dmNumFreqText.text = val.ToString();
+                break;
+            case "DiscoModeMinSum":
+                mc.discoModeMinSum = val;
+                dmMinSumText.text = val.ToString("N2");
+                break;
+        }
     }
 
     void StartNewFile()
@@ -454,9 +497,8 @@ public class OptionsMenuController : MonoBehaviour
         }
     }
 
-    internal void OptionMenuButtonClicked(string id)
+    internal void OptionMenuButtonClicked(string id, bool state = false)
     {
-        print(id);
         switch (id)
         {
             case "close":
@@ -497,6 +539,19 @@ public class OptionsMenuController : MonoBehaviour
                 break;
             case "new file":
                 StartNewFile();
+                break;
+            case "EnableDiscoMode":
+                mac.ToggleDiscoMode();
+                break;
+            case "EnableDynamicPlaylistBackgrounds":
+                if (state) gmfb.Begin();
+                else gmfb.StopGeneration();
+                break;
+            case "show advanced options":
+                OpenAdvancedOptionsMenu();
+                break;
+            case "close advanced options":
+                CloseAdvancedOptionsMenu();
                 break;
             default:
                 print("No action for button " + id);

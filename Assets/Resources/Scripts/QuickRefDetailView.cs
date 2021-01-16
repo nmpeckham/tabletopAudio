@@ -4,8 +4,11 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 
+
+
 public class QuickRefDetailView : MonoBehaviour
 {
+
     public TMP_Text titleText;
     public TMP_Text descriptionText;
 
@@ -25,6 +28,18 @@ public class QuickRefDetailView : MonoBehaviour
     {
         mac = GetComponent<MainAppController>();
         closeButton.onClick.AddListener(CloseQuickReferenceDetail);
+        //TestAllItems();
+    }
+
+    private void TestAllItems()
+    {
+        foreach(string category in LoadedFilesData.qrdFiles.Keys)
+        {
+            foreach(var item in LoadedFilesData.qrdFiles[category])
+            {
+                ItemSelected(category, item.Key);
+            }
+        }
     }
 
     internal void CloseQuickReferenceDetail()
@@ -35,14 +50,15 @@ public class QuickRefDetailView : MonoBehaviour
 
     internal void ItemSelected(string category, string item)
     {
+        //print(category);
+        //print(item);
         DestroyAllAttributeItems();
         System.Text.Json.JsonElement extractedJsonValue;
         string categoryFileName = category.Replace(" ", "-") + ".json";
         quickRefCategoryImage.color = ResourceManager.categoryColors[categoryFileName];
-        quickRefCategoryText.text = category;
+        quickRefCategoryText.text = category.Replace("-", " ");
         mac.currentMenuState = MainAppController.MenuState.quickReferenceDetail;
         Dictionary<string, string> attributes = new Dictionary<string, string>();
-
         if (category == "Spell")
         {
             descriptionPanel.SetActive(true);
@@ -90,15 +106,39 @@ public class QuickRefDetailView : MonoBehaviour
             else areaOfEffectText = "N/A";
             attributes.Add("Area Of Effect", areaOfEffectText);
 
-            string damageText;
+            string damageText = "";
             if (listItem.ContainsKey("damage"))
             {
-                listItem["damage"].TryGetProperty("damage_at_slot_level", out extractedJsonValue);
-                extractedJsonValue.TryGetProperty(listItem["level"].ToString(), out System.Text.Json.JsonElement temp1);
-                damageText = temp1.ToString() + " ";
+                bool error = false;
+                try
+                {
+                    listItem["damage"].TryGetProperty("damage_at_slot_level", out extractedJsonValue);
+                    extractedJsonValue.TryGetProperty(listItem["level"].ToString(), out System.Text.Json.JsonElement temp1);
+                    damageText = temp1.ToString() + " ";
+                }
+                catch (System.InvalidOperationException)
+                {
+                    error = true;
+                }
+                if (error)
+                {
+                    try
+                    {
+                        // Cantrip, get damage for first level. Description provides enough info for higher levels
+                        listItem["damage"].TryGetProperty("damage_at_character_level", out extractedJsonValue);
+                        extractedJsonValue.TryGetProperty("1", out System.Text.Json.JsonElement temp1);
+                        damageText = temp1.ToString() + " ";
+                    }
+                    catch(System.InvalidOperationException) { }
+                }
+                System.Text.Json.JsonElement temp2 = new System.Text.Json.JsonElement();
                 listItem["damage"].TryGetProperty("damage_type", out extractedJsonValue);
-                extractedJsonValue.TryGetProperty("name", out System.Text.Json.JsonElement temp2);
-                damageText += temp2.ToString();
+                try
+                {
+                    extractedJsonValue.TryGetProperty("name", out temp2);
+                }
+                catch(System.InvalidOperationException) { }
+                damageText += string.IsNullOrEmpty(temp2.ToString()) ? "any" : temp2.ToString();
             }
             else
             {
@@ -111,27 +151,27 @@ public class QuickRefDetailView : MonoBehaviour
             {
                 descriptionText.text += "Can be cast as a ritual spell that takes 10 minutes + original casting time.\n\n";
             }
-            descriptionText.text += "<b>At Level " + listItem["level"] + ":</b>";
+            descriptionText.text += Title("At Level " + listItem["level"].ToString());
             foreach (var desc in listItem["desc"].EnumerateArray())
             {
-                descriptionText.text += "\n\n" + desc.ToString();
+                descriptionText.text += Body(desc.ToString());
             }
             if (listItem.ContainsKey("higher_level"))
             {
-                descriptionText.text += "\n\n" + "<b>At Higher Levels:</b>";
+                descriptionText.text += Title("At Higher Levels");
                 foreach (var desc in listItem["higher_level"].EnumerateArray())
                 {
-                    descriptionText.text += "\n\n" + desc.ToString();
+                    descriptionText.text += Body(desc.ToString());
                 }
             }
             if (listItem.ContainsKey("material"))
             {
-                descriptionText.text += "\n\n" + "<b>Materials</b>\n";
+                descriptionText.text += Title("Materials");
                 try
                 {
                     foreach (var materialItem in listItem["material"].EnumerateArray())
                     {
-                        descriptionText.text += materialItem.ToString() + "\n";
+                        descriptionText.text += Body(materialItem.ToString());
                     }
                 }
                 catch (System.InvalidOperationException)
@@ -144,10 +184,13 @@ public class QuickRefDetailView : MonoBehaviour
         else if (category == "Equipment")
         {
             Dictionary<string, dynamic> listItem = LoadedFilesData.qrdFiles[category][item];
+            quickRefObj.SetActive(true);
+            titleText.text = listItem["name"].ToString();
+
             if (listItem.ContainsKey("damage"))
             {
 
-                titleText.text = listItem["name"].ToString();
+
                 descriptionPanel.SetActive(false);
                 quickRefObj.SetActive(true);
 
@@ -192,6 +235,17 @@ public class QuickRefDetailView : MonoBehaviour
                 }
                 attributes.Add("Properties", propertiesText);
             }
+            else
+            {
+                if(listItem.ContainsKey("desc"))
+                {
+                    descriptionText.text = "";
+                    foreach (var desc in listItem["desc"].EnumerateArray())
+                    {
+                        descriptionText.text += desc.ToString();// + "\n\n";
+                    }
+                }
+            }
         }
         else if (category == "Condition")
         {
@@ -217,7 +271,8 @@ public class QuickRefDetailView : MonoBehaviour
 
             titleText.text = listItem["name"].ToString();
 
-            attributes.Add("Script", listItem["script"].ToString());
+            string scriptText = listItem["script"].ToString();
+            attributes.Add("Script", scriptText);
 
             attributes.Add("Type", listItem["type"].ToString());
 
@@ -248,52 +303,106 @@ public class QuickRefDetailView : MonoBehaviour
         {//AC, Resistances, Hit dice/hp, immunities, speed, vulnerabilities, condition immunities, type & subtype, CR/xp, languages
             quickRefObj.SetActive(true);
             attributesPanel.SetActive(true);
+            print("Item: " + item);
             Dictionary<string, dynamic> listItem = LoadedFilesData.qrdFiles[category][item];
             titleText.text = listItem["name"].ToString();
             attributes.Add("Size", listItem["size"].ToString());
             attributes.Add("Type", Capitalize(listItem["type"].ToString()));
             attributes.Add("Armor Class", listItem["armor_class"].ToString());
             attributes.Add("Alignment", Capitalize(listItem["alignment"].ToString().Split(' ')));
-            string speedText = "";
-            
-            foreach (var speed in listItem["speed"].EnumerateObject())
-            {
-                speedText += Capitalize(speed.Name.ToString()) + " " + Capitalize(speed.Value.ToString() + " ");
-            }
+
+            string speedText = Capitalize(listItem["speed"].ToString());
+
             attributes.Add("Speed", speedText);
             attributes.Add("Hit Dice", listItem["hit_dice"].ToString() + " (" + listItem["hit_points"].ToString() + "hp)");
             //attributes.Add("CR", listItem["challenge_rating"].ToString());
 
-            string damageResistances = "";
-            foreach (var resistance in listItem["damage_resistances"].EnumerateArray())
-            {
-                damageResistances += Capitalize(resistance.ToString()) + " ";
-            }
-            attributes.Add("Damage Resistances", string.IsNullOrEmpty(damageResistances) ? "N/A" : damageResistances);
+            string damageResistances = listItem["damage_resistances"].ToString();
+            attributes.Add("Damage Resistances", string.IsNullOrEmpty(damageResistances) ? "N/A" : Capitalize(damageResistances));
 
-            string damageImmunities = "";
-            foreach (var immunity in listItem["damage_immunities"].EnumerateArray())
-            {
-                damageImmunities += Capitalize(immunity.ToString()) + " ";
-            }
-            attributes.Add("Damage Immunities", string.IsNullOrEmpty(damageImmunities) ? "N/A" : damageImmunities);
+            string damageImmunities = listItem["damage_immunities"].ToString();
+            attributes.Add("Damage Immunities", string.IsNullOrEmpty(damageImmunities) ? "N/A" : Capitalize(damageImmunities));
 
-            string damageVulnerabilities = "";
-            foreach (var vulnerability in listItem["damage_vulnerabilities"].EnumerateArray())
-            {
-                damageVulnerabilities += Capitalize(vulnerability.ToString()) + " ";
-            }
-            attributes.Add("Damage Vulnerabilities", string.IsNullOrEmpty(damageVulnerabilities) ? "N/A" : damageVulnerabilities);
+            string damageVulnerabilities = listItem["damage_vulnerabilities"].ToString();
+            attributes.Add("Damage Vulnerabilities", string.IsNullOrEmpty(damageVulnerabilities) ? "N/A" : Capitalize(damageVulnerabilities));
 
-            string conditionImmunities = "";
-            foreach (var immunity in listItem["condition_immunities"].EnumerateArray())
+            string conditionImmunities = listItem["condition_immunities"].ToString();
+            attributes.Add("Condition Immunities", string.IsNullOrEmpty(conditionImmunities) ? "N/A" : Capitalize(conditionImmunities)); ;
+            
+            string str = listItem["strength"].ToString();
+            string dex = listItem["dexterity"].ToString();
+            string con = listItem["constitution"].ToString();
+            string intel = listItem["intelligence"].ToString();
+            string wis = listItem["wisdom"].ToString();
+            string cha = listItem["charisma"].ToString();
+
+            string descText = "<mspace=11><b>STR | DEX | CON | INT | WIS | CHA</b>\n"; //dirty, should be improved
+            descText += str.PadRight(3) + " | " + dex.PadRight(3) + " | " + con.PadRight(3) + " | " + intel.PadRight(3) + " | " + wis.PadRight(3) + " | " + cha.PadRight(3) + "</mspace>\n";
+            
+            if(listItem.ContainsKey("actions"))
             {
-                immunity.TryGetProperty("name", out extractedJsonValue);
-                conditionImmunities += Capitalize(extractedJsonValue.ToString() + " ");
-                print(extractedJsonValue.ToString() + " ");
-                //conditionImmunities += Capitalize(immunity.ToString()) + " ";
+                descText += Title("Actions");
+                foreach (var actionItem in listItem["actions"].EnumerateArray())
+                {
+                    actionItem.TryGetProperty("name", out extractedJsonValue);
+                    descText += Subtitle(extractedJsonValue.ToString());
+                    actionItem.TryGetProperty("desc", out extractedJsonValue);
+                    descText += Body(extractedJsonValue.ToString());
+                }
             }
-            attributes.Add("Condition Immunities", string.IsNullOrEmpty(conditionImmunities) ? "N/A" : conditionImmunities);
+
+            if (listItem.ContainsKey("special_abilities")) {
+                descText += Title("Special Abilities");
+                foreach (var specialItem in listItem["special_abilities"].EnumerateArray())
+                {
+                    specialItem.TryGetProperty("name", out extractedJsonValue);
+                    descText += Subtitle(extractedJsonValue.ToString());
+                    specialItem.TryGetProperty("desc", out extractedJsonValue);
+                    descText += Body(extractedJsonValue.ToString());
+
+                }
+            }
+
+            if (listItem.ContainsKey("legendary_actions"))
+            {
+                descText += Title("Legendary Actions");
+                if (listItem.ContainsKey("legendary_desc"))
+                {
+                    descText += Body(listItem["legendary_desc"].ToString());
+                }
+                foreach (var legendaryItem in listItem["legendary_actions"].EnumerateArray())
+                {
+                    legendaryItem.TryGetProperty("name", out extractedJsonValue);
+                    descText += Subtitle(extractedJsonValue.ToString());
+                    legendaryItem.TryGetProperty("desc", out extractedJsonValue);
+                    descText += Body(extractedJsonValue.ToString());
+                }
+            }
+            descriptionText.text = descText;
+        }
+        else if (category == "Magic-Item" || category == "Rule-Section" || category == "Feature")
+        {
+            quickRefObj.SetActive(true);
+            //attributesPanel.SetActive(true);
+            Dictionary<string, dynamic> listItem = LoadedFilesData.qrdFiles[category][item];
+            titleText.text = listItem["name"].ToString();
+
+            descriptionText.text = "";
+            int i = 0;
+            try
+            {
+                foreach (var desc in listItem["desc"].EnumerateArray())
+                {
+                    if (i == 0 && category == "Magic-Item") descriptionText.text += Subtitle(desc.ToString());// + "\n\n";
+                    else descriptionText.text += Body(desc.ToString());// + "\n\n";
+                    i++;
+                }
+            }
+            catch(System.InvalidOperationException)
+            {
+                descriptionText.text = listItem["desc"].ToString();
+            }
+
         }
         else
         {
@@ -334,5 +443,26 @@ public class QuickRefDetailView : MonoBehaviour
             ret += Capitalize(s) + " ";
         }
         return ret;
+    }
+
+    string Margin(string toIndent, int amount)
+    {
+        return string.Format("<margin={0}%>", amount) + toIndent + "</margin>";
+    }
+
+    string Title(string titleString)
+    {
+        return "<b><u><size=20>" + titleString + "</b></u></size>\n";
+    }
+
+    string Subtitle(string subtitleString)
+    {
+        int subtitleMarginAmount = 2;
+        return Margin("<b><size=16>" + subtitleString + "</size></b>", subtitleMarginAmount) +"\n";
+    }
+    string Body(string bodyString)
+    {
+        int bodyMarginAmount = 4;
+        return Margin(bodyString, bodyMarginAmount) + "\n";
     }
 }

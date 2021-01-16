@@ -15,6 +15,7 @@ TagManager:
   - pageButtonText
   - sfxButtonBG
   - fftBar
+  - playlistItem
   layers:
   - Default
   - TransparentFX

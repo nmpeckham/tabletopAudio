@@ -454,14 +454,25 @@ namespace NLayer.Decoder
 
                         while (readCount > 0 && readOffset < reader._eofOffset)
                         {
-                            var temp = reader._source.Read(Data, readStart, readCount);
-                            if (temp == 0)
+                            try
                             {
-                                break;
+                                var temp = reader._source.Read(Data, readStart, readCount);
+                                if (temp == 0)
+                                {
+                                    break;
+                                }
+                                readStart += temp;
+                                readOffset += temp;
+                                readCount -= temp;
                             }
-                            readStart += temp;
-                            readOffset += temp;
-                            readCount -= temp;
+
+                            catch(ArgumentException e)
+                            {
+                                Console.WriteLine(e.Message);
+                                return (1);
+                             
+                            }
+                  
                         }
 
                         if (readStart > End)

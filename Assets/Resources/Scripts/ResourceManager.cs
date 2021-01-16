@@ -29,7 +29,7 @@ internal static class ResourceManager
             "Condition.json",
             "Damage-Type.json",
             "Equipment.json",
-            "Equipment-Category.json",
+            //"Equipment-Category.json",
             "Feature.json",
             "Language.json",
             "Level.json",
@@ -62,7 +62,7 @@ internal static class ResourceManager
     0xFFCEA262, //Grayish Yellow
     0xFF817066, //Medium Gray
     0xFFC0C0C0, //Gray
-    0xFF000000, //Black
+    //0xFF000000, //Black
     0xFF007D34, //Vivid Green
     0xFFF6768E, //Strong Purplish Pink
     0xFF00538A, //Strong Blue

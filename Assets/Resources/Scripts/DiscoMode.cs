@@ -5,7 +5,9 @@ using UnityEngine.UI;
 
 public class DiscoMode : MonoBehaviour
 {
-    bool discoModeActive = false;
+    internal bool discoModeActive = false;
+    float currentCooldown = 0;
+    internal float cooldown = 15;
     // Start is called before the first frame update
     void Start()
     {
@@ -14,23 +16,38 @@ public class DiscoMode : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        currentCooldown--;
     }
 
-    internal void ToggleDiscoMode()
+    internal void SetDiscoMode(bool val)
     {
-        discoModeActive = !discoModeActive;
+        discoModeActive = val;
         StartCoroutine(ToggleDiscoModes());
+    }
+    internal void ChangeColors()
+    {
+        if (currentCooldown <= 0 && discoModeActive)
+        {
+            foreach (GameObject go in GameObject.FindGameObjectsWithTag("sfxButton"))
+            {
+                float rand = Random.Range(0f, 1f);
+                if(rand > 0.5f) go.GetComponent<SFXButton>().ChangeColor();
+            }
+            currentCooldown = cooldown;
+        }
     }
     IEnumerator ToggleDiscoModes()
     {
         foreach (GameObject go in GameObject.FindGameObjectsWithTag("sfxButton"))
         {
             go.GetComponent<SFXButton>().SetDiscoMode(discoModeActive);
-            int rand = Random.Range(0, 5);
-            for(int i = 0; i < rand; i++)
+            if (discoModeActive)
             {
-                if(discoModeActive) yield return new WaitForEndOfFrame();
+                int rand = Random.Range(0, 5);
+                for (int i = 0; i < rand; i++)
+                {
+                    yield return new WaitForEndOfFrame();
+                }
             }
         }
     }
