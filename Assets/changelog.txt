@@ -3,6 +3,7 @@ TableTopAudio Changelog
 v1.0.3 "Inveniet" - Added DnD 5e quick reference tool
 
 //TODO: add tooltips to experimental options
+//TODO: add "Play Next" option
 
  - Fixed bug that could cause freeze when only one song in music playlist
 
@@ -23,6 +24,8 @@ v1.0.3 "Inveniet" - Added DnD 5e quick reference tool
  - Fixed bug that would cause music playlist audio to become glitched if crossfade was disabled while crossfade was in progress and another song was immediately started. This was an absolute nightmare to trackdown and fix
  
  - Added search field to music playlist
+
+ - Shuffle mode wil no longer repeat the same song until all other songs have been played
 
  - New experimental features section. Contains features that are incomplete, buggy, or not applicable to a wide audience. May be removed in a future release. Accessible from options menu
 

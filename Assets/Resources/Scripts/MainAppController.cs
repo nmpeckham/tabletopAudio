@@ -93,7 +93,7 @@ public class MainAppController : MonoBehaviour
     {
         //PlayerPrefs.DeleteKey("Crossfade");
         //print(PlayerPrefs.GetFloat("Crossfade") == 0);
-        if(PlayerPrefs.GetFloat("Crossfade") == 0) PlayerPrefs.SetFloat("Crossfade", 10);
+        if (PlayerPrefs.GetFloat("Crossfade") == 0) PlayerPrefs.SetFloat("Crossfade", 10);
         VERSION = Application.version;
         pauseImage = pause.GetComponent<SpriteRenderer>().sprite;
         playImage = play.GetComponent<SpriteRenderer>().sprite;

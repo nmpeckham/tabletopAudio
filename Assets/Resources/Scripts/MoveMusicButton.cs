@@ -25,6 +25,10 @@ public class MoveMusicButton : MonoBehaviour, IPointerDownHandler, IPointerExitH
     // Update is called once per frame
     void Update()
     {
+        UpdateSongPosition();
+    }
+    internal void UpdateSongPosition()
+    {
         if (buttonWithMouse == buttonTransform.GetSiblingIndex() && Input.GetMouseButton(0))
         {
             if ((Input.mousePosition.y - mousePos.y) > buttonRectTransform.rect.height)
@@ -34,7 +38,6 @@ public class MoveMusicButton : MonoBehaviour, IPointerDownHandler, IPointerExitH
                     int newIndex = buttonTransform.GetSiblingIndex() - 1;
                     mc.RefreshSongOrder(newIndex + 1, newIndex);
                     buttonTransform.SetSiblingIndex(newIndex);
-
                     buttonWithMouse--;
                     mousePos = Input.mousePosition;
                     //mc.nowPlayingButtonID -= 1;
@@ -48,7 +51,6 @@ public class MoveMusicButton : MonoBehaviour, IPointerDownHandler, IPointerExitH
                     int newIndex = buttonTransform.GetSiblingIndex() + 1;
                     mc.RefreshSongOrder(newIndex - 1, newIndex);
                     buttonTransform.SetSiblingIndex(newIndex);
-
                     buttonWithMouse++;
                     mousePos = Input.mousePosition;
                     //mc.nowPlayingButtonID += 1;

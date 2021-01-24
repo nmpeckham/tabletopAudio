@@ -34,7 +34,7 @@ public class MusicButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     {
         if(Time.time - timeSinceClick < doubleClickTime)
         {
-            mc.ItemSelected(id);
+            mc.PlaylistItemSelected(id);
         }
         timeSinceClick = Time.time;
     }

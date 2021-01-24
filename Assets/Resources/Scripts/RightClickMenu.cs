@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class RightClickMenu : MonoBehaviour
 {
     Button thisButton;
+    public int id;
     MusicController mc;
     // Start is called before the first frame update
     void Start()
@@ -17,6 +18,7 @@ public class RightClickMenu : MonoBehaviour
 
     void Clicked()
     {
-        mc.DeleteItem();
+        if(id == 0) mc.DeleteItem();
+        if (id == 1) mc.RefreshSongOrder();
     }
 }

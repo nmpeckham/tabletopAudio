@@ -27,7 +27,7 @@ public class MusicController : MonoBehaviour
     private string songPath = "";
     private string songName = "";
     internal int nowPlayingButtonID = -1;
-    private int toDeleteId = -1;
+    private int selectedId = -1;
 
     private float musicVolume = 1f;
     private float masterVolume = 1f;
@@ -122,6 +122,10 @@ public class MusicController : MonoBehaviour
     internal float discoModeNumFreq = 3;
 
     private List<Coroutine> crossfadeAudioCoroutines = new List<Coroutine>();
+
+    private List<string> mostRecentSongs = new List<string>();
+
+    bool shouldDelayPlayNext = false;
 
     public float CrossfadeTime
     {
@@ -534,6 +538,12 @@ public class MusicController : MonoBehaviour
         }
     }
 
+    internal void PlaylistItemSelected(int id)
+    {
+        ItemSelected(id);
+        UpdateMostRecentlyPlayed(id);
+    }
+
     public void ItemSelected(int id)
     {
         if (nowPlayingButtonID == id && activeAudioSource.isPlaying)
@@ -551,6 +561,7 @@ public class MusicController : MonoBehaviour
                 try
                 {
                     nowPlayingButtonID = id;
+                    print(musicButtons[id].GetComponent<MusicButton>().FileName);
                     MusicButton button = musicButtons[nowPlayingButtonID].GetComponent<MusicButton>();
                     songPath = System.IO.Path.Combine(mac.musicDirectory, button.FileName);
                     songName = button.FileName;
@@ -610,6 +621,7 @@ public class MusicController : MonoBehaviour
                     }
                     else
                     {
+                        activeAudioSource.Stop();
                         if (Path.GetExtension(songPath) == ".mp3")
                         {
                             fileTypeIsMp3 = true;
@@ -762,7 +774,7 @@ public class MusicController : MonoBehaviour
         }
         catch (IndexOutOfRangeException e)
         {
-            StartCoroutine(DelayAndPlayNext());
+            shouldDelayPlayNext = true;
             print(e);
         }
         catch (ObjectDisposedException e)
@@ -786,7 +798,7 @@ public class MusicController : MonoBehaviour
         }
         catch (IndexOutOfRangeException e)
         {
-            StartCoroutine(DelayAndPlayNext());
+            shouldDelayPlayNext = true;
             print(e);
         }
         catch(ObjectDisposedException e)
@@ -813,13 +825,7 @@ public class MusicController : MonoBehaviour
         inactiveAudioSource.clip = null;
         if (shuffle)
         {
-            int newButtonID = UnityEngine.Random.Range(0, LoadedFilesData.musicClips.Count);
-            while(nowPlayingButtonID == newButtonID)
-            {
-                newButtonID = UnityEngine.Random.Range(0, LoadedFilesData.musicClips.Count);
-                print("same button");
-            }
-            ItemSelected(newButtonID);
+            StartCoroutine(ShuffleSelectNewSong());
         }
         else
         {
@@ -847,13 +853,7 @@ public class MusicController : MonoBehaviour
         {
             if (shuffle)
             {
-                int newButtonID = UnityEngine.Random.Range(0, LoadedFilesData.musicClips.Count);
-                while (nowPlayingButtonID == newButtonID)
-                {
-                    newButtonID = UnityEngine.Random.Range(0, LoadedFilesData.musicClips.Count);
-                    print("same button");
-                }
-                ItemSelected(newButtonID);
+                StartCoroutine(ShuffleSelectNewSong());
             }
 
             else
@@ -870,6 +870,39 @@ public class MusicController : MonoBehaviour
             playbackScrubber.SetValueWithoutNotify(0);
             pauseButton.color = mac.darkModeEnabled ? ResourceManager.darkModeGrey : ResourceManager.lightModeGrey;
 
+        }
+    }
+
+    IEnumerator ShuffleSelectNewSong()
+    {
+        int newButtonID = UnityEngine.Random.Range(0, LoadedFilesData.musicClips.Count);
+        CheckMostRecentlyPlayed();
+        while (nowPlayingButtonID == newButtonID || mostRecentSongs.Contains(musicButtons[newButtonID].GetComponent<MusicButton>().FileName))
+        {
+            newButtonID = UnityEngine.Random.Range(0, LoadedFilesData.musicClips.Count);
+            //print("same button");
+            //yield return new WaitForEndOfFrame();
+        }
+        ItemSelected(newButtonID);
+        UpdateMostRecentlyPlayed(newButtonID);
+        yield return null;
+    }
+
+    // Remove first two items if mostRecentSongs length has met or exceeded # of musicButtons
+    // Removing two adds some randomness. Removing just one results in playing songs in the same order
+    private void CheckMostRecentlyPlayed()
+    {
+        if (mostRecentSongs.Count >= musicButtons.Count)
+        {
+            mostRecentSongs.RemoveRange(0, 2);
+        }
+    }
+
+    private void UpdateMostRecentlyPlayed(int newButtonID)
+    {
+        if(!mostRecentSongs.Contains(musicButtons[newButtonID].GetComponent<MusicButton>().FileName))
+        {
+            mostRecentSongs.Add(musicButtons[newButtonID].GetComponent<MusicButton>().FileName);
         }
     }
 
@@ -945,12 +978,30 @@ public class MusicController : MonoBehaviour
 
     public void RefreshSongOrder(int oldID, int newID)
     {
+        //print((oldID, newID));
         musicButtons[oldID].GetComponent<MusicButton>().id = newID;
         musicButtons[newID].GetComponent<MusicButton>().id = oldID;
         GameObject item = musicButtons[oldID];
         if(oldID == nowPlayingButtonID) nowPlayingButtonID = newID;
         musicButtons.Remove(item);
         musicButtons.Insert(newID, item);
+    }
+
+    //recursive solution to move song to desired position?
+    public void RefreshSongOrder()
+    {
+        int oldID = selectedId;
+        int newID = nowPlayingButtonID;
+        print((oldID, newID));
+        musicButtons[oldID].GetComponent<MusicButton>().id = newID;
+        musicButtons[newID].GetComponent<MusicButton>().id = oldID;
+        GameObject item = musicButtons[oldID];
+        if (oldID == nowPlayingButtonID) nowPlayingButtonID = newID;
+        musicButtons.Remove(item);
+        musicButtons.Insert(newID, item);
+        musicButtons[oldID].transform.SetSiblingIndex(newID);
+        //nowPlayingButtonID = nowPlayingButtonID - 1;
+        //musicButtons[nowPlayingButtonID].GetComponent<MusicButton>().id -= 1;
     }
 
     public void ChangeMasterVolume(float newMasterVolume)
@@ -980,7 +1031,7 @@ public class MusicController : MonoBehaviour
         float value = Mathf.Clamp(val, 0f, 1f);
         if (Math.Abs(value) > .995f)
         {
-            StartCoroutine(DelayAndPlayNext());
+            shouldDelayPlayNext = true;
         }
         else try
             {
@@ -1052,7 +1103,7 @@ public class MusicController : MonoBehaviour
         }
         if(error)
         {
-            DelayAndPlayNext();
+            shouldDelayPlayNext = true;
         }
     }
 
@@ -1060,10 +1111,9 @@ public class MusicController : MonoBehaviour
     {
         while (activeRightClickMenu)
         {
-            print("right click menu");
             float yDelta = Input.mousePosition.y - mousePos.y;
             float xDelta = Input.mousePosition.x - mousePos.x;
-            if (yDelta < -10 || yDelta > 40 || xDelta < -10 || xDelta > 80)
+            if (yDelta < -10 || yDelta > 60 || xDelta < -10 || xDelta > 80)
             {
                 Destroy(activeRightClickMenu);
                 mac.currentMenuState = MainAppController.MenuState.mainAppView;
@@ -1080,6 +1130,8 @@ public class MusicController : MonoBehaviour
         }
         yield return null;
     }
+
+
 
     // My code is _so_ good that it only needs two frames to catch up and not crash because of nLayer
     IEnumerator DelayAndPlayNext()
@@ -1098,15 +1150,15 @@ public class MusicController : MonoBehaviour
 
     public void DeleteItem()
     {
-        if (nowPlayingButtonID == toDeleteId)
+        if (nowPlayingButtonID == selectedId)
         {
             Stop();
             nowPlayingButtonID = -1;
         }
-        LoadedFilesData.deletedMusicClips.Add(LoadedFilesData.musicClips[toDeleteId]);
-        LoadedFilesData.musicClips.Remove(LoadedFilesData.musicClips[toDeleteId]);
-        Destroy(musicButtons[toDeleteId]);
-        musicButtons.RemoveAt(toDeleteId);
+        LoadedFilesData.deletedMusicClips.Add(LoadedFilesData.musicClips[selectedId]);
+        LoadedFilesData.musicClips.Remove(LoadedFilesData.musicClips[selectedId]);
+        Destroy(musicButtons[selectedId]);
+        musicButtons.RemoveAt(selectedId);
         int currentID = 0;
         foreach (GameObject mbObj in musicButtons)
         {
@@ -1135,6 +1187,10 @@ public class MusicController : MonoBehaviour
         {
             playbackScrubber.SetValueWithoutNotify(activeAudioSource.time / activeAudioSource.clip.length);
             playbackTimerText.text = Mathf.Floor(activeAudioSource.time / 60).ToString() + ":" + (Mathf.FloorToInt(activeAudioSource.time % 60)).ToString("D2") + "/" + Mathf.FloorToInt(activeAudioSource.clip.length / 60) + ":" + Mathf.FloorToInt(activeAudioSource.clip.length % 60).ToString("D2");
+        }
+        if (shouldDelayPlayNext)
+        {
+            StartCoroutine(DelayAndPlayNext());
         }
     }
 
@@ -1188,7 +1244,7 @@ public class MusicController : MonoBehaviour
     public void ShowRightClickMenu(int id)
     {
         mac.currentMenuState = MainAppController.MenuState.deleteMusicFile;
-        toDeleteId = id;
+        selectedId = id;
         if(activeRightClickMenu) Destroy(activeRightClickMenu);
         activeRightClickMenu = Instantiate(playlistRightClickMenuPrefab, Input.mousePosition, Quaternion.identity, TooltipParent.transform);
         StartCoroutine(CheckMousePos(Input.mousePosition));
