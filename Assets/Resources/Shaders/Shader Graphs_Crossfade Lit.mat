@@ -21,7 +21,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _MainTex:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 3effc819ddc99264ea4c412a93b7dab1, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _NewShaderSubGraph_5b0538470e4d648584ae45ac2989f956_Texture2DFA122AD5_1568311391:
@@ -56,6 +56,6 @@ Material:
     - Progress: 0
     - Vector1_40F02E7D: 0
     m_Colors:
-    - ButtonColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    - ButtonColor: {r: 0.14901961, g: 0.14901961, b: 0.14901961, a: 1}
     - Color_8A8899AD: {r: 0, g: 1, b: 0, a: 1}
   m_BuildTextureStacks: []

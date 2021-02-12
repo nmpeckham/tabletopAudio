@@ -17,7 +17,6 @@ public class QuickRefDetailView : MonoBehaviour
     public GameObject quickRefObj;
     private MainAppController mac;
 
-    public GameObject quickRefAttributePrefab;
     public GameObject attributesPanel;
     public GameObject descriptionPanel;
 
@@ -416,7 +415,7 @@ public class QuickRefDetailView : MonoBehaviour
     }
     void CreateAttributeItem(string title, string detail)
     {
-        GameObject go = Instantiate(quickRefAttributePrefab, attributesPanel.transform);
+        GameObject go = Instantiate(Prefabs.quickRefAttributePrefab, attributesPanel.transform);
         QuickRefAttributePrefab qrap = go.GetComponent<QuickRefAttributePrefab>();
         qrap.Title = title;
         qrap.Detail = detail;

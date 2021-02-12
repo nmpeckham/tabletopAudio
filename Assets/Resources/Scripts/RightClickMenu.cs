@@ -5,20 +5,19 @@ using UnityEngine.UI;
 
 public class RightClickMenu : MonoBehaviour
 {
-    Button thisButton;
     public int id;
-    MusicController mc;
+    MusicRightClickController mrcc;
     // Start is called before the first frame update
     void Start()
     {
-        thisButton = GetComponent<Button>();
-        thisButton.onClick.AddListener(Clicked);
-        mc = Camera.main.GetComponent<MusicController>();
+        GetComponent<Button>().onClick.AddListener(Clicked);
+        mrcc = Camera.main.GetComponent<MusicRightClickController>();
     }
 
     void Clicked()
     {
-        if(id == 0) mc.DeleteItem();
-        if (id == 1) mc.RefreshSongOrder();
+        if(id == 0) mrcc.DeleteItem();
+        if (id == 1) mrcc.AddToPlayNext(id);
+        if (id == 2) mrcc.ShowAddToMenu();
     }
 }

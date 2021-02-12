@@ -3,59 +3,77 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using UnityEngine.Events;
+using TMPro;
 
 //Class for music items in the playlist
-public class MusicButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+public class MusicButton : MonoBehaviour,  IPointerClickHandler
 {
-    Button thisButton;
-    public int id = -1;
-    private string fileName;
+    private Song song;
+    private TMP_Text label;
+    internal Song Song
+    {
+        get
+        {
+            return song;
+        }
+        set
+        {
+            song = value;
+            label.text = song.FileName;
+        }
+    }
+
+    internal int buttonId;
+    MusicRightClickController mrcc;
     MusicController mc;
     float doubleClickTime = 0.8f;
     float timeSinceClick = 100f;
 
-    public string FileName
-    {
-        get { return fileName; }
-        set { fileName = value; }
-    }
-
-
     // Start is called before the first frame update
-    void Start()
+    internal void Init()
     {
+        mrcc = Camera.main.GetComponent<MusicRightClickController>();
         mc = Camera.main.GetComponent<MusicController>();
-        thisButton = GetComponent<Button>();
-        thisButton.onClick.AddListener(ItemSelected);
         timeSinceClick = Time.time;
+        label = GetComponentInChildren<TMP_Text>();
     }
 
-    void ItemSelected()
+    void ItemSelected(int type)
     {
-        if(Time.time - timeSinceClick < doubleClickTime)
+        if(type == 0)
         {
-            mc.PlaylistItemSelected(id);
+            if (Time.time - timeSinceClick < doubleClickTime)
+            {
+                mc.PlaylistItemSelected(buttonId);
+            }
+            timeSinceClick = Time.time;
         }
-        timeSinceClick = Time.time;
+        else if(type == 1)
+        {
+            mrcc.ShowRightClickMenu(buttonId);
+        }
+    }
+
+    void LeftClicked()
+    {
+        ItemSelected(0);
+    }
+
+    void RightClicked()
+    {
+        ItemSelected(1);
     }
 
     // Update is called once per frame
     void Update()
     {
-        //timeSinceClick = Time.time;   
-        if(Input.GetMouseButtonDown(1) && mc.ButtonWithCursor == id)
-        {
-            mc.ShowRightClickMenu(id);
-        }
+
     }
 
-    public void OnPointerEnter(PointerEventData eventData)
+    public void OnPointerClick(PointerEventData eventData)
     {
-        mc.ButtonWithCursor = id;
-    }
-
-    public void OnPointerExit(PointerEventData eventData)
-    {
-        mc.ButtonWithCursor = -1;
+        if (eventData.button == PointerEventData.InputButton.Left) LeftClicked();
+        else if (eventData.button == PointerEventData.InputButton.Right) RightClicked();
     }
 }

@@ -2,10 +2,27 @@ TableTopAudio Changelog
 
 v1.0.3 "Inveniet" - Added DnD 5e quick reference tool
 
-//TODO: add tooltips to experimental options
-//TODO: add "Play Next" option
+//TODO: add playlist pages
+
+//TODO: add advcanced option to increase mixer volume above 100%
+
+//TODO: ensure focus is assumed for text fields
+
+//TODO: Cleanup musicController class :/
+
+//TODO: Fix many instance variables not being static where they should
+
+//TODO: Add To... appears when no playlist tabs added
+
+//TODO: Add option to remove prefix numbers and sort by them
+
+ - Fixed bug where music volume wouldn't be displayed linearly
+
+ - Fixed bug where pressing spacebar wouldn't pause songs in certain cases
 
  - Fixed bug that could cause freeze when only one song in music playlist
+
+ - Songs in playlist are now sorted by song name without numerical prefix
 
  - Save name input field now assumes text cursor focus when save panel is opened
 
@@ -27,11 +44,13 @@ v1.0.3 "Inveniet" - Added DnD 5e quick reference tool
 
  - Shuffle mode wil no longer repeat the same song until all other songs have been played
 
+ - Added "Play Next" option for playlist. Right click a song to open menu.
+
  - New experimental features section. Contains features that are incomplete, buggy, or not applicable to a wide audience. May be removed in a future release. Accessible from options menu
 
- - *Experimental* Added new backgrounds to songs in playlist showing song intensity. Has issues with some imperfect mp3 files. No ogg vorbis support at this time. Can be enabled in advanced menu
+	- *Experimental* Added new backgrounds to songs in playlist showing song intensity. Has issues with some 'imperfect' mp3 files. No ogg vorbis support at this time. Can be enabled in advanced menu
 
- - *Experimental* Added disco mode. Can be enabled in advanced menu, then activated using ctrl + d. Additional tuning options are available
+	- *Experimental* Added disco mode. Can be enabled in advanced menu, then activated using ctrl + d. Additional tuning options are available
 
 
 

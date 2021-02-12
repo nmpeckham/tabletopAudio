@@ -25,7 +25,6 @@ public class OptionsMenuController : MonoBehaviour
 
     public GameObject loadGameSelectionView;
     public GameObject loadGameScrollView;
-    public GameObject loadGameItemPrefab;
 
     public TMP_InputField crossfadeField;
     private bool hadFormatException = false;
@@ -253,7 +252,7 @@ public class OptionsMenuController : MonoBehaviour
             if(Path.GetExtension(saveName) == ".xml" || Path.GetExtension(saveName) == ".txt")
             {
                 string trimmedSaveName = saveName.Replace(mac.saveDirectory + mac.sep, "");
-                GameObject scrollItem = Instantiate(loadGameItemPrefab, loadGameScrollView.transform);
+                GameObject scrollItem = Instantiate(Prefabs.loadGameItemPrefab, loadGameScrollView.transform);
                 scrollItem.GetComponent<LoadGameSelectItem>().fileLocation = saveName;
                 scrollItem.GetComponentInChildren<TMP_Text>().SetText(trimmedSaveName);
             }
@@ -275,7 +274,7 @@ public class OptionsMenuController : MonoBehaviour
             string version = Convert.ToString(file.SelectSingleNode("/TableTopAudio-Save-File/version").InnerText);
             if (true)//version == MainAppController.VERSION) //No version checking yet
             {
-                LoadedFilesData.musicClips.Clear();
+                LoadedFilesData.songs.Clear();
                 LoadedFilesData.sfxClips.Clear();
                 LoadedFilesData.deletedMusicClips.Clear();
 
@@ -382,6 +381,7 @@ public class OptionsMenuController : MonoBehaviour
                     }
 
                 }
+                print(files);
                 mc.InitLoadFiles(files);
                 loadGameSelectionView.SetActive(false);
                 mac.pageParents[0].gameObject.transform.SetSiblingIndex(MainAppController.NUMPAGES);
@@ -421,7 +421,7 @@ public class OptionsMenuController : MonoBehaviour
         }
 
         mc.musicButtons.Clear();
-        LoadedFilesData.musicClips.Clear();
+        LoadedFilesData.songs.Clear();
         return true;
     }
 
@@ -479,7 +479,7 @@ public class OptionsMenuController : MonoBehaviour
                 {
                     foreach (MusicButton mb in mc.musicScrollView.GetComponentsInChildren<MusicButton>())
                     {
-                        writer.WriteElementString("song", mb.FileName);
+                        writer.WriteElementString("song", mb.Song.FileName);
                     }
                 }
                 writer.WriteEndElement();

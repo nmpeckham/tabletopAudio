@@ -17,7 +17,6 @@ public class QuickReferenceController : MonoBehaviour
     public GameObject quickRefPanel;
     public GameObject scrollViewContent;
     public TMP_InputField searchBox;
-    public GameObject quickRefPrefab;
     public Button clearTextButton;
 
     // Start is called before the first frame update
@@ -166,7 +165,7 @@ public class QuickReferenceController : MonoBehaviour
                     {
                         if ((queryIndex > 0 && matches.Contains(index)) || queryIndex == 0)
                         {
-                            GameObject prefab = Instantiate(quickRefPrefab, scrollViewContent.transform);
+                            GameObject prefab = Instantiate(Prefabs.quickRefPrefab, scrollViewContent.transform);
                             prefab.SetActive(false);
                             QuickRefPrefab qrp = prefab.GetComponent<QuickRefPrefab>();
                             qrp.Category = section.Key.Replace("-", " ");
@@ -185,7 +184,7 @@ public class QuickReferenceController : MonoBehaviour
                             {
                                 qrp.Description = "";
                             }
-                            if (dbItem.Value.ContainsKey("index"))
+                            if (dbItem.Value.ContainsKey("name"))
                             {
                                 //move items that start with the same first letter to top
                                 if (dbItem.Value["name"].ToString().ToUpper()[0] == queryItem[0])

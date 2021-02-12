@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public class Tooltip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
-    public GameObject tooltipPrefab;
+    private GameObject tooltipPrefab;
     private GameObject tooltip;
     private GameObject tooltipParent;
     public string tooltipText;
@@ -17,7 +17,7 @@ public class Tooltip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     }
     public void OnPointerEnter(PointerEventData eventData)
     {
-        tooltip = Instantiate(tooltipPrefab, Input.mousePosition, Quaternion.identity, tooltipParent.transform);
+        tooltip = Instantiate(Prefabs.tooltipPrefab, Input.mousePosition, Quaternion.identity, tooltipParent.transform);
         tooltip.GetComponentInChildren<TMP_Text>().text = tooltipText;
         StartCoroutine(UpdateTooltipPosition());
     }

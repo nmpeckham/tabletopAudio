@@ -11,6 +11,7 @@ using NVorbis;
 using System.Net.Http.Headers;
 using UnityEngine.Rendering;
 using UnityEngine.Video;
+using System.Text.RegularExpressions;
 
 //Controls the playing of songs in the playlist
 public class MusicController : MonoBehaviour
@@ -18,19 +19,17 @@ public class MusicController : MonoBehaviour
 
     private MainAppController mac;
 
-    public GameObject playlistItemPrefab;
     public GameObject musicScrollView;
-    public GameObject playlistRightClickMenuPrefab;
 
     public TMP_Text nowPlayingLabel;
     private Image prevButtonImage = null;
     private string songPath = "";
     private string songName = "";
     internal int nowPlayingButtonID = -1;
-    private int selectedId = -1;
 
     private float musicVolume = 1f;
     private float masterVolume = 1f;
+    private float actualVolume = 1f;
 
     public Button fadeInButton;
     public Button fadeOutButton;
@@ -41,7 +40,6 @@ public class MusicController : MonoBehaviour
     public TMP_Text localVolumeLabel;
 
     public List<GameObject> musicButtons;
-    public GameObject musicButtonContentPanel;
     public Image musicStatusImage;
     public TMP_Text playbackTimerText;
     public Image shuffleImage;
@@ -59,26 +57,19 @@ public class MusicController : MonoBehaviour
     private AudioSource activeAudioSource;
     private AudioSource inactiveAudioSource;
 
-
     MpegFile activeMp3Stream;
     MpegFile inactiveMp3Stream;
 
     VorbisReader activeVorbisStream;
     VorbisReader inactiveVorbisStream;
 
-    int buttonWithCursor;
-    private GameObject activeRightClickMenu;
-
     public GameObject fftParent;
     public FftBar[] pieces;
     private Material[] fftBarMaterials;
 
-    public GameObject TooltipParent;
-
-
-    private const float fixedUpdateStep = 0.02f;
-    private const float fixedUpdateTime = 1f / fixedUpdateStep;
-    private float crossfadeTime = 10f;
+    //private const float fixedUpdateStep = 1 / 60f;
+    private const float fixedUpdateTime = 60f;
+    private float crossfadeTime = 0.01f;
     private float crossfadeValue;
     public PlaylistAudioSources plas;
 
@@ -93,24 +84,13 @@ public class MusicController : MonoBehaviour
     double[] fadeTargets;
 
     bool fileTypeIsMp3 = false;
-    OptionsMenuController omc;
-
     bool mono = false;
-
-    //int numCoroutines = 0;
-    Coroutine coroutine = null;
 
     private int nextDelayTimer = 0;
 
     private float[] prevFFTmesurement = new float[8]; // values, frames ago
     private float[] oldScale = new float[8];
-    private int fftReadingIndex = 0;
 
-    //public VideoPlayer vp;
-    // private AudioSource videoSource;
-    //private AudioSource videoAudioSource;
-
-    private long totalRead = 0;
     private bool fadeInMusicActive = false;
     private bool fadeOutMusicActive = false;
 
@@ -127,6 +107,12 @@ public class MusicController : MonoBehaviour
 
     bool shouldDelayPlayNext = false;
 
+    private List<PlayNextItem> playNextList = new List<PlayNextItem>();
+
+    private PlaylistTabs pt;
+
+    internal PlaylistTab tabCurrentlyPlaying;
+
     public float CrossfadeTime
     {
         get { return (int)crossfadeTime; }
@@ -135,25 +121,11 @@ public class MusicController : MonoBehaviour
             crossfadeValue = 1 / (value * fixedUpdateTime);
         }
     }
-    public int ButtonWithCursor
-    {
-        get
-        {
-            return buttonWithCursor;
-        }
-        set
-        {
-            if (buttonWithCursor != value)
-            {
-                buttonWithCursor = value;
-            }
-        }
-    }
     public float MusicVolume
     {
         get
         {
-            return musicVolume;
+            return Mathf.Log(2, musicVolume) + 2;
         }
 
         set
@@ -228,15 +200,14 @@ public class MusicController : MonoBehaviour
     }
 
     // Start is called before the first frame update
-    void Start()
+    internal void Init()
     {
         LoadedFilesData.deletedMusicClips.Clear();
-        LoadedFilesData.musicClips.Clear();
+        LoadedFilesData.songs.Clear();
         LoadedFilesData.sfxClips.Clear();
         crossfadeValue = 1 / (crossfadeTime * fixedUpdateTime);
         activeAudioSource = plas.a1;
         inactiveAudioSource = plas.a2;
-        omc = GetComponent<OptionsMenuController>();
 
         pieces = fftParent.GetComponentsInChildren<FftBar>();
         fftBarMaterials = new Material[pieces.Length];
@@ -250,9 +221,9 @@ public class MusicController : MonoBehaviour
 
         fadeTargets = new double[pieces.Length];
         mac = Camera.main.GetComponent<MainAppController>();
-        buttonWithCursor = -1;
         vc = GetComponent<VolumeController>();
         musicButtons = new List<GameObject>();
+        pt = GetComponent<PlaylistTabs>();
         StartCoroutine("CheckForNewFiles");
         localVolumeSlider.onValueChanged.AddListener(LocalVolumeSliderChanged);
         playbackScrubber.onValueChanged.AddListener(PlaybackTimeValueChanged);
@@ -272,6 +243,30 @@ public class MusicController : MonoBehaviour
         clearPlaylistSearchButton.onClick.AddListener(ClearPlaylistSearch);
 
         discoModeController = GetComponent<DiscoMode>();
+        tabCurrentlyPlaying = pt.selectedTab;
+    }
+
+    public void ChangeMasterVolume(float newMasterVolume)
+    {
+        masterVolume = (float)Math.Pow(newMasterVolume, 2f);
+        activeAudioSource.volume = masterVolume * musicVolume;
+    }
+
+    private void LocalVolumeSliderChanged(float value)
+    {
+        StopCoroutine("FadeInMusicVolume");
+        StopCoroutine("FadeOutMusicVolume");
+        ChangeLocalVolume(value);
+    }
+
+    private void ChangeLocalVolume(float newLocalVolume)
+    {
+        //print("volume");
+        actualVolume = newLocalVolume;
+        musicVolume = (float)Math.Pow(newLocalVolume, 2f);
+        activeAudioSource.volume = masterVolume * musicVolume;
+        localVolumeLabel.text = (newLocalVolume * 100f).ToString("N0") + "%";
+        localVolumeSlider.SetValueWithoutNotify(newLocalVolume);
     }
 
     private void ClearPlaylistSearch()
@@ -304,7 +299,7 @@ public class MusicController : MonoBehaviour
         ClearPlaylist();
         foreach(GameObject go in musicButtons)
         {
-            string name = go.GetComponent<MusicButton>().FileName;
+            string name = go.GetComponent<MusicButton>().Song.FileName;
             if (name.ToLower().Contains(text.ToLower())) go.SetActive(true);
         }
     }
@@ -344,13 +339,19 @@ public class MusicController : MonoBehaviour
         {
             fadeInMusicActive = true;
             fadeOutMusicActive = false;
-            float fadeInValue = 1 / (crossfadeTime * fixedUpdateTime);
-            while (MusicVolume < 1f)
+            float fadeOutValue = 1f / (crossfadeTime * fixedUpdateTime);
+            print("fadeOut val: " + MusicVolume);
+            float newMusicVol = actualVolume;
+            while (newMusicVol < 1f)
             {
-                print("changing music volume");
-                ChangeLocalVolume(musicVolume + fadeInValue);
+                //print(MusicVolume);
+                newMusicVol += fadeOutValue;
+                //print("changing music volume");
+                ChangeLocalVolume(newMusicVol);
+
                 yield return new WaitForFixedUpdate();
             }
+            ChangeLocalVolume(1f);
         }
         fadeOutMusicActive = false;
         yield return null;
@@ -367,13 +368,19 @@ public class MusicController : MonoBehaviour
         {
             fadeOutMusicActive = true;
             fadeInMusicActive = false;
-            float fadeOutValue = 1 / (crossfadeTime * fixedUpdateTime);
-            while (MusicVolume > 0f)
+            float fadeOutValue = 1f / (crossfadeTime * fixedUpdateTime);
+            print("fadeOut val: " + MusicVolume);
+            float newMusicVol = actualVolume;
+            while (newMusicVol > 0f)
             {
-                print("changing music volume");
-                ChangeLocalVolume(musicVolume - fadeOutValue);
+                //print(MusicVolume);
+                newMusicVol -= fadeOutValue;
+                //print("changing music volume");
+                ChangeLocalVolume(newMusicVol);
+
                 yield return new WaitForFixedUpdate();
             }
+            ChangeLocalVolume(0f);
         }
         fadeOutMusicActive = false;
         yield return null;
@@ -453,6 +460,7 @@ public class MusicController : MonoBehaviour
 
     internal void InitLoadFiles(List<string> files = null)
     {
+        print(files.Count);
         if (files == null)
         {
             files = new List<string>();
@@ -473,21 +481,24 @@ public class MusicController : MonoBehaviour
                 attempts++;
                 if (attempts > 100)
                 {
+                    // weird linux bug. Couldn't replicate
                     mac.ShowErrorMessage("Directory setup failed. Please inform the developer.");
                     break;
                 }
             }
         }
-
+        print(files.Count);
         foreach (string s in files)
         {
-            if (!LoadedFilesData.musicClips.Contains(s))
+            if (LoadedFilesData.songs.FindIndex(f => f.FileName == s) == -1)
             {
-                LoadedFilesData.musicClips.Add(s);
-                GameObject listItem = Instantiate(playlistItemPrefab, musicScrollView.transform);
+                Song newSong = new Song(s.Replace(mac.musicDirectory + Path.DirectorySeparatorChar, ""));
+                LoadedFilesData.songs.Add(newSong);
+                GameObject listItem = Instantiate(Prefabs.musicButtonPrefab, musicScrollView.transform);
+                
                 listItem.GetComponentInChildren<TMP_Text>().text = s.Replace(mac.musicDirectory + mac.sep, "");
-                listItem.GetComponent<MusicButton>().id = LoadedFilesData.musicClips.Count - 1;
-                listItem.GetComponent<MusicButton>().FileName = s.Replace(mac.musicDirectory + Path.DirectorySeparatorChar, "");
+                listItem.GetComponent<MusicButton>().buttonId = musicButtons.Count - 1;
+                listItem.GetComponent<MusicButton>().Song = newSong;
                 musicButtons.Add(listItem);
             }
         }
@@ -500,37 +511,65 @@ public class MusicController : MonoBehaviour
             string[] files = System.IO.Directory.GetFiles(mac.musicDirectory);
             if (autoCheckForNewFiles)
             {
-                foreach (string s in LoadedFilesData.musicClips)
+                foreach (Song s in LoadedFilesData.songs)
                 {
-                    if (!files.Contains(Path.Combine(mac.musicDirectory, s)))
+                    if(!files.Contains(Path.Combine(mac.musicDirectory, s.FileName)))
                     {
-                        toDelete.Add(musicButtons[LoadedFilesData.musicClips.IndexOf(s)]);
+                        toDelete.Add(musicButtons[LoadedFilesData.songs.IndexOf(s)]);
                     }
                 }
                 foreach (GameObject g in toDelete)
                 {
-                    LoadedFilesData.musicClips.Remove(g.GetComponent<MusicButton>().FileName);
+                    LoadedFilesData.songs.Remove(g.GetComponent<MusicButton>().Song);
                     musicButtons.Remove(g);
                     Destroy(g);
                 }
                 toDelete.Clear();
                 foreach (string s in files)
                 {
-                    
-                    if (!LoadedFilesData.musicClips.Contains(s.Replace(mac.musicDirectory + Path.DirectorySeparatorChar, "")) && (Path.GetExtension(s) == ".mp3" || Path.GetExtension(s) == ".ogg") && !LoadedFilesData.deletedMusicClips.Contains(s.Replace(mac.musicDirectory + Path.DirectorySeparatorChar, "")))
+                    string newFileName = "";
+                    if ((LoadedFilesData.songs.FindIndex(f => f.FileName == s.Replace(mac.musicDirectory + Path.DirectorySeparatorChar, "")) == -1) && (Path.GetExtension(s) == ".mp3" || Path.GetExtension(s) == ".ogg") && LoadedFilesData.deletedMusicClips.FindIndex(f => f.FileName == s.Replace(mac.musicDirectory + Path.DirectorySeparatorChar, "")) == -1)
                     {
-                        LoadedFilesData.musicClips.Add(s.Replace(mac.musicDirectory + Path.DirectorySeparatorChar, ""));
-                        GameObject listItem = Instantiate(playlistItemPrefab, musicScrollView.transform);
-                        listItem.GetComponentInChildren<TMP_Text>().text = s.Replace(mac.musicDirectory + Path.DirectorySeparatorChar, "");
-                        listItem.GetComponent<MusicButton>().id = LoadedFilesData.musicClips.Count - 1;
-                        listItem.GetComponent<MusicButton>().FileName = s.Replace(mac.musicDirectory + Path.DirectorySeparatorChar, "");
-                        musicButtons.Add(listItem);
+                        newFileName = s.Replace(mac.musicDirectory + Path.DirectorySeparatorChar, "");
+                        Song newSong = new Song(newFileName);
+                        LoadedFilesData.songs.Add(newSong);
+
+
+                        List<Song> songList = pt.tabs[0].Playlist;
+                        songList.Add(newSong);
+                        if(pt.selectedTab == pt.mainTab)
+                        {
+                            GameObject listItem = Instantiate(Prefabs.musicButtonPrefab, musicScrollView.transform);
+                            MusicButton mb = listItem.GetComponent<MusicButton>();
+                            mb.Init();
+                            mb.buttonId = songList.Count;
+                            mb.Song = newSong;
+                            musicButtons.Add(listItem);
+                        }
+
+
+                        //regex to remove starting song numbers
+                        //Match match = Regex.Match(s, @"\d{1,} *\.*-* *");
+                        //if (String.IsNullOrEmpty(match.ToString())) listItem.GetComponentInChildren<TMP_Text>().text = newFileName;
+                        //else listItem.GetComponentInChildren<TMP_Text>().text = newFileName.Replace(match.ToString(), "");
+
+
+
+                        //musicButtons.Add(listItem);
+                        //if (!String.IsNullOrEmpty(match.ToString()))
+                        //{
+                        //    newFileName = newFileName.Replace(match.ToString(), "");
+                        //    listItem.GetComponentInChildren<MusicButton>().Song.sortName = newFileName;
+                        //}
                     }
                 }
                 int id = 0;
+                
+
+                // Set indices for each button
                 foreach (GameObject g in musicButtons)
                 {
-                    g.GetComponent<MusicButton>().id = id;
+                    g.GetComponent<MusicButton>().buttonId = id;
                     id++;
                 }
             }
@@ -540,31 +579,52 @@ public class MusicController : MonoBehaviour
 
     internal void PlaylistItemSelected(int id)
     {
+        print(id);
+        if (tabCurrentlyPlaying != pt.selectedTab)
+        {
+            ChangeCurrentlyPlayingTab(pt.selectedTab.tabId);
+        }
         ItemSelected(id);
-        UpdateMostRecentlyPlayed(id);
+    }
+
+    internal void ChangeCurrentlyPlayingTab(int id)
+    {
+        print("newTab: " + id);
+        musicButtons.Clear();
+        tabCurrentlyPlaying = pt.tabs[id];
+        foreach (MusicButton mb in tabCurrentlyPlaying.musicContentView.GetComponentsInChildren<MusicButton>())
+        {
+            musicButtons.Add(mb.gameObject);
+        }
+        
+
     }
 
     public void ItemSelected(int id)
     {
-        if (nowPlayingButtonID == id && activeAudioSource.isPlaying)
-        {
-            if(inactiveVorbisStream != null) inactiveVorbisStream.DecodedTime = TimeSpan.FromSeconds(0);
-            else if(inactiveMp3Stream != null) inactiveMp3Stream.Time = TimeSpan.FromSeconds(0);
-            else if (activeMp3Stream != null) activeMp3Stream.Time = TimeSpan.FromSeconds(0);
-            else if (activeVorbisStream != null) activeVorbisStream.DecodedTime = TimeSpan.FromSeconds(0);
-            activeAudioSource.time = 0;
-        }
-        else
+        print("is id: " + id);
+        print("is tcp: " + tabCurrentlyPlaying.tabId);
+        print("musicButtons length: " + musicButtons.Count);
+
+        //TODO: fix this to let a song be restarted
+        //if (nowPlayingButtonID == id && activeAudioSource.isPlaying)
+        //{
+        //    if (inactiveVorbisStream != null) inactiveVorbisStream.DecodedTime = TimeSpan.FromSeconds(0);
+        //    else if (inactiveMp3Stream != null) inactiveMp3Stream.Time = TimeSpan.FromSeconds(0);
+        //    else if (activeMp3Stream != null) activeMp3Stream.Time = TimeSpan.FromSeconds(0);
+        //    else if (activeVorbisStream != null) activeVorbisStream.DecodedTime = TimeSpan.FromSeconds(0);
+        //    activeAudioSource.time = 0;
+        //}
+        if (true)
         {
             if (musicButtons.Count > 0)
             {
                 try
                 {
                     nowPlayingButtonID = id;
-                    print(musicButtons[id].GetComponent<MusicButton>().FileName);
                     MusicButton button = musicButtons[nowPlayingButtonID].GetComponent<MusicButton>();
-                    songPath = System.IO.Path.Combine(mac.musicDirectory, button.FileName);
-                    songName = button.FileName;
+                    songPath = System.IO.Path.Combine(mac.musicDirectory, button.Song.FileName);
+                    songName = button.Song.FileName;
                     AudioClip clip = null;
                     long totalLength = 0;
                     if (crossfade)
@@ -618,6 +678,8 @@ public class MusicController : MonoBehaviour
                         {
                             activeAudioSource.clip = null;
                         }
+                        UpdateMostRecentlyPlayed(songName);
+
                     }
                     else
                     {
@@ -674,8 +736,37 @@ public class MusicController : MonoBehaviour
         }
     }
 
+    bool TryPlayRequestedNext()
+    {
+        if(playNextList.Count > 0)
+        {
+            print("CurrentPage: " + tabCurrentlyPlaying.tabId);
+            print("newPage: " + playNextList[0].playlistTabId);
+            if(playNextList[0].playlistTabId != tabCurrentlyPlaying.tabId)
+            {
+                print("Current and next tab don't match, cahnging");
+                ChangeCurrentlyPlayingTab(playNextList[0].playlistTabId);
+            }
+            ItemSelected(playNextList[0].id);
+            print("before: " + playNextList.Count);
+            playNextList.RemoveAt(0);
+            print("after: " + playNextList.Count);
+
+            return true;
+        }
+        return false;
+    }
+
+    internal void AddToPlayNext(PlayNextItem item)
+    {
+        //print(item.id);
+        //print(item.playlistTabId);
+        playNextList.Add(item);
+    }
+
     void SetupInterfaceForPlay(AudioSource aSource, AudioClip clip = null)
     {
+        print("sifp");
         if (crossfade)
         {
             AudioSource temp = inactiveAudioSource;
@@ -685,6 +776,7 @@ public class MusicController : MonoBehaviour
         aSource.clip = clip;
         aSource.time = 0;
         aSource.Play();
+        isPaused = false;
         if (crossfade)
         {
             // Just using StopCoroutine(CrossfadeAudioSources()) here simply _does not_ work. Don't know why. This works.
@@ -697,6 +789,8 @@ public class MusicController : MonoBehaviour
         }
 
         playbackScrubber.SetValueWithoutNotify(0);
+        print("buttonImage count: " + musicButtons.Count);
+        print("current Page: " + tabCurrentlyPlaying.tabId);
         Image buttonImage = musicButtons[nowPlayingButtonID].GetComponent<Image>();
         if (prevButtonImage != null) prevButtonImage.color = ResourceManager.musicButtonGrey;
         buttonImage.color = ResourceManager.red;
@@ -704,6 +798,7 @@ public class MusicController : MonoBehaviour
         prevButtonImage = buttonImage;
         nowPlayingLabel.text = songName;
         musicStatusImage.sprite = mac.playImage;
+        GetComponent<ScrollNowPlayingTitle>().SongChanged();
     }
 
     IEnumerator CrossfadeAudioSources()
@@ -759,12 +854,7 @@ public class MusicController : MonoBehaviour
         //data = new float[4096];
         try
         {
-            //print(activeMp3Stream.Channels);
-            int samples = activeMp3Stream.ReadSamples(data, 0, data.Length);
-            totalRead += samples;
-            //print("total Read: " + totalRead);
-            //print("Samples read this iter: " + samples);
-            //print("Total length: " + activeMp3Stream.Length);
+            activeMp3Stream.ReadSamples(data, 0, data.Length);
         }
         catch (NullReferenceException e)
         {
@@ -781,6 +871,7 @@ public class MusicController : MonoBehaviour
         {
             print("disposed 1");
             shouldStop1 = true;
+            print(e);
         }
     }
 
@@ -805,6 +896,7 @@ public class MusicController : MonoBehaviour
         {
             print("disposed 2");
             shouldStop2 = true;
+            print(e);
         }
     }
 
@@ -823,24 +915,29 @@ public class MusicController : MonoBehaviour
         StopCoroutine(CrossfadeAudioSources());
         inactiveAudioSource.volume = 0f;
         inactiveAudioSource.clip = null;
-        if (shuffle)
+
+        if(!TryPlayRequestedNext())
         {
-            StartCoroutine(ShuffleSelectNewSong());
-        }
-        else
-        {
-            if (nowPlayingButtonID == musicButtons.Count - 1)
+            if (shuffle)
             {
-                ItemSelected(0);
+                StartCoroutine(ShuffleSelectNewSong());
             }
+
             else
             {
-                ItemSelected(nowPlayingButtonID+1);
+                if (nowPlayingButtonID == musicButtons.Count - 1)
+                {
+                    ItemSelected(0);
+                }
+                else
+                {
+                    ItemSelected(nowPlayingButtonID + 1);
+                }
             }
         }
+
         playbackScrubber.SetValueWithoutNotify(0);
         pauseButton.color = mac.darkModeEnabled ? ResourceManager.darkModeGrey : ResourceManager.lightModeGrey;
-
     }
 
     public void Previous()
@@ -875,16 +972,15 @@ public class MusicController : MonoBehaviour
 
     IEnumerator ShuffleSelectNewSong()
     {
-        int newButtonID = UnityEngine.Random.Range(0, LoadedFilesData.musicClips.Count);
+        int newButtonID = UnityEngine.Random.Range(0, musicButtons.Count);
         CheckMostRecentlyPlayed();
-        while (nowPlayingButtonID == newButtonID || mostRecentSongs.Contains(musicButtons[newButtonID].GetComponent<MusicButton>().FileName))
+        while (nowPlayingButtonID == newButtonID || mostRecentSongs.Contains(musicButtons[newButtonID].GetComponent<MusicButton>().Song.FileName))
         {
-            newButtonID = UnityEngine.Random.Range(0, LoadedFilesData.musicClips.Count);
+            newButtonID = UnityEngine.Random.Range(0, musicButtons.Count);
             //print("same button");
             //yield return new WaitForEndOfFrame();
         }
         ItemSelected(newButtonID);
-        UpdateMostRecentlyPlayed(newButtonID);
         yield return null;
     }
 
@@ -898,11 +994,11 @@ public class MusicController : MonoBehaviour
         }
     }
 
-    private void UpdateMostRecentlyPlayed(int newButtonID)
+    private void UpdateMostRecentlyPlayed(string fileName)
     {
-        if(!mostRecentSongs.Contains(musicButtons[newButtonID].GetComponent<MusicButton>().FileName))
+        if(!mostRecentSongs.Contains(fileName))
         {
-            mostRecentSongs.Add(musicButtons[newButtonID].GetComponent<MusicButton>().FileName);
+            mostRecentSongs.Add(fileName);
         }
     }
 
@@ -949,6 +1045,7 @@ public class MusicController : MonoBehaviour
 
     public void SpacebarPressed()
     {
+
         if (isPaused) Play();
         else if (activeAudioSource.clip == null) ItemSelected(0);
         else Pause();
@@ -958,6 +1055,7 @@ public class MusicController : MonoBehaviour
     {
         if (activeAudioSource.clip != null)
         {
+            print("case A");
             activeAudioSource.UnPause();
             isPaused = false;
             if (prevButtonImage != null) prevButtonImage.color = ResourceManager.red;
@@ -965,9 +1063,10 @@ public class MusicController : MonoBehaviour
             pauseButton.color = mac.darkModeEnabled ? ResourceManager.darkModeGrey : ResourceManager.lightModeGrey;
 
         }
+        else if (TryPlayRequestedNext()) return;
         else if (shuffle)
         {
-            nowPlayingButtonID = UnityEngine.Random.Range(0, LoadedFilesData.musicClips.Count - 1);
+            nowPlayingButtonID = UnityEngine.Random.Range(0, musicButtons.Count - 1);
             ItemSelected(nowPlayingButtonID);
         }
         else
@@ -978,58 +1077,22 @@ public class MusicController : MonoBehaviour
 
     public void RefreshSongOrder(int oldID, int newID)
     {
-        //print((oldID, newID));
-        musicButtons[oldID].GetComponent<MusicButton>().id = newID;
-        musicButtons[newID].GetComponent<MusicButton>().id = oldID;
+        print((oldID, newID));
+        musicButtons[oldID].GetComponent<MusicButton>().buttonId = newID;
+        musicButtons[newID].GetComponent<MusicButton>().buttonId = oldID;
         GameObject item = musicButtons[oldID];
         if(oldID == nowPlayingButtonID) nowPlayingButtonID = newID;
         musicButtons.Remove(item);
         musicButtons.Insert(newID, item);
     }
 
-    //recursive solution to move song to desired position?
-    public void RefreshSongOrder()
-    {
-        int oldID = selectedId;
-        int newID = nowPlayingButtonID;
-        print((oldID, newID));
-        musicButtons[oldID].GetComponent<MusicButton>().id = newID;
-        musicButtons[newID].GetComponent<MusicButton>().id = oldID;
-        GameObject item = musicButtons[oldID];
-        if (oldID == nowPlayingButtonID) nowPlayingButtonID = newID;
-        musicButtons.Remove(item);
-        musicButtons.Insert(newID, item);
-        musicButtons[oldID].transform.SetSiblingIndex(newID);
-        //nowPlayingButtonID = nowPlayingButtonID - 1;
-        //musicButtons[nowPlayingButtonID].GetComponent<MusicButton>().id -= 1;
-    }
 
-    public void ChangeMasterVolume(float newMasterVolume)
-    {
-        masterVolume = (float)Math.Pow(newMasterVolume, 2f);
-        activeAudioSource.volume = masterVolume * musicVolume;
-    }
-
-    private void LocalVolumeSliderChanged(float value)
-    {
-        StopCoroutine("FadeInMusicVolume");
-        StopCoroutine("FadeOutMusicVolume");
-        ChangeLocalVolume(value);
-    }
-
-    private void ChangeLocalVolume(float newLocalVolume)
-    {
-        if (localVolumeSlider.value != newLocalVolume) localVolumeSlider.SetValueWithoutNotify(newLocalVolume);
-        musicVolume = (float)Math.Pow(newLocalVolume, 2f);
-        activeAudioSource.volume = masterVolume * musicVolume;
-        localVolumeLabel.text = (musicVolume * 100).ToString("N0") + "%";
-    }
 
     private void PlaybackTimeValueChanged(float val)
     {
         //print(val);
         float value = Mathf.Clamp(val, 0f, 1f);
-        if (Math.Abs(value) > .995f)
+        if (Mathf.Abs(value) > .995f)
         {
             shouldDelayPlayNext = true;
         }
@@ -1047,6 +1110,7 @@ public class MusicController : MonoBehaviour
 
     private void TryChangePlaybackTime(float val)
     {
+        print("trying");
         bool error = false;
         if (nextDelayTimer == 0 && val > 0)
         {
@@ -1107,66 +1171,38 @@ public class MusicController : MonoBehaviour
         }
     }
 
-    IEnumerator CheckMousePos(Vector3 mousePos)
-    {
-        while (activeRightClickMenu)
-        {
-            float yDelta = Input.mousePosition.y - mousePos.y;
-            float xDelta = Input.mousePosition.x - mousePos.x;
-            if (yDelta < -10 || yDelta > 60 || xDelta < -10 || xDelta > 80)
-            {
-                Destroy(activeRightClickMenu);
-                mac.currentMenuState = MainAppController.MenuState.mainAppView;
-                break;
-            }
-            else if (mac.currentMenuState == MainAppController.MenuState.mainAppView && Input.GetKey(KeyCode.Escape))
-            {
-                Destroy(activeRightClickMenu);
-                mac.currentMenuState = MainAppController.MenuState.mainAppView;
-                break;
-            }
-
-            yield return new WaitForEndOfFrame();
-        }
-        yield return null;
-    }
-
 
 
     // My code is _so_ good that it only needs two frames to catch up and not crash because of nLayer
     IEnumerator DelayAndPlayNext()
     {
+        shouldDelayPlayNext = false;
         yield return new WaitForEndOfFrame();
         yield return new WaitForEndOfFrame();
         Next();
         nextDelayTimer = 1;
     }
 
-    public void CloseDeleteMusicItemTooltip()
-    {
-        Destroy(activeRightClickMenu);
-        mac.currentMenuState = MainAppController.MenuState.mainAppView;
-    }
 
-    public void DeleteItem()
+
+    internal void DeleteItem(int selectedId)
     {
         if (nowPlayingButtonID == selectedId)
         {
             Stop();
             nowPlayingButtonID = -1;
         }
-        LoadedFilesData.deletedMusicClips.Add(LoadedFilesData.musicClips[selectedId]);
-        LoadedFilesData.musicClips.Remove(LoadedFilesData.musicClips[selectedId]);
+        LoadedFilesData.deletedMusicClips.Add(musicButtons[selectedId].GetComponent<MusicButton>().Song);
+        playNextList.RemoveAll(a => pt.tabs[a.playlistTabId].Playlist[a.id] == musicButtons[selectedId].GetComponent<MusicButton>().Song);
         Destroy(musicButtons[selectedId]);
         musicButtons.RemoveAt(selectedId);
         int currentID = 0;
         foreach (GameObject mbObj in musicButtons)
         {
             MusicButton mb = mbObj.GetComponent<MusicButton>();
-            mb.id = currentID;
+            mb.buttonId = currentID;
             currentID++;
         }
-        Destroy(activeRightClickMenu);
     }
 
     // Update is called once per frame
@@ -1208,25 +1244,28 @@ public class MusicController : MonoBehaviour
                 prevButtonImage.color = ResourceManager.musicButtonGrey;
                 if (musicButtons.Count > 1) //edge case if only one track is present in playlist
                 {
-                    if (nowPlayingButtonID < musicButtons.Count - 1)
+                    if(!TryPlayRequestedNext())
                     {
-                        int newButtonID = shuffle ? UnityEngine.Random.Range(0, musicButtons.Count - 1) : nowPlayingButtonID + 1;
-                        while (newButtonID == nowPlayingButtonID)
+                        if (nowPlayingButtonID < musicButtons.Count - 1)
                         {
-                            newButtonID = shuffle ? UnityEngine.Random.Range(0, musicButtons.Count - 1) : nowPlayingButtonID + 1;
-                            print("same new Button");
+                            int newButtonID = shuffle ? UnityEngine.Random.Range(0, musicButtons.Count - 1) : nowPlayingButtonID + 1;
+                            while (newButtonID == nowPlayingButtonID)
+                            {
+                                newButtonID = shuffle ? UnityEngine.Random.Range(0, musicButtons.Count - 1) : nowPlayingButtonID + 1;
+                                print("same new Button");
+                            }
+                            ItemSelected(newButtonID);
                         }
-                        ItemSelected(newButtonID);
-                    }
-                    else
-                    {
-                        int newButtonID = shuffle ? UnityEngine.Random.Range(0, musicButtons.Count - 1) : 0;
-                        while (newButtonID == nowPlayingButtonID)
+                        else
                         {
-                            newButtonID = shuffle ? UnityEngine.Random.Range(0, musicButtons.Count - 1) : 0;
-                            print("same newButton");
+                            int newButtonID = shuffle ? UnityEngine.Random.Range(0, musicButtons.Count - 1) : 0;
+                            while (newButtonID == nowPlayingButtonID)
+                            {
+                                newButtonID = shuffle ? UnityEngine.Random.Range(0, musicButtons.Count - 1) : 0;
+                                print("same newButton");
+                            }
+                            ItemSelected(newButtonID);
                         }
-                        ItemSelected(newButtonID);
                     }
                 }
                 else
@@ -1240,13 +1279,5 @@ public class MusicController : MonoBehaviour
             }
         }
         
-    }
-    public void ShowRightClickMenu(int id)
-    {
-        mac.currentMenuState = MainAppController.MenuState.deleteMusicFile;
-        selectedId = id;
-        if(activeRightClickMenu) Destroy(activeRightClickMenu);
-        activeRightClickMenu = Instantiate(playlistRightClickMenuPrefab, Input.mousePosition, Quaternion.identity, TooltipParent.transform);
-        StartCoroutine(CheckMousePos(Input.mousePosition));
     }
 }

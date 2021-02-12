@@ -28,13 +28,10 @@ public class MainAppController : MonoBehaviour
     internal int activePage = 0;
 
     public GameObject pageParentParent; // parent for page parents
-    public GameObject pageParentPrefab;
     internal List<PageParent> pageParents;
 
-    public GameObject sfxButtonPrefab;
     internal List<List<GameObject>> sfxButtons;
 
-    public GameObject pageButtonPrefab;
     public List<GameObject> pageButtons;
     public GameObject pageButtonParent;
 
@@ -46,7 +43,6 @@ public class MainAppController : MonoBehaviour
     public GameObject optionsPanel;
 
     public GameObject errorMessagesPanel;
-    public GameObject errorPrefab;
 
     public GameObject pause;
     public GameObject play;
@@ -78,11 +74,12 @@ public class MainAppController : MonoBehaviour
         aboutMenu,
         overwriteSaveFile,
         startNewFile,
-        deleteMusicFile,
+        musicRightClickMenu,
         quickReference,
         quickReferenceDetail,
         playlistSearch,
         advancedOptionsMenu,
+        editTabLabel,
         none
     }
 
@@ -93,6 +90,7 @@ public class MainAppController : MonoBehaviour
     {
         //PlayerPrefs.DeleteKey("Crossfade");
         //print(PlayerPrefs.GetFloat("Crossfade") == 0);
+        Prefabs.LoadAll ();
         if (PlayerPrefs.GetFloat("Crossfade") == 0) PlayerPrefs.SetFloat("Crossfade", 10);
         VERSION = Application.version;
         pauseImage = pause.GetComponent<SpriteRenderer>().sprite;
@@ -142,6 +140,8 @@ public class MainAppController : MonoBehaviour
         //player.Play();
         //player.audioOutputMode = VideoAudioOutputMode.AudioSource;
         //player.SetTargetAudioSource(1, GetComponent<AudioSource>());
+        GetComponent<PlaylistTabs>().Init();
+        mc.Init();
     }
 
     void MakeCategoryColors()
@@ -204,19 +204,19 @@ public class MainAppController : MonoBehaviour
         pageParents = new List<PageParent>();
         for (int i = 0; i < NUMPAGES; i++)
         {
-            GameObject pageButton = Instantiate(pageButtonPrefab, pageButtonParent.transform);
+            GameObject pageButton = Instantiate(Prefabs.pageButtonPrefab, pageButtonParent.transform);
             pageButton.GetComponentInChildren<TMP_Text>().text = (i + 1).ToString() ;
             pageButton.GetComponent<PageButton>().id = i;
             pageButtons.Add(pageButton);
             pageButton.transform.SetSiblingIndex(i + 1);
             
-            GameObject pp = Instantiate(pageParentPrefab, pageParentParent.transform);
+            GameObject pp = Instantiate(Prefabs.pageParentPrefab, pageParentParent.transform);
             pageParents.Add(pp.GetComponent<PageParent>());
             sfxButtons.Add(new List<GameObject>());
 
             for (int j = 0; j < NUMBUTTONS; j++)
             {
-                GameObject button = Instantiate(sfxButtonPrefab, pageParents[i].transform);
+                GameObject button = Instantiate(Prefabs.sfxButtonPrefab, pageParents[i].transform);
                 SFXButton btn = button.GetComponent<SFXButton>();
                 btn.id = j;
                 btn.page = i;
@@ -283,7 +283,7 @@ public class MainAppController : MonoBehaviour
 
     internal void ShowErrorMessage(string message)
     {
-        GameObject error = Instantiate(errorPrefab, errorMessagesPanel.transform);
+        GameObject error = Instantiate(Prefabs.errorPrefab, errorMessagesPanel.transform);
         error.GetComponentInChildren<TMP_Text>().text = "Error: " + message;
         Debug.LogError(message);
     }
@@ -337,8 +337,8 @@ public class MainAppController : MonoBehaviour
                 case MenuState.startNewFile:
                     omc.CancelNewFile();
                     break;
-                case MenuState.deleteMusicFile:
-                    GetComponent<MusicController>().CloseDeleteMusicItemTooltip();
+                case MenuState.musicRightClickMenu:
+                    GetComponent<MusicRightClickController>().CloseDeleteMusicItemTooltip();
                     break;
                 case MenuState.quickReference:
                     qrc.HideLookupMenu();
@@ -354,6 +354,10 @@ public class MainAppController : MonoBehaviour
                     break;
                 case MenuState.none:
                     break;
+                case MenuState.editTabLabel:
+                    GetComponent<PlaylistTabs>().CancelNameChange();
+                    break;
+
             }
         }
         if(Input.GetKeyDown(KeyCode.Return))
@@ -378,6 +382,9 @@ public class MainAppController : MonoBehaviour
                     GetComponent<ButtonEditorController>().ApplySettings();
                     break;
                 case MenuState.none:
+                    break;
+                case MenuState.editTabLabel:
+                    GetComponent<PlaylistTabs>().ConfirmNameChange();
                     break;
             }
         }

@@ -47,7 +47,7 @@ public class GenerateMusicFFTBackgrounds : MonoBehaviour
         int minBufferSize = 1024;
         foreach (GameObject btn in buttons)
         {
-            string filePath = Path.Combine(mac.musicDirectory, LoadedFilesData.musicClips[btn.GetComponent<MusicButton>().id]);
+            string filePath = Path.Combine(mac.musicDirectory, LoadedFilesData.songs[btn.GetComponent<MusicButton>().buttonId].FileName);
 
             string extension = Path.GetExtension(filePath);
             if (extension == ".mp3")

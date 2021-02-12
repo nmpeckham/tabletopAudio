@@ -59,7 +59,6 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     public TMP_Text ignorePlayAllIndicator;
 
-    private bool discoModeActive = false;
     private float framesSinceColorUpdate;
 
     Color currentColor;
