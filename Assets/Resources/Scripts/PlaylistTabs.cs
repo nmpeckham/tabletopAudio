@@ -65,9 +65,16 @@ public class PlaylistTabs : MonoBehaviour
     void ChangeTab(int newTab)
     {
         SetTabSize(newTab);
+        print(selectedTab.musicContentView.GetComponentsInChildren<MusicButton>().Length);
+        mc.TabChanged();
+        foreach (Transform t in selectedTab.musicContentView.transform)
+        {
+            t.gameObject.SetActive(true);
+        }
         selectedTab.musicContentView.SetActive(false);
         selectedTab = tabs[newTab];
         selectedTab.musicContentView.SetActive(true);
+
     }
 
     void SetTabSize(int newTab)

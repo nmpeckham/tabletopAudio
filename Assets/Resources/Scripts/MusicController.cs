@@ -113,6 +113,8 @@ public class MusicController : MonoBehaviour
 
     internal PlaylistTab tabCurrentlyPlaying;
 
+    private MusicButton[] searchButtons = null;
+
     public float CrossfadeTime
     {
         get { return (int)crossfadeTime; }
@@ -269,10 +271,18 @@ public class MusicController : MonoBehaviour
         localVolumeSlider.SetValueWithoutNotify(newLocalVolume);
     }
 
-    private void ClearPlaylistSearch()
+    internal void ClearPlaylistSearch()
     {
         searchField.text = "";
         searchField.Select();
+        searchButtons = null;
+    }
+
+    internal void TabChanged()
+    {
+        searchField.SetTextWithoutNotify("");
+        searchField.Select();
+        searchButtons = null;
     }
 
     private void SearchFieldHasFocus(string entry = null, int start = 0, int end = 0)
@@ -296,11 +306,18 @@ public class MusicController : MonoBehaviour
     private void SearchTextEntered(string text)
     {
         SearchFieldHasFocus("");
-        ClearPlaylist();
-        foreach(GameObject go in musicButtons)
+        
+        print(searchField.text.Length);
+        if (searchButtons == null)
         {
-            string name = go.GetComponent<MusicButton>().Song.FileName;
-            if (name.ToLower().Contains(text.ToLower())) go.SetActive(true);
+            searchButtons = pt.selectedTab.musicContentView.GetComponentsInChildren<MusicButton>();
+        }
+        print(searchButtons.Length);
+        ClearPlaylist();
+        foreach (MusicButton mb in searchButtons)
+        {
+            string name = mb.gameObject.GetComponent<MusicButton>().Song.FileName;
+            if (name.ToLower().Contains(text.ToLower())) mb.gameObject.SetActive(true);
         }
     }
 
@@ -602,9 +619,9 @@ public class MusicController : MonoBehaviour
 
     public void ItemSelected(int id)
     {
-        print("is id: " + id);
-        print("is tcp: " + tabCurrentlyPlaying.tabId);
-        print("musicButtons length: " + musicButtons.Count);
+        //print("is id: " + id);
+        //print("is tcp: " + tabCurrentlyPlaying.tabId);
+        //print("musicButtons length: " + musicButtons.Count);
 
         //TODO: fix this to let a song be restarted
         //if (nowPlayingButtonID == id && activeAudioSource.isPlaying)
@@ -766,7 +783,7 @@ public class MusicController : MonoBehaviour
 
     void SetupInterfaceForPlay(AudioSource aSource, AudioClip clip = null)
     {
-        print("sifp");
+        //print("sifp");
         if (crossfade)
         {
             AudioSource temp = inactiveAudioSource;

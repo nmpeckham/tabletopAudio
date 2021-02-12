@@ -4,7 +4,7 @@ v1.0.3 "Inveniet" - Added DnD 5e quick reference tool
 
 //TODO: add playlist pages
 
-//TODO: add advcanced option to increase mixer volume above 100%
+//TODO: add advanced option to increase mixer volume above 100%
 
 //TODO: ensure focus is assumed for text fields
 
@@ -16,13 +16,15 @@ v1.0.3 "Inveniet" - Added DnD 5e quick reference tool
 
 //TODO: Add option to remove prefix numbers and sort by them
 
+//TODO: song renamed doesnt work
+
  - Fixed bug where music volume wouldn't be displayed linearly
 
  - Fixed bug where pressing spacebar wouldn't pause songs in certain cases
 
  - Fixed bug that could cause freeze when only one song in music playlist
 
- - Songs in playlist are now sorted by song name without numerical prefix
+//No... - Songs in playlist are now sorted by song name without numerical prefix
 
  - Save name input field now assumes text cursor focus when save panel is opened
 

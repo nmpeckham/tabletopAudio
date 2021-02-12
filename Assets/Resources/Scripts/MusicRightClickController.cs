@@ -109,9 +109,9 @@ public class MusicRightClickController : MonoBehaviour
 
     internal void AddSongToPlaylist(int tabId)
     {
-        print("tabId: " + tabId);
-        print("SelectedSongID: " + selectedSongId);
-        print("list size: " + mc.musicButtons.Count);
+        //print("tabId: " + tabId);
+        //print("SelectedSongID: " + selectedSongId);
+        //print("list size: " + mc.musicButtons.Count);
         GetComponent<PlaylistTabs>().AddSongToPlaylist(tabId, pt.selectedTab.Playlist[selectedSongId]);
         Destroy(activeRightClickMenu);
         Destroy(addToMenu);
