@@ -4,24 +4,25 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
+//tab 0 = all songs, tab -1 = add tab button
 public class PlaylistTabs : MonoBehaviour
 {
     public PlaylistTab mainTab;
     public PlaylistTab addNewTab;
 
     public GameObject musicButtonContentParent;
+    public GameObject buttonParent;
 
-    internal List<PlaylistTab> tabs = new List<PlaylistTab>();
+    internal static List<PlaylistTab> tabs = new List<PlaylistTab>();
 
     public GameObject playlistTabParent;
-    public GameObject playlistTabPrefab;
-    private MusicController mc;
-    private MainAppController mac;
+    private static MusicController mc;
+    private static MainAppController mac;
 
     public Sprite tabSelectedSprite;
     public Sprite tabUnselectedSprite;
 
-    internal PlaylistTab selectedTab;
+    internal static PlaylistTab selectedTab;
 
     public TMP_InputField textField;
     public Button cancelButton;
@@ -33,6 +34,7 @@ public class PlaylistTabs : MonoBehaviour
 
     internal void Init()
     {
+        mainTab.Init();
         tabs.Add(mainTab);
         mainTab.musicContentView = GameObject.Find("MusicContentView");
         mac = GetComponent<MainAppController>();
@@ -41,32 +43,48 @@ public class PlaylistTabs : MonoBehaviour
         cancelButton.onClick.AddListener(CancelNameChange);
         confirmButton.onClick.AddListener(ConfirmNameChange);
     }
-    internal void TabClicked(int id)
+    internal PlaylistTab TabClicked(int id)
     {
         if (id == -1)    // add new tab
         {
-            GameObject newTabObj = Instantiate(playlistTabPrefab, playlistTabParent.transform);
-            addNewTab.gameObject.transform.SetSiblingIndex(100);
-            tabs.Add(newTabObj.GetComponent<PlaylistTab>());
-            newTabObj.GetComponent<Image>().sprite = tabUnselectedSprite;
-            PlaylistTab newTab = newTabObj.GetComponent<PlaylistTab>();
-            newTab.tabId = tabs.Count - 1;
+            print("tab count: " + tabs.Count);
+            if(tabs.Count < 6)
+            {
+                addNewTab.gameObject.SetActive(true);
+                GameObject newTabObj = Instantiate(Prefabs.playlistTabPrefab, playlistTabParent.transform);
+                addNewTab.gameObject.transform.SetSiblingIndex(100);
+                tabs.Add(newTabObj.GetComponent<PlaylistTab>());
+                newTabObj.GetComponent<Image>().sprite = tabUnselectedSprite;
+                PlaylistTab newTab = newTabObj.GetComponent<PlaylistTab>();
+                newTab.tabId = tabs.Count - 1;
+                newTab.Init();
 
-            GameObject newContentView = Instantiate(Prefabs.musicContentViewPrefab, musicButtonContentParent.transform);
-            newContentView.SetActive(false);
-            newTab.musicContentView = newContentView;
+
+                GameObject newContentView = Instantiate(Prefabs.musicContentViewPrefab, musicButtonContentParent.transform);
+                newContentView.SetActive(false);
+                newTab.musicContentView = newContentView;
+                LayoutRebuilder.ForceRebuildLayoutImmediate(buttonParent.GetComponent<RectTransform>());
+
+                return newTab;
+            }
+            else if(tabs.Count == 6)
+            {
+                addNewTab.gameObject.SetActive(false); 
+            }
         }
         else
         {
             ChangeTab(id);
         }
+        return null;
     }
 
     void ChangeTab(int newTab)
     {
         SetTabSize(newTab);
-        print(selectedTab.musicContentView.GetComponentsInChildren<MusicButton>().Length);
         mc.TabChanged();
+        //TODO: This is destroyed on save load:
+        //print(selectedTab.musicContentView.transform.childCount);
         foreach (Transform t in selectedTab.musicContentView.transform)
         {
             t.gameObject.SetActive(true);
@@ -74,31 +92,38 @@ public class PlaylistTabs : MonoBehaviour
         selectedTab.musicContentView.SetActive(false);
         selectedTab = tabs[newTab];
         selectedTab.musicContentView.SetActive(true);
-
     }
 
     void SetTabSize(int newTab)
     {
         PlaylistTab currentTab = selectedTab;
         RectTransform nr = currentTab.GetComponent<RectTransform>();
-        nr.sizeDelta = new Vector2(80, 100);
+        if(currentTab.tabId > 0) nr.sizeDelta = new Vector2(75, 40);
         currentTab.GetComponent<Image>().color = new Color(120 / 255f, 120 / 255f, 120 / 255f);    //TODO: move color to resourceManager
         currentTab.GetComponent<Image>().sprite = tabUnselectedSprite;
 
         currentTab = tabs[newTab];
         currentTab.GetComponent<Image>().color = new Color(200 / 255f, 200 / 255f, 200 / 255f);
-        currentTab.GetComponent<Image>().sprite = tabSelectedSprite;
+
         nr = currentTab.GetComponent<RectTransform>();
-        nr.sizeDelta = new Vector2(110, 100);
+        if (currentTab.tabId > 0)
+        {
+            currentTab.GetComponent<Image>().sprite = tabSelectedSprite;
+            nr.sizeDelta = new Vector2(90, 40);
+        }
+        LayoutRebuilder.ForceRebuildLayoutImmediate(buttonParent.GetComponent<RectTransform>());
     }
 
     internal void EditTabName(PlaylistTab tab)
     {
-        textField.text = tab.LabelText;
-        editTabLabelPanel.SetActive(true);
-        mac.currentMenuState = MainAppController.MenuState.editTabLabel;
-        nowEditing = tab;
-        textField.ActivateInputField();
+        if(tab.tabId > 0)
+        {
+            textField.text = tab.LabelText;
+            editTabLabelPanel.SetActive(true);
+            mac.currentMenuState = MainAppController.MenuState.editTabLabel;
+            nowEditing = tab;
+            textField.ActivateInputField();
+        }
     }
 
     internal void ConfirmNameChange()
@@ -119,11 +144,21 @@ public class PlaylistTabs : MonoBehaviour
     {
         GameObject mbObj = Instantiate(Prefabs.musicButtonPrefab, tabs[tabId].musicContentView.transform);
         MusicButton mb = mbObj.GetComponent<MusicButton>();
-        mb.buttonId = tabs[tabId].Playlist.Count;
-        tabs[tabId].Playlist.Add(song);
         mb.Init();
+        mb.buttonId = tabs[tabId].MusicButtons.Count;
+        tabs[tabId].MusicButtons.Add(mb);
         mb.Song = song;
+    }
 
-
+    internal void DeleteAllTabs()
+    {
+        foreach(PlaylistTab t in tabs)
+        {
+            if(t.tabId > 0)
+            {
+                Destroy(t.gameObject);
+            }
+        }
+        tabs.RemoveAll(t => t.tabId > 0);
     }
 }

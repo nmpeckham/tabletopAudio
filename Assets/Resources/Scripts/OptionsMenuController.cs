@@ -62,6 +62,8 @@ public class OptionsMenuController : MonoBehaviour
     public TMP_Text dmMinSumText;
     public TMP_Text dmNumFreqText;
 
+    private PlaylistTabs pt;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -80,6 +82,7 @@ public class OptionsMenuController : MonoBehaviour
 
         dm = GetComponent<DiscoMode>();
         gmfb = GetComponent<GenerateMusicFFTBackgrounds>();
+        pt = GetComponent<PlaylistTabs>();
     }
 
     internal void CloseAdvancedOptionsMenu()
@@ -103,11 +106,11 @@ public class OptionsMenuController : MonoBehaviour
                 dmCooldownText.text = val.ToString();
                 break;
             case "DiscoModeNumFreq":
-                mc.discoModeNumFreq = val;
+                MusicController.discoModeNumFreq = val;
                 dmNumFreqText.text = val.ToString();
                 break;
             case "DiscoModeMinSum":
-                mc.discoModeMinSum = val;
+                MusicController.discoModeMinSum = val;
                 dmMinSumText.text = val.ToString("N2");
                 break;
         }
@@ -249,7 +252,7 @@ public class OptionsMenuController : MonoBehaviour
         
         foreach (string saveName in Directory.GetFiles(mac.saveDirectory))
         {
-            if(Path.GetExtension(saveName) == ".xml" || Path.GetExtension(saveName) == ".txt")
+            if(Path.GetExtension(saveName) == ".xml" || Path.GetExtension(saveName) == ".xml")
             {
                 string trimmedSaveName = saveName.Replace(mac.saveDirectory + mac.sep, "");
                 GameObject scrollItem = Instantiate(Prefabs.loadGameItemPrefab, loadGameScrollView.transform);
@@ -259,14 +262,18 @@ public class OptionsMenuController : MonoBehaviour
         }
     }
 
-    internal IEnumerator LoadItemSelected(string fileLocation)
+    internal void LoadItemSelected(string fileLocation)
     {
         mc.AutoCheckForNewFiles = false;
         autoUpdatePlaylistToggle.isOn = false;         
         mc.Stop();
-        yield return new WaitUntil(() => mac.ControlButtonClicked("STOP-SFX"));
-        yield return new WaitUntil(() => DestroyItems());
-        yield return new WaitUntil(() => mac.MakeSFXButtons());
+        mac.ControlButtonClicked("STOP-SFX");
+        DestroyItems();
+        mac.MakeSFXButtons();
+        pt.TabClicked(0);
+        pt.DeleteAllTabs();
+
+
         XmlDocument file = new XmlDocument();
         try
         {
@@ -354,35 +361,26 @@ public class OptionsMenuController : MonoBehaviour
 
                     }
                 }
-                List<string> files = new List<string>();
-                string[] HDfiles = System.IO.Directory.GetFiles(mac.musicDirectory);
-                foreach (XmlNode n in file.SelectNodes("/TableTopAudio-Save-File/SFX-Buttons/playlist/song"))
+
+                int tabId = 0;
+                foreach (XmlNode n in file.SelectNodes("/TableTopAudio-Save-File/playlist/tab"))
                 {
-                    if (HDfiles.Contains(Path.Combine(mac.musicDirectory, n.InnerText.Replace(Path.DirectorySeparatorChar + "music" + Path.DirectorySeparatorChar, ""))))
+                    string label = n.SelectSingleNode("label").InnerText.ToString();
+                    if (label != "*")
                     {
-                        files.Add(n.InnerText.Replace(Path.DirectorySeparatorChar + "music" + Path.DirectorySeparatorChar, ""));
+                        pt.TabClicked(-1);
+                        PlaylistTabs.tabs.Last().LabelText = label;
                     }
-                    else
+                    List<string> files = new List<string>();
+                    foreach (XmlNode s in n)
                     {
-                        mac.ShowErrorMessage("Could not find file " + Path.Combine(n.InnerText));
+                        if(s.Name == "song") files.Add(s.InnerText);
                     }
-
-                }
-
-                foreach (XmlNode n in file.SelectNodes("/TableTopAudio-Save-File/playlist/song"))
-                {
-                    if (HDfiles.Contains(Path.Combine(mac.musicDirectory, n.InnerText.Replace(Path.DirectorySeparatorChar + "music" + Path.DirectorySeparatorChar, ""))))
-                    {
-                        files.Add(n.InnerText.Replace(Path.DirectorySeparatorChar + "music" + Path.DirectorySeparatorChar, ""));
-                    }
-                    else
-                    {
-                        mac.ShowErrorMessage("Could not find file " + Path.Combine(n.InnerText));
-                    }
-
-                }
-                print(files);
-                mc.InitLoadFiles(files);
+                    print("Label: " + label);
+                    print("# tabs: " + PlaylistTabs.tabs.Count);
+                    mc.InitLoadFiles(files, tabId);
+                    tabId++;
+                }                
                 loadGameSelectionView.SetActive(false);
                 mac.pageParents[0].gameObject.transform.SetSiblingIndex(MainAppController.NUMPAGES);
                 mac.currentMenuState = MainAppController.MenuState.optionsMenu;
@@ -394,33 +392,25 @@ public class OptionsMenuController : MonoBehaviour
         }
 
         if (mac.darkModeEnabled) mac.SwapDarkLightMode(true);
-        yield return null;
-        //else
-        //{
-        //    mc.AutoCheckForNewFiles = true;
-        //    autoUpdatePlaylistToggle.isOn = true;
-        //    mac.ShowErrorMessage("This save file was saved with a different version of TableTopAudio");
-        //    yield return null;
-        //}
+        StartCoroutine(RebuildLayout());
+    }
 
+    IEnumerator RebuildLayout()
+    {
+        yield return null;
+        pt.TabClicked(0);
+        mac.ChangeSFXPage(0);
     }
 
     bool DestroyItems()
     {
-        foreach (List<GameObject> page in mac.sfxButtons)
+        foreach(MusicButton mb in pt.mainTab.MusicButtons)
         {
-            foreach (GameObject button in page)
-            {
-                Destroy(button);
-            }
+            Destroy(mb.gameObject);
         }
-
-        foreach(Transform songItem in mc.musicScrollView.gameObject.GetComponentsInChildren<Transform>())
-        {
-            if(songItem.gameObject.name != "Content") Destroy(songItem.gameObject);
-        }
-
-        mc.musicButtons.Clear();
+        pt.mainTab.MusicButtons.Clear();
+        mc.ClearPlayNextList();
+        mc.ClearPlaylistSearch();
         LoadedFilesData.songs.Clear();
         return true;
     }
@@ -428,9 +418,9 @@ public class OptionsMenuController : MonoBehaviour
     void Save(string filename, bool overwrite=false)
     {
         saveFileName = filename;
-        if ((!System.IO.Directory.GetFiles(mac.saveDirectory).Contains(Path.Combine(mac.saveDirectory, filename +".txt"))) || overwrite)
+        if ((!System.IO.Directory.GetFiles(mac.saveDirectory).Contains(Path.Combine(mac.saveDirectory, filename +".xml"))) || overwrite)
         {
-            using (XmlWriter writer = XmlWriter.Create(Path.Combine(mac.saveDirectory, filename + ".txt")))
+            using (XmlWriter writer = XmlWriter.Create(Path.Combine(mac.saveDirectory, filename + ".xml")))
             {
                 writer.WriteStartDocument();
                 writer.WriteStartElement("TableTopAudio-Save-File");
@@ -477,10 +467,16 @@ public class OptionsMenuController : MonoBehaviour
                     writer.WriteEndElement();
                 writer.WriteStartElement("playlist");
                 {
-                    foreach (MusicButton mb in mc.musicScrollView.GetComponentsInChildren<MusicButton>())
-                    {
-                        writer.WriteElementString("song", mb.Song.FileName);
-                    }
+                    foreach(PlaylistTab pt in PlaylistTabs.tabs)
+                        {
+                            writer.WriteStartElement("tab");
+                            writer.WriteElementString("label", pt.LabelText);
+                            foreach (MusicButton mb in pt.MusicButtons)
+                            {
+                                writer.WriteElementString("song", mb.Song.FileName);
+                            }
+                            writer.WriteEndElement();
+                        }
                 }
                 writer.WriteEndElement();
             }

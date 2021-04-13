@@ -13,14 +13,4 @@ public class PlayNextItem
         id = _id;
         playlistTabId = _playlistId;
     }
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

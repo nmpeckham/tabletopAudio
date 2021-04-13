@@ -18,14 +18,14 @@ public class ScrollNowPlayingTitle : MonoBehaviour
         while(true)
         {
             yield return new WaitForSecondsRealtime(3);
-            float amt = Mathf.Abs(0.8f / (scrollArea.content.rect.width - 410));// width of container (410px) must be subtracted for smooth scrolling
+            float amt = Mathf.Abs(0.8f / (scrollArea.content.rect.width - 390));// width of container (390px) must be subtracted for smooth scrolling
             int i = 0;
             while(scrollArea.horizontalNormalizedPosition < 1)
             {
                 i++;
                 scrollArea.horizontalNormalizedPosition += amt;
                 //print(scrollArea.horizontalNormalizedPosition);
-                yield return new WaitForEndOfFrame();
+                yield return null;
             }
             yield return new WaitForSecondsRealtime(2);
             scrollArea.horizontalNormalizedPosition = 0;

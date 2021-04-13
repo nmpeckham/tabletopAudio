@@ -6,8 +6,9 @@ using TMPro;
 using UnityEngine.EventSystems;
 
 //Class to take commands from page buttons, including menu and "Stop SFX" buttons
-public class PageButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+public class PageButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler
 {
+    private static PageButton activeButton;
     public int id;
     private Button thisButton;
     private MainAppController mac;
@@ -48,19 +49,20 @@ public class PageButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
             label.text = value;
         }
     }
+
     // Start is called before the first frame update
-    void Start()
+    internal void Init()
     {
         label = GetComponentInChildren<TMP_Text>();
         mac = Camera.main.GetComponent<MainAppController>();
         thisButton = GetComponent<Button>();
-        thisButton.onClick.AddListener(Clicked);
         playAllButton.onClick.AddListener(PlayAll);
         stopAllButton.onClick.AddListener(StopAll);
         fadeInButton.onClick.AddListener(FadeIn);
         fadeOutButton.onClick.AddListener(FadeOut);
 
         if (id == -2 && gameObject.transform.GetSiblingIndex() != MainAppController.NUMPAGES + 1) gameObject.transform.SetSiblingIndex(MainAppController.NUMPAGES + 1);
+        if (id == 0) activeButton = this;
     }
 
     void PlayAll()
@@ -84,7 +86,7 @@ public class PageButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     {
         foreach (GameObject btn in mac.sfxButtons[id])
         {
-            btn.GetComponent<SFXButton>().FadeIn(true);
+            btn.GetComponent<SFXButton>().FadeVolume("in", true);
         }
     }
 
@@ -92,31 +94,14 @@ public class PageButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     {
         foreach (GameObject btn in mac.sfxButtons[id])
         {
-            btn.GetComponent<SFXButton>().FadeOut(true);
+            btn.GetComponent<SFXButton>().FadeVolume("out", true);
         }
     }
 
-    void Clicked()
+    internal void RefreshOrder()
     {
-        if (id >= 0)
-        {
-            mac.ChangeSFXPage(id);
-            GetComponent<Image>().color = ResourceManager.red;
-        }
-        else if (id == -2) mac.ControlButtonClicked("STOP-SFX");
-        else if (id == -1) mac.ControlButtonClicked("OPTIONS");
-    }
-
-    void Update()
-    {
-        // Fixes weird behaviour of page sibling indexes. Are different in builds and editor, and can change randomly
         if (id == -2 && gameObject.transform.GetSiblingIndex() != MainAppController.NUMPAGES + 1) gameObject.transform.SetSiblingIndex(MainAppController.NUMPAGES + 1);
-        if(id == -1 && gameObject.transform.GetSiblingIndex() != 0) gameObject.transform.SetSiblingIndex(0);
-        if (mac.activePage != id) GetComponent<Image>().color = mac.darkModeEnabled ? Color.gray : Color.white;
-        if(hasPointer && Input.GetMouseButtonDown(1) && id >= 0 && id < MainAppController.NUMPAGES)
-        {
-            mac.EditPageLabel(label);
-        }
+        if (id == -1 && gameObject.transform.GetSiblingIndex() != 0) gameObject.transform.SetSiblingIndex(0);
     }
 
     public void OnPointerEnter(PointerEventData eventData)
@@ -127,6 +112,26 @@ public class PageButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     public void OnPointerExit(PointerEventData eventData)
     {
         hasPointer = false;
+    }
+
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        if (eventData.button == PointerEventData.InputButton.Right)
+        {
+            mac.EditPageLabel(label);
+        }
+        else if (eventData.button == PointerEventData.InputButton.Left)
+        {
+            if (id >= 0)
+            {
+                activeButton.GetComponent<Image>().color = mac.darkModeEnabled ? ResourceManager.darkModeGrey : Color.white;
+                activeButton = this;
+                mac.ChangeSFXPage(id);
+                GetComponent<Image>().color = ResourceManager.red;
+            }
+            else if (id == -2) mac.ControlButtonClicked("STOP-SFX");
+            else if (id == -1) mac.ControlButtonClicked("OPTIONS");
+        }
     }
 }
       

@@ -40,6 +40,9 @@ public class MainAppController : MonoBehaviour
     private DarkModeController dmc;
     private DiscoMode dm;
 
+    public Button optionsMenuButton;
+    public Button stopSFXButton;
+
     public GameObject optionsPanel;
 
     public GameObject errorMessagesPanel;
@@ -80,10 +83,11 @@ public class MainAppController : MonoBehaviour
         playlistSearch,
         advancedOptionsMenu,
         editTabLabel,
-        none
     }
 
     internal MenuState currentMenuState;
+
+    private int thankyouMessagesShown = 0;
 
     // Start is called before the first frame update
     public void Start()
@@ -93,6 +97,7 @@ public class MainAppController : MonoBehaviour
         Prefabs.LoadAll ();
         if (PlayerPrefs.GetFloat("Crossfade") == 0) PlayerPrefs.SetFloat("Crossfade", 10);
         VERSION = Application.version;
+        ResourceManager.Init();
         pauseImage = pause.GetComponent<SpriteRenderer>().sprite;
         playImage = play.GetComponent<SpriteRenderer>().sprite;
         stopImage = stop.GetComponent<SpriteRenderer>().sprite;
@@ -142,6 +147,7 @@ public class MainAppController : MonoBehaviour
         //player.SetTargetAudioSource(1, GetComponent<AudioSource>());
         GetComponent<PlaylistTabs>().Init();
         mc.Init();
+        NowPlayingWebpage.Init();
     }
 
     void MakeCategoryColors()
@@ -151,7 +157,7 @@ public class MainAppController : MonoBehaviour
             int i = 0;
             foreach (string category in ResourceManager.dbFiles)
             {
-                ResourceManager.categoryColors.Add(category, UIntToColor(ResourceManager.kellysMaxContrastSet[i]));
+                ResourceManager.categoryColors.Add(category.Replace(Application.streamingAssetsPath + Path.DirectorySeparatorChar, "").Replace(".json", ""), UIntToColor(ResourceManager.kellysMaxContrastSet[i % ResourceManager.kellysMaxContrastSet.Count]));
                 i++;
             }
         }
@@ -188,6 +194,11 @@ public class MainAppController : MonoBehaviour
 
     internal bool MakeSFXButtons()
     {
+        foreach(List<GameObject> p in sfxButtons)
+        {
+            p.ForEach(a => Destroy(a));
+            p.Clear();
+        }
         foreach(GameObject g in pageButtons)
         {
             Destroy(g);
@@ -205,12 +216,15 @@ public class MainAppController : MonoBehaviour
         for (int i = 0; i < NUMPAGES; i++)
         {
             GameObject pageButton = Instantiate(Prefabs.pageButtonPrefab, pageButtonParent.transform);
-            pageButton.GetComponentInChildren<TMP_Text>().text = (i + 1).ToString() ;
+            pageButton.GetComponentInChildren<TMP_Text>().text = (i + 1).ToString();
             pageButton.GetComponent<PageButton>().id = i;
+            pageButton.GetComponent<PageButton>().Init();
+            
             pageButtons.Add(pageButton);
             pageButton.transform.SetSiblingIndex(i + 1);
             
             GameObject pp = Instantiate(Prefabs.pageParentPrefab, pageParentParent.transform);
+            pp.name += " " + i;
             pageParents.Add(pp.GetComponent<PageParent>());
             sfxButtons.Add(new List<GameObject>());
 
@@ -220,10 +234,17 @@ public class MainAppController : MonoBehaviour
                 SFXButton btn = button.GetComponent<SFXButton>();
                 btn.id = j;
                 btn.page = i;
+                btn.Init();
+                
                 sfxButtons[i].Add(button);
             }
             if (i == 0) pageButton.GetComponent<Image>().color = Color.red;
         }
+        optionsMenuButton.GetComponent<PageButton>().RefreshOrder();
+        stopSFXButton.GetComponent<PageButton>().RefreshOrder();
+        optionsMenuButton.GetComponent<PageButton>().Init();
+        stopSFXButton.GetComponent<PageButton>().Init();
+
         return true;
     }
 
@@ -271,7 +292,10 @@ public class MainAppController : MonoBehaviour
 
     internal void ChangeSFXPage(int pageID)
     {
+        print("numpages: " + NUMPAGES);
+        print("Page id: " + pageID);
         pageParents[pageID].gameObject.transform.SetSiblingIndex(NUMPAGES);
+        print(pageParents[pageID].gameObject.transform.GetSiblingIndex());
         activePage = pageID;
     }
 
@@ -281,11 +305,13 @@ public class MainAppController : MonoBehaviour
         epl.StartEditing();
     }
 
-    internal void ShowErrorMessage(string message)
+    internal void ShowErrorMessage(string message, int time = 8)
     {
         GameObject error = Instantiate(Prefabs.errorPrefab, errorMessagesPanel.transform);
-        error.GetComponentInChildren<TMP_Text>().text = "Error: " + message;
         Debug.LogError(message);
+        if(time == 8) error.GetComponentInChildren<TMP_Text>().text = "Error: " + message;
+        else error.GetComponentInChildren<TMP_Text>().text = message;
+        error.GetComponentInChildren<ErrorMessage>().delayTime = time;
     }
 
     private void Update()
@@ -338,7 +364,7 @@ public class MainAppController : MonoBehaviour
                     omc.CancelNewFile();
                     break;
                 case MenuState.musicRightClickMenu:
-                    GetComponent<MusicRightClickController>().CloseDeleteMusicItemTooltip();
+                    GetComponent<PlaylistRightClickController>().CloseDeleteMusicItemTooltip();
                     break;
                 case MenuState.quickReference:
                     qrc.HideLookupMenu();
@@ -351,8 +377,6 @@ public class MainAppController : MonoBehaviour
                     break;
                 case MenuState.advancedOptionsMenu:
                     omc.CloseAdvancedOptionsMenu();
-                    break;
-                case MenuState.none:
                     break;
                 case MenuState.editTabLabel:
                     GetComponent<PlaylistTabs>().CancelNameChange();
@@ -380,8 +404,6 @@ public class MainAppController : MonoBehaviour
                     break;
                 case MenuState.editingSFXButton:
                     GetComponent<ButtonEditorController>().ApplySettings();
-                    break;
-                case MenuState.none:
                     break;
                 case MenuState.editTabLabel:
                     GetComponent<PlaylistTabs>().ConfirmNameChange();
@@ -435,6 +457,17 @@ public class MainAppController : MonoBehaviour
         if((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.D) && discoModeAvailable) {
             dm.SetDiscoMode(!dm.discoModeActive); //terribly disgusting. Please fix :/
         }
+
+        if(Time.time > 600 && thankyouMessagesShown == 0)
+        {
+            ShowErrorMessage("Thanks for using TableTopAudio! I'm always looking to improve it.\n Please send me an email at me@nathanpeckham.com with any feedback you have!", 120);
+            thankyouMessagesShown = 1;
+        }
+        if(Time.time > 1800 && thankyouMessagesShown == 1)
+        {
+            ShowErrorMessage("Wow! Thanks for using TableTopAudio! I'm always looking to improve it.\n Please send me an email at me@nathanpeckham.com with any feedback you have!", 120);
+            thankyouMessagesShown = 2;
+        }
     }
     public void SwapDarkLightMode(bool enable)
     {
@@ -449,8 +482,7 @@ public class MainAppController : MonoBehaviour
         {
             try
             {
-                string fileLocation = Path.Combine(Application.streamingAssetsPath, s);
-                string contents = System.IO.File.ReadAllText(fileLocation);
+                string contents = System.IO.File.ReadAllText(s);
                 QuickRefObject data = JsonSerializer.Deserialize<QuickRefObject>(contents);
                 Dictionary<string, Dictionary<string, dynamic>> categoryItems = new Dictionary<string, Dictionary<string, dynamic>>();
                 foreach (var item in data.contents)
@@ -462,7 +494,8 @@ public class MainAppController : MonoBehaviour
                     }
                     categoryItems.Add(item["index"].ToString(), attributes);
                 }
-                LoadedFilesData.qrdFiles[s.Replace(".json", "")] = categoryItems;
+                string categoryName = s.Replace(".json", "").Replace(Application.streamingAssetsPath +  Path.DirectorySeparatorChar, "");
+                LoadedFilesData.qrdFiles[categoryName] = categoryItems;
             }
             catch (FileNotFoundException) 
             {

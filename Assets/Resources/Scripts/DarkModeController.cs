@@ -78,7 +78,7 @@ public class DarkModeController : MonoBehaviour
                     {
                         buttonImg.color = Color.green;
                     }
-                    if (buttonId == "PAUSE" && mc.isPaused)
+                    if (buttonId == "PAUSE" && MusicController.isPaused)
                     {
                         buttonImg.color = ResourceManager.orange;
                     }
@@ -162,7 +162,7 @@ public class DarkModeController : MonoBehaviour
                     {
                         buttonImg.color = Color.green;
                     }
-                    if (buttonId == "PAUSE" && mc.isPaused)
+                    if (buttonId == "PAUSE" && MusicController.isPaused)
                     {
                         buttonImg.color = ResourceManager.orange;
                     }

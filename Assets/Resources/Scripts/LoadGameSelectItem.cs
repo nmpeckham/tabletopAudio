@@ -16,6 +16,6 @@ public class LoadGameSelectItem : MonoBehaviour
 
     void Clicked()
     {
-        StartCoroutine(omc.LoadItemSelected(fileLocation));
+        omc.LoadItemSelected(fileLocation);
     }
 }

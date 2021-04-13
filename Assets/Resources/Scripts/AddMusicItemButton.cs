@@ -6,25 +6,19 @@ using UnityEngine.EventSystems;
 public class AddMusicItemButton : MonoBehaviour, IPointerClickHandler
 {
     public int playlistTabId;
-    static MusicRightClickController mrcc;
+    static PlaylistRightClickController prcc;
 
     public void OnPointerClick(PointerEventData eventData)
     {
         if(eventData.button == PointerEventData.InputButton.Left)
         {
-            mrcc.AddSongToPlaylist(playlistTabId);
+            prcc.AddSongToPlaylist(playlistTabId);
         }
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        mrcc = Camera.main.GetComponent<MusicRightClickController>();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        prcc = Camera.main.GetComponent<PlaylistRightClickController>();
     }
 }

@@ -154,14 +154,14 @@ public class ButtonEditorController : MonoBehaviour
         string newText = buttonLabelInput.text.Replace(mac.sfxDirectory + mac.sep, "");
         button.Label = newText;
         button.GetComponentInChildren<TMP_Text>().text = newText;
-        mac.currentMenuState = MainAppController.MenuState.none;
+        mac.currentMenuState = MainAppController.MenuState.mainAppView;
         editButtonPanel.SetActive(false);
     }
 
     internal void CancelEditing()
     {
         editButtonPanel.SetActive(false);
-        mac.currentMenuState = MainAppController.MenuState.none;
+        mac.currentMenuState = MainAppController.MenuState.mainAppView;
     }
 
     void ChangeFile()

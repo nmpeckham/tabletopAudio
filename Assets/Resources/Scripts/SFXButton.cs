@@ -7,12 +7,13 @@ using TMPro;
 using System.IO;
 using System;
 using NLayer;
+using Extensions;
 
 //Base class for sfx buttons
 public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     //Stores only clip path, without directory information. Ex: song.mp3
-    internal string FileName { get; set; } = null;
+    public string FileName = null;
 
     internal int page;
     internal int id;
@@ -94,27 +95,13 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     {
         get
         {
-            return localVolume;
+            return localVolume.ToLog();
         }
 
         set
         {
-            if (Mathf.Abs(Mathf.Abs(value - localVolume) - FADE_RATE) > FADE_RATE)
-            {
-                if (activeFadeInRoutine != null)
-                {
-                    StopCoroutine(activeFadeInRoutine);
-                    activeFadeInRoutine = null;
-                }
-
-                if (activeFadeOutRoutine != null)
-                {
-                    StopCoroutine(activeFadeOutRoutine);
-                    activeFadeOutRoutine = null;
-                }
-            }
-            localVolume = Mathf.Pow(value, 2f);
-            volumeSlider.value = value;
+            localVolume = value.ToActual();
+            volumeSlider.SetValueWithoutNotify(value);
         }
     }
 
@@ -122,10 +109,10 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     public float MinLoopDelay { get; set; } = 0;
     public float MaxLoopDelay { get; set; } = 0;
     public bool RandomizeLoopDelay { get; set; } = false;
-    void Start()
+    internal void Init()
     {
-        fadeInButton.onClick.AddListener(delegate { FadeIn(false); });
-        fadeOutButton.onClick.AddListener(delegate { FadeOut(false); });
+        fadeInButton.onClick.AddListener(delegate { FadeVolume("in", false); });
+        fadeOutButton.onClick.AddListener(delegate { FadeVolume("out", false); });
         TMPLabel = GetComponentInChildren<TMP_Text>();
         thisButton = GetComponent<Button>();
         thisButton.onClick.AddListener(Clicked);
@@ -146,29 +133,11 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     void SliderButtonClicked()
     {
+        print("Slider clicked");
         if (activeFadeOutRoutine != null) StopCoroutine(activeFadeOutRoutine);
         if (activeFadeInRoutine != null) StopCoroutine(activeFadeInRoutine);
     }
 
-    internal void FadeIn(bool fromFadeInAll=false)
-    {
-        if (fromFadeInAll && IgnorePlayAll) { }
-        else
-        {
-            //stop active fade out routines, if any
-            if (activeFadeOutRoutine != null)
-            {
-                StopCoroutine(activeFadeOutRoutine);
-                activeFadeOutRoutine = null;
-            }
-            if (activeFadeInRoutine == null) activeFadeInRoutine = StartCoroutine(FadeInRoutine());
-            else
-            {
-                StopCoroutine(activeFadeInRoutine);
-                activeFadeInRoutine = null;
-            }
-        }
-    }
 
     internal void SetDiscoMode(bool active)
     {
@@ -192,7 +161,7 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
             {
                 int colorIndex = UnityEngine.Random.Range(0, ResourceManager.kellysMaxContrastSet.Count - 1);
                 newColor = MainAppController.UIntToColor(ResourceManager.kellysMaxContrastSet[colorIndex]);
-                yield return new WaitForEndOfFrame();
+                yield return null;
             }
             currentColor = btnImage.color;
             for (int i = 0; i < numSteps; i++)
@@ -207,14 +176,15 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
                 newB = newB - (framesSinceColorUpdate / 100f);
                 btnImage.color = new Color(newR, newG, newB);
 
-                yield return new WaitForEndOfFrame();
-                if (UnityEngine.Random.Range(0, 2) == 1) yield return new WaitForEndOfFrame();
+                yield return null;
+                if (UnityEngine.Random.Range(0, 2) == 1) yield return null;
             }
         }
     }
 
     internal void ChangeColor()
     {
+        print("changing Color");
         StopAllCoroutines();
         Image btnImage = GetComponent<Image>();
         int colorIndex = UnityEngine.Random.Range(0, ResourceManager.kellysMaxContrastSet.Count - 1);
@@ -224,22 +194,44 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         framesSinceColorUpdate = 0;
     }
 
-    internal void FadeOut(bool fromFadeOutAll=false)
+    internal void FadeVolume(string type, bool fromFadeAll=false)
     {
-        if (fromFadeOutAll && IgnorePlayAll) { }
+        if (fromFadeAll && IgnorePlayAll) { }
         else
         {
-            if (activeFadeInRoutine != null)
+            if(type == "in")
             {
-                StopCoroutine(activeFadeInRoutine);
-                activeFadeInRoutine = null;
+                if (activeFadeOutRoutine != null)
+                {
+                    print("stopping");
+                    StopCoroutine(activeFadeOutRoutine);
+                    activeFadeOutRoutine = null;
+                }
+                if (activeFadeInRoutine == null) activeFadeInRoutine = StartCoroutine(FadeInRoutine());
+                else
+                {
+                    print("stopping");
+                    StopCoroutine(activeFadeInRoutine);
+                    activeFadeInRoutine = null;
+                }
             }
-            if (activeFadeOutRoutine == null) activeFadeOutRoutine = StartCoroutine(FadeOutRoutine());
-            else
+            else if(type == "out")
             {
-                StopCoroutine(activeFadeOutRoutine);
-                activeFadeOutRoutine = null;
+                if (activeFadeInRoutine != null)
+                {
+                    print("stopping");
+                    StopCoroutine(activeFadeInRoutine);
+                    activeFadeInRoutine = null;
+                }
+                if (activeFadeOutRoutine == null) activeFadeOutRoutine = StartCoroutine(FadeOutRoutine());
+                else
+                {
+                    print("stopping");
+                    StopCoroutine(activeFadeOutRoutine);
+                    activeFadeOutRoutine = null;
+                }
             }
+
         }
     }
 
@@ -248,20 +240,21 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         while (LocalVolume < maximumFadeVolume)
         {
             ChangeLocalVolume(LocalVolume + FADE_RATE);
-            yield return new WaitForFixedUpdate();
+            yield return null;
         }
-
-        yield return null;
+        activeFadeInRoutine = null;
+        yield break;
     }
 
     IEnumerator FadeOutRoutine()
     {
-        while (localVolume > minimumFadeVolume)
+        while (LocalVolume > minimumFadeVolume)
         {
-            ChangeLocalVolume(LocalVolume - FADE_RATE);
-            yield return new WaitForFixedUpdate();
+            ChangeLocalVolume(Mathf.Max(0, LocalVolume - FADE_RATE));
+            yield return null;
         }
-        yield return null;
+        activeFadeOutRoutine = null;
+        yield break;
     }
 
 
@@ -394,7 +387,15 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     internal void ChangeMasterVolume(float newMasterVolume)
     {
         masterVolume = newMasterVolume;
-        aSource.volume = LocalVolume * masterVolume;
+        try
+        {
+            aSource.volume = LocalVolume * masterVolume;
+        }
+        catch(UnassignedReferenceException e)
+        {
+            print(id);
+            print(page);
+        }
     }
 
     void Update()
@@ -442,7 +443,7 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         while (timeToWait + waitStartedTime > Time.time)
         {
             if (!isPlaying) break;
-            yield return new WaitForEndOfFrame();
+            yield return null;
         }
 
         if (isPlaying)

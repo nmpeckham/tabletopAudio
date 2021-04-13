@@ -23,10 +23,4 @@ public class ImageTest : MonoBehaviour
         Sprite test = Sprite.Create(testing, new Rect(0, 0, 100, 100), new Vector2(0.5f, 0.5f));
         testImage.sprite = test;
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

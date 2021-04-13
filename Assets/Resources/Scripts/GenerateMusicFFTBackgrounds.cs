@@ -102,7 +102,7 @@ public class GenerateMusicFFTBackgrounds : MonoBehaviour
                     }
                     tex.Apply();
                     btn.GetComponent<Image>().sprite = Sprite.Create(tex, new Rect(0, 0, 455, 26), Vector2.zero);
-                    if (samples.Count % 8 == 0) yield return new WaitForEndOfFrame();
+                    if (samples.Count % 8 == 0) yield return null;
 
                 }
             }
@@ -110,7 +110,7 @@ public class GenerateMusicFFTBackgrounds : MonoBehaviour
             {
                 VorbisReader reader = new VorbisReader(filePath);
             }
-            yield return new WaitForEndOfFrame();
+            yield return null;
         }
         yield return null;
     }

@@ -26,6 +26,7 @@ public class FileSelectViewController : MonoBehaviour
     internal void CloseFileSelection()
     {
         fileSelectionView.gameObject.SetActive(false);
+        mac.currentMenuState = MainAppController.MenuState.editingSFXButton;
     }
 
     internal void LoadFileSelectionView(int buttonID)

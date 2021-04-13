@@ -53,7 +53,7 @@ public class QuickRefDetailView : MonoBehaviour
         //print(item);
         DestroyAllAttributeItems();
         System.Text.Json.JsonElement extractedJsonValue;
-        string categoryFileName = category.Replace(" ", "-") + ".json";
+        string categoryFileName = category.Replace(" ", "-");
         quickRefCategoryImage.color = ResourceManager.categoryColors[categoryFileName];
         quickRefCategoryText.text = category.Replace("-", " ");
         mac.currentMenuState = MainAppController.MenuState.quickReferenceDetail;
@@ -146,14 +146,27 @@ public class QuickRefDetailView : MonoBehaviour
             attributes.Add("Damage", damageText);
 
             descriptionText.text = "";
-            if (listItem["ritual"].ToString() == "True")
+
+            int i = 0;
+            descriptionText.text += Title("Classes");
+            string classText = "";
+            foreach(var castClass in listItem["classes"].EnumerateArray())
             {
-                descriptionText.text += "Can be cast as a ritual spell that takes 10 minutes + original casting time.\n\n";
+                if (i > 0) classText += ", ";
+                castClass.TryGetProperty("name", out extractedJsonValue);
+                classText += extractedJsonValue.ToString();
+                i++;
             }
+            descriptionText.text += Body(classText);
+
             descriptionText.text += Title("At Level " + listItem["level"].ToString());
             foreach (var desc in listItem["desc"].EnumerateArray())
             {
                 descriptionText.text += Body(desc.ToString());
+            }
+            if (listItem["ritual"].ToString() == "True")
+            {
+                descriptionText.text += Body("Can be cast as a ritual spell that takes 10 minutes + original casting time.");
             }
             if (listItem.ContainsKey("higher_level"))
             {
@@ -173,9 +186,9 @@ public class QuickRefDetailView : MonoBehaviour
                         descriptionText.text += Body(materialItem.ToString());
                     }
                 }
-                catch (System.InvalidOperationException)
+                catch (System.InvalidOperationException)    //Not a list, only one component
                 {
-                    descriptionText.text += listItem["material"].ToString() + "\n";
+                    descriptionText.text += Body(listItem["material"].ToString());
                 }
 
             }
@@ -185,7 +198,16 @@ public class QuickRefDetailView : MonoBehaviour
             Dictionary<string, dynamic> listItem = LoadedFilesData.qrdFiles[category][item];
             quickRefObj.SetActive(true);
             titleText.text = listItem["name"].ToString();
-
+            if(listItem.ContainsKey("cost"))
+            {
+                descriptionPanel.SetActive(false);
+                quickRefObj.SetActive(true);
+                listItem["cost"].TryGetProperty("quantity", out extractedJsonValue);
+                string costText = extractedJsonValue.ToString();
+                listItem["cost"].TryGetProperty("unit", out extractedJsonValue);
+                costText += extractedJsonValue.ToString();
+                attributes.Add("Cost", costText);
+            }
             if (listItem.ContainsKey("damage"))
             {
 
@@ -382,18 +404,23 @@ public class QuickRefDetailView : MonoBehaviour
         else if (category == "Magic-Item" || category == "Rule-Section" || category == "Feature")
         {
             quickRefObj.SetActive(true);
-            //attributesPanel.SetActive(true);
+            descriptionPanel.SetActive(true);
             Dictionary<string, dynamic> listItem = LoadedFilesData.qrdFiles[category][item];
             titleText.text = listItem["name"].ToString();
 
             descriptionText.text = "";
+            if(category == "Feature")
+            {
+                listItem["class"].TryGetProperty("name", out extractedJsonValue);
+                descriptionText.text += Title("Class: " + extractedJsonValue.ToString());
+            }
             int i = 0;
             try
             {
                 foreach (var desc in listItem["desc"].EnumerateArray())
                 {
-                    if (i == 0 && category == "Magic-Item") descriptionText.text += Subtitle(desc.ToString());// + "\n\n";
-                    else descriptionText.text += Body(desc.ToString());// + "\n\n";
+                    if (i == 0 && category == "Magic-Item") descriptionText.text += Subtitle(desc.ToString());
+                    else descriptionText.text += Body(desc.ToString());
                     i++;
                 }
             }

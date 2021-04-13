@@ -32,14 +32,14 @@ public class EditPageLabel : MonoBehaviour
     {
         input.text = "";
         editLabelPanel.SetActive(false);
-        mac.currentMenuState = MainAppController.MenuState.none;
+        mac.currentMenuState = MainAppController.MenuState.mainAppView;
     }
 
     internal void Confirm()
     {
         buttonLabel.text = input.text;
         editLabelPanel.SetActive(false);
-        mac.currentMenuState = MainAppController.MenuState.none;
+        mac.currentMenuState = MainAppController.MenuState.mainAppView;
     }
 
     public void StartEditing()

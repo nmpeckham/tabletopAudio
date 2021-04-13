@@ -25,15 +25,15 @@ public class MusicButton : MonoBehaviour,  IPointerClickHandler
     }
 
     internal int buttonId;
-    MusicRightClickController mrcc;
-    MusicController mc;
+    static PlaylistRightClickController prcc;
+    static MusicController mc;
     float doubleClickTime = 0.8f;
     float timeSinceClick = 100f;
 
     // Start is called before the first frame update
     internal void Init()
     {
-        mrcc = Camera.main.GetComponent<MusicRightClickController>();
+        prcc = Camera.main.GetComponent<PlaylistRightClickController>();
         mc = Camera.main.GetComponent<MusicController>();
         timeSinceClick = Time.time;
         label = GetComponentInChildren<TMP_Text>();
@@ -51,7 +51,7 @@ public class MusicButton : MonoBehaviour,  IPointerClickHandler
         }
         else if(type == 1)
         {
-            mrcc.ShowRightClickMenu(buttonId);
+            prcc.ShowRightClickMenu(buttonId);
         }
     }
 
@@ -65,15 +65,10 @@ public class MusicButton : MonoBehaviour,  IPointerClickHandler
         ItemSelected(1);
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
     public void OnPointerClick(PointerEventData eventData)
     {
         if (eventData.button == PointerEventData.InputButton.Left) LeftClicked();
         else if (eventData.button == PointerEventData.InputButton.Right) RightClicked();
     }
+
 }

@@ -56,18 +56,18 @@ public class MusicRightClickController : MonoBehaviour
 
     internal void AddToPlayNext(int id)
     {
-        mc.AddToPlayNext(new PlayNextItem(selectedSongId, GetComponent<PlaylistTabs>().selectedTab.tabId));
+        mc.AddToPlayNext(new PlayNextItem(selectedSongId, PlaylistTabs.selectedTab.tabId));
         CloseDeleteMusicItemTooltip();
     }
 
     internal void ShowAddToMenu()
     {
         maxX += 120f;
-        maxY = Mathf.Max(maxY, (GetComponent<PlaylistTabs>().tabs.Count * 23f) + 10);
+        maxY = Mathf.Max(maxY, (PlaylistTabs.tabs.Count * 23f) + 10);
 
         addToMenu = Instantiate(Prefabs.addToMenuPrefab, activeRightClickMenu.transform.position, Quaternion.identity, tooltipParent.transform);
         addToMenu.transform.position = new Vector3(addToMenu.transform.position.x + 85, addToMenu.transform.position.y);
-        foreach(PlaylistTab tab in GetComponent<PlaylistTabs>().tabs)
+        foreach(PlaylistTab tab in PlaylistTabs.tabs)
         {
             if(tab.tabId != 0)
             {
@@ -112,7 +112,7 @@ public class MusicRightClickController : MonoBehaviour
         //print("tabId: " + tabId);
         //print("SelectedSongID: " + selectedSongId);
         //print("list size: " + mc.musicButtons.Count);
-        GetComponent<PlaylistTabs>().AddSongToPlaylist(tabId, pt.selectedTab.Playlist[selectedSongId]);
+        GetComponent<PlaylistTabs>().AddSongToPlaylist(tabId, PlaylistTabs.selectedTab.GetSongAtIndex(selectedSongId));
         Destroy(activeRightClickMenu);
         Destroy(addToMenu);
         addToMenu = null;

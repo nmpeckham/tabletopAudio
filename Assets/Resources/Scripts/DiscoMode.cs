@@ -46,7 +46,7 @@ public class DiscoMode : MonoBehaviour
                 int rand = Random.Range(0, 5);
                 for (int i = 0; i < rand; i++)
                 {
-                    yield return new WaitForEndOfFrame();
+                    yield return null;
                 }
             }
         }

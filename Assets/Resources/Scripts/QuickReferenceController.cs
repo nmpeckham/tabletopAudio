@@ -84,7 +84,7 @@ public class QuickReferenceController : MonoBehaviour
         while (quickRefTransform.localPosition.x < endXPos)
         {
             quickRefTransform.localPosition = new Vector3(Mathf.Min(quickRefTransform.localPosition.x + 50, endXPos), quickRefTransform.localPosition.y);
-            yield return new WaitForEndOfFrame();
+            yield return null;
         }
         quickRefTransform.localPosition = new Vector3(endXPos, quickRefTransform.localPosition.y);
         searchBox.ActivateInputField();
@@ -102,7 +102,7 @@ public class QuickReferenceController : MonoBehaviour
         while (quickRefTransform.localPosition.x > endXPos)
         {
             quickRefTransform.localPosition = new Vector3(Mathf.Max(quickRefTransform.localPosition.x - 50, endXPos), quickRefTransform.localPosition.y);
-            yield return new WaitForEndOfFrame();
+            yield return null;
         }
         quickRefTransform.localPosition = new Vector3(endXPos, quickRefTransform.localPosition.y);
         foreach (QuickRefPrefab go in scrollViewContent.GetComponentsInChildren<QuickRefPrefab>())
@@ -216,7 +216,7 @@ public class QuickReferenceController : MonoBehaviour
             }
             queryIndex++;
             matches = newMatches;
-            yield return new WaitForEndOfFrame();
+            yield return null;
         }
         //destroy after search finished to prevent items in list disappearing for a frame
         foreach (GameObject goToDestroy in toDestroy)

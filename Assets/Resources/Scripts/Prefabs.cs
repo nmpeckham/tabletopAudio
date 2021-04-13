@@ -17,6 +17,7 @@ public static class Prefabs
     static internal GameObject musicContentViewPrefab;
     static internal GameObject addToMenuPrefab;
     static internal GameObject addToMenuItemPrefab;
+    static internal GameObject playlistTabPrefab;
     static internal void LoadAll()
     {
         rightClickMenuPrefab = Resources.Load<GameObject>("Prefabs/PlaylistRightClickMenu");
@@ -33,5 +34,6 @@ public static class Prefabs
         musicContentViewPrefab = Resources.Load<GameObject>("Prefabs/MusicContentView");
         addToMenuPrefab = Resources.Load<GameObject>("Prefabs/AddToMenu");
         addToMenuItemPrefab = Resources.Load<GameObject>("Prefabs/AddToItemPrefab");
+        playlistTabPrefab = Resources.Load<GameObject>("Prefabs/PlaylistTabPrefab");
     }
 }

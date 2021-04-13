@@ -2,9 +2,13 @@ TableTopAudio Changelog
 
 v1.0.3 "Inveniet" - Added DnD 5e quick reference tool
 
-//TODO: add playlist pages
+//TODO: Fix fft: bass is way too loud
 
-//TODO: add advanced option to increase mixer volume above 100%
+//TODO: recursively search folders in music folder :)
+
+//TODO: add playlist pages WIP
+
+//TODO: add advanced option to increase mixer volume above 100% - 1.0.4
 
 //TODO: ensure focus is assumed for text fields
 
@@ -12,17 +16,37 @@ v1.0.3 "Inveniet" - Added DnD 5e quick reference tool
 
 //TODO: Fix many instance variables not being static where they should
 
-//TODO: Add To... appears when no playlist tabs added
-
 //TODO: Add option to remove prefix numbers and sort by them
 
-//TODO: song renamed doesnt work
+DONE? //TODO: song renamed doesnt work
+
+//TODO: Fix saves (Add playlists)
+
+//TODO: Seek doesn't work :(
+
+//TODO: New File doesn't work, static variables?
+
+//TODO: Resize reveals quick ref menu
+
+ - Fixed bug where pressing Esc wouldn't exit SFX button menu after entering "select file" menu
+
+ - Fixed tooltips becoming stuck to edge of screen
+
+ - Fixed bug where last song in a playlist would never be selected when shuffle was active
+
+ - Fixed bug where re-ordering songs could result in incorrect song playing when shuffle disabled
 
  - Fixed bug where music volume wouldn't be displayed linearly
 
  - Fixed bug where pressing spacebar wouldn't pause songs in certain cases
 
  - Fixed bug that could cause freeze when only one song in music playlist
+
+  - Music fade in/out buttons now flash green when fade in/out is active
+
+ - Added tooltips to music control buttons
+
+ - Fixed bug where error messages would block interface
 
 //No... - Songs in playlist are now sorted by song name without numerical prefix
 
@@ -32,13 +56,13 @@ v1.0.3 "Inveniet" - Added DnD 5e quick reference tool
 
  - Fixed: pause button didn't turn orange when using space bar to pause
 
- - Further FFT refinements - # of bins and bin size adjusted, blah blah blah. Guaranteed to be 12% more appealing, 9 times out of 10
+ - Further FFT refinements - # of bins and bin size adjusted. Now uses 10 bands, mathematically calculated to be 12% more appealing, 9 times out of 10
 
  - Fixed bug where FFT display textures could be incorrectly scaled for loud music intensities
 
  - Logarithmic volume control now correctly applied to music playlist items and sfx buttons
 
- - Fixed bug that could (rarely) cause playlist to skip to next song if an mp3 artifact was encountered
+ - Fixed bug that could (rarely) cause playlist to skip to next song if an mp3 encoding artifact was encountered
 
  - Fixed bug that would cause music playlist audio to become glitched if crossfade was disabled while crossfade was in progress and another song was immediately started. This was an absolute nightmare to trackdown and fix
  
@@ -48,12 +72,19 @@ v1.0.3 "Inveniet" - Added DnD 5e quick reference tool
 
  - Added "Play Next" option for playlist. Right click a song to open menu.
 
+ - Advanced feature: Song history logging in AWS DynamoDB. Simply place a json file called "credentials.json" in your Music/TableTopAudio/Saves directory with the following format:
+	{
+	  "accessKeyId": "YOUR_KEY_ID_HERE",
+	  "secretAccessKey": "YOUR_KEY_HERE",
+	  "region": "YOUR_REGION_HERE",
+	  "tableName": "YOUR_TABLE_NAME_HERE"
+	}
+
  - New experimental features section. Contains features that are incomplete, buggy, or not applicable to a wide audience. May be removed in a future release. Accessible from options menu
 
-	- *Experimental* Added new backgrounds to songs in playlist showing song intensity. Has issues with some 'imperfect' mp3 files. No ogg vorbis support at this time. Can be enabled in advanced menu
+	- *Experimental* Added new backgrounds to songs in playlist showing song intensity. Has issues with some 'imperfect' mp3 files. No ogg vorbis support at this time. Purely visual. Can be enabled in advanced menu.
 
-	- *Experimental* Added disco mode. Can be enabled in advanced menu, then activated using ctrl + d. Additional tuning options are available
-
+	- *Experimental* Added disco mode. Purely visual. Can be enabled in advanced menu, then toggled using ctrl + d. Additional tuning options are available. 
 
 
 v1.0.2 "Firmum" - Big stability & QoL improvements

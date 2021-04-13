@@ -25,7 +25,7 @@ public class QuickRefPrefab : MonoBehaviour
         {
             category = value;
             categoryText.text = category;
-            string categoryFileName = category.Replace(" ", "-") + ".json";
+            string categoryFileName = category.Replace(" ", "-");
             categoryColor.color = ResourceManager.categoryColors[categoryFileName];
         }
     }
