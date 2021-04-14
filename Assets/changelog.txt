@@ -2,12 +2,6 @@ TableTopAudio Changelog
 
 v1.0.3 "Inveniet" - Added DnD 5e quick reference tool
 
-//TODO: Fix fft: bass is way too loud
-
-//TODO: recursively search folders in music folder :)
-
-//TODO: add playlist pages WIP
-
 //TODO: add advanced option to increase mixer volume above 100% - 1.0.4
 
 //TODO: ensure focus is assumed for text fields
@@ -16,17 +10,29 @@ v1.0.3 "Inveniet" - Added DnD 5e quick reference tool
 
 //TODO: Fix many instance variables not being static where they should
 
-//TODO: Add option to remove prefix numbers and sort by them
+ - Added support for ID3 tags, version 1.x and 2.x. Song names and artists will be properly displayed when available.
 
-DONE? //TODO: song renamed doesnt work
+ - Music folders will now be searched recursively for songs
 
-//TODO: Fix saves (Add playlists)
+ - Clicking on a fade in/out button while a fade in/out is active will cancel the active fade
+ 
+ - Music fade in/out buttons now flash green when fade in/out is active
 
-//TODO: Seek doesn't work :(
+ - Save name input field now assumes text cursor focus when save panel is opened
 
-//TODO: New File doesn't work, static variables?
+ - Shuffle mode wil no longer repeat the same song until all other songs have been played
 
-//TODO: Resize reveals quick ref menu
+ - Added tooltips to music control buttons
+
+ - Further FFT refinements - # of bins and bin size adjusted. Now uses 10 bands, mathematically calculated to be 12% more appealing, 9 times out of 10
+ 
+ - Added search field to music playlist
+
+ - Added "Play Next" option for playlist. Right click a song to open menu.
+
+ - Song names no longer contain file extensions
+
+ - Fixed bug where renaming a song in it's folder would cause music incorrect song to pley when selecting an item
 
  - Fixed bug where pressing Esc wouldn't exit SFX button menu after entering "select file" menu
 
@@ -42,42 +48,25 @@ DONE? //TODO: song renamed doesnt work
 
  - Fixed bug that could cause freeze when only one song in music playlist
 
-  - Music fade in/out buttons now flash green when fade in/out is active
-
- - Added tooltips to music control buttons
-
  - Fixed bug where error messages would block interface
 
-//No... - Songs in playlist are now sorted by song name without numerical prefix
-
- - Save name input field now assumes text cursor focus when save panel is opened
-
- - Clicking on a fade in/out button while a fade in/out is active will cancel the active fade
-
- - Fixed: pause button didn't turn orange when using space bar to pause
-
- - Further FFT refinements - # of bins and bin size adjusted. Now uses 10 bands, mathematically calculated to be 12% more appealing, 9 times out of 10
+ - Fixed bug where pause button didn't turn orange when using space bar to pause
 
  - Fixed bug where FFT display textures could be incorrectly scaled for loud music intensities
 
- - Logarithmic volume control now correctly applied to music playlist items and sfx buttons
+ - Fixed logarithmic volume control not being correctly applied to music playlist items and sfx buttons
 
  - Fixed bug that could (rarely) cause playlist to skip to next song if an mp3 encoding artifact was encountered
 
  - Fixed bug that would cause music playlist audio to become glitched if crossfade was disabled while crossfade was in progress and another song was immediately started. This was an absolute nightmare to trackdown and fix
- 
- - Added search field to music playlist
-
- - Shuffle mode wil no longer repeat the same song until all other songs have been played
-
- - Added "Play Next" option for playlist. Right click a song to open menu.
 
  - Advanced feature: Song history logging in AWS DynamoDB. Simply place a json file called "credentials.json" in your Music/TableTopAudio/Saves directory with the following format:
 	{
 	  "accessKeyId": "YOUR_KEY_ID_HERE",
 	  "secretAccessKey": "YOUR_KEY_HERE",
 	  "region": "YOUR_REGION_HERE",
-	  "tableName": "YOUR_TABLE_NAME_HERE"
+	  "tableName": "YOUR_TABLE_NAME_HERE",
+	  "id": "YOUR_READABLE_DEVICE_NAME"
 	}
 
  - New experimental features section. Contains features that are incomplete, buggy, or not applicable to a wide audience. May be removed in a future release. Accessible from options menu
@@ -85,7 +74,6 @@ DONE? //TODO: song renamed doesnt work
 	- *Experimental* Added new backgrounds to songs in playlist showing song intensity. Has issues with some 'imperfect' mp3 files. No ogg vorbis support at this time. Purely visual. Can be enabled in advanced menu.
 
 	- *Experimental* Added disco mode. Purely visual. Can be enabled in advanced menu, then toggled using ctrl + d. Additional tuning options are available. 
-
 
 v1.0.2 "Firmum" - Big stability & QoL improvements
 

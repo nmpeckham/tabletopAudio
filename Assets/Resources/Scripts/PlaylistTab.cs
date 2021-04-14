@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.EventSystems;
+using System;
 
 public class PlaylistTab : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
 {
@@ -62,7 +63,7 @@ public class PlaylistTab : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         label = GetComponentInChildren<TMP_Text>();
         if (tabId > 0) LabelText = tabId.ToString();
         pt = Camera.main.GetComponent<PlaylistTabs>();
-        print(tabId.ToString());
+
         rect = GetComponent<RectTransform>();
         musicContentView = GameObject.FindGameObjectWithTag("musicContentView");
         MusicButtons = new List<MusicButton>();

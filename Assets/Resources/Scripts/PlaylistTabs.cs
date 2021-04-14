@@ -13,6 +13,7 @@ public class PlaylistTabs : MonoBehaviour
     public GameObject musicButtonContentParent;
     public GameObject buttonParent;
 
+    [SerializeField]
     internal static List<PlaylistTab> tabs = new List<PlaylistTab>();
 
     public GameObject playlistTabParent;
@@ -35,6 +36,7 @@ public class PlaylistTabs : MonoBehaviour
     internal void Init()
     {
         mainTab.Init();
+        tabs.Clear();
         tabs.Add(mainTab);
         mainTab.musicContentView = GameObject.Find("MusicContentView");
         mac = GetComponent<MainAppController>();
@@ -47,7 +49,6 @@ public class PlaylistTabs : MonoBehaviour
     {
         if (id == -1)    // add new tab
         {
-            print("tab count: " + tabs.Count);
             if(tabs.Count < 6)
             {
                 addNewTab.gameObject.SetActive(true);

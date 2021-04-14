@@ -40,6 +40,7 @@ public class MusicRightClickController : MonoBehaviour
         selectedSongId = id;
         if (activeRightClickMenu) Destroy(activeRightClickMenu);
         activeRightClickMenu = Instantiate(Prefabs.rightClickMenuPrefab, Input.mousePosition, Quaternion.identity, tooltipParent.transform);
+        print(activeRightClickMenu.name);
         StartCoroutine(CheckMousePos(Input.mousePosition));
     }
 
@@ -65,6 +66,7 @@ public class MusicRightClickController : MonoBehaviour
         maxX += 120f;
         maxY = Mathf.Max(maxY, (PlaylistTabs.tabs.Count * 23f) + 10);
 
+        print(activeRightClickMenu.name);
         addToMenu = Instantiate(Prefabs.addToMenuPrefab, activeRightClickMenu.transform.position, Quaternion.identity, tooltipParent.transform);
         addToMenu.transform.position = new Vector3(addToMenu.transform.position.x + 85, addToMenu.transform.position.y);
         foreach(PlaylistTab tab in PlaylistTabs.tabs)

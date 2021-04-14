@@ -1,13 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
-using UnityEngine.Events;
 using TMPro;
+using System;
 
 //Class for music items in the playlist
-public class MusicButton : MonoBehaviour,  IPointerClickHandler
+public class MusicButton : MonoBehaviour,  IPointerClickHandler, IComparable
 {
     private Song song;
     private TMP_Text label;
@@ -20,7 +17,7 @@ public class MusicButton : MonoBehaviour,  IPointerClickHandler
         set
         {
             song = value;
-            label.text = song.FileName;
+            label.text = song.SortName;
         }
     }
 
@@ -51,6 +48,7 @@ public class MusicButton : MonoBehaviour,  IPointerClickHandler
         }
         else if(type == 1)
         {
+            print(prcc.name);
             prcc.ShowRightClickMenu(buttonId);
         }
     }
@@ -71,4 +69,8 @@ public class MusicButton : MonoBehaviour,  IPointerClickHandler
         else if (eventData.button == PointerEventData.InputButton.Right) RightClicked();
     }
 
+    public int CompareTo(object obj)
+    {
+        return String.Compare(Song.SortName, ((MusicButton)obj).Song.SortName);
+    }
 }
