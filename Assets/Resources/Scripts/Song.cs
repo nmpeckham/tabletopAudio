@@ -10,7 +10,6 @@ public class Song
     private string fileName;
     internal string SortName {
         get { return sortName; }
-        //set { Debug.Log(value); }
     }
     private string sortName = "";
     internal string artist = null;
@@ -46,6 +45,8 @@ public class Song
         {
             string[] unwanted = { "\0", "\n", "\r" };
             string cleanString = s;
+            cleanString = cleanString.Replace(".mp3", "").Replace(".ogg", "");
+
             foreach (string c in unwanted)
             {
                 cleanString = cleanString.Replace(c, "");
@@ -56,7 +57,7 @@ public class Song
             {
                 cleanString = cleanString.Replace(match.ToString(), "");
             }
-            cleanString = cleanString.Replace(".mp3", "").Replace(".ogg", "");
+            //cleanString += (artist + title).GetHashCode();
             return cleanString;
         }
         else return null;

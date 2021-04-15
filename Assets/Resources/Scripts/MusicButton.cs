@@ -21,7 +21,7 @@ public class MusicButton : MonoBehaviour,  IPointerClickHandler, IComparable
         }
     }
 
-    internal int buttonId;
+    public int buttonId;
     static PlaylistRightClickController prcc;
     static MusicController mc;
     float doubleClickTime = 0.8f;
@@ -71,6 +71,8 @@ public class MusicButton : MonoBehaviour,  IPointerClickHandler, IComparable
 
     public int CompareTo(object obj)
     {
-        return String.Compare(Song.SortName, ((MusicButton)obj).Song.SortName);
+        //Fix for songs with same name
+        string comp = ((MusicButton)obj).Song.SortName + ((MusicButton)obj).Song.SortName.GetHashCode().ToString();
+        return String.Compare(Song.SortName + Song.SortName.GetHashCode(), comp);// + " " + ((MusicButton)obj).buttonId);;
     }
 }

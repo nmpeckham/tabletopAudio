@@ -14,6 +14,7 @@ using UnityEngine.Video;
 using System.Text.RegularExpressions;
 using Id3;
 using Extensions;
+using TagLib;
 
 //Controls the playing of songs in the playlist
 public class MusicController : MonoBehaviour
@@ -525,6 +526,8 @@ public class MusicController : MonoBehaviour
         {
             //Try both ID3 families
             Id3Tag newTag = new Mp3(s).GetTag(Id3TagFamily.Version2X);
+            var altTag = TagLib.File.Create(s);
+
             if (newTag == null)
             {
                 newTag = new Mp3(s).GetTag(Id3TagFamily.Version1X);
@@ -535,8 +538,9 @@ public class MusicController : MonoBehaviour
                 title = newTag.Title;
                 duration = newTag.Length;
             }
-            //If duration not present in tag, get from temp mpeg stream
-            if (duration == TimeSpan.Zero)
+            if(altTag.Tag.Performers.Length > 0) artist = altTag.Tag.Performers[0];
+        //If duration not present in tag, get from temp mpeg stream
+        if (duration == TimeSpan.Zero)
             {
                 MpegFile temp = new MpegFile(s);
                 duration = temp.Duration;
@@ -1231,9 +1235,6 @@ public class MusicController : MonoBehaviour
 
     internal void DeleteItem(int selectedId)
     {
-        print("deleting");
-        print(PlaylistTabs.selectedTab.MusicButtons[selectedId].Song.title);
-        print(PlaylistTabs.selectedTab.tabId);
         if (nowPlayingTab == PlaylistTabs.selectedTab && nowPlayingButtonID == selectedId)
         {
             Stop();
