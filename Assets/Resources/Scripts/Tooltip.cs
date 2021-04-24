@@ -8,16 +8,12 @@ public class Tooltip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
     private GameObject tooltipPrefab;
     private GameObject tooltip;
-    private GameObject tooltipParent;
+
     public string tooltipText;
 
-    void Start()
-    {
-        tooltipParent = GameObject.FindGameObjectWithTag("TooltipParent");
-    }
     public void OnPointerEnter(PointerEventData eventData)
     {
-        tooltip = Instantiate(Prefabs.tooltipPrefab, Input.mousePosition, Quaternion.identity, tooltipParent.transform);
+        tooltip = Instantiate(Prefabs.tooltipPrefab, Input.mousePosition, Quaternion.identity, MainAppController.tooltipParent);
         tooltip.GetComponentInChildren<TMP_Text>().text = tooltipText;
         StartCoroutine(UpdateTooltipPosition());
     }

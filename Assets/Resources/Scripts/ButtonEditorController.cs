@@ -4,6 +4,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using System;
+using System.IO;
 
 //Class for editing Sound effect buttons
 public class ButtonEditorController : MonoBehaviour
@@ -151,7 +152,8 @@ public class ButtonEditorController : MonoBehaviour
         if(clipID == null) button.FileName = "";
         else button.FileName = clipID;
 
-        string newText = buttonLabelInput.text.Replace(mac.sfxDirectory + mac.sep, "");
+        string newText = buttonLabelInput.text.Replace(mac.sfxDirectory, "");
+        print(newText);
         button.Label = newText;
         button.GetComponentInChildren<TMP_Text>().text = newText;
         mac.currentMenuState = MainAppController.MenuState.mainAppView;
@@ -179,7 +181,7 @@ public class ButtonEditorController : MonoBehaviour
         loopButton.isOn = button.Loop;
         minLoopDelay.text = button.MinLoopDelay.ToString("N0");
         clipID = button.FileName;
-        if (!String.IsNullOrEmpty(button.FileName)) fileNameLabel.text = clipID.Replace(mac.sfxDirectory + mac.sep, "");
+        if (!String.IsNullOrEmpty(button.FileName)) fileNameLabel.text = Path.GetFileName(clipID);
         else fileNameLabel.text = "";
 
         minimumVolumeSlider.value = button.minimumFadeVolume * 100;
@@ -197,8 +199,8 @@ public class ButtonEditorController : MonoBehaviour
         minLoopDelayLabel.text = randomizeLoopButton.isOn ? "Min Loop Delay (sec):" : "Loop Delay (sec):";
         ignoreOnPlayAllButton.isOn = button.IgnorePlayAll;
 
+        //buttonLabelInput.ActivateInputField();
         string currentLabel = mac.sfxButtons[mac.activePage][buttonID].GetComponentInChildren<TMP_Text>().text;
-        editButtonPanel.SetActive(true);
         if (String.IsNullOrEmpty(currentLabel))
         {
             buttonLabelInput.text = "";
@@ -210,7 +212,8 @@ public class ButtonEditorController : MonoBehaviour
             placeholderText.text = "";
         }
         mac.currentMenuState = MainAppController.MenuState.editingSFXButton;
-        buttonLabelInput.ActivateInputField();
+
+        editButtonPanel.SetActive(true);
     }
 
     //Called when button file is changed
@@ -219,8 +222,9 @@ public class ButtonEditorController : MonoBehaviour
 
         clipID = newClipID;
 
-        string newLabel = clipID.Replace(mac.sfxDirectory + mac.sep, "").Replace(System.IO.Path.GetExtension(clipID), "");
+        string newLabel = Path.GetFileName(clipID);
         fileNameLabel.text = newLabel;
+        newLabel = Path.GetFileNameWithoutExtension(clipID);
         buttonLabelInput.text = newLabel;
         placeholderText.text = "";
         mac.currentMenuState = MainAppController.MenuState.editingSFXButton;

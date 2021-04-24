@@ -6,7 +6,7 @@ using TMPro;
 using UnityEngine.EventSystems;
 using System;
 
-public class PlaylistTab : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
+public class PlaylistTab : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler, IPointerEnterHandler
 {
     private Button thisButton;
     public int tabId;
@@ -20,7 +20,9 @@ public class PlaylistTab : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     private float initialMouseXPos = 0f;
     private bool shouldCheckMousePos = false;
 
+
     private RectTransform rect;
+    
     private bool ShouldCheckMousePos
     {
         get
@@ -76,9 +78,15 @@ public class PlaylistTab : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        if (eventData.button == PointerEventData.InputButton.Right)
+        if (eventData.button == PointerEventData.InputButton.Right && tabId > 0)
         {
-            pt.EditTabName(this);
+            var activeRightClickMenu = Instantiate(Prefabs.rightClickMenuPrefab, Input.mousePosition, Quaternion.identity, MainAppController.tooltipParent).GetComponent<RightClickRootMenu>();
+            activeRightClickMenu.AddMenuItem(4, "Delete Tab", activeRightClickMenu.buttonParent);
+            activeRightClickMenu.AddMenuItem(3, "Edit Label", activeRightClickMenu.buttonParent);
+            activeRightClickMenu.SetBounds(-10f, -10f, 90f, 60f);
+
+            StartCoroutine(activeRightClickMenu.CheckMousePos());
+            //pt.EditTabName(this);
         }
         else if (eventData.button == PointerEventData.InputButton.Left)
         {
@@ -86,7 +94,6 @@ public class PlaylistTab : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
             ShouldCheckMousePos = true;
             StartCoroutine(CheckMousePos());
         }
-
     }
     public void OnPointerUp(PointerEventData eventData)
     {
@@ -143,6 +150,11 @@ public class PlaylistTab : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     internal Song GetSongAtIndex(int index)
     {
         return MusicButtons[index].Song;
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        if(tabId > 0) pt.nowEditing = this;
     }
 }
 

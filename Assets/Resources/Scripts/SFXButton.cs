@@ -184,7 +184,6 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     internal void ChangeColor()
     {
-        print("changing Color");
         StopAllCoroutines();
         Image btnImage = GetComponent<Image>();
         int colorIndex = UnityEngine.Random.Range(0, ResourceManager.kellysMaxContrastSet.Count - 1);
@@ -398,7 +397,7 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         }
     }
 
-    void Update()
+    void FixedUpdate()
     {
         if (Input.GetMouseButtonDown(1) && hasPointer)
         {
@@ -414,7 +413,7 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         {
             float percentPlayed = (aSource.time / aSource.clip.length);
             //playbackBarRect.sizeDelta.Set((percentPlayed * rectWidth), playbackBarRect.rect.height);
-            playbackBarRect.sizeDelta = new Vector2((percentPlayed * rectWidth), playbackBarRect.rect.height);
+            playbackBarRect.sizeDelta = new Vector2(Mathf.Max(1, (percentPlayed * rectWidth)), playbackBarRect.rect.height);
         }
         if(isWaiting && isPlaying)
         {

@@ -4,10 +4,11 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
-public class RightClickMenuButton : MonoBehaviour, IPointerEnterHandler
+public class RightClickMenuButton : MonoBehaviour
 {
     public int id;
     private PlaylistRightClickController prcc;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -17,13 +18,9 @@ public class RightClickMenuButton : MonoBehaviour, IPointerEnterHandler
 
     void Clicked()
     {
+        print("id: " + id);
         if(id == 0) prcc.DeleteItem();
         if (id == 1) prcc.AddToPlayNext(id);
     }
 
-    public void OnPointerEnter(PointerEventData eventData)
-    {
-        if (id != 2) prcc.CloseDeleteAddToMenu();
-        else prcc.ShowAddToMenu();
-    }
 }

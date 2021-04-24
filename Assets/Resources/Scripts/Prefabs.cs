@@ -4,6 +4,7 @@ public static class Prefabs
 {
     // Start is called before the first frame update
     static internal GameObject rightClickMenuPrefab;
+    static internal GameObject rightClickItemPrefab;
     static internal GameObject tooltipPrefab;
     static internal GameObject musicButtonPrefab;
     static internal GameObject pageButtonPrefab;
@@ -20,7 +21,8 @@ public static class Prefabs
     static internal GameObject playlistTabPrefab;
     static internal void LoadAll()
     {
-        rightClickMenuPrefab = Resources.Load<GameObject>("Prefabs/PlaylistRightClickMenu");
+        rightClickMenuPrefab = Resources.Load<GameObject>("Prefabs/RightClickMenu");
+        rightClickItemPrefab = Resources.Load<GameObject>("Prefabs/RightClickItem");
         tooltipPrefab = Resources.Load<GameObject>("Prefabs/Tooltip");
         musicButtonPrefab = Resources.Load<GameObject>("Prefabs/PlaylistItem");
         pageButtonPrefab = Resources.Load<GameObject>("Prefabs/PageButton");

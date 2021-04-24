@@ -52,12 +52,12 @@ public class Song
                 cleanString = cleanString.Replace(c, "");
             }
             //regex to remove starting song numbers
-            Match match = Regex.Match(s, @"\d{1,} *\.*-* *");
+            Match match = Regex.Match(s, @"^\d{1,2}[ _\-\.]+");
             if(!String.IsNullOrEmpty(match.ToString()))
             {
                 cleanString = cleanString.Replace(match.ToString(), "");
             }
-            //cleanString += (artist + title).GetHashCode();
+
             return cleanString;
         }
         else return null;

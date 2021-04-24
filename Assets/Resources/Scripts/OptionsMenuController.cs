@@ -106,11 +106,11 @@ public class OptionsMenuController : MonoBehaviour
                 dmCooldownText.text = val.ToString();
                 break;
             case "DiscoModeNumFreq":
-                MusicController.discoModeNumFreq = val;
+                FftController.discoModeNumFreq = val;
                 dmNumFreqText.text = val.ToString();
                 break;
             case "DiscoModeMinSum":
-                MusicController.discoModeMinSum = val;
+                FftController.discoModeMinSum = val;
                 dmMinSumText.text = val.ToString("N2");
                 break;
         }
@@ -254,7 +254,8 @@ public class OptionsMenuController : MonoBehaviour
         {
             if(Path.GetExtension(saveName) == ".xml" || Path.GetExtension(saveName) == ".xml")
             {
-                string trimmedSaveName = saveName.Replace(mac.saveDirectory + mac.sep, "");
+                print(Path.GetDirectoryName(mac.saveDirectory));
+                string trimmedSaveName = saveName.Replace(mac.saveDirectory, "");
                 GameObject scrollItem = Instantiate(Prefabs.loadGameItemPrefab, loadGameScrollView.transform);
                 scrollItem.GetComponent<LoadGameSelectItem>().fileLocation = saveName;
                 scrollItem.GetComponentInChildren<TMP_Text>().SetText(trimmedSaveName);

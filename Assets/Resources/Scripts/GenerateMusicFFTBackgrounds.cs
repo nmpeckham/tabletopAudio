@@ -62,36 +62,37 @@ public class GenerateMusicFFTBackgrounds : MonoBehaviour
                 long newPosition;
                 for(int i = 1; i  < 456; i++)
                 {
-
-                    actualRead = reader.ReadSamples(buf, 0, buf.Length-1);
-                    samplesRead += actualRead;
-                    rmsEnergy = CalculateRMS(buf);
-                    samples.Add(rmsEnergy);
-                    if (actualRead == 0 ) break;
-                    newPosition = (reader.Length  / 455) * i;
-                    reader.Position = newPosition;
-
-                    //catch (ArgumentOutOfRangeException e)
-                    //{
-                    //    Debug.LogError(e);
-                    //    print("out of range");
-                    //}
-                    //catch (OutOfMemoryException e)
-                    //{
-                    //    Debug.LogError(e);
-                    //    print("out of memory");
-                    //}
-                    //catch(IndexOutOfRangeException e)
-                    //{
-                    //    Debug.LogError(e);
-                    //    print("index out of range");
-                    //}
-                    //catch(ArgumentException e)
-                    //{
-                    //    Debug.LogError(e);
-                    //    print("argument exception");
-                    //    break;
-                    //}
+                    try
+                    {
+                        actualRead = reader.ReadSamples(buf, 0, buf.Length - 1);
+                        samplesRead += actualRead;
+                        rmsEnergy = CalculateRMS(buf);
+                        samples.Add(rmsEnergy);
+                        if (actualRead == 0) break;
+                        newPosition = (reader.Length / 455) * i;
+                        reader.Position = newPosition;
+                    }
+                    catch (ArgumentOutOfRangeException e)
+                    {
+                        Debug.LogError(e);
+                        print("out of range");
+                    }
+                    catch (OutOfMemoryException e)
+                    {
+                        Debug.LogError(e);
+                        print("out of memory");
+                    }
+                    catch (IndexOutOfRangeException e)
+                    {
+                        Debug.LogError(e);
+                        print("index out of range");
+                    }
+                    catch (ArgumentException e)
+                    {
+                        Debug.LogError(e);
+                        print("argument exception");
+                        break;
+                    }
                     for (int x = 0; x < samples.Count; x++)
                     {
                         for (int y = 0; y < (Mathf.Abs(samples[x]) * 1200f + 3f); y++)

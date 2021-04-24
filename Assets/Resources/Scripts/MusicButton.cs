@@ -48,7 +48,6 @@ public class MusicButton : MonoBehaviour,  IPointerClickHandler, IComparable
         }
         else if(type == 1)
         {
-            print(prcc.name);
             prcc.ShowRightClickMenu(buttonId);
         }
     }
@@ -71,8 +70,8 @@ public class MusicButton : MonoBehaviour,  IPointerClickHandler, IComparable
 
     public int CompareTo(object obj)
     {
-        //Fix for songs with same name
-        string comp = ((MusicButton)obj).Song.SortName + ((MusicButton)obj).Song.SortName.GetHashCode().ToString();
-        return String.Compare(Song.SortName + Song.SortName.GetHashCode(), comp);// + " " + ((MusicButton)obj).buttonId);;
+        //Fix for songs with same name. Don't change :/
+        string comp = ((MusicButton)obj).Song.SortName + ((MusicButton)obj).Song.FileName;
+        return String.Compare(Song.SortName + Song.FileName, comp);
     }
 }

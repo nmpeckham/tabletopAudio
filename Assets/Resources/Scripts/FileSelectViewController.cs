@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using System.IO;
 
 //Controls the file selection view for SFX buttons
 public class FileSelectViewController : MonoBehaviour
@@ -33,9 +34,8 @@ public class FileSelectViewController : MonoBehaviour
     {
         fileSelectionView.gameObject.SetActive(true);
 
-        
 
-        foreach (string file in System.IO.Directory.GetFiles(mac.sfxDirectory))
+        foreach (string file in System.IO.Directory.GetFiles(mac.sfxDirectory, "*", SearchOption.AllDirectories))
         {
             if (!LoadedFilesData.sfxClips.ContainsKey(file))
             {
@@ -48,7 +48,7 @@ public class FileSelectViewController : MonoBehaviour
         foreach (string file in itemsToCreate)
         {
             GameObject item = Instantiate(Prefabs.fileSelectItemPrefab, fileLoadListScrollView.transform);
-            string text = file.Replace(mac.sfxDirectory + mac.sep, "");
+            string text = Path.GetFileName(file);
             item.GetComponentInChildren<TMP_Text>().SetText(text);
             item.GetComponent<FileSelectItem>().id = file;
         }

@@ -23,7 +23,6 @@ public class MainAppController : MonoBehaviour
     internal string sfxDirectory;
     internal string saveDirectory;
     internal string videoDirectory;
-    internal char sep;
 
     internal int activePage = 0;
 
@@ -88,6 +87,7 @@ public class MainAppController : MonoBehaviour
     internal MenuState currentMenuState;
 
     private int thankyouMessagesShown = 0;
+    internal static Transform tooltipParent;
 
     // Start is called before the first frame update
     public void Start()
@@ -115,17 +115,15 @@ public class MainAppController : MonoBehaviour
         dm = GetComponent<DiscoMode>();
         omc = GetComponent<OptionsMenuController>();
 
-        sep = System.IO.Path.DirectorySeparatorChar;
-
         MakeSFXButtons();
 
         pageParents[0].gameObject.transform.SetSiblingIndex(NUMPAGES);
 
         mainDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyMusic), "TableTopAudio");
-        musicDirectory = Path.Combine(mainDirectory, "music");
-        sfxDirectory = Path.Combine(mainDirectory, "sound effects");
-        saveDirectory = Path.Combine(mainDirectory, "saves");
-        videoDirectory = Path.Combine(mainDirectory, "videos");
+        musicDirectory = Path.Combine(mainDirectory, "music") + Path.DirectorySeparatorChar;
+        sfxDirectory = Path.Combine(mainDirectory, "sound effects") + Path.DirectorySeparatorChar;
+        saveDirectory = Path.Combine(mainDirectory, "saves") + Path.DirectorySeparatorChar;
+        videoDirectory = Path.Combine(mainDirectory, "videos") + Path.DirectorySeparatorChar;
 
         SetupFolderStructure(mainDirectory);
 
@@ -148,6 +146,8 @@ public class MainAppController : MonoBehaviour
         GetComponent<PlaylistTabs>().Init();
         mc.Init();
         NowPlayingWebpage.Init();
+        GetComponent<FftController>().Init();
+        tooltipParent = GameObject.Find("Tooltips").transform;
     }
 
     void MakeCategoryColors()
@@ -458,14 +458,14 @@ public class MainAppController : MonoBehaviour
             dm.SetDiscoMode(!dm.discoModeActive); //terribly disgusting. Please fix :/
         }
 
-        if(Time.time > 600 && thankyouMessagesShown == 0)
+        if(Time.time > 600 && thankyouMessagesShown == 0 && !Application.isEditor)
         {
-            ShowErrorMessage("Thanks for using TableTopAudio! I'm always looking to improve it.\n Please send me an email at me@nathanpeckham.com with any feedback you have!", 120);
+            ShowErrorMessage("Thanks for using TableTopAudio for 10 minutes! I'm always looking to improve it.\n Please send me an email at me@nathanpeckham.com with any feedback you have!", 10);
             thankyouMessagesShown = 1;
         }
-        if(Time.time > 1800 && thankyouMessagesShown == 1)
+        if(Time.time > 1800 && thankyouMessagesShown == 1 && !Application.isEditor)
         {
-            ShowErrorMessage("Wow! Thanks for using TableTopAudio! I'm always looking to improve it.\n Please send me an email at me@nathanpeckham.com with any feedback you have!", 120);
+            ShowErrorMessage("Thanks for using TableTopAudio for 30 minutes! I'm always looking to improve it.\n Please send me an email at me@nathanpeckham.com with any feedback you have!", 10);
             thankyouMessagesShown = 2;
         }
     }

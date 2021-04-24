@@ -32,6 +32,8 @@ v1.0.3 "Inveniet" - Added DnD 5e quick reference tool
 
  - Song names no longer contain file extensions
 
+ - Added new FFT visualizer: waterfall spectrum. Click on the FFT visualizer area to change type.
+
  - Fixed bug where renaming a song in it's folder would cause music incorrect song to pley when selecting an item
 
  - Fixed bug where pressing Esc wouldn't exit SFX button menu after entering "select file" menu

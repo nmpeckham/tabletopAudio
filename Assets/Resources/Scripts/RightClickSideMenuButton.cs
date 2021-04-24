@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class AddMusicItemButton : MonoBehaviour, IPointerClickHandler
+public class RightClickSideMenuButton : MonoBehaviour, IPointerClickHandler
 {
     public int playlistTabId;
     static PlaylistRightClickController prcc;
