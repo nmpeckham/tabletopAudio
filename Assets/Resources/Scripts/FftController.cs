@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using System.Linq;
+using TMPro;
 
 public class FftController : MonoBehaviour
 {
@@ -25,11 +26,17 @@ public class FftController : MonoBehaviour
     private Texture2D spectrumTex;
 
     private float[,] imageData;
+    public Transform discoModeSum;
+    public TMP_Text discoModeSumSliderText;
+
+    private MainAppController mac;
     enum FftTypes
     {
         bouncingBars,
         waterfall
     }
+
+
 
     private FftTypes fftType = FftTypes.bouncingBars;
 
@@ -40,6 +47,7 @@ public class FftController : MonoBehaviour
 
     internal void Init()
     {
+        mac = GetComponent<MainAppController>();
         imageData = new float[50, 10];
         spectrumTex = spectrumImage.sprite.texture;
 
@@ -70,29 +78,18 @@ public class FftController : MonoBehaviour
 
                 {
                     Transform obj = pieces[i].transform;
+                    //float rmsVal = 
                     float temp = (fadeTargets[4 * i] + fadeTargets[4 * i + 1] + fadeTargets[4 * i + 2] + fadeTargets[4 * i + 3]) / 4;
                     float newScale;
 
-                    //if (temp > (fftOneFrameAgo[i] + fftTwoFrameAgo[i]) / 2)
-                    //{
-                    //    newScale = (temp * 0.8f) + ((fftOneFrameAgo[i]) * 0.2f);
-                    //}
-                    //else
-                    //{
                     newScale = (temp * 0.55f) + (fftOneFrameAgo[i] * 0.25f) + (fftTwoFrameAgo[i] * 0.2f); //average slightly over 3 frames
-                    //}
 
-
-                    //newScale *= Mathf.Cos(((i) / 22f) * Mathf.PI);
-                    //newScale = -(Mathf.Pow(newScale, audioExp) * Mathf.Log(newScale, 2));
-                    //newScale *=  Mathf.Cos((float)newScale * 2.5f) + 1f; //math
                     newScale *= -(i / 4f) + 13f / 4f;
                     newScale = Mathf.Pow((float)newScale, audioExp) * multVal;
                     newScale = Mathf.Min(newScale, 1);
                     obj.localScale = new Vector3(1, newScale, 1);
                     if (i < discoModeNumFreq) totalSum += newScale;
 
-                    //set var in shader to adjust texture height
                     fftBarMaterials[i].SetFloat("Height", newScale);
                     fftOneFrameAgo[i] = temp;
                     fftTwoFrameAgo[i] = fftOneFrameAgo[i];
@@ -120,17 +117,30 @@ public class FftController : MonoBehaviour
                 spectrumTex.Apply();
             }
             float sum = 0;// fadeTargets[0] + fadeTargets[1] + fadeTargets[2] + fadeTargets[3];
+
             for(int i = 0; i < discoModeNumFreq; i++)
             {
                 sum += fadeTargets[i];
             }
-            if (sum * 20 >= discoModeMinSum)
+            sum *= 20f;
+            if (mac.currentMenuState == MainAppController.MenuState.advancedOptionsMenu)
+            {
+                discoModeSum.localScale = new Vector3(Mathf.Min(sum / discoModeMinSum, 1f), 1, 1);
+                print(discoModeSum.localScale.x);
+                discoModeSumSliderText.text = (sum / discoModeMinSum).ToString("F4");
+            }
+            if (sum >= discoModeMinSum)
             {
                 discoModeController.ChangeColors();
             }
             yield return null;
         }
     }
+
+    //float GetRMS(int i)
+    //{
+    //    return Mathf.Sqrt(Mathf.Pow(fftOneFrameAgo[i]), 2) + Mathf.Pow(fftTwoFrameAgo[i], 2) + Mathf.Pow()
+    //}
 
     internal void ChangeFftType()
     {

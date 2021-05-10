@@ -67,7 +67,7 @@ public class PageButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     void PlayAll()
     {
-        foreach(GameObject btn in mac.sfxButtons[id])
+        foreach(GameObject btn in mac.pageParents[id].buttons)
         {
             SFXButton sfxBtn = btn.GetComponent<SFXButton>();
             if (!sfxBtn.isPlaying) sfxBtn.Play(true);
@@ -76,7 +76,7 @@ public class PageButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     void StopAll()
     {
-        foreach (GameObject btn in mac.sfxButtons[id])
+        foreach (GameObject btn in mac.pageParents[id].buttons)
         {
             btn.GetComponent<SFXButton>().Stop(true);
         }
@@ -84,7 +84,7 @@ public class PageButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     void FadeIn()
     {
-        foreach (GameObject btn in mac.sfxButtons[id])
+        foreach (GameObject btn in mac.pageParents[id].buttons)
         {
             btn.GetComponent<SFXButton>().FadeVolume("in", true);
         }
@@ -92,7 +92,7 @@ public class PageButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     void FadeOut()
     {
-        foreach (GameObject btn in mac.sfxButtons[id])
+        foreach (GameObject btn in mac.pageParents[id].buttons)
         {
             btn.GetComponent<SFXButton>().FadeVolume("out", true);
         }

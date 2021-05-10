@@ -63,6 +63,7 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     private float framesSinceColorUpdate;
 
     Color currentColor;
+    Coroutine discoCR;
 
     internal bool IgnorePlayAll
     {
@@ -143,11 +144,11 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     {
         if (!active)
         {
-            StopCoroutine("DiscoModeUpdate");
+            StopCoroutine(discoCR);
             GetComponent<Image>().color = mac.darkModeEnabled ? ResourceManager.sfxButtonDark : ResourceManager.sfxButtonLight;
             currentColor = GetComponent<Image>().color;
         }
-        else StartCoroutine("DiscoModeUpdate");
+        else discoCR = StartCoroutine(DiscoModeUpdate());
     }
 
     IEnumerator DiscoModeUpdate()
@@ -184,12 +185,12 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     internal void ChangeColor()
     {
-        StopAllCoroutines();
+        StopCoroutine(discoCR);
         Image btnImage = GetComponent<Image>();
         int colorIndex = UnityEngine.Random.Range(0, ResourceManager.kellysMaxContrastSet.Count - 1);
         Color newColor = MainAppController.UIntToColor(ResourceManager.kellysMaxContrastSet[colorIndex]);
         btnImage.color = newColor;
-        StartCoroutine(DiscoModeUpdate());
+        discoCR = StartCoroutine(DiscoModeUpdate());
         framesSinceColorUpdate = 0;
     }
 

@@ -1,14 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using System;
-using UnityEditor;
 using System.Linq;
 using UnityEngine.UI;
 using System.IO;
 using TMPro;
 using System.Text.Json;
-using UnityEngine.Video;
 
 
 //Main controller for the app. Handles various tasks
@@ -27,9 +24,7 @@ public class MainAppController : MonoBehaviour
     internal int activePage = 0;
 
     public GameObject pageParentParent; // parent for page parents
-    internal List<PageParent> pageParents;
-
-    internal List<List<GameObject>> sfxButtons;
+    public List<SFXPage> pageParents;
 
     public List<GameObject> pageButtons;
     public GameObject pageButtonParent;
@@ -59,8 +54,6 @@ public class MainAppController : MonoBehaviour
     private QuickRefDetailView qrd;
 
     private GenerateMusicFFTBackgrounds gmfb;
-
-    private VideoPlayer player;
 
     private OptionsMenuController omc;
     internal bool discoModeAvailable = false;
@@ -102,9 +95,9 @@ public class MainAppController : MonoBehaviour
         playImage = play.GetComponent<SpriteRenderer>().sprite;
         stopImage = stop.GetComponent<SpriteRenderer>().sprite;
 
-        pageParents = new List<PageParent>();
+        pageParents = new List<SFXPage>();
         pageButtons = new List<GameObject>();
-        sfxButtons = new List<List<GameObject>>();
+        //sfxButtons = new List<List<GameObject>>();
 
         epl = GetComponent<EditPageLabel>();
         mc = GetComponent<MusicController>();
@@ -138,11 +131,6 @@ public class MainAppController : MonoBehaviour
 
         MakeCategoryColors();
         this.currentMenuState = MenuState.mainAppView;
-        //player = GetComponentInChildren<VideoPlayer>();
-        //player.url = Path.Combine(Application.streamingAssetsPath, "avicii.mp4");
-        //player.Play();
-        //player.audioOutputMode = VideoAudioOutputMode.AudioSource;
-        //player.SetTargetAudioSource(1, GetComponent<AudioSource>());
         GetComponent<PlaylistTabs>().Init();
         mc.Init();
         NowPlayingWebpage.Init();
@@ -165,6 +153,10 @@ public class MainAppController : MonoBehaviour
 
     static public Color UIntToColor(uint color)
     {
+        //Debug.Log((byte)(color >> 16));
+        //Debug.Log((byte)(color >> 8));
+        //Debug.Log((byte)(color >> 0));
+
         float r = (byte)(color >> 16) / 255f;
         float g = (byte)(color >> 8) / 255f;
         float b = (byte)(color >> 0) / 255f;
@@ -194,25 +186,25 @@ public class MainAppController : MonoBehaviour
 
     internal bool MakeSFXButtons()
     {
-        foreach(List<GameObject> p in sfxButtons)
-        {
-            p.ForEach(a => Destroy(a));
-            p.Clear();
-        }
+        pageParents.ForEach(pp => {
+            pp.buttons.ForEach(btn =>
+            {
+                Destroy(btn);
+            });
+            pp.buttons.Clear();
+        });
         foreach(GameObject g in pageButtons)
         {
             Destroy(g);
         }
 
-        foreach(PageParent o in pageParents)
+        foreach(SFXPage o in pageParents)
         {
             Destroy(o.gameObject);
         }
 
         pageButtons.Clear();
-
-        sfxButtons.Clear();
-        pageParents = new List<PageParent>();
+        pageParents = new List<SFXPage>();
         for (int i = 0; i < NUMPAGES; i++)
         {
             GameObject pageButton = Instantiate(Prefabs.pageButtonPrefab, pageButtonParent.transform);
@@ -225,8 +217,8 @@ public class MainAppController : MonoBehaviour
             
             GameObject pp = Instantiate(Prefabs.pageParentPrefab, pageParentParent.transform);
             pp.name += " " + i;
-            pageParents.Add(pp.GetComponent<PageParent>());
-            sfxButtons.Add(new List<GameObject>());
+            pp.GetComponent<SFXPage>().id = i;
+            pageParents.Add(pp.GetComponent<SFXPage>());
 
             for (int j = 0; j < NUMBUTTONS; j++)
             {
@@ -236,7 +228,7 @@ public class MainAppController : MonoBehaviour
                 btn.page = i;
                 btn.Init();
                 
-                sfxButtons[i].Add(button);
+                pp.GetComponent<SFXPage>().buttons.Add(button);
             }
             if (i == 0) pageButton.GetComponent<Image>().color = Color.red;
         }
@@ -248,14 +240,14 @@ public class MainAppController : MonoBehaviour
         return true;
     }
 
-    internal bool ControlButtonClicked(string id)
+    public bool ControlButtonClicked(string id)
     {
         switch (id)
         {
             case "STOP-SFX":
-                foreach (List<GameObject> page in sfxButtons)
+                foreach (SFXPage page in pageParents)
                 {
-                    foreach (GameObject sfxButton in page)
+                    foreach (GameObject sfxButton in page.buttons)
                     {
                         sfxButton.GetComponent<SFXButton>().Stop();
                     }
@@ -292,11 +284,8 @@ public class MainAppController : MonoBehaviour
 
     internal void ChangeSFXPage(int pageID)
     {
-        print("numpages: " + NUMPAGES);
-        print("Page id: " + pageID);
-        pageParents[pageID].gameObject.transform.SetSiblingIndex(NUMPAGES);
-        print(pageParents[pageID].gameObject.transform.GetSiblingIndex());
         activePage = pageID;
+        pageParents[activePage].transform.SetSiblingIndex(NUMPAGES - 1);
     }
 
     internal void EditPageLabel(TMP_Text label)

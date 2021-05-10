@@ -3514,7 +3514,7 @@ GameObject:
   - component: {fileID: 194092425}
   - component: {fileID: 194092426}
   m_Layer: 5
-  m_Name: MasterVolumeSlider
+  m_Name: Slider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10798,7 +10798,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   volumeSlider: {fileID: 194092426}
   volumeLabel: {fileID: 1513765910}
-  AMG: {fileID: 24300002, guid: c3cedfa98331ad049a1746c03dbf1270, type: 2}
 --- !u!114 &519420037
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10846,9 +10845,6 @@ MonoBehaviour:
   plas: {fileID: 1812956632}
   searchField: {fileID: 962171395}
   clearPlaylistSearchButton: {fileID: 1363191118}
-  musicAMG: {fileID: -1330720799687402666, guid: c3cedfa98331ad049a1746c03dbf1270,
-    type: 2}
-  masterAMG: {fileID: 24300002, guid: c3cedfa98331ad049a1746c03dbf1270, type: 2}
 --- !u!114 &519420039
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -23145,7 +23141,7 @@ GameObject:
   - component: {fileID: 1276765984}
   - component: {fileID: 1276765985}
   m_Layer: 5
-  m_Name: MusicVolumeSlider
+  m_Name: Slider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -33710,9 +33706,9 @@ GameObject:
   - component: {fileID: 1812956626}
   - component: {fileID: 1812956628}
   - component: {fileID: 1812956627}
+  - component: {fileID: 1812956629}
   - component: {fileID: 1812956630}
   - component: {fileID: 1812956632}
-  - component: {fileID: 1812956629}
   - component: {fileID: 1812956631}
   m_Layer: 5
   m_Name: MusicPanel
@@ -33793,7 +33789,7 @@ AudioSource:
   m_GameObject: {fileID: 1812956625}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: -1330720799687402666, guid: c3cedfa98331ad049a1746c03dbf1270,
+  OutputAudioMixerGroup: {fileID: 24300002, guid: c3cedfa98331ad049a1746c03dbf1270,
     type: 2}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 1
@@ -33916,7 +33912,7 @@ AudioSource:
   m_GameObject: {fileID: 1812956625}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: -1330720799687402666, guid: c3cedfa98331ad049a1746c03dbf1270,
+  OutputAudioMixerGroup: {fileID: 24300002, guid: c3cedfa98331ad049a1746c03dbf1270,
     type: 2}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 1
@@ -36674,7 +36670,7 @@ GameObject:
   - component: {fileID: 1954961146}
   - component: {fileID: 1954961145}
   m_Layer: 5
-  m_Name: MasterVolumePanel
+  m_Name: VolumePanel
   m_TagString: sfxButtonBG
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -38883,7 +38879,7 @@ GameObject:
   - component: {fileID: 2077223355}
   - component: {fileID: 2077223354}
   m_Layer: 5
-  m_Name: MusicVolumePanel
+  m_Name: VolumePanel
   m_TagString: sfxButtonBG
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

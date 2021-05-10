@@ -3,12 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using System.Linq;
-using JetBrains.Annotations;
-using System.ComponentModel;
-using System.Text.RegularExpressions;
 using System;
-using UnityEngine.Jobs;
-using Unity.Jobs;
 using UnityEngine.UI;
 
 public class QuickReferenceController : MonoBehaviour

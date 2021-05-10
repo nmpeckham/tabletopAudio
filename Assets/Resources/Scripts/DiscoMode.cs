@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class DiscoMode : MonoBehaviour
 {
     internal bool discoModeActive = false;
     float currentCooldown = 0;
     internal float cooldown = 15;
+
     // Start is called before the first frame update
     void Start()
     {

@@ -22,6 +22,18 @@ namespace Extensions
             DateTime epoch = new DateTime(1970, 1, 1);
             return dt.Subtract(epoch).TotalSeconds;
         }
+
+        //Takes a value between 0 and 1, maps to -80 and 0
+        public static float ToDB(this float volume)
+        {
+            return (volume * 80) - 80;
+        }
+
+        // Takes a value between -80 and 0 and maps between 0 and 1
+        public static float ToZeroOne(this float volume)
+        {
+            return (volume + 80) / 80;
+        }
     }
 }
 

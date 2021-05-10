@@ -179,7 +179,6 @@ public class PlaylistTabs : MonoBehaviour
                     t.tabId = i;
                     i++;
                 }
-
             });
             Destroy(nowEditing.gameObject);
             yield return null;

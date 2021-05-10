@@ -263,7 +263,7 @@ public class OptionsMenuController : MonoBehaviour
         }
     }
 
-    internal void LoadItemSelected(string fileLocation)
+    public void LoadItemSelected(string fileLocation)
     {
         mc.AutoCheckForNewFiles = false;
         autoUpdatePlaylistToggle.isOn = false;         
@@ -289,7 +289,7 @@ public class OptionsMenuController : MonoBehaviour
                 float masterVolume = Convert.ToSingle(file.SelectSingleNode("/TableTopAudio-Save-File/masterVolume").InnerText);
                 float musicVolume = Convert.ToSingle(file.SelectSingleNode("/TableTopAudio-Save-File/musicVolume").InnerText);
                 bool shuffle = Convert.ToBoolean(file.SelectSingleNode("/TableTopAudio-Save-File/shuffle").InnerText);
-                mc.MasterVolume = masterVolume;
+                Camera.main.GetComponent<VolumeController>().MasterVolume = masterVolume;
                 mc.MusicVolume = musicVolume;
 
                 XmlNodeList pages = file.SelectNodes("/TableTopAudio-Save-File/SFX-Buttons/page");
@@ -346,7 +346,7 @@ public class OptionsMenuController : MonoBehaviour
                         }
                         catch (NullReferenceException) { }
 
-                        SFXButton sfxBtn = mac.sfxButtons[page][id].GetComponent<SFXButton>();
+                        SFXButton sfxBtn = mac.pageParents[page].buttons[id].GetComponent<SFXButton>();
                         sfxBtn.Label = label;
                         sfxBtn.id = id;
                         sfxBtn.FileName = clipPath;
@@ -427,7 +427,7 @@ public class OptionsMenuController : MonoBehaviour
                 writer.WriteStartElement("TableTopAudio-Save-File");
                 {
                     writer.WriteElementString("version", mac.VERSION);
-                    writer.WriteElementString("masterVolume", mc.MasterVolume.ToString("N1"));
+                    writer.WriteElementString("masterVolume", Camera.main.GetComponent<VolumeController>().MasterVolume.ToString("N1"));
                     writer.WriteElementString("musicVolume", mc.MusicVolume.ToString("N1"));
                     writer.WriteElementString("shuffle", mc.Shuffle.ToString());
 
@@ -441,7 +441,7 @@ public class OptionsMenuController : MonoBehaviour
                             {
                                 for (int j = 0; j < MainAppController.NUMBUTTONS; j++)
                                 {
-                                    SFXButton button = mac.sfxButtons[i][j].GetComponent<SFXButton>();
+                                    SFXButton button = mac.pageParents[i].buttons[j].GetComponent<SFXButton>();
                                     if (!(string.IsNullOrEmpty(button.Label)))
                                     {
                                         writer.WriteStartElement("button");

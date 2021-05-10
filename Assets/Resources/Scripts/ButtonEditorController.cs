@@ -129,7 +129,7 @@ public class ButtonEditorController : MonoBehaviour
     internal void ApplySettings()
     {
         //Applies all changed settings
-        SFXButton button = mac.sfxButtons[mac.activePage][buttonID].GetComponent<SFXButton>();
+        SFXButton button = mac.pageParents[mac.activePage].buttons[buttonID].GetComponent<SFXButton>();
         if (System.String.IsNullOrEmpty(fileNameLabel.text))    //No file selected
         {
             button.Stop();
@@ -177,7 +177,7 @@ public class ButtonEditorController : MonoBehaviour
         //Prepare UI for user to begin editing
         buttonID = id;
         
-        SFXButton button = mac.sfxButtons[mac.activePage][id].GetComponent<SFXButton>();
+        SFXButton button = mac.pageParents[mac.activePage].buttons[buttonID].GetComponent<SFXButton>();
         loopButton.isOn = button.Loop;
         minLoopDelay.text = button.MinLoopDelay.ToString("N0");
         clipID = button.FileName;
@@ -200,7 +200,7 @@ public class ButtonEditorController : MonoBehaviour
         ignoreOnPlayAllButton.isOn = button.IgnorePlayAll;
 
         //buttonLabelInput.ActivateInputField();
-        string currentLabel = mac.sfxButtons[mac.activePage][buttonID].GetComponentInChildren<TMP_Text>().text;
+        string currentLabel = mac.pageParents[mac.activePage].buttons[buttonID].GetComponentInChildren<TMP_Text>().text;
         if (String.IsNullOrEmpty(currentLabel))
         {
             buttonLabelInput.text = "";

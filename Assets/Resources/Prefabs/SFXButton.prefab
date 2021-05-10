@@ -929,7 +929,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -1116,6 +1116,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ada88c9ba6a938a44a61353c23d81652, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  FileName: 
   vc: {fileID: 0}
   aSource: {fileID: 0}
   fadeInButton: {fileID: 3350515478253942067}
@@ -1131,7 +1132,8 @@ AudioSource:
   m_GameObject: {fileID: 4684420245281756330}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 2194085014892510183, guid: c3cedfa98331ad049a1746c03dbf1270,
+    type: 2}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
   m_Volume: 1

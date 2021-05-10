@@ -46,7 +46,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - Height: 0.61378664
+    - Height: 0.000014292642
     - Vector1_463B4597: 1
     m_Colors: []
   m_BuildTextureStacks: []

@@ -62,6 +62,7 @@ public class GenerateMusicFFTBackgrounds : MonoBehaviour
                 long newPosition;
                 for(int i = 1; i  < 456; i++)
                 {
+                    if (i > 456) break;
                     try
                     {
                         actualRead = reader.ReadSamples(buf, 0, buf.Length - 1);
@@ -91,6 +92,12 @@ public class GenerateMusicFFTBackgrounds : MonoBehaviour
                     {
                         Debug.LogError(e);
                         print("argument exception");
+                        break;
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.LogError(e);
+                        print("unknown exception, be afraid");
                         break;
                     }
                     for (int x = 0; x < samples.Count; x++)
