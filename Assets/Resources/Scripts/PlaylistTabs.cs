@@ -30,7 +30,8 @@ public class PlaylistTabs : MonoBehaviour
     public Button confirmButton;
 
     public GameObject editTabLabelPanel;
-        private int tabsCreated = 1;
+    private int tabsCreated = 1;
+    public DisableClickDragScroll dcds;
 
     internal PlaylistTab nowEditing
     {
@@ -83,8 +84,7 @@ public class PlaylistTabs : MonoBehaviour
     {
         SetTabSize(newTab);
         mc.TabChanged();
-        //TODO: This is destroyed on save load:
-        //print(selectedTab.musicContentView.transform.childCount);
+
         foreach (Transform t in selectedTab.musicContentView.transform)
         {
             t.gameObject.SetActive(true);
@@ -92,6 +92,7 @@ public class PlaylistTabs : MonoBehaviour
         selectedTab.musicContentView.SetActive(false);
         selectedTab = tabs[newTab];
         selectedTab.musicContentView.SetActive(true);
+        dcds.content = tabs[newTab].musicContentView.GetComponent<RectTransform>();
     }
 
     void SetTabSize(int newTab)
@@ -99,11 +100,11 @@ public class PlaylistTabs : MonoBehaviour
         PlaylistTab currentTab = selectedTab;
         RectTransform nr = currentTab.GetComponent<RectTransform>();
         if(currentTab.tabId > 0) nr.sizeDelta = new Vector2(75, 40);
-        currentTab.GetComponent<Image>().color = new Color(120 / 255f, 120 / 255f, 120 / 255f);    //TODO: move color to resourceManager
+        currentTab.GetComponent<Image>().color = ResourceManager.tabInactiveColor;
         currentTab.GetComponent<Image>().sprite = tabUnselectedSprite;
 
         currentTab = tabs[newTab];
-        currentTab.GetComponent<Image>().color = new Color(200 / 255f, 200 / 255f, 200 / 255f);
+        currentTab.GetComponent<Image>().color = ResourceManager.tabActiveColor;
 
         nr = currentTab.GetComponent<RectTransform>();
         if (currentTab.tabId > 0)
@@ -141,14 +142,23 @@ public class PlaylistTabs : MonoBehaviour
         mac.currentMenuState = MainAppController.MenuState.mainAppView;
     }
 
-    internal void AddSongToPlaylist(int id, Song song)
+    internal void AddSongToPlaylist(int tabId, Song song, int positionToInsertAt = -1)
     {
-        GameObject mbObj = Instantiate(Prefabs.musicButtonPrefab, tabs[id].musicContentView.transform);
+        GameObject mbObj = Instantiate(Prefabs.musicButtonPrefab, tabs[tabId].musicContentView.transform);
         MusicButton mb = mbObj.GetComponent<MusicButton>();
         mb.Init();
-        mb.buttonId = tabs[id].MusicButtons.Count;
-        tabs[id].MusicButtons.Add(mb);
+        mb.buttonId = tabs[tabId].MusicButtons.Count;
+        tabs[tabId].MusicButtons.Add(mb);
         mb.Song = song;
+
+        if(positionToInsertAt != -1)
+        {
+            for(int i = tabs[tabId].MusicButtons.Count - 2; i > positionToInsertAt; i--)
+            {
+                mc.RefreshSongOrder(i + 1, i);
+            }
+            mbObj.transform.SetSiblingIndex(positionToInsertAt + 1);
+        }
     }
 
     internal void DeleteAllTabs()

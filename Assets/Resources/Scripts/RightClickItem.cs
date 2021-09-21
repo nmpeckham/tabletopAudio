@@ -26,6 +26,8 @@ public class RightClickItem : MonoBehaviour, IPointerEnterHandler
         if (id == 2) prcc.ShowAddToMenu();
         if (id == 3) pt.EditTabName();
         if (id == 4) StartCoroutine(pt.DeleteTab());
+        if (id == 5) prcc.DuplicateItem();
+
         StartCoroutine(Delete());
     }
 

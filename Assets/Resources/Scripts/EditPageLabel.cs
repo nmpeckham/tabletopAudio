@@ -46,6 +46,8 @@ public class EditPageLabel : MonoBehaviour
     {
         mac.currentMenuState = MainAppController.MenuState.editingPageLabel;
         input.text = buttonLabel.text;
+        print("hello");
         editLabelPanel.SetActive(true);
+        input.ActivateInputField();
     }
 }

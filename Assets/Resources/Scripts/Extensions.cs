@@ -34,6 +34,16 @@ namespace Extensions
         {
             return (volume + 80) / 80;
         }
+
+        public static int Mod(this int a, int b)
+        {
+            return (a % b + b) % b;
+        }
+
+        public static float Map(this float num, float inMin, float inMax, float outMin, float outMax)
+        {
+            return outMin + ((num - inMin) * (outMax - outMin) / (inMax - inMin));
+        }
     }
 }
 

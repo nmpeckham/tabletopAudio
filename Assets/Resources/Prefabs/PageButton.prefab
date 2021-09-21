@@ -98,7 +98,7 @@ MonoBehaviour:
   m_enableAutoSizing: 1
   m_fontSizeMin: 12
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 1
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 4096
   m_textAlignment: 65535
@@ -247,6 +247,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Navigation:
     m_Mode: 3
+    m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
@@ -342,7 +343,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 20d1dd3acd0547444841ac242b9e12cf, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 131e218bd93b30d45bbf9bc571006206, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -429,7 +430,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 120fa44fe4e70734591487909b1d69f8, type: 3}
+  m_Sprite: {fileID: 21300000, guid: bc2be1909c11e924b84b67dc25a26e6a, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -531,6 +532,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Navigation:
     m_Mode: 3
+    m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
@@ -572,8 +574,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3717dfeb8dc532247b109796725b6d30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tooltipPrefab: {fileID: 4301701412826880622, guid: 0e04225d1edef2845ab8123e93d9c52d,
-    type: 3}
   tooltipText: Play All On This Page
 --- !u!1 &3624705818954836925
 GameObject:
@@ -667,6 +667,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Navigation:
     m_Mode: 3
+    m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
@@ -708,8 +709,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3717dfeb8dc532247b109796725b6d30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tooltipPrefab: {fileID: 4301701412826880622, guid: 0e04225d1edef2845ab8123e93d9c52d,
-    type: 3}
   tooltipText: Fade In All On This Page
 --- !u!1 &4945343659771206542
 GameObject:
@@ -776,7 +775,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 734efee541dd72147af616d2594197e2, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 1f949dbe78a340140b10a2bb0e06b874, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -825,8 +824,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 0, y: 17.105}
-  m_SizeDelta: {x: -16.8, y: 19.04}
+  m_AnchoredPosition: {x: 0, y: 17.6322}
+  m_SizeDelta: {x: -16.8, y: 21.9455}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &9071160984702253943
 CanvasRenderer:
@@ -957,7 +956,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 734efee541dd72147af616d2594197e2, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 1f949dbe78a340140b10a2bb0e06b874, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -1032,7 +1031,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 07a050930b0d01946a9ada6ee7b5d6de, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 837e480316a80d04c8fa1d3354fef2b6, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -1134,6 +1133,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Navigation:
     m_Mode: 3
+    m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
@@ -1175,8 +1175,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3717dfeb8dc532247b109796725b6d30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tooltipPrefab: {fileID: 4301701412826880622, guid: 0e04225d1edef2845ab8123e93d9c52d,
-    type: 3}
   tooltipText: Fade Out All On This Page
 --- !u!1 &9073860543632115482
 GameObject:
@@ -1270,6 +1268,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Navigation:
     m_Mode: 3
+    m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
@@ -1311,6 +1310,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3717dfeb8dc532247b109796725b6d30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tooltipPrefab: {fileID: 4301701412826880622, guid: 0e04225d1edef2845ab8123e93d9c52d,
-    type: 3}
   tooltipText: Stop All On This Page

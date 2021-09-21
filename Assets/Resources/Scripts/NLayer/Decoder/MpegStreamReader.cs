@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using UnityEngine;
 
 namespace NLayer.Decoder
 {
@@ -243,7 +242,7 @@ namespace NLayer.Decoder
                 lock (_localLock)
                 {
                     var startIdx = EnsureFilled(reader, offset, ref count);
-                    //Debug.Log(startIdx);
+                    
                     Buffer.BlockCopy(Data, startIdx, buffer, index, count);
                 }
                 return count;
@@ -454,25 +453,14 @@ namespace NLayer.Decoder
 
                         while (readCount > 0 && readOffset < reader._eofOffset)
                         {
-                            try
+                            var temp = reader._source.Read(Data, readStart, readCount);
+                            if (temp == 0)
                             {
-                                var temp = reader._source.Read(Data, readStart, readCount);
-                                if (temp == 0)
-                                {
-                                    break;
-                                }
-                                readStart += temp;
-                                readOffset += temp;
-                                readCount -= temp;
+                                break;
                             }
-
-                            catch(ArgumentException e)
-                            {
-                                Console.WriteLine(e.Message);
-                                return (1);
-                             
-                            }
-                  
+                            readStart += temp;
+                            readOffset += temp;
+                            readCount -= temp;
                         }
 
                         if (readStart > End)
@@ -497,7 +485,7 @@ namespace NLayer.Decoder
                     #endregion
                 }
 
-                return startIdx >= 0 ? startIdx : 0;
+                return startIdx;
             }
 
             public void DiscardThrough(long offset)

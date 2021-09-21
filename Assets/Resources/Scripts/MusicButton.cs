@@ -24,8 +24,9 @@ public class MusicButton : MonoBehaviour,  IPointerClickHandler, IComparable
     public int buttonId;
     static PlaylistRightClickController prcc;
     static MusicController mc;
-    float doubleClickTime = 0.8f;
-    float timeSinceClick = 100f;
+    static float doubleClickTime = 0.8f;
+    static float timeSinceClick = 100f;
+    internal MoveMusicButton mmb;
 
     // Start is called before the first frame update
     internal void Init()
@@ -34,6 +35,8 @@ public class MusicButton : MonoBehaviour,  IPointerClickHandler, IComparable
         mc = Camera.main.GetComponent<MusicController>();
         timeSinceClick = Time.time;
         label = GetComponentInChildren<TMP_Text>();
+        mmb = GetComponentInChildren<MoveMusicButton>();
+        //mmb.Init();
     }
 
     void ItemSelected(int type)

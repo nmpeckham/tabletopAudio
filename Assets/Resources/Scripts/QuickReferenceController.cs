@@ -189,7 +189,6 @@ public class QuickReferenceController : MonoBehaviour
                                 //move items that are an exact match to top
                                 //TODO: wtf is this???
 
-
                                 if (dbItem.Value["name"].ToString().ToUpper() == queryItem.ToUpper())
                                 {
                                     print(dbItem.Value["name"].ToString().ToUpper());

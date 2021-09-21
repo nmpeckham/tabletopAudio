@@ -176,6 +176,7 @@ public class ButtonEditorController : MonoBehaviour
     {
         //Prepare UI for user to begin editing
         buttonID = id;
+
         
         SFXButton button = mac.pageParents[mac.activePage].buttons[buttonID].GetComponent<SFXButton>();
         loopButton.isOn = button.Loop;

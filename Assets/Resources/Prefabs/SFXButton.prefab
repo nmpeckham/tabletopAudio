@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 1743505022076588867}
   - component: {fileID: 7091695427303597273}
   m_Layer: 5
-  m_Name: Button (1)
+  m_Name: FadeOutButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -348,7 +348,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 734efee541dd72147af616d2594197e2, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 1f949dbe78a340140b10a2bb0e06b874, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -558,7 +558,7 @@ GameObject:
   - component: {fileID: 3350515478253942067}
   - component: {fileID: 687774085471704574}
   m_Layer: 5
-  m_Name: Button
+  m_Name: FadeInButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -832,7 +832,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 734efee541dd72147af616d2594197e2, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 1f949dbe78a340140b10a2bb0e06b874, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

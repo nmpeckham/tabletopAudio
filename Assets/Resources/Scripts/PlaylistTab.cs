@@ -8,7 +8,6 @@ using System;
 
 public class PlaylistTab : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler, IPointerEnterHandler
 {
-    private Button thisButton;
     public int tabId;
     //private List<Song> playlist = new List<Song>();
     internal GameObject musicContentView;

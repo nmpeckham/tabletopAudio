@@ -27,7 +27,7 @@ public class Tooltip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     IEnumerator UpdateTooltipPosition()
     {
-        yield return new WaitForSecondsRealtime(0.5f);
+        yield return new WaitForSecondsRealtime(0.5f);  //wait half a sec before showing tooltip
         if (tooltip) tooltip.GetComponent<Image>().color = Color.white;
         if (tooltip) tooltip.GetComponentInChildren<TMP_Text>().color = Color.black;
 

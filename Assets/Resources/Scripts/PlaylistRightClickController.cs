@@ -8,6 +8,7 @@ public class PlaylistRightClickController : MonoBehaviour
 {
     private MainAppController mac;
     private MusicController mc;
+    private PlaylistTabs pt;
     internal int selectedSongId = -1;
 
     internal RightClickRootMenu activeRightClickMenu;
@@ -22,6 +23,7 @@ public class PlaylistRightClickController : MonoBehaviour
     {
         mac = GetComponent<MainAppController>();
         mc = GetComponent<MusicController>();
+        pt = GetComponent<PlaylistTabs>();
     }
 
     internal void ShowRightClickMenu(int id)
@@ -34,9 +36,10 @@ public class PlaylistRightClickController : MonoBehaviour
             activeRightClickMenu = null;
         }
         activeRightClickMenu = Instantiate(Prefabs.rightClickMenuPrefab, Input.mousePosition, Quaternion.identity, MainAppController.tooltipParent).GetComponent<RightClickRootMenu>();
-        activeRightClickMenu.AddMenuItem(2, "Add To...", activeRightClickMenu.buttonParent);
-        activeRightClickMenu.AddMenuItem(1, "Play Next", activeRightClickMenu.buttonParent);
         activeRightClickMenu.AddMenuItem(0, "Remove", activeRightClickMenu.buttonParent);
+        activeRightClickMenu.AddMenuItem(1, "Play Next", activeRightClickMenu.buttonParent);
+        activeRightClickMenu.AddMenuItem(5, "Clone", activeRightClickMenu.buttonParent);
+        activeRightClickMenu.AddMenuItem(2, "Add To...", activeRightClickMenu.buttonParent);
         activeRightClickMenu.SetBounds(minX, minY, maxX, maxY);
 
         ShowAddToMenu();
@@ -45,11 +48,11 @@ public class PlaylistRightClickController : MonoBehaviour
 
         if (PlaylistTabs.tabs.Count == 1)
         {
-            activeRightClickMenu.buttonParent.transform.GetChild(0).gameObject.SetActive(false);
+            activeRightClickMenu.buttonParent.transform.GetChild(3).gameObject.SetActive(false);
         }
         else
         {
-            activeRightClickMenu.buttonParent.transform.GetChild(0).gameObject.SetActive(true);
+            activeRightClickMenu.buttonParent.transform.GetChild(3).gameObject.SetActive(true);
         }
         activeRightClickMenu.maxY = (((activeRightClickMenu.buttonParent.transform.GetComponentsInChildren<Transform>().Count() - 1) / 2) * 23) + 15;    //add 23 pixels of mouse room for each item in list plus an extra 15
     }
@@ -90,6 +93,13 @@ public class PlaylistRightClickController : MonoBehaviour
                 }
             }
         }
+    }
+
+    internal void DuplicateItem()
+    {
+        print(PlaylistTabs.selectedTab.tabId);
+        pt.AddSongToPlaylist(PlaylistTabs.selectedTab.tabId, PlaylistTabs.selectedTab.GetSongAtIndex(selectedSongId), selectedSongId);
+
     }
 
     internal void DeleteItem()

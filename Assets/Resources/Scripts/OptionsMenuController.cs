@@ -254,7 +254,6 @@ public class OptionsMenuController : MonoBehaviour
         {
             if(Path.GetExtension(saveName) == ".xml" || Path.GetExtension(saveName) == ".xml")
             {
-                print(Path.GetDirectoryName(mac.saveDirectory));
                 string trimmedSaveName = saveName.Replace(mac.saveDirectory, "");
                 GameObject scrollItem = Instantiate(Prefabs.loadGameItemPrefab, loadGameScrollView.transform);
                 scrollItem.GetComponent<LoadGameSelectItem>().fileLocation = saveName;
@@ -266,7 +265,7 @@ public class OptionsMenuController : MonoBehaviour
     public void LoadItemSelected(string fileLocation)
     {
         mc.AutoCheckForNewFiles = false;
-        autoUpdatePlaylistToggle.isOn = false;         
+        autoUpdatePlaylistToggle.isOn = false;
         mc.Stop();
         mac.ControlButtonClicked("STOP-SFX");
         DestroyItems();
@@ -375,13 +374,10 @@ public class OptionsMenuController : MonoBehaviour
                     List<string> files = new List<string>();
                     foreach (XmlNode s in n)
                     {
-                        if(s.Name == "song") files.Add(s.InnerText);
+                        if (s.Name == "song") files.Add(s.InnerText);
                     }
-                    print("Label: " + label);
-                    print("# tabs: " + PlaylistTabs.tabs.Count);
-                    mc.InitLoadFiles(files, tabId);
                     tabId++;
-                }                
+                }
                 loadGameSelectionView.SetActive(false);
                 mac.pageParents[0].gameObject.transform.SetSiblingIndex(MainAppController.NUMPAGES);
                 mac.currentMenuState = MainAppController.MenuState.optionsMenu;
@@ -392,8 +388,8 @@ public class OptionsMenuController : MonoBehaviour
             mac.ShowErrorMessage("Loading failed: Malformed save file format");
         }
 
-        if (mac.darkModeEnabled) mac.SwapDarkLightMode(true);
-        StartCoroutine(RebuildLayout());
+         if (mac.darkModeEnabled) mac.SwapDarkLightMode(true);
+         StartCoroutine(RebuildLayout());
     }
 
     IEnumerator RebuildLayout()

@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.IO;
 using System.Linq;
+using TMPro;
 
 //Holds data for colors and images
 internal static class ResourceManager
@@ -21,6 +22,12 @@ internal static class ResourceManager
     internal static Color sfxButtonLight = new Color(224 / 255f, 224 / 255f, 224 / 255f);
     internal static Color sfxButtonDark = new Color(100 / 255f, 100 / 255f, 100 / 255f);
     internal static Color sfxPageBG = new Color(149 / 255f, 149 / 255f, 149 / 255f);
+
+    internal static Color tabInactiveColor = new Color(120 / 255f, 120 / 255f, 120 / 255f);
+    internal static Color tabActiveColor = new Color(200 / 255f, 200 / 255f, 200 / 255f);
+
+    internal static List<char> charTable = new List<char>();
+
 
     //internal static Color 
 
@@ -59,5 +66,8 @@ internal static class ResourceManager
     internal static void Init()
     {
         dbFiles = Directory.GetFiles(Application.streamingAssetsPath).Where(a => Path.GetExtension(a) == ".json").ToArray();
+
+        TMP_FontAsset englishAsset = Resources.Load<TMP_FontAsset>("Fonts & Materials/LiberationSans SDF");
+        englishAsset.characterTable.ForEach(item => charTable.Add(Convert.ToChar(item.unicode)));
     }
 }

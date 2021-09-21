@@ -17,9 +17,9 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     internal int page;
     internal int id;
-    private ButtonEditorController bec;
-    public FileSelectViewController vc;
-    private MainAppController mac;
+    static private ButtonEditorController bec;
+    static public FileSelectViewController vc;
+    static private MainAppController mac;
     private Button thisButton;
     private bool hasPointer = false;
     public AudioSource aSource;
@@ -61,10 +61,11 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     public TMP_Text ignorePlayAllIndicator;
 
     private float framesSinceColorUpdate;
+    internal static bool fadeToBlack = false;
 
     Color currentColor;
     Coroutine discoCR;
-
+    
     internal bool IgnorePlayAll
     {
         get
@@ -126,17 +127,8 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         volumeSlider = GetComponentInChildren<Slider>();
         playbackBarRect = playBackBar.GetComponent<RectTransform>();
         mac = Camera.main.GetComponent<MainAppController>();
-        volumeSlider.onValueChanged.AddListener(ChangeLocalVolume);
-        sliderButton = volumeSlider.GetComponentInChildren<Button>();
-        sliderButton.onClick.AddListener(SliderButtonClicked);
+        volumeSlider.onValueChanged.AddListener(VolumeSliderAdjusted);
         currentColor = GetComponent<Image>().color;
-    }
-
-    void SliderButtonClicked()
-    {
-        print("Slider clicked");
-        if (activeFadeOutRoutine != null) StopCoroutine(activeFadeOutRoutine);
-        if (activeFadeInRoutine != null) StopCoroutine(activeFadeInRoutine);
     }
 
 
@@ -144,11 +136,12 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     {
         if (!active)
         {
-            StopCoroutine(discoCR);
+            if(discoCR != null) StopCoroutine(discoCR);
+            discoCR = null;
             GetComponent<Image>().color = mac.darkModeEnabled ? ResourceManager.sfxButtonDark : ResourceManager.sfxButtonLight;
             currentColor = GetComponent<Image>().color;
         }
-        else discoCR = StartCoroutine(DiscoModeUpdate());
+        //else discoCR = StartCoroutine(DiscoModeUpdate());
     }
 
     IEnumerator DiscoModeUpdate()
@@ -160,24 +153,27 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
             Color newColor = btnImage.color;
             while(btnImage.color == newColor)
             {
-                int colorIndex = UnityEngine.Random.Range(0, ResourceManager.kellysMaxContrastSet.Count - 1);
-                newColor = MainAppController.UIntToColor(ResourceManager.kellysMaxContrastSet[colorIndex]);
-                yield return null;
+                newColor = GetNewColor();
             }
             currentColor = btnImage.color;
             for (int i = 0; i < numSteps; i++)
             {
-                float fadeRatio = (float)i / numSteps;
+                float fadeRatio = ((float)i / numSteps);
 
                 float newR = Mathf.Lerp(currentColor.r, newColor.r, fadeRatio);
                 float newG = Mathf.Lerp(currentColor.g, newColor.g, fadeRatio);
                 float newB = Mathf.Lerp(currentColor.b, newColor.b, fadeRatio);
-                newR = newR - (framesSinceColorUpdate / 100f);
-                newG = newG - (framesSinceColorUpdate / 100f);
-                newB = newB - (framesSinceColorUpdate / 100f);
+                if(fadeToBlack)
+                {
+                    newR = newR - (framesSinceColorUpdate / 100f);
+                    newG = newG - (framesSinceColorUpdate / 100f);
+                    newB = newB - (framesSinceColorUpdate / 100f);
+                }
+
                 btnImage.color = new Color(newR, newG, newB);
 
                 yield return null;
+                if (UnityEngine.Random.Range(0, 2) == 1) yield return null;
                 if (UnityEngine.Random.Range(0, 2) == 1) yield return null;
             }
         }
@@ -185,11 +181,14 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     internal void ChangeColor()
     {
-        StopCoroutine(discoCR);
+        if(discoCR != null) StopCoroutine(discoCR);
         Image btnImage = GetComponent<Image>();
-        int colorIndex = UnityEngine.Random.Range(0, ResourceManager.kellysMaxContrastSet.Count - 1);
-        Color newColor = MainAppController.UIntToColor(ResourceManager.kellysMaxContrastSet[colorIndex]);
-        btnImage.color = newColor;
+        Color newwColor = GetNewColor();
+        while(newwColor == btnImage.color)
+        {
+            GetNewColor();
+        }
+        btnImage.color = GetNewColor();
         discoCR = StartCoroutine(DiscoModeUpdate());
         framesSinceColorUpdate = 0;
     }
@@ -235,6 +234,12 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         }
     }
 
+    Color GetNewColor()
+    {
+        int colorIndex = UnityEngine.Random.Range(0, DiscoMode.colours.Count - 1);
+        return DiscoMode.colours[colorIndex];
+    }
+
     IEnumerator FadeInRoutine()
     {        
         while (LocalVolume < maximumFadeVolume)
@@ -276,6 +281,17 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         else if(newLocalVol <= 0 && LocalVolume > 0 && isPlaying && !isWaiting) mac.pageButtons[page].GetComponent<PageButton>().ActiveAudioSources--;
         LocalVolume = newLocalVol;
         aSource.volume = LocalVolume * masterVolume;
+    }
+
+    private void VolumeSliderAdjusted(float value)
+    {
+        //volumeSlider.SetValueWithoutNotify(value)
+        print("volumeSliderAdjusted");
+        if(activeFadeInRoutine != null) StopCoroutine(activeFadeInRoutine);
+        if(activeFadeOutRoutine != null) StopCoroutine(activeFadeOutRoutine);
+        activeFadeInRoutine = null;
+        activeFadeOutRoutine = null;
+        ChangeLocalVolume(value);
     }
 
     internal void ClearActiveClip()

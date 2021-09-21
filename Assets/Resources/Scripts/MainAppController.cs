@@ -135,6 +135,7 @@ public class MainAppController : MonoBehaviour
         mc.Init();
         NowPlayingWebpage.Init();
         GetComponent<FftController>().Init();
+        GetComponent<MusicLoadingAnimation>().Init();
         tooltipParent = GameObject.Find("Tooltips").transform;
     }
 
@@ -317,6 +318,10 @@ public class MainAppController : MonoBehaviour
                     break;
             }
 
+        }
+        if(Input.GetKeyDown(KeyCode.J))
+        {
+            mc.ToggleModPanel();
         }
         if (Input.GetKeyDown(KeyCode.Escape))
         {

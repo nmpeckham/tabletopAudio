@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5aeb5c522ee4f76458c9791804ec051a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  id: 0
+  buttonId: 0
 --- !u!1 &6997503123785362511
 GameObject:
   m_ObjectHideFlags: 0
@@ -80,7 +80,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: aa5d386fbee2233479863f8e11e98530, type: 3}
+  m_Sprite: {fileID: 21300000, guid: db7260a588a071249bbc2e1b7eea366e, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -210,8 +210,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4767959089637096827, guid: 17ea4418c9625ee4d8164124389d46ef,
         type: 3}
+      propertyPath: m_textAlignment
+      value: 65535
+      objectReference: {fileID: 0}
+    - target: {fileID: 4767959089637096827, guid: 17ea4418c9625ee4d8164124389d46ef,
+        type: 3}
       propertyPath: m_fontColor32.rgba
       value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 4767959089637096827, guid: 17ea4418c9625ee4d8164124389d46ef,
+        type: 3}
+      propertyPath: m_TextStyleHashCode
+      value: -1183493901
+      objectReference: {fileID: 0}
+    - target: {fileID: 4767959089637096827, guid: 17ea4418c9625ee4d8164124389d46ef,
+        type: 3}
+      propertyPath: m_VerticalAlignment
+      value: 512
       objectReference: {fileID: 0}
     - target: {fileID: 4767959089637096827, guid: 17ea4418c9625ee4d8164124389d46ef,
         type: 3}

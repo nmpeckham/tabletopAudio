@@ -6,6 +6,7 @@ using NLayer;
 using NVorbis;
 using UnityEngine.UI;
 using System;
+using System.Linq;
 
 
 public class GenerateMusicFFTBackgrounds : MonoBehaviour
@@ -60,16 +61,17 @@ public class GenerateMusicFFTBackgrounds : MonoBehaviour
                 int actualRead;
                 float rmsEnergy;
                 long newPosition;
-                for(int i = 1; i  < 456; i++)
+                for (int i = 1; i < 456; i++)
                 {
-                    if (i > 456) break;
+                    //if (i > 456) break;
                     try
                     {
-                        actualRead = reader.ReadSamples(buf, 0, buf.Length - 1);
-                        samplesRead += actualRead;
+                        reader.ReadSamples(buf, 0, buf.Length - 1);
+                        //actualRead = reader.ReadSamples(buf, 0, buf.Length - 1);
+                        //samplesRead += actualRead;
                         rmsEnergy = CalculateRMS(buf);
                         samples.Add(rmsEnergy);
-                        if (actualRead == 0) break;
+                        //if (actualRead == 0) break;
                         newPosition = (reader.Length / 455) * i;
                         reader.Position = newPosition;
                     }
@@ -100,35 +102,51 @@ public class GenerateMusicFFTBackgrounds : MonoBehaviour
                         print("unknown exception, be afraid");
                         break;
                     }
-                    for (int x = 0; x < samples.Count; x++)
-                    {
-                        for (int y = 0; y < (Mathf.Abs(samples[x]) * 1200f + 3f); y++)
-                        {
-                            tex.SetPixel(x, y, Color.gray);
-                        }
-                        tex.SetPixel(x, 0, Color.white); // Set the bottom row of pixels white, as a divider line
-                    }
-                    tex.Apply();
-                    btn.GetComponent<Image>().sprite = Sprite.Create(tex, new Rect(0, 0, 455, 26), Vector2.zero);
-                    if (samples.Count % 8 == 0) yield return null;
-
+                    if (samples.Count % 16 == 0) yield return null;
                 }
+                samples = Normalize(samples);
+                for (int x = 0; x < samples.Count; x++)
+                {
+                    for (int y = 0; y < samples[x] * 26f; y++)
+                    {
+                        tex.SetPixel(x, y, Color.gray);
+                    }
+                    tex.SetPixel(x, 0, Color.white); // Set the bottom row of pixels white, as a divider line
+                }
+                tex.Apply();
+                btn.GetComponent<Image>().sprite = Sprite.Create(tex, new Rect(0, 0, 455, 26), Vector2.zero);
+                
+
             }
             else if (extension == ".ogg")
             {
-                VorbisReader reader = new VorbisReader(filePath);
+                //
             }
             yield return null;
         }
         yield return null;
     }
-    float CalculateRMS(float[] buffer)
+
+    List<float> Normalize(List<float> samples)
+    {
+        float max = samples.Max();
+        List<float> normalizedSamples = new List<float>();
+        foreach(float sample in samples)
+        {
+            normalizedSamples.Add((sample) / max);
+        }
+        print(normalizedSamples.Max());
+        print(normalizedSamples.Average());
+        print("\n");
+        return normalizedSamples;
+    }
+    float CalculateRMS(float[] samples)
     {
         float sum = 0;
-        foreach(float item in buffer)
+        foreach(float item in samples)
         {
-            sum += Mathf.Pow(item, 2);
+            sum += Mathf.Pow(Mathf.Abs(item), 2f);
         }
-        return Mathf.Sqrt(sum) / buffer.Length;
+        return Mathf.Sqrt(sum / samples.Length);
     }
 }
