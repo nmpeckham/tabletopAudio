@@ -17,8 +17,8 @@ limitations under the License.
 */
 #endregion
 
-using System;
 using Id3.Frames;
+using System;
 
 namespace Id3.Files
 {

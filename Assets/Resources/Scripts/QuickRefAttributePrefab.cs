@@ -1,8 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
-using TMPro;
 
 public class QuickRefAttributePrefab : MonoBehaviour
 {
@@ -11,17 +8,17 @@ public class QuickRefAttributePrefab : MonoBehaviour
 
     private string title;
     private string detail;
-    public string Title 
-    { 
-        get 
-        { 
-            return title; 
-        } 
-        set 
+    public string Title
+    {
+        get
+        {
+            return title;
+        }
+        set
         {
             title = value;
             titleText.text = title;
-        } 
+        }
     }
 
     public string Detail

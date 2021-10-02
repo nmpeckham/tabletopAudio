@@ -1,7 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using NLayer;
+using UnityEngine;
 
 public class AudioController : MonoBehaviour
 {

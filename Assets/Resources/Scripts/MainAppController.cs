@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
-using System;
-using System.Linq;
-using UnityEngine.UI;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
-using TMPro;
 using System.Text.Json;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
+using Unity.Jobs.LowLevel.Unsafe;
 
 
 //Main controller for the app. Handles various tasks
@@ -82,12 +82,14 @@ public class MainAppController : MonoBehaviour
     private int thankyouMessagesShown = 0;
     internal static Transform tooltipParent;
 
+    public TMP_Text fpsDisplayText;
+
     // Start is called before the first frame update
     public void Start()
     {
         //PlayerPrefs.DeleteKey("Crossfade");
         //print(PlayerPrefs.GetFloat("Crossfade") == 0);
-        Prefabs.LoadAll ();
+        Prefabs.LoadAll();
         if (PlayerPrefs.GetFloat("Crossfade") == 0) PlayerPrefs.SetFloat("Crossfade", 10);
         VERSION = Application.version;
         ResourceManager.Init();
@@ -125,18 +127,20 @@ public class MainAppController : MonoBehaviour
         {
             darkModeEnabled = Convert.ToBoolean(PlayerPrefs.GetString("darkMode"));
         }
-        catch (FormatException){ }
+        catch (FormatException) { }
         SwapDarkLightMode(darkModeEnabled);
         LoadQrdObjects();
 
         MakeCategoryColors();
-        this.currentMenuState = MenuState.mainAppView;
+        currentMenuState = MenuState.mainAppView;
         GetComponent<PlaylistTabs>().Init();
         mc.Init();
         NowPlayingWebpage.Init();
         GetComponent<FftController>().Init();
-        GetComponent<MusicLoadingAnimation>().Init();
         tooltipParent = GameObject.Find("Tooltips").transform;
+
+        fpsDisplayText.gameObject.SetActive(true);
+        JobsUtility.JobWorkerCount = SystemInfo.processorCount - 1; // boosts fps by 100% :/
     }
 
     void MakeCategoryColors()
@@ -187,19 +191,20 @@ public class MainAppController : MonoBehaviour
 
     internal bool MakeSFXButtons()
     {
-        pageParents.ForEach(pp => {
+        pageParents.ForEach(pp =>
+        {
             pp.buttons.ForEach(btn =>
             {
                 Destroy(btn);
             });
             pp.buttons.Clear();
         });
-        foreach(GameObject g in pageButtons)
+        foreach (GameObject g in pageButtons)
         {
             Destroy(g);
         }
 
-        foreach(SFXPage o in pageParents)
+        foreach (SFXPage o in pageParents)
         {
             Destroy(o.gameObject);
         }
@@ -212,10 +217,10 @@ public class MainAppController : MonoBehaviour
             pageButton.GetComponentInChildren<TMP_Text>().text = (i + 1).ToString();
             pageButton.GetComponent<PageButton>().id = i;
             pageButton.GetComponent<PageButton>().Init();
-            
+
             pageButtons.Add(pageButton);
             pageButton.transform.SetSiblingIndex(i + 1);
-            
+
             GameObject pp = Instantiate(Prefabs.pageParentPrefab, pageParentParent.transform);
             pp.name += " " + i;
             pp.GetComponent<SFXPage>().id = i;
@@ -228,7 +233,7 @@ public class MainAppController : MonoBehaviour
                 btn.id = j;
                 btn.page = i;
                 btn.Init();
-                
+
                 pp.GetComponent<SFXPage>().buttons.Add(button);
             }
             if (i == 0) pageButton.GetComponent<Image>().color = Color.red;
@@ -253,13 +258,13 @@ public class MainAppController : MonoBehaviour
                         sfxButton.GetComponent<SFXButton>().Stop();
                     }
                 }
-                break;                
+                break;
             case "OPTIONS":
                 optionsPanel.SetActive(true);
                 currentMenuState = MenuState.optionsMenu;
                 break;
-            case "STOP-MUSIC":
-                mc.Stop();
+            case "REPEAT":
+                mc.Repeat = !mc.Repeat;
                 break;
             case "PAUSE-MUSIC":
                 mc.Pause();
@@ -298,9 +303,14 @@ public class MainAppController : MonoBehaviour
     internal void ShowErrorMessage(string message, int time = 8)
     {
         GameObject error = Instantiate(Prefabs.errorPrefab, errorMessagesPanel.transform);
+        TMP_Text messageText = error.GetComponentInChildren<TMP_Text>();
         Debug.LogError(message);
-        if(time == 8) error.GetComponentInChildren<TMP_Text>().text = "Error: " + message;
-        else error.GetComponentInChildren<TMP_Text>().text = message;
+        if (time == 8) messageText.text = "Error: " + message;
+        else
+        {
+            messageText.text = message;
+            messageText.color = Color.white;
+        }
         error.GetComponentInChildren<ErrorMessage>().delayTime = time;
     }
 
@@ -317,15 +327,16 @@ public class MainAppController : MonoBehaviour
                     qrc.HideLookupMenu();
                     break;
             }
-
         }
-        if(Input.GetKeyDown(KeyCode.J))
-        {
-            mc.ToggleModPanel();
-        }
+        if(fpsDisplayText.isActiveAndEnabled) fpsDisplayText.text = (1f / Time.smoothDeltaTime).ToString("F0") + "fps";
+        //FFT adjust panel
+        //if(Input.GetKeyDown(KeyCode.J))
+        //{
+        //    mc.ToggleModPanel();
+        //}
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            switch(currentMenuState)
+            switch (currentMenuState)
             {
                 case MenuState.mainAppView:
                     ControlButtonClicked("OPTIONS");
@@ -378,9 +389,9 @@ public class MainAppController : MonoBehaviour
 
             }
         }
-        if(Input.GetKeyDown(KeyCode.Return))
+        if (Input.GetKeyDown(KeyCode.Return))
         {
-            switch(currentMenuState)
+            switch (currentMenuState)
             {
                 case MenuState.optionsMenu:
                     break;
@@ -404,11 +415,11 @@ public class MainAppController : MonoBehaviour
                     break;
             }
         }
-        if(Input.GetKeyDown(KeyCode.Space) && currentMenuState == MenuState.mainAppView)
+        if (Input.GetKeyDown(KeyCode.Space) && currentMenuState == MenuState.mainAppView)
         {
             mc.SpacebarPressed();
         }
-        if((Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1)) && currentMenuState == MenuState.mainAppView)
+        if ((Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1)) && currentMenuState == MenuState.mainAppView)
         {
             ChangeSFXPage(0);
             pageButtons[0].GetComponent<Image>().color = Color.red;
@@ -448,20 +459,26 @@ public class MainAppController : MonoBehaviour
             ChangeSFXPage(7);
             pageButtons[7].GetComponent<Image>().color = Color.red;
         }
-        if((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.D) && discoModeAvailable) {
+        if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.D) && discoModeAvailable)
+        {
             dm.SetDiscoMode(!dm.discoModeActive); //terribly disgusting. Please fix :/
         }
 
-        if(Time.time > 600 && thankyouMessagesShown == 0 && !Application.isEditor)
+        if (Time.time > 600 && thankyouMessagesShown == 0 && !Application.isEditor)
         {
             ShowErrorMessage("Thanks for using TableTopAudio for 10 minutes! I'm always looking to improve it.\n Please send me an email at me@nathanpeckham.com with any feedback you have!", 10);
             thankyouMessagesShown = 1;
         }
-        if(Time.time > 1800 && thankyouMessagesShown == 1 && !Application.isEditor)
+        if (Time.time > 1800 && thankyouMessagesShown == 1 && !Application.isEditor)
         {
             ShowErrorMessage("Thanks for using TableTopAudio for 30 minutes! I'm always looking to improve it.\n Please send me an email at me@nathanpeckham.com with any feedback you have!", 10);
             thankyouMessagesShown = 2;
         }
+    }
+
+    private void FixedUpdate()
+    {
+        
     }
     public void SwapDarkLightMode(bool enable)
     {
@@ -472,35 +489,41 @@ public class MainAppController : MonoBehaviour
 
     public void LoadQrdObjects()
     {
-        foreach(string s in ResourceManager.dbFiles)
+        foreach (string s in ResourceManager.dbFiles)
         {
-            try
+            if (s[0] != '~') //prefix with ~ to hide.
             {
-                string contents = System.IO.File.ReadAllText(s);
-                QuickRefObject data = JsonSerializer.Deserialize<QuickRefObject>(contents);
-                Dictionary<string, Dictionary<string, dynamic>> categoryItems = new Dictionary<string, Dictionary<string, dynamic>>();
-                foreach (var item in data.contents)
+                try
                 {
-                    var attributes = new Dictionary<string, dynamic>();
-                    foreach (var dict in item)
+                    string contents = System.IO.File.ReadAllText(s);
+                    QuickRefObject data = JsonSerializer.Deserialize<QuickRefObject>(contents);
+                    Dictionary<string, Dictionary<string, dynamic>> categoryItems = new Dictionary<string, Dictionary<string, dynamic>>();
+                    string categoryName = "";
+                    foreach (var item in data.contents)
                     {
-                        attributes.Add(dict.Key, dict.Value);
+                        var attributes = new Dictionary<string, dynamic>();
+                        foreach (var dict in item)
+                        {
+                            attributes.Add(dict.Key, dict.Value);
+                            categoryName = s.Replace(".json", "").Replace(Application.streamingAssetsPath + Path.DirectorySeparatorChar, "");
+                            if (!attributes.ContainsKey("categoryName")) attributes.Add("categoryName", categoryName);
+                        }
+                        categoryItems.Add(item["index"].ToString(), attributes);
                     }
-                    categoryItems.Add(item["index"].ToString(), attributes);
+                    LoadedFilesData.qrdFiles[categoryName] = categoryItems;
                 }
-                string categoryName = s.Replace(".json", "").Replace(Application.streamingAssetsPath +  Path.DirectorySeparatorChar, "");
-                LoadedFilesData.qrdFiles[categoryName] = categoryItems;
+                catch (FileNotFoundException)
+                {
+                    ShowErrorMessage("Could not load quick reference file " + s + ". Check that it exists.");
+                }
             }
-            catch (FileNotFoundException) 
-            {
-                ShowErrorMessage("Could not load quick reference file " + s + ". Check that it exists.");
-            }
+
         }
     }
 
     internal void ToggleDiscoMode()
     {
-        this.discoModeAvailable = !this.discoModeAvailable;
+        discoModeAvailable = !discoModeAvailable;
         dm.SetDiscoMode(false);
     }
 }

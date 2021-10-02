@@ -1,13 +1,13 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
 using System.IO;
+using System.Linq;
 using System.Xml;
 using TMPro;
-using System;
-using System.Linq;
+using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 //Controls the options menu
 public class OptionsMenuController : MonoBehaviour
@@ -99,7 +99,7 @@ public class OptionsMenuController : MonoBehaviour
 
     internal void OptionMenuSliderChanged(string id, float val)
     {
-        switch(id)
+        switch (id)
         {
             case "DiscoModeCooldown":
                 dm.cooldown = val;
@@ -167,7 +167,7 @@ public class OptionsMenuController : MonoBehaviour
             crossfadeField.text = val.ToString();
             PlayerPrefs.SetFloat("Crossfade", val);
         }
-        catch(FormatException)
+        catch (FormatException)
         {
             crossfadeField.text = "0";
             mc.CrossfadeTime = 0;
@@ -196,7 +196,7 @@ public class OptionsMenuController : MonoBehaviour
             }
         }
 
-        if(!errorFound)
+        if (!errorFound)
         {
             saveErrorText.enabled = false;
             Save(saveNameField.text);
@@ -212,7 +212,7 @@ public class OptionsMenuController : MonoBehaviour
     internal void AutoUpdateChanged(bool val)
     {
         if (autoUpdatePlaylistToggle.isOn != val) autoUpdatePlaylistToggle.isOn = val;
-        if(mc.AutoCheckForNewFiles != val) mc.AutoCheckForNewFiles = val;
+        if (mc.AutoCheckForNewFiles != val) mc.AutoCheckForNewFiles = val;
     }
 
     internal void CloseLoadSelection()
@@ -245,14 +245,14 @@ public class OptionsMenuController : MonoBehaviour
         mac.currentMenuState = MainAppController.MenuState.selectFileToLoad;
         foreach (Transform t in loadGameScrollView.GetComponentsInChildren<Transform>())
         {
-            if(t.gameObject.name != "loadGameScrollView") Destroy(t.gameObject);
+            if (t.gameObject.name != "loadGameScrollView") Destroy(t.gameObject);
         }
 
         loadGameSelectionView.SetActive(true);
-        
+
         foreach (string saveName in Directory.GetFiles(mac.saveDirectory))
         {
-            if(Path.GetExtension(saveName) == ".xml" || Path.GetExtension(saveName) == ".xml")
+            if (Path.GetExtension(saveName) == ".xml" || Path.GetExtension(saveName) == ".xml")
             {
                 string trimmedSaveName = saveName.Replace(mac.saveDirectory, "");
                 GameObject scrollItem = Instantiate(Prefabs.loadGameItemPrefab, loadGameScrollView.transform);
@@ -309,6 +309,7 @@ public class OptionsMenuController : MonoBehaviour
                         string label = b.SelectSingleNode("label").InnerText;
                         int id = Convert.ToInt32(b.SelectSingleNode("id").InnerText);
                         string clipPath = null;
+                        print(label);
                         try
                         {
                             clipPath = b.SelectSingleNode("clipPath").InnerText;
@@ -344,6 +345,26 @@ public class OptionsMenuController : MonoBehaviour
                             maxFadeVolume = Convert.ToSingle(b.SelectSingleNode("maxFadeVolume").InnerText);
                         }
                         catch (NullReferenceException) { }
+                        float edgeRed = 1f;
+                        float edgeGreen = 1f;
+                        float edgeBlue = 1f;
+
+                        try
+                        {
+                            XmlNode c = b.SelectSingleNode("edgeColor");
+                            {
+                                print(c.Attributes);
+                                edgeRed = Convert.ToSingle(c.SelectSingleNode("r").InnerText);
+                                edgeGreen = Convert.ToSingle(c.SelectSingleNode("g").InnerText);
+                                edgeBlue = Convert.ToSingle(c.SelectSingleNode("b").InnerText);
+                                print(clipPath);
+                                print(edgeRed);
+                                print(edgeGreen);
+                                print(edgeBlue);
+
+                            }
+                        }
+                        catch (NullReferenceException) { }
 
                         SFXButton sfxBtn = mac.pageParents[page].buttons[id].GetComponent<SFXButton>();
                         sfxBtn.Label = label;
@@ -358,6 +379,7 @@ public class OptionsMenuController : MonoBehaviour
                         sfxBtn.minimumFadeVolume = minFadeVolume;
                         sfxBtn.maximumFadeVolume = maxFadeVolume;
                         sfxBtn.IgnorePlayAll = ignoreOnPlayAll;
+                        sfxBtn.ButtonEdgeColor = new Color(edgeRed, edgeGreen, edgeBlue);
 
                     }
                 }
@@ -383,13 +405,13 @@ public class OptionsMenuController : MonoBehaviour
                 mac.currentMenuState = MainAppController.MenuState.optionsMenu;
             }
         }
-        catch(XmlException)
+        catch (XmlException)
         {
             mac.ShowErrorMessage("Loading failed: Malformed save file format");
         }
 
-         if (mac.darkModeEnabled) mac.SwapDarkLightMode(true);
-         StartCoroutine(RebuildLayout());
+        if (mac.darkModeEnabled) mac.SwapDarkLightMode(true);
+        StartCoroutine(RebuildLayout());
     }
 
     IEnumerator RebuildLayout()
@@ -401,7 +423,7 @@ public class OptionsMenuController : MonoBehaviour
 
     bool DestroyItems()
     {
-        foreach(MusicButton mb in pt.mainTab.MusicButtons)
+        foreach (MusicButton mb in pt.mainTab.MusicButtons)
         {
             Destroy(mb.gameObject);
         }
@@ -412,10 +434,12 @@ public class OptionsMenuController : MonoBehaviour
         return true;
     }
 
-    void Save(string filename, bool overwrite=false)
+    void Save(string filename, bool overwrite = false)
     {
         saveFileName = filename;
-        if ((!System.IO.Directory.GetFiles(mac.saveDirectory).Contains(Path.Combine(mac.saveDirectory, filename +".xml"))) || overwrite)
+        List<string> presentSaves = Directory.GetFiles(mac.saveDirectory).ToList();
+        presentSaves.ForEach(save => save = save.ToLower());    //check for files with same name but different capitalizations
+        if ((!presentSaves.Contains(Path.Combine(mac.saveDirectory, filename.ToLower() + ".xml"))) || overwrite)
         {
             using (XmlWriter writer = XmlWriter.Create(Path.Combine(mac.saveDirectory, filename + ".xml")))
             {
@@ -438,7 +462,7 @@ public class OptionsMenuController : MonoBehaviour
                                 for (int j = 0; j < MainAppController.NUMBUTTONS; j++)
                                 {
                                     SFXButton button = mac.pageParents[i].buttons[j].GetComponent<SFXButton>();
-                                    if (!(string.IsNullOrEmpty(button.Label)))
+                                    if (!string.IsNullOrEmpty(button.FileName))
                                     {
                                         writer.WriteStartElement("button");
                                         {
@@ -453,6 +477,15 @@ public class OptionsMenuController : MonoBehaviour
                                             writer.WriteElementString("minFadeVolume", button.minimumFadeVolume.ToString("N2"));
                                             writer.WriteElementString("maxFadeVolume", button.maximumFadeVolume.ToString("N2"));
                                             writer.WriteElementString("ignoreOnPlayAll", button.IgnorePlayAll.ToString());
+                                            if (button.ButtonEdgeColor != Color.white)   // ignore buttons with default color (white)
+                                            {
+                                                writer.WriteStartElement("edgeColor");
+                                                {
+                                                    writer.WriteElementString("r", button.ButtonEdgeColor.r.ToString("N3"));
+                                                    writer.WriteElementString("g", button.ButtonEdgeColor.g.ToString("N3"));
+                                                    writer.WriteElementString("b", button.ButtonEdgeColor.b.ToString("N3"));
+                                                }
+                                            }
                                         }
                                         writer.WriteEndElement();
                                     }
@@ -462,9 +495,9 @@ public class OptionsMenuController : MonoBehaviour
                         }
                     }
                     writer.WriteEndElement();
-                writer.WriteStartElement("playlist");
-                {
-                    foreach(PlaylistTab pt in PlaylistTabs.tabs)
+                    writer.WriteStartElement("playlist");
+                    {
+                        foreach (PlaylistTab pt in PlaylistTabs.tabs)
                         {
                             writer.WriteStartElement("tab");
                             writer.WriteElementString("label", pt.LabelText);
@@ -474,10 +507,10 @@ public class OptionsMenuController : MonoBehaviour
                             }
                             writer.WriteEndElement();
                         }
+                    }
+                    writer.WriteEndElement();
                 }
-                writer.WriteEndElement();
-            }
-            writer.WriteEndDocument();
+                writer.WriteEndDocument();
             }
             saveNamePanel.SetActive(false);
             optionsPanel.SetActive(false);

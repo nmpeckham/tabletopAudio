@@ -17,16 +17,15 @@ limitations under the License.
 */
 #endregion
 
+using Id3.Files.Resources;
+using Id3.Frames;
+using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
-
-using Id3.Files.Resources;
-using Id3.Frames;
-using JetBrains.Annotations;
 
 namespace Id3.Files
 {
@@ -88,7 +87,8 @@ namespace Id3.Files
             // Get all distinct placeholder names in all the patterns and check whether any of them
             // do not appear as a key in the _mappings dictionary. If so, throw an exception.
             string[] invalidPlaceholders = patterns
-                .SelectMany(pattern => {
+                .SelectMany(pattern =>
+                {
                     MatchCollection matches = FramePlaceholderPattern.Matches(pattern);
                     if (matches.Count == 0)
                         throw new ArgumentException(string.Format(FileNamerMessages.MissingPlaceholdersInPattern,
@@ -225,7 +225,8 @@ namespace Id3.Files
                     var hasMissingFrames = false;
 
                     int iteration = i;
-                    string newName = FramePlaceholderPattern.Replace(pattern, match => {
+                    string newName = FramePlaceholderPattern.Replace(pattern, match =>
+                    {
                         //If this pattern already has missing frames, don't proces anything
                         if (hasMissingFrames)
                             return string.Empty;
@@ -254,7 +255,7 @@ namespace Id3.Files
                         return newName;
                 }
             }
-            
+
             missingFrameName = missingFrame;
             return null;
         }
@@ -273,7 +274,8 @@ namespace Id3.Files
         private RenamingEventArgs FireRenamingEvent(Id3Tag tag, string oldName, string newName)
         {
             EventHandler<RenamingEventArgs> renaming = Renaming;
-            var args = new RenamingEventArgs(tag, oldName) {
+            var args = new RenamingEventArgs(tag, oldName)
+            {
                 NewName = newName
             };
             renaming?.Invoke(this, args);

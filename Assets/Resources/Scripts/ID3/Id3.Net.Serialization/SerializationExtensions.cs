@@ -17,10 +17,10 @@ limitations under the License.
 */
 #endregion
 
-using System;
-using System.Runtime.Serialization;
 using Id3.Frames;
 using Id3.Serialization.Surrogates;
+using System;
+using System.Runtime.Serialization;
 
 namespace Id3.Serialization
 {

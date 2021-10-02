@@ -1,9 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
 using NUnit.Framework;
+using System.Collections;
 using UnityEngine;
-using UnityEngine.TestTools;
 using UnityEngine.SceneManagement;
+using UnityEngine.TestTools;
 
 public class MainAppControllerTests
 {
@@ -32,7 +31,7 @@ public class MainAppControllerTests
 
         Assert.AreEqual(mac.pageButtons.Count, 8);   //8 sfx page tabs
         Assert.AreEqual(mac.pageParents.Count, 8);    //8 pages of sfx buttons
-        foreach(SFXPage buttonPage in mac.pageParents)
+        foreach (SFXPage buttonPage in mac.pageParents)
         {
             Assert.AreEqual(buttonPage.buttons.Count, 35);  //35 buttons per page
         }
@@ -44,6 +43,6 @@ public class MainAppControllerTests
     {
         if (!sceneLoaded) yield return AwaitLevelLoad();
         Debug.Log(MainAppController.UIntToColor(0xFFF6768E));
-        Assert.AreEqual(new Color(246f/255f, 118f/255f, 142f/255f, 1f), MainAppController.UIntToColor(0xFFF6768E));
+        Assert.AreEqual(new Color(246f / 255f, 118f / 255f, 142f / 255f, 1f), MainAppController.UIntToColor(0xFFF6768E));
     }
 }

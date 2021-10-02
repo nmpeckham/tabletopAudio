@@ -49,7 +49,8 @@ namespace Id3.Frames
             }
         }
 
-        private static readonly Dictionary<string, FileAudioType> FileAudioTypeMapping = new Dictionary<string, FileAudioType>(8) {
+        private static readonly Dictionary<string, FileAudioType> FileAudioTypeMapping = new Dictionary<string, FileAudioType>(8)
+        {
             ["MPG"] = FileAudioType.Mpeg,
             ["MPG/1"] = FileAudioType.Mpeg_1_2_Layer1,
             ["MPG/2"] = FileAudioType.Mpeg_1_2_Layer2,

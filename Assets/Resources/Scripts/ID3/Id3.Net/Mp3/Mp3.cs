@@ -17,12 +17,11 @@ limitations under the License.
 */
 #endregion
 
+using Id3.Resources;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-
-using Id3.Resources;
 
 namespace Id3
 {
@@ -331,7 +330,7 @@ namespace Id3
             long audioStreamLength = Stream.Length - (startBytes?.Length ?? 0) - (endBytes?.Length ?? 0);
             var audioStream = new byte[audioStreamLength];
             Stream.Seek(startBytes?.Length ?? 0, SeekOrigin.Begin);
-            Stream.Read(audioStream, 0, (int) audioStreamLength);
+            Stream.Read(audioStream, 0, (int)audioStreamLength);
             return audioStream;
         }
 

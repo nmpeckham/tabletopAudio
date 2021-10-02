@@ -1,17 +1,15 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
+﻿using Extensions;
 using TMPro;
+using UnityEngine;
 using UnityEngine.Audio;
-using Extensions;
+using UnityEngine.UI;
 
 //Applies volume changes across the app
 public class VolumeController : MonoBehaviour
 {
-    public  Slider volumeSlider;
-    public  TMP_Text volumeLabel;
-    private MainAppController mac;
-    private MusicController mc;
-    public  AudioMixerGroup AMG;
+    public Slider volumeSlider;
+    public TMP_Text volumeLabel;
+    public AudioMixerGroup AMG;
     private float masterVolume = 1;
     public float MasterVolume
     {
@@ -31,7 +29,6 @@ public class VolumeController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        mac = Camera.main.GetComponent<MainAppController>();
         volumeSlider.onValueChanged.AddListener(VolumeChanged);
     }
 

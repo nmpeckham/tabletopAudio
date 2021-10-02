@@ -1,8 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using TMPro;
 using System.Linq;
+using UnityEngine;
 
 public class PlaylistRightClickController : MonoBehaviour
 {
@@ -71,7 +68,7 @@ public class PlaylistRightClickController : MonoBehaviour
         activeRightClickMenu.HideSideMenu();
     }
 
-    internal void AddToPlayNext(int id)
+    internal void AddToPlayNext()
     {
         mc.AddToPlayNext(new PlayNextItem(selectedSongId, PlaylistTabs.selectedTab.tabId));
         CloseDeleteMusicItemTooltip();
@@ -80,7 +77,7 @@ public class PlaylistRightClickController : MonoBehaviour
     internal void ShowAddToMenu()
     {
         //Prevent duplicates
-        if(activeRightClickMenu.sideMenuButtons.Count == 0)
+        if (activeRightClickMenu.sideMenuButtons.Count == 0)
         {
             activeRightClickMenu.maxX += 120f;
             activeRightClickMenu.maxY = Mathf.Max(activeRightClickMenu.maxY, (PlaylistTabs.tabs.Count * 23f) - 1 + 10);

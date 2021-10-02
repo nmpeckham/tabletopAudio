@@ -81,7 +81,8 @@ namespace Id3
             {
                 _variableFrames = (((header[8] & 255) << 24) | ((header[9] & 255) << 16) | ((header[10] & 255) << 8) | ((header[11] & 255)));
                 _isVariableBitrate = true;
-            } else
+            }
+            else
                 _variableFrames = -1;
         }
 

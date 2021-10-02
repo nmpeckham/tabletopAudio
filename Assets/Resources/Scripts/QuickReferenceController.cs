@@ -1,9 +1,10 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using TMPro;
 using System.Linq;
-using System;
+using System.Text.RegularExpressions;
+using TMPro;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class QuickReferenceController : MonoBehaviour
@@ -13,6 +14,8 @@ public class QuickReferenceController : MonoBehaviour
     public GameObject scrollViewContent;
     public TMP_InputField searchBox;
     public Button clearTextButton;
+    public GameObject searchLoadingSpinner;
+    public TMP_Text noResultsText;
 
     // Start is called before the first frame update
     void Start()
@@ -21,6 +24,7 @@ public class QuickReferenceController : MonoBehaviour
         mac = GetComponent<MainAppController>();
         searchBox.onValueChanged.AddListener(TextEntered);
         clearTextButton.onClick.AddListener(ClearText);
+        searchLoadingSpinner.gameObject.SetActive(false);
 
         //string folder = "C:\\Users\\natha\\Documents\\GitHub\\tabletopAudio\\Assets\\StreamingAssets";
         //string files = "";
@@ -47,6 +51,8 @@ public class QuickReferenceController : MonoBehaviour
     {
         searchBox.text = "";
         searchBox.ActivateInputField();
+        noResultsText.gameObject.SetActive(false);
+        searchLoadingSpinner.SetActive(false);
 
     }
 
@@ -73,7 +79,7 @@ public class QuickReferenceController : MonoBehaviour
     IEnumerator SlideIn()
     {
         // Unity UI is based on magic, don't change
-        quickRefPanel.SetActive(true);
+        //quickRefPanel.SetActive(true);
         RectTransform quickRefTransform = quickRefPanel.GetComponent<RectTransform>();
         float endXPos = 0;
         while (quickRefTransform.localPosition.x < endXPos)
@@ -89,11 +95,12 @@ public class QuickReferenceController : MonoBehaviour
     {
 
         searchBox.DeactivateInputField();
-        
+
         // Unity UI is based on magic, don't change
         RectTransform quickRefTransform = quickRefPanel.GetComponent<RectTransform>();
-
         float endXPos = -quickRefTransform.rect.width;
+        noResultsText.gameObject.SetActive(false);
+        searchLoadingSpinner.gameObject.SetActive(false);
         while (quickRefTransform.localPosition.x > endXPos)
         {
             quickRefTransform.localPosition = new Vector3(Mathf.Max(quickRefTransform.localPosition.x - 50, endXPos), quickRefTransform.localPosition.y);
@@ -105,123 +112,111 @@ public class QuickReferenceController : MonoBehaviour
             Destroy(go.gameObject);
         }
         searchBox.text = "";
-        quickRefPanel.SetActive(false);
+
+        //quickRefPanel.SetActive(false);
     }
 
     private IEnumerator DbQuery(string query)
-    { 
-        if (String.IsNullOrEmpty(query))
+    {
+        noResultsText.gameObject.SetActive(false);
+        foreach (QuickRefPrefab go in scrollViewContent.GetComponentsInChildren<QuickRefPrefab>(true))
         {
-            foreach (QuickRefPrefab go in scrollViewContent.GetComponentsInChildren<QuickRefPrefab>(true))
+            Destroy(go.gameObject);
+        }
+        if(!String.IsNullOrWhiteSpace(query)) {
+            searchLoadingSpinner.gameObject.SetActive(true);
+            //print(String.IsNullOrEmpty(query));
+            Regex charsToRemove = new Regex("[^a-zA-Z ]"); //remove any unwanted characters ("';?>.,<_)(*&^%$#@!", etc.)
+            MatchCollection searchRemoveChars = charsToRemove.Matches(query);
+            foreach (Match m in searchRemoveChars)
             {
-                Destroy(go.gameObject);
+                query = query.Replace(m.ToString(), "");
             }
-        }
-        List<string> queries = query.ToUpper().Replace("'", "").Split(' ').ToList();
-        List<string> matches = new List<string>();
+            query = query.ToLower();
+            Regex wordMatch = new Regex("[a-zA-Z0-9]+");
+            MatchCollection matchedWords = wordMatch.Matches(query);
+            List<Match> matchedWordsList = matchedWords.OfType<Match>().ToList();
 
-        int numFound = 0;
-        List<string> toRemove = new List<string>();
-        foreach (string queryItem in queries)
-        {
-            queryItem.Replace(" ", "");
-            if (String.IsNullOrEmpty(queryItem)) toRemove.Add(queryItem);
-        }
-        foreach (string queryItemToRemove in toRemove)
-        {
-            queries.Remove(queryItemToRemove);
-        }
-        int queryIndex = 0;
-        List<GameObject> toDestroy = new List<GameObject>();
-        foreach (string queryItem in queries)
-        {
-            List<string> newMatches = new List<string>();
-            numFound = 0;
-            foreach (QuickRefPrefab go in scrollViewContent.GetComponentsInChildren<QuickRefPrefab>(true))
-            {
-                toDestroy.Add(go.gameObject);
-            }
-
+            List<(KeyValuePair<string, Dictionary<string, dynamic>> item, int score)> searchMatches = new List<(KeyValuePair<string, Dictionary<string, dynamic>> item, int score)>();
             foreach (var section in LoadedFilesData.qrdFiles)
             {
-                if (numFound > 20) break;
                 foreach (var dbItem in section.Value)
                 {
-                    //print(dbItem.Key);
-                    if (numFound > 20) break;
-                    string index = dbItem.Key.ToString().ToUpper().Replace("-", "");
+                    (KeyValuePair<string, Dictionary<string, dynamic>> item, int score) matchScore = (dbItem, 0);
+                    string index = dbItem.Key.ToString().ToLower().Replace("-", " ");
                     string alias = "";
                     if (dbItem.Value.ContainsKey("alias"))
                     {
-                        alias = dbItem.Value["alias"].ToString().ToUpper();
+                        alias = dbItem.Value["alias"].ToString().ToLower();
                     }
-
-                    if (index.Contains(queryItem) || alias.Contains(queryItem))
+                    foreach (Match m in matchedWordsList)
                     {
-                        if ((queryIndex > 0 && matches.Contains(index)) || queryIndex == 0)
-                        {
-                            GameObject prefab = Instantiate(Prefabs.quickRefPrefab, scrollViewContent.transform);
-                            prefab.SetActive(false);
-                            QuickRefPrefab qrp = prefab.GetComponent<QuickRefPrefab>();
-                            qrp.Category = section.Key.Replace("-", " ");
-                            try
-                            {
-                                foreach (var item in dbItem.Value["desc"].EnumerateArray())
-                                {
-                                    qrp.Description += item.ToString().Replace("- ", "") + "\n";
-                                }
-                            }
-                            catch (InvalidOperationException)
-                            {
-                                qrp.Description += dbItem.Value["desc"].ToString();
-                            }
-                            catch (KeyNotFoundException)
-                            {
-                                qrp.Description = "";
-                            }
-                            if (dbItem.Value.ContainsKey("name"))
-                            {
-                                //move items that start with the same first letter to top
-                                if (dbItem.Value["name"].ToString().ToUpper()[0] == queryItem[0])
-                                {
-                                    prefab.transform.SetSiblingIndex(0);
-                                }
-                                //move items that are an exact match to top
-                                //TODO: wtf is this???
+                        string newIndex = index;
+                        MatchCollection indexRemoveChars = charsToRemove.Matches(index);
 
-                                if (dbItem.Value["name"].ToString().ToUpper() == queryItem.ToUpper())
-                                {
-                                    print(dbItem.Value["name"].ToString().ToUpper());
-                                    print(queryItem.ToUpper());
-                                    prefab.transform.SetSiblingIndex(0);
-                                    print(prefab.transform.GetSiblingIndex());
-                                }
-                                qrp.Title = dbItem.Value["name"].ToString();
-                            }
-                            else
-                            {
-                                qrp.Title = index[0] + index.Substring(1, index.Length - 1).ToLower().Replace("-", " ");
-                            }
-                            newMatches.Add(index);
-                            numFound++;
+                        foreach (Match match in indexRemoveChars)
+                        {
+                            newIndex = newIndex.Replace(match.ToString(), "");
                         }
+                        Regex wordStartMatch = new Regex(@"\S*(" + m.ToString() + @")\S*");
+
+                        MatchCollection matchedStartWords = wordStartMatch.Matches(newIndex);
+                        List<Match> matchList = matchedStartWords.OfType<Match>().ToList();
+
+                        matchScore.score += matchList.Count;
+                    }
+                    if (matchScore.score > 0)
+                    {
+                        searchMatches.Add(matchScore);
+                    }
+                    if (Time.deltaTime > 1f / 30f) yield return null;
+                }
+                //yield return null;
+            }
+            searchMatches = searchMatches.OrderByDescending(item => item.score).ToList();
+
+            //Only show top 20 matches
+            if (searchMatches.Count > 20) searchMatches.RemoveRange(19, searchMatches.Count - 20);
+
+            searchLoadingSpinner.gameObject.SetActive(false);
+            if (searchMatches.Count == 0)
+            {
+                noResultsText.gameObject.SetActive(true);
+            }
+            else
+            {
+                noResultsText.gameObject.SetActive(false);
+            }
+
+            foreach (var searchMatch in searchMatches)
+            {
+
+                GameObject prefab = Instantiate(Prefabs.quickRefPrefab, scrollViewContent.transform);
+                prefab.SetActive(false);
+                QuickRefPrefab qrp = prefab.GetComponent<QuickRefPrefab>();
+                qrp.Category = searchMatch.item.Value["categoryName"].Replace("-", " ");
+                try
+                {
+                    foreach (var item in searchMatch.item.Value["desc"].EnumerateArray())
+                    {
+                        qrp.Description += item.ToString().Replace("- ", "") + "\n";
                     }
                 }
+                catch (InvalidOperationException)
+                {
+                    qrp.Description += searchMatch.item.Value["desc"].ToString();
+                }
+                catch (KeyNotFoundException)
+                {
+                    qrp.Description = "";
+                }
+                if (searchMatch.item.Value.ContainsKey("name"))
+                {
+                    qrp.Title = searchMatch.item.Value["name"].ToString();
+                }
+                prefab.SetActive(true);
             }
-            queryIndex++;
-            matches = newMatches;
-            yield return null;
         }
-        //destroy after search finished to prevent items in list disappearing for a frame
-        foreach (GameObject goToDestroy in toDestroy)
-        {
-            Destroy(goToDestroy);
-        }
-        //activate each found object that was instantiated
-
-        foreach (QuickRefPrefab go in scrollViewContent.GetComponentsInChildren<QuickRefPrefab>(true))
-        {
-            go.gameObject.SetActive(true);
-        }
+        yield return null;
     }
 }

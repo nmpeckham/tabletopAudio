@@ -17,10 +17,10 @@ limitations under the License.
 */
 #endregion
 
+using Id3.Frames;
 using System;
 using System.IO;
 using System.Text;
-using Id3.Frames;
 
 namespace Id3.v1
 {

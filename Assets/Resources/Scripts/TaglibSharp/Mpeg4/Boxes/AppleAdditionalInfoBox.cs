@@ -26,94 +26,96 @@ using System;
 
 namespace TagLib.Mpeg4
 {
-	/// <summary>
-	///    This class extends <see cref="FullBox" /> to provide an
-	///    implementation of an Apple AdditionalInfoBox.
-	/// </summary>
-	public class AppleAdditionalInfoBox : FullBox
-	{
-		#region Private Fields
+    /// <summary>
+    ///    This class extends <see cref="FullBox" /> to provide an
+    ///    implementation of an Apple AdditionalInfoBox.
+    /// </summary>
+    public class AppleAdditionalInfoBox : FullBox
+    {
+        #region Private Fields
 
-		/// <summary>
-		///    Contains the box data.
-		/// </summary>
-		ByteVector data;
+        /// <summary>
+        ///    Contains the box data.
+        /// </summary>
+        ByteVector data;
 
-		#endregion
-
-
-		#region Constructors
-
-		/// <summary>
-		///    Constructs and initializes a new instance of <see
-		///    cref="AppleAdditionalInfoBox" /> with a provided header
-		///    and handler by reading the contents from a specified
-		///    file.
-		/// </summary>
-		/// <param name="header">
-		///    A <see cref="BoxHeader" /> object containing the header
-		///    to use for the new instance.
-		/// </param>
-		/// <param name="file">
-		///    A <see cref="TagLib.File" /> object to read the contents
-		///    of the box from.
-		/// </param>
-		/// <param name="handler">
-		///    A <see cref="IsoHandlerBox" /> object containing the
-		///    handler that applies to the new instance.
-		/// </param>
-		/// <exception cref="ArgumentNullException">
-		///    <paramref name="file" /> is <see langword="null" />.
-		/// </exception>
-		public AppleAdditionalInfoBox (BoxHeader header, TagLib.File file, IsoHandlerBox handler)
-			: base (header, file, handler)
-		{
-			// We do not care what is in this custom data section
-			// see: https://developer.apple.com/library/mac/#documentation/QuickTime/QTFF/QTFFChap2/qtff2.html
-			Data = file.ReadBlock (DataSize > 0 ? DataSize : 0);
-		}
-
-		/// <summary>
-		/// Constructs and initializes a new instance of <see
-		///    cref="AppleAdditionalInfoBox" /> using specified header, version and flags
-		/// </summary>
-		/// <param name="header">defines the header data</param>
-		/// <param name="version"></param>
-		/// <param name="flags"></param>
-		public AppleAdditionalInfoBox (ByteVector header, byte version, uint flags) : base (header, version, flags)
-		{
-		}
-
-		#endregion
+        #endregion
 
 
+        #region Constructors
 
-		#region Public Properties
+        /// <summary>
+        ///    Constructs and initializes a new instance of <see
+        ///    cref="AppleAdditionalInfoBox" /> with a provided header
+        ///    and handler by reading the contents from a specified
+        ///    file.
+        /// </summary>
+        /// <param name="header">
+        ///    A <see cref="BoxHeader" /> object containing the header
+        ///    to use for the new instance.
+        /// </param>
+        /// <param name="file">
+        ///    A <see cref="TagLib.File" /> object to read the contents
+        ///    of the box from.
+        /// </param>
+        /// <param name="handler">
+        ///    A <see cref="IsoHandlerBox" /> object containing the
+        ///    handler that applies to the new instance.
+        /// </param>
+        /// <exception cref="ArgumentNullException">
+        ///    <paramref name="file" /> is <see langword="null" />.
+        /// </exception>
+        public AppleAdditionalInfoBox(BoxHeader header, TagLib.File file, IsoHandlerBox handler)
+            : base(header, file, handler)
+        {
+            // We do not care what is in this custom data section
+            // see: https://developer.apple.com/library/mac/#documentation/QuickTime/QTFF/QTFFChap2/qtff2.html
+            Data = file.ReadBlock(DataSize > 0 ? DataSize : 0);
+        }
 
-		/// <summary>
-		///    Gets and sets the data contained in the current instance.
-		/// </summary>
-		/// <value>
-		///    A <see cref="ByteVector" /> object containing the data
-		///    contained in the current instance.
-		/// </value>
-		public override ByteVector Data {
-			get { return data; }
-			set { data = value ?? new ByteVector (); }
-		}
+        /// <summary>
+        /// Constructs and initializes a new instance of <see
+        ///    cref="AppleAdditionalInfoBox" /> using specified header, version and flags
+        /// </summary>
+        /// <param name="header">defines the header data</param>
+        /// <param name="version"></param>
+        /// <param name="flags"></param>
+        public AppleAdditionalInfoBox(ByteVector header, byte version, uint flags) : base(header, version, flags)
+        {
+        }
 
-		/// <summary>
-		///    Gets and sets the text contained in the current instance.
-		/// </summary>
-		/// <value>
-		///    A <see cref="string" /> object containing the text
-		///    contained in the current instance.
-		/// </value>
-		public string Text {
-			get { return Data.ToString (StringType.Latin1).TrimStart ('\0'); }
-			set { Data = ByteVector.FromString (value, StringType.Latin1); }
-		}
+        #endregion
 
-		#endregion
-	}
+
+
+        #region Public Properties
+
+        /// <summary>
+        ///    Gets and sets the data contained in the current instance.
+        /// </summary>
+        /// <value>
+        ///    A <see cref="ByteVector" /> object containing the data
+        ///    contained in the current instance.
+        /// </value>
+        public override ByteVector Data
+        {
+            get { return data; }
+            set { data = value ?? new ByteVector(); }
+        }
+
+        /// <summary>
+        ///    Gets and sets the text contained in the current instance.
+        /// </summary>
+        /// <value>
+        ///    A <see cref="string" /> object containing the text
+        ///    contained in the current instance.
+        /// </value>
+        public string Text
+        {
+            get { return Data.ToString(StringType.Latin1).TrimStart('\0'); }
+            set { Data = ByteVector.FromString(value, StringType.Latin1); }
+        }
+
+        #endregion
+    }
 }

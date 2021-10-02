@@ -1,8 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using TMPro;
-using System.Linq;
+using UnityEngine;
 
 public class RightClickRootMenu : MonoBehaviour
 {
@@ -30,7 +29,8 @@ public class RightClickRootMenu : MonoBehaviour
     internal IEnumerator CheckMousePos()
     {
         Vector3 mousePos = Input.mousePosition;
-        while(true) {
+        while (true)
+        {
             float yDelta = Input.mousePosition.y - mousePos.y;
             float xDelta = Input.mousePosition.x - mousePos.x;
 
@@ -40,9 +40,9 @@ public class RightClickRootMenu : MonoBehaviour
 
                 try
                 {
-                    Destroy(this.gameObject);
+                    Destroy(gameObject);
                 }
-                catch(MissingReferenceException)
+                catch (MissingReferenceException)
                 {
                     break;
                 }
@@ -76,6 +76,6 @@ public class RightClickRootMenu : MonoBehaviour
     internal void OnDestroy()
     {
         sideMenuButtons.ForEach(go => Destroy(go));
-        Destroy(this.gameObject);
+        Destroy(gameObject);
     }
 }

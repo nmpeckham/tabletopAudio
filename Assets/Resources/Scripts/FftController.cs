@@ -1,9 +1,8 @@
+using System;
 using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using System;
-using TMPro;
-using Extensions;
 
 public class FftController : MonoBehaviour
 {
@@ -33,7 +32,7 @@ public class FftController : MonoBehaviour
     public Transform discoModeSum;
     public TMP_Text discoModeSumSliderText;
 
-    private MainAppController mac;
+    static private MainAppController mac;
     enum FftTypes
     {
         bouncingBars,
@@ -88,9 +87,18 @@ public class FftController : MonoBehaviour
 
     IEnumerator AdjustScale()
     {
+        float totalSum = 0;
+        float temp;
+
+        float r;
+        float g;
+        float b;
+        float a;
+        float sum;
+
         while (true)
         {
-            float totalSum = 0;
+
             if (fftType == FftTypes.bouncingBars)
             {
                 for (int i = 0; i < pieces.Length; i++)
@@ -99,7 +107,7 @@ public class FftController : MonoBehaviour
                     Transform obj = pieces[i].transform;
 
                     //sum bands into bins of 4
-                    float temp = (fadeTargets[4 * i] + fadeTargets[4 * i + 1] + fadeTargets[4 * i + 2] + fadeTargets[4 * i + 3]) / 4;
+                    temp = (fadeTargets[4 * i] + fadeTargets[4 * i + 1] + fadeTargets[4 * i + 2] + fadeTargets[4 * i + 3]) / 4;
                     temp *= (-(i - 11f) / freqVal) + 1f; //frequency correction
                     temp = (Mathf.Sqrt(temp / ampVal)); // intensity correction
 
@@ -120,14 +128,15 @@ public class FftController : MonoBehaviour
             }
             else
             {
-                if(!MusicController.isPaused)
+
+                if (!MusicController.isPaused)
                 {
                     for (int i = 0; i < fadeTargets.Length; i++)
                     {
-                        float b = (fadeTargets[i] > 0.05f) ? 0.5f / fadeTargets[i] : 0f;
-                        float g = fadeTargets[i] > 0.2f ? (fadeTargets[i] - 0.2f) * 1.5f : 0f;
-                        float r = fadeTargets[i] * 2f;
-                        float a = (r + g + b);
+                        b = (fadeTargets[i] > 0.05f) ? 0.5f / fadeTargets[i] : 0f;
+                        g = fadeTargets[i] > 0.2f ? (fadeTargets[i] - 0.2f) * 1.5f : 0f;
+                        r = fadeTargets[i] * 2f;
+                        a = (r + g + b);
 
                         spectrumTex.SetPixel(spectrumTex.width - 1, i, new Color(r, g, b, a));
                     }
@@ -142,9 +151,9 @@ public class FftController : MonoBehaviour
                     spectrumTex.Apply();
                 }
             }
-            float sum = 0;
+            sum = 0;
 
-            for(int i = 0; i < discoModeNumFreq; i++)
+            for (int i = 0; i < discoModeNumFreq; i++)
             {
                 sum += fadeTargets[i];
             }
@@ -158,14 +167,9 @@ public class FftController : MonoBehaviour
             {
                 discoModeController.ChangeColors();
             }
-            yield return new WaitForFixedUpdate();
+            yield return null;
         }
     }
-
-    //float GetRMS(int i)
-    //{
-    //    return Mathf.Sqrt(Mathf.Pow(fftOneFrameAgo[i]), 2) + Mathf.Pow(fftTwoFrameAgo[i], 2) + Mathf.Pow()
-    //}
 
     internal void ChangeFftType()
     {

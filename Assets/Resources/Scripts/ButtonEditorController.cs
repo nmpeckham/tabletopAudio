@@ -1,10 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using TMPro;
-using UnityEngine.UI;
-using System;
+﻿using System;
 using System.IO;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
 
 //Class for editing Sound effect buttons
 public class ButtonEditorController : MonoBehaviour
@@ -41,6 +39,23 @@ public class ButtonEditorController : MonoBehaviour
     public GameObject minLoopTimePanel;
     public GameObject maxLoopTimePanel;
 
+    public GameObject buttonColorPanel;
+    public Button changeColorButton;
+    public Slider redSlider;
+    public Slider greenSlider;
+    public Slider blueSlider;
+    public TMP_Text redText;
+    public TMP_Text greenText;
+    public TMP_Text blueText;
+    public Image previewColorImage;
+    public Button CancelColorButton;
+    public Button AcceptColorButton;
+
+    private Color imageColor = Color.white;
+
+    private float redValue = 1f;
+    private float greenValue = 1f;
+    private float blueValue = 1f;
 
 
     internal string clipID = null;
@@ -61,9 +76,69 @@ public class ButtonEditorController : MonoBehaviour
         randomizeLoopButton.onValueChanged.AddListener(RandomizeChanged);
 
         minimumVolumeSlider.onValueChanged.AddListener(MinVolumeChanged);
-        maximumVolumeSlider.onValueChanged.AddListener(maxVolumeChanged);
+        maximumVolumeSlider.onValueChanged.AddListener(MaxVolumeChanged);
 
         buttonLabelInput.onSelect.AddListener(TextSelected);
+        changeColorButton.onClick.AddListener(ShowChangeButtonColorMenu);
+        redSlider.onValueChanged.AddListener(r => ColorSliderChanged(0, r));
+        greenSlider.onValueChanged.AddListener(g => ColorSliderChanged(1, g));
+        blueSlider.onValueChanged.AddListener(b => ColorSliderChanged(2, b));
+
+        CancelColorButton.onClick.AddListener(CancelColorClicked);
+        AcceptColorButton.onClick.AddListener(AcceptColorClicked);
+    }
+
+    void CancelColorClicked()
+    {
+        buttonColorPanel.SetActive(false);
+    }
+
+    void AcceptColorClicked()
+    {
+        buttonColorPanel.SetActive(false);
+        changeColorButton.GetComponent<Image>().color = imageColor;
+
+    }
+
+    void ColorSliderChanged(int color, float value)
+    {
+        if (color == 0)
+        {
+            redValue = value;
+        }
+        else if (color == 1)
+        {
+            greenValue = value;
+        }
+        else if (color == 2)
+        {
+            blueValue = value;
+        }
+        UpdateColorSliderLabels();
+        imageColor = new Color(redValue, greenValue, blueValue);
+        previewColorImage.color = imageColor;
+    }
+
+    void UpdateColorSliderLabels()
+    {
+        redText.text = (redValue * 100f).ToString("N0") + "%";
+        greenText.text = (greenValue * 100f).ToString("N0") + "%";
+        blueText.text = (blueValue * 100f).ToString("N0") + "%";
+    }
+
+    void ShowChangeButtonColorMenu()
+    {
+        imageColor = changeColorButton.GetComponent<Image>().color;
+        previewColorImage.color = imageColor;
+        redValue = imageColor.r;
+        greenValue = imageColor.g;
+        blueValue = imageColor.b;
+        redSlider.SetValueWithoutNotify(redValue);
+        greenSlider.SetValueWithoutNotify(greenValue);
+        blueSlider.SetValueWithoutNotify(blueValue);
+
+        UpdateColorSliderLabels();
+        buttonColorPanel.SetActive(true);
     }
 
     void TextSelected(string val)
@@ -81,7 +156,7 @@ public class ButtonEditorController : MonoBehaviour
         }
     }
 
-    void maxVolumeChanged(float val)
+    void MaxVolumeChanged(float val)
     {
         if (val > minimumVolumeSlider.value) maxVolumeLabel.text = (val).ToString("N0") + "%";
         else
@@ -109,7 +184,7 @@ public class ButtonEditorController : MonoBehaviour
     // Called when "loop" is changed
     void LoopChanged(bool val)
     {
-        if(val)
+        if (val)
         {
             randomizeLoopPanel.SetActive(true);
             minLoopTimePanel.SetActive(true);
@@ -128,17 +203,11 @@ public class ButtonEditorController : MonoBehaviour
 
     internal void ApplySettings()
     {
-        //Applies all changed settings
+        ////Applies all changed settings
         SFXButton button = mac.pageParents[mac.activePage].buttons[buttonID].GetComponent<SFXButton>();
-        if (System.String.IsNullOrEmpty(fileNameLabel.text))    //No file selected
-        {
-            button.Stop();
-            button.ClearActiveClip();
-        }
-        if((clipID != button.FileName && !String.IsNullOrEmpty(clipID)) || String.IsNullOrEmpty(button.FileName))     //Clip selected, different from current
-        {
-            button.FileName = clipID;
-        }
+
+
+        button.FileName = clipID;
         button.Loop = loopButton.isOn;
         button.RandomizeLoopDelay = randomizeLoopButton.isOn;
         button.MinLoopDelay = Convert.ToInt32(minLoopDelay.text);
@@ -146,16 +215,17 @@ public class ButtonEditorController : MonoBehaviour
         button.minimumFadeVolume = minimumVolumeSlider.value / 100;
         button.maximumFadeVolume = maximumVolumeSlider.value / 100;
         button.IgnorePlayAll = ignoreOnPlayAllButton.isOn;
+        button.ButtonEdgeColor = changeColorButton.GetComponent<Image>().color;
 
         if (!String.IsNullOrEmpty(minLoopDelay.text)) button.MinLoopDelay = Convert.ToInt32(minLoopDelay.text);
         else button.MinLoopDelay = 0;
-        if(clipID == null) button.FileName = "";
-        else button.FileName = clipID;
 
         string newText = buttonLabelInput.text.Replace(mac.sfxDirectory, "");
-        print(newText);
         button.Label = newText;
-        button.GetComponentInChildren<TMP_Text>().text = newText;
+        //if (string.IsNullOrEmpty(clipID))    //No file selected
+        //{
+        //    button.ClearActiveClip();
+        //}
         mac.currentMenuState = MainAppController.MenuState.mainAppView;
         editButtonPanel.SetActive(false);
     }
@@ -177,11 +247,12 @@ public class ButtonEditorController : MonoBehaviour
         //Prepare UI for user to begin editing
         buttonID = id;
 
-        
+
         SFXButton button = mac.pageParents[mac.activePage].buttons[buttonID].GetComponent<SFXButton>();
         loopButton.isOn = button.Loop;
         minLoopDelay.text = button.MinLoopDelay.ToString("N0");
         clipID = button.FileName;
+        print(button.FileName);
         if (!String.IsNullOrEmpty(button.FileName)) fileNameLabel.text = Path.GetFileName(clipID);
         else fileNameLabel.text = "";
 
@@ -199,6 +270,7 @@ public class ButtonEditorController : MonoBehaviour
         maxLoopTimePanel.SetActive(randomizeLoopButton.isOn);
         minLoopDelayLabel.text = randomizeLoopButton.isOn ? "Min Loop Delay (sec):" : "Loop Delay (sec):";
         ignoreOnPlayAllButton.isOn = button.IgnorePlayAll;
+        changeColorButton.GetComponent<Image>().color = button.ButtonEdgeColor;
 
         //buttonLabelInput.ActivateInputField();
         string currentLabel = mac.pageParents[mac.activePage].buttons[buttonID].GetComponentInChildren<TMP_Text>().text;
@@ -234,10 +306,12 @@ public class ButtonEditorController : MonoBehaviour
     //Called when file is cleared
     internal void ClearFile()
     {
-        clipID = null;
-        
+        clipID = "";
+        //mac.pageParents[mac.activePage].buttons[buttonID].GetComponent<SFXButton>().FileName = "";
+
         fileNameLabel.text = "";
         buttonLabelInput.text = "";
         placeholderText.text = "Type a button label...";
+
     }
 }

@@ -531,9 +531,9 @@ namespace NLayer.Decoder
             {
                 var b = ReadByte(_readOffset);
                 if (b == -1) throw new System.IO.EndOfStreamException();
-                
+
                 ++_readOffset;
-                
+
                 _bitBucket <<= 8;
                 _bitBucket |= (byte)(b & 0xFF);
                 _bitsRead += 8;

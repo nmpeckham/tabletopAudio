@@ -66,7 +66,8 @@ namespace Id3
                     sequenceIndex++;
                     if (sequenceIndex >= sequence.Length)
                         return byteIdx - sequence.Length + 1;
-                } else
+                }
+                else
                     sequenceIndex = 0;
             }
             return -1;

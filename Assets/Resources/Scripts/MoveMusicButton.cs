@@ -1,8 +1,6 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 
 //Controls the reordering of songs in the playlist
 public class MoveMusicButton : MonoBehaviour, IPointerDownHandler, IPointerExitHandler
@@ -30,7 +28,7 @@ public class MoveMusicButton : MonoBehaviour, IPointerDownHandler, IPointerExitH
     }
     internal void UpdateSongPosition()
     {
-    
+
         if (buttonWithMouse == buttonTransform.GetSiblingIndex() && Input.GetMouseButton(0))
         {
             if ((Input.mousePosition.y - mouseYPos) > buttonRectTransform.rect.height)
@@ -43,12 +41,12 @@ public class MoveMusicButton : MonoBehaviour, IPointerDownHandler, IPointerExitH
                 MoveSongDown(1);
             }
         }
-            //siblingIndex = buttonTransform.GetSiblingIndex();
+        //siblingIndex = buttonTransform.GetSiblingIndex();
     }
 
     internal void MoveSongDown(int numPlaces = 1)
     {
-        for(int i = 0; i < numPlaces; i++)
+        for (int i = 0; i < numPlaces; i++)
         {
             if ((buttonTransform.GetSiblingIndex() + 1) <= buttonTransform.parent.childCount - 1)
             {
@@ -63,7 +61,7 @@ public class MoveMusicButton : MonoBehaviour, IPointerDownHandler, IPointerExitH
 
     internal void MoveSongUp(int numPlaces = 1)
     {
-        for(int i = 0; i < numPlaces; i++)
+        for (int i = 0; i < numPlaces; i++)
         {
             if ((buttonTransform.GetSiblingIndex() - 1) >= 0)
             {
@@ -91,7 +89,7 @@ public class MoveMusicButton : MonoBehaviour, IPointerDownHandler, IPointerExitH
 
     IEnumerator CheckMouse()
     {
-        while(Input.GetMouseButton(0))
+        while (Input.GetMouseButton(0))
         {
             yield return null;
         }

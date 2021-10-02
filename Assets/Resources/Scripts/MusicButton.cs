@@ -1,13 +1,14 @@
-﻿using UnityEngine;
-using UnityEngine.EventSystems;
+﻿using System;
 using TMPro;
-using System;
+using UnityEngine;
+using UnityEngine.EventSystems;
 
 //Class for music items in the playlist
-public class MusicButton : MonoBehaviour,  IPointerClickHandler, IComparable
+public class MusicButton : MonoBehaviour, IPointerClickHandler, IComparable
 {
     private Song song;
-    private TMP_Text label;
+    public TMP_Text label;
+    public TMP_Text duration;
     internal Song Song
     {
         get
@@ -18,6 +19,7 @@ public class MusicButton : MonoBehaviour,  IPointerClickHandler, IComparable
         {
             song = value;
             label.text = song.SortName;
+            duration.text = song.duration.Minutes.ToString() + ":" + song.duration.Seconds.ToString("D2");
         }
     }
 
@@ -28,20 +30,20 @@ public class MusicButton : MonoBehaviour,  IPointerClickHandler, IComparable
     static float timeSinceClick = 100f;
     internal MoveMusicButton mmb;
 
+
     // Start is called before the first frame update
     internal void Init()
     {
         prcc = Camera.main.GetComponent<PlaylistRightClickController>();
         mc = Camera.main.GetComponent<MusicController>();
         timeSinceClick = Time.time;
-        label = GetComponentInChildren<TMP_Text>();
         mmb = GetComponentInChildren<MoveMusicButton>();
-        //mmb.Init();
+
     }
 
     void ItemSelected(int type)
     {
-        if(type == 0)
+        if (type == 0)
         {
             if (Time.time - timeSinceClick < doubleClickTime)
             {
@@ -49,7 +51,7 @@ public class MusicButton : MonoBehaviour,  IPointerClickHandler, IComparable
             }
             timeSinceClick = Time.time;
         }
-        else if(type == 1)
+        else if (type == 1)
         {
             prcc.ShowRightClickMenu(buttonId);
         }

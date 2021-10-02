@@ -17,6 +17,7 @@ limitations under the License.
 */
 #endregion
 
+using Id3.Frames;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -25,7 +26,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
-using Id3.Frames;
 
 namespace Id3
 {

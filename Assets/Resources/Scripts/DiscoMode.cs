@@ -1,8 +1,8 @@
-﻿using System.Collections;
+﻿using Extensions;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System;
-using Extensions;
 
 public class DiscoMode : MonoBehaviour
 {
@@ -18,7 +18,7 @@ public class DiscoMode : MonoBehaviour
         Color.yellow,
         Color.magenta,
     };
-    List<List<int>> diagonal = new List<List<int>>
+    readonly List<List<int>> diagonal = new List<List<int>>
     {
         new List<int>
         {
@@ -32,7 +32,7 @@ public class DiscoMode : MonoBehaviour
         {
             2, 8, 14
         },
-        new List<int> 
+        new List<int>
         {
             3, 9, 15, 21
         },
@@ -65,7 +65,7 @@ public class DiscoMode : MonoBehaviour
         }
     };
 
-    List<List<int>> square = new List<List<int>>
+    readonly List<List<int>> square = new List<List<int>>
     {
         new List<int>
         {
@@ -89,7 +89,7 @@ public class DiscoMode : MonoBehaviour
 
     MainAppController mac;
     int iteration = 0;
-    enum settings
+    enum Settings
     {
         random,
         diagonal,
@@ -97,7 +97,7 @@ public class DiscoMode : MonoBehaviour
         reverseDiagonal,
     }
 
-    settings setting = settings.random;
+    Settings setting = Settings.random;
 
     // Start is called before the first frame update
     void Start()
@@ -122,7 +122,7 @@ public class DiscoMode : MonoBehaviour
         if (currentCooldown <= 0 && discoModeActive)
         {
             print(iteration.Mod(11));
-            if(setting == settings.random)
+            if (setting == Settings.random)
             {
                 foreach (GameObject go in GameObject.FindGameObjectsWithTag("sfxButton"))
                 {
@@ -130,15 +130,15 @@ public class DiscoMode : MonoBehaviour
                     if (rand > 0.5f) go.GetComponent<SFXButton>().ChangeColor();
                 }
             }
-            else if(setting == settings.diagonal)
+            else if (setting == Settings.diagonal)
             {
-                foreach(int i in diagonal[iteration.Mod(11)])
+                foreach (int i in diagonal[iteration.Mod(11)])
                 {
                     mac.pageParents[mac.activePage].buttons[i].GetComponent<SFXButton>().ChangeColor();
                 }
                 iteration++;
             }
-            else if (setting == settings.reverseDiagonal)
+            else if (setting == Settings.reverseDiagonal)
             {
                 foreach (int i in diagonal[iteration.Mod(11)])
                 {
@@ -146,7 +146,7 @@ public class DiscoMode : MonoBehaviour
                 }
                 iteration--;
             }
-            else if (setting == settings.square)
+            else if (setting == Settings.square)
             {
                 foreach (int i in square[iteration.Mod(4)])
                 {
@@ -175,12 +175,12 @@ public class DiscoMode : MonoBehaviour
     }
     IEnumerator ChangeSetting()
     {
-        while(true)
+        while (true)
         {
             yield return new WaitForSeconds(30);
             discoSetting++;
-            setting = (settings)(discoSetting % Enum.GetValues(typeof(settings)).Length);
-            if(discoSetting % 5 == 0)
+            setting = (Settings)(discoSetting % Enum.GetValues(typeof(Settings)).Length);
+            if (discoSetting % 5 == 0)
             {
                 SFXButton.fadeToBlack = !SFXButton.fadeToBlack;
             }

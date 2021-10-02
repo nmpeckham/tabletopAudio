@@ -1,10 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
 using TMPro;
+using UnityEngine;
 using UnityEngine.EventSystems;
-using System;
 
 public class PlaylistTab : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler, IPointerEnterHandler
 {
@@ -13,15 +11,15 @@ public class PlaylistTab : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     internal GameObject musicContentView;
     private List<MusicButton> musicButtons;
     private TMP_Text label;
-    private string labelText =  "*";
-    internal PlaylistTabs pt;
+    private string labelText = "*";
+    static internal PlaylistTabs pt;
 
     private float initialMouseXPos = 0f;
     private bool shouldCheckMousePos = false;
 
 
     private RectTransform rect;
-    
+
     private bool ShouldCheckMousePos
     {
         get
@@ -129,7 +127,7 @@ public class PlaylistTab : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 
     private void MoveTabLeft()
     {
-        if(transform.GetSiblingIndex() > 0 && tabId > 0)
+        if (transform.GetSiblingIndex() > 0 && tabId > 0)
         {
             transform.SetSiblingIndex(transform.GetSiblingIndex() - 1);
             initialMouseXPos = Input.mousePosition.x - rect.rect.width / 2;
@@ -138,7 +136,7 @@ public class PlaylistTab : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 
     private void MoveTabRight()
     {
-        if(transform.GetSiblingIndex() < PlaylistTabs.tabs.Count - 1 && tabId > 0)
+        if (transform.GetSiblingIndex() < PlaylistTabs.tabs.Count - 1 && tabId > 0)
         {
             print(transform.GetSiblingIndex());
             transform.SetSiblingIndex(transform.GetSiblingIndex() + 1);
@@ -153,7 +151,7 @@ public class PlaylistTab : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if(tabId > 0) pt.nowEditing = this;
+        if (tabId > 0) pt.NowEditing = this;
     }
 }
 

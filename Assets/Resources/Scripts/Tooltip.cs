@@ -1,12 +1,11 @@
 ﻿using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using TMPro;
 using UnityEngine.UI;
 
 public class Tooltip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
-    private GameObject tooltipPrefab;
     private GameObject tooltip;
 
     public string tooltipText;
@@ -34,7 +33,7 @@ public class Tooltip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         while (tooltip)
         {
             Rect rect = Rect.zero;
-            if(tooltip) rect = tooltip.GetComponent<RectTransform>().rect;
+            if (tooltip) rect = tooltip.GetComponent<RectTransform>().rect;
             float width = rect.xMax - rect.xMin + 12;
             float maxXPos = Screen.width - width;
 

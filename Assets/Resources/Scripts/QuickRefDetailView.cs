@@ -1,7 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System.Collections.Generic;
 using TMPro;
+using UnityEngine;
 using UnityEngine.UI;
 
 
@@ -32,9 +31,9 @@ public class QuickRefDetailView : MonoBehaviour
 
     private void TestAllItems()
     {
-        foreach(string category in LoadedFilesData.qrdFiles.Keys)
+        foreach (string category in LoadedFilesData.qrdFiles.Keys)
         {
-            foreach(var item in LoadedFilesData.qrdFiles[category])
+            foreach (var item in LoadedFilesData.qrdFiles[category])
             {
                 ItemSelected(category, item.Key);
             }
@@ -58,12 +57,12 @@ public class QuickRefDetailView : MonoBehaviour
         quickRefCategoryText.text = category.Replace("-", " ");
         mac.currentMenuState = MainAppController.MenuState.quickReferenceDetail;
         Dictionary<string, string> attributes = new Dictionary<string, string>();
-        if (category == "Spell")
+        if (category.Contains("Spell"))
         {
             descriptionPanel.SetActive(true);
             quickRefObj.SetActive(true);
             attributesPanel.SetActive(true);
-            
+
             Dictionary<string, dynamic> listItem = LoadedFilesData.qrdFiles[category][item];
 
             titleText.text = listItem["name"].ToString();
@@ -73,7 +72,7 @@ public class QuickRefDetailView : MonoBehaviour
             attributes.Add("Duration", listItem["duration"].ToString());
             attributes.Add("Casting Time", listItem["casting_time"].ToString());
             attributes.Add("Level", listItem["level"].ToString());
-            attributes.Add("Ritual", listItem["ritual"].ToString());
+            attributes.Add("Ritual", Capitalize(listItem["ritual"].ToString()));
 
             string dcText;
             if (listItem.ContainsKey("dc"))
@@ -128,7 +127,7 @@ public class QuickRefDetailView : MonoBehaviour
                         extractedJsonValue.TryGetProperty("1", out System.Text.Json.JsonElement temp1);
                         damageText = temp1.ToString() + " ";
                     }
-                    catch(System.InvalidOperationException) { }
+                    catch (System.InvalidOperationException) { }
                 }
                 System.Text.Json.JsonElement temp2 = new System.Text.Json.JsonElement();
                 listItem["damage"].TryGetProperty("damage_type", out extractedJsonValue);
@@ -136,7 +135,7 @@ public class QuickRefDetailView : MonoBehaviour
                 {
                     extractedJsonValue.TryGetProperty("name", out temp2);
                 }
-                catch(System.InvalidOperationException) { }
+                catch (System.InvalidOperationException) { }
                 damageText += string.IsNullOrEmpty(temp2.ToString()) ? "any" : temp2.ToString();
             }
             else
@@ -150,7 +149,7 @@ public class QuickRefDetailView : MonoBehaviour
             int i = 0;
             descriptionText.text += Title("Classes");
             string classText = "";
-            foreach(var castClass in listItem["classes"].EnumerateArray())
+            foreach (var castClass in listItem["classes"].EnumerateArray())
             {
                 if (i > 0) classText += ", ";
                 castClass.TryGetProperty("name", out extractedJsonValue);
@@ -198,7 +197,7 @@ public class QuickRefDetailView : MonoBehaviour
             Dictionary<string, dynamic> listItem = LoadedFilesData.qrdFiles[category][item];
             quickRefObj.SetActive(true);
             titleText.text = listItem["name"].ToString();
-            if(listItem.ContainsKey("cost"))
+            if (listItem.ContainsKey("cost"))
             {
                 descriptionPanel.SetActive(false);
                 quickRefObj.SetActive(true);
@@ -258,7 +257,7 @@ public class QuickRefDetailView : MonoBehaviour
             }
             else
             {
-                if(listItem.ContainsKey("desc"))
+                if (listItem.ContainsKey("desc"))
                 {
                     descriptionText.text = "";
                     foreach (var desc in listItem["desc"].EnumerateArray())
@@ -349,7 +348,7 @@ public class QuickRefDetailView : MonoBehaviour
 
             string conditionImmunities = listItem["condition_immunities"].ToString();
             attributes.Add("Condition Immunities", string.IsNullOrEmpty(conditionImmunities) ? "N/A" : Capitalize(conditionImmunities)); ;
-            
+
             string str = listItem["strength"].ToString();
             string dex = listItem["dexterity"].ToString();
             string con = listItem["constitution"].ToString();
@@ -359,8 +358,8 @@ public class QuickRefDetailView : MonoBehaviour
 
             string descText = "<mspace=11><b>STR | DEX | CON | INT | WIS | CHA</b>\n"; //dirty, should be improved
             descText += str.PadRight(3) + " | " + dex.PadRight(3) + " | " + con.PadRight(3) + " | " + intel.PadRight(3) + " | " + wis.PadRight(3) + " | " + cha.PadRight(3) + "</mspace>\n";
-            
-            if(listItem.ContainsKey("actions"))
+
+            if (listItem.ContainsKey("actions"))
             {
                 descText += Title("Actions");
                 foreach (var actionItem in listItem["actions"].EnumerateArray())
@@ -372,7 +371,8 @@ public class QuickRefDetailView : MonoBehaviour
                 }
             }
 
-            if (listItem.ContainsKey("special_abilities")) {
+            if (listItem.ContainsKey("special_abilities"))
+            {
                 descText += Title("Special Abilities");
                 foreach (var specialItem in listItem["special_abilities"].EnumerateArray())
                 {
@@ -409,11 +409,18 @@ public class QuickRefDetailView : MonoBehaviour
             titleText.text = listItem["name"].ToString();
 
             descriptionText.text = "";
-            if(category == "Feature")
+            if (category == "Feature")
             {
                 listItem["class"].TryGetProperty("name", out extractedJsonValue);
                 descriptionText.text += Title("Class: " + extractedJsonValue.ToString());
             }
+            //else if(category == "Magic-Item")
+            //{
+            //    listItem["equipment_category"].TryGetProperty("name", out extractedJsonValue);
+            //    string categoryText = extractedJsonValue.ToString();
+
+            //    attributes.Add("Category", categoryText);
+            //}
             int i = 0;
             try
             {
@@ -424,7 +431,7 @@ public class QuickRefDetailView : MonoBehaviour
                     i++;
                 }
             }
-            catch(System.InvalidOperationException)
+            catch (System.InvalidOperationException)
             {
                 descriptionText.text = listItem["desc"].ToString();
             }
@@ -435,7 +442,7 @@ public class QuickRefDetailView : MonoBehaviour
             quickRefObj.SetActive(false);
             mac.currentMenuState = MainAppController.MenuState.quickReference;
         }
-        foreach(KeyValuePair<string, string> attr in attributes)
+        foreach (KeyValuePair<string, string> attr in attributes)
         {
             CreateAttributeItem(attr.Key, attr.Value);
         }
@@ -450,7 +457,7 @@ public class QuickRefDetailView : MonoBehaviour
 
     void DestroyAllAttributeItems()
     {
-        foreach(QuickRefAttributePrefab qrap in attributesPanel.GetComponentsInChildren<QuickRefAttributePrefab>())
+        foreach (QuickRefAttributePrefab qrap in attributesPanel.GetComponentsInChildren<QuickRefAttributePrefab>())
         {
             Destroy(qrap.gameObject);
         }
@@ -464,7 +471,7 @@ public class QuickRefDetailView : MonoBehaviour
     string Capitalize(string[] toCaps)
     {
         string ret = "";
-        foreach(string s in toCaps)
+        foreach (string s in toCaps)
         {
             ret += Capitalize(s) + " ";
         }
@@ -484,7 +491,7 @@ public class QuickRefDetailView : MonoBehaviour
     string Subtitle(string subtitleString)
     {
         int subtitleMarginAmount = 2;
-        return Margin("<b><size=16>" + subtitleString + "</size></b>", subtitleMarginAmount) +"\n";
+        return Margin("<b><size=16>" + subtitleString + "</size></b>", subtitleMarginAmount) + "\n";
     }
     string Body(string bodyString)
     {

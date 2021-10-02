@@ -17,8 +17,8 @@ limitations under the License.
 */
 #endregion
 
-using System.Runtime.Serialization;
 using Id3.Frames;
+using System.Runtime.Serialization;
 
 namespace Id3.Serialization.Surrogates
 {

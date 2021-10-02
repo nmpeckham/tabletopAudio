@@ -1,34 +1,29 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class MusicLoadingAnimation : MonoBehaviour
 {
-    Sprite[] spinnerImages;
-    PlaylistTabs pt;
-    public Image spinnerDisplay;
+    static Sprite[] spinnerImages;
+    private Image spinnerDisplay;
     // Start is called before the first frame update
-    public void Init()
+    public void OnEnable()
     {
-        pt = GetComponent<PlaylistTabs>();
-        spinnerDisplay.gameObject.SetActive(true);
-        spinnerImages = Resources.LoadAll<Sprite>("Spinner");
+        spinnerDisplay = GetComponent<Image>();
+        if(spinnerImages == null) spinnerImages = Resources.LoadAll<Sprite>("Spinner");
         StartCoroutine(AnimateSpinner());
     }
 
     IEnumerator AnimateSpinner()
     {
-        while(pt.mainTab.MusicButtons.Count == 0)
+        while (true)
         {
-            foreach(Sprite frame in spinnerImages)
+            foreach (Sprite frame in spinnerImages)
             {
-                if (pt.mainTab.MusicButtons.Count != 0) break;
+                //print(frame.name);
                 spinnerDisplay.sprite = frame;
-                yield return new WaitForSecondsRealtime(0.01f);
+                yield return null;
             }
         }
-        spinnerDisplay.gameObject.SetActive(false);
-        yield return null;
     }
 }

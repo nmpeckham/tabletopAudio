@@ -1,12 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using System.IO;
-using NLayer;
-using NVorbis;
-using UnityEngine.UI;
+﻿using NLayer;
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using UnityEngine;
+using UnityEngine.UI;
 
 
 public class GenerateMusicFFTBackgrounds : MonoBehaviour
@@ -28,7 +27,7 @@ public class GenerateMusicFFTBackgrounds : MonoBehaviour
     void GetSongs()
     {
         buttons.Clear();
-        foreach(MusicButton mb in musicButtonParent.GetComponentsInChildren<MusicButton>())
+        foreach (MusicButton mb in musicButtonParent.GetComponentsInChildren<MusicButton>())
         {
             buttons.Add(mb.gameObject);
         }
@@ -45,7 +44,7 @@ public class GenerateMusicFFTBackgrounds : MonoBehaviour
         yield return new WaitForSecondsRealtime(1);
         print("started");
         print(buttons.Count);
-        int minBufferSize = 1024;
+        int minBufferSize = 4096;
         foreach (GameObject btn in buttons)
         {
             string filePath = Path.Combine(mac.musicDirectory, LoadedFilesData.songs[btn.GetComponent<MusicButton>().buttonId].FileName);
@@ -54,26 +53,24 @@ public class GenerateMusicFFTBackgrounds : MonoBehaviour
             if (extension == ".mp3")
             {
                 MpegFile reader = new MpegFile(filePath);
+                reader.StereoMode = StereoMode.DownmixToMono;   //Convert to mono
                 List<float> samples = new List<float>();
-                long samplesRead = 0;
-                Texture2D tex = new Texture2D(455, 26);
+                Texture2D tex = new Texture2D(512, 26);
                 float[] buf = new float[minBufferSize];
-                int actualRead;
                 float rmsEnergy;
-                long newPosition;
-                for (int i = 1; i < 456; i++)
+                for (int i = 1; i < 512; i++)
                 {
                     //if (i > 456) break;
                     try
                     {
-                        reader.ReadSamples(buf, 0, buf.Length - 1);
+                        reader.ReadSamples(buf, 0, buf.Length);
                         //actualRead = reader.ReadSamples(buf, 0, buf.Length - 1);
                         //samplesRead += actualRead;
                         rmsEnergy = CalculateRMS(buf);
                         samples.Add(rmsEnergy);
                         //if (actualRead == 0) break;
-                        newPosition = (reader.Length / 455) * i;
-                        reader.Position = newPosition;
+                        //newPosition = (reader.Length / 512) * i;
+                        reader.Position += (reader.Length / 512);
                     }
                     catch (ArgumentOutOfRangeException e)
                     {
@@ -115,7 +112,7 @@ public class GenerateMusicFFTBackgrounds : MonoBehaviour
                 }
                 tex.Apply();
                 btn.GetComponent<Image>().sprite = Sprite.Create(tex, new Rect(0, 0, 455, 26), Vector2.zero);
-                
+
 
             }
             else if (extension == ".ogg")
@@ -131,7 +128,7 @@ public class GenerateMusicFFTBackgrounds : MonoBehaviour
     {
         float max = samples.Max();
         List<float> normalizedSamples = new List<float>();
-        foreach(float sample in samples)
+        foreach (float sample in samples)
         {
             normalizedSamples.Add((sample) / max);
         }
@@ -143,7 +140,7 @@ public class GenerateMusicFFTBackgrounds : MonoBehaviour
     float CalculateRMS(float[] samples)
     {
         float sum = 0;
-        foreach(float item in samples)
+        foreach (float item in samples)
         {
             sum += Mathf.Pow(Mathf.Abs(item), 2f);
         }

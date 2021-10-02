@@ -1,8 +1,7 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class RightClickItem : MonoBehaviour, IPointerEnterHandler
 {
@@ -22,7 +21,7 @@ public class RightClickItem : MonoBehaviour, IPointerEnterHandler
     void Clicked()
     {
         if (id == 0) prcc.DeleteItem();
-        if (id == 1) prcc.AddToPlayNext(id);
+        if (id == 1) prcc.AddToPlayNext();
         if (id == 2) prcc.ShowAddToMenu();
         if (id == 3) pt.EditTabName();
         if (id == 4) StartCoroutine(pt.DeleteTab());

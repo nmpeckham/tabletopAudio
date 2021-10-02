@@ -1,8 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 
 //Class for editing page button labels using right-click
 public class EditPageLabel : MonoBehaviour
@@ -25,7 +23,7 @@ public class EditPageLabel : MonoBehaviour
     {
         mac = Camera.main.GetComponent<MainAppController>();
         cancel.onClick.AddListener(Cancel);
-        confirm.onClick.AddListener(Confirm);        
+        confirm.onClick.AddListener(Confirm);
     }
 
     internal void Cancel()

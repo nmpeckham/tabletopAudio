@@ -1,17 +1,15 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
 using System.IO;
 using System.Linq;
 using TMPro;
+using UnityEngine;
 
 //Holds data for colors and images
 internal static class ResourceManager
 {
     internal static Color red = Color.red;
-    internal static Color green = Color.green;
+    internal static Color green = new Color(0.1f, 1f, 0.1f);
     internal static Color black = Color.black;
     internal static Color orange = new Color(1, 0.56f, 0, 1);
     internal static Color grey = new Color(0.878f, 0.878f, 0.878f, 1f);

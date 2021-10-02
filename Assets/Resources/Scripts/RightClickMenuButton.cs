@@ -1,8 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.EventSystems;
 
 public class RightClickMenuButton : MonoBehaviour
 {
@@ -19,8 +16,8 @@ public class RightClickMenuButton : MonoBehaviour
     void Clicked()
     {
         print("id: " + id);
-        if(id == 0) prcc.DeleteItem();
-        if (id == 1) prcc.AddToPlayNext(id);
+        if (id == 0) prcc.DeleteItem();
+        if (id == 1) prcc.AddToPlayNext();
     }
 
 }

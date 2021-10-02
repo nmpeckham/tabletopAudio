@@ -1,9 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
-using System;
 
 public class DarkModeController : MonoBehaviour
 {
@@ -38,7 +36,7 @@ public class DarkModeController : MonoBehaviour
             {
                 pp.buttons.ForEach(btn =>
                 {
-                    btn.GetComponent<Image>().color = ResourceManager.sfxButtonDark;
+                    btn.GetComponent<SFXButton>().ChangeButtonColor(ResourceManager.sfxButtonDark);
                     try
                     {
                         if (btn.GetComponent<SFXButton>().isPlaying)
@@ -94,7 +92,7 @@ public class DarkModeController : MonoBehaviour
                         buttonImg.color = Color.red;
                     }
                 }
-                catch (NullReferenceException) {}
+                catch (NullReferenceException) { }
                 crossfadeMaterial.SetColor("ButtonColor", ResourceManager.darkModeGrey);
             }
         }
@@ -123,7 +121,7 @@ public class DarkModeController : MonoBehaviour
             {
                 pp.buttons.ForEach(btn =>
                 {
-                    btn.GetComponent<Image>().color = ResourceManager.sfxButtonLight;
+                    btn.GetComponent<SFXButton>().ChangeButtonColor(ResourceManager.sfxButtonLight); ;
                     try
                     {
                         if (btn.GetComponent<SFXButton>().isPlaying)

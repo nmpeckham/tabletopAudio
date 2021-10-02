@@ -17,10 +17,10 @@ limitations under the License.
 */
 #endregion
 
-using System;
-using System.IO;
 using Id3.Frames;
 using Id3.InfoFx;
+using System;
+using System.IO;
 
 namespace Id3.Files
 {
@@ -45,7 +45,8 @@ namespace Id3.Files
 
         protected override InfoProviderProperties GetProperties()
         {
-            var properties = new InfoProviderProperties("File name") {
+            var properties = new InfoProviderProperties("File name")
+            {
                 Requirements = InfoProviderRequirements.MediaFileName
             };
             properties.AvailableOutputs.Add<ArtistsFrame>();

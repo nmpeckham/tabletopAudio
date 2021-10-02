@@ -1,0 +1,62 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Shader Graphs_Crossfade Lit
+  m_Shader: {fileID: -6465566751694194690, guid: 85d7c68421cc19847b78fbe606bb1fba,
+    type: 3}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: 3effc819ddc99264ea4c412a93b7dab1, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _NewShaderSubGraph_5b0538470e4d648584ae45ac2989f956_Texture2DFA122AD5_1568311391:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _NewShaderSubGraph_91E215A5_Texture2DFA122AD5_1568311391:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Texture2DAsset_912b83d229781e858796d98c4451544b_Out_0:
+        m_Texture: {fileID: 2800000, guid: 3effc819ddc99264ea4c412a93b7dab1, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Texture2DAsset_F948A8AA_Out_0:
+        m_Texture: {fileID: 2800000, guid: 3effc819ddc99264ea4c412a93b7dab1, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - Progress: 0
+    - Vector1_40F02E7D: 0
+    m_Colors:
+    - ButtonColor: {r: 0.14901961, g: 0.14901961, b: 0.14901961, a: 1}
+    - Color_8A8899AD: {r: 0, g: 1, b: 0, a: 1}
+  m_BuildTextureStacks: []

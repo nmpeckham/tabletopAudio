@@ -17,15 +17,14 @@ limitations under the License.
 */
 #endregion
 
+using Id3.Frames;
+using Id3.v1;
+using Id3.v2;
+using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Id3.Frames;
-using Id3.v1;
-using Id3.v2;
-
-using JetBrains.Annotations;
 
 namespace Id3
 {
@@ -44,7 +43,8 @@ namespace Id3
         /// <returns>The basic ID3 tag.</returns>
         internal Id3Tag CreateTag()
         {
-            var tag = new Id3Tag {
+            var tag = new Id3Tag
+            {
                 Version = Version,
                 Family = Family
             };
@@ -62,8 +62,9 @@ namespace Id3
         {
             FrameHandler handler = FrameHandlers[frameId];
             if (handler != null)
-                return (Id3Frame) Activator.CreateInstance(handler.Type);
-            return new UnknownFrame {
+                return (Id3Frame)Activator.CreateInstance(handler.Type);
+            return new UnknownFrame
+            {
                 Id = frameId
             };
         }
@@ -161,6 +162,6 @@ namespace Id3
         internal Type Type { get; }
 
         internal Id3Handler Instance =>
-            _instance ?? (_instance = (Id3Handler) Activator.CreateInstance(Type));
+            _instance ?? (_instance = (Id3Handler)Activator.CreateInstance(Type));
     }
 }

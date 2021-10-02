@@ -1,10 +1,18 @@
 TableTopManager Changelog
 
+TODO:
+Theme engine?
+Add search folders for music
+
+Just play sfx button song. Plays twice :/
+
 v1.1 "Inveniet" - Added DnD 5e quick reference tool
 
  - Name Change: TableTopAudio is now TableTopManager!
 
- - Added support for ID3 tags, version 1.x and 2.x. Song names and artists will be properly displayed when available.
+ - The working folder for TableTopManager is now 
+
+  - Updated to Unity 2021.1.23f1
 
  - Music folders will now be searched recursively for songs
 
@@ -24,6 +32,12 @@ v1.1 "Inveniet" - Added DnD 5e quick reference tool
 
  - Updated to NLayer v1.3, which should fix most mp3 decoder issues
 
+ - Song duration is now shown for playlist items
+
+ - Added option to change edge color for SFX Buttons
+
+ - Added support for ID3 tags, version 1.x and 2.x. Song names and artists will be properly displayed when available.
+
  - Added search field to music playlist
 
  - Added "Play Next" option for playlist. Right click a song to open menu.
@@ -33,6 +47,8 @@ v1.1 "Inveniet" - Added DnD 5e quick reference tool
  - Added error message when unsupported characters are present in a song title
 
  - Added option to clone a song in music playlist
+
+ - Fixed bug where warning to overwrite save file wouldn't be show if capitalization was different
 
  - Fixed bug where crossfade times were consistently longer by a factor of 1.2f
 
