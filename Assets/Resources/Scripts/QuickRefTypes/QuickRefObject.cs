@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 [System.Serializable]
 public class QuickRefObject
@@ -9,5 +8,5 @@ public class QuickRefObject
     {
         contents = new List<Dictionary<string, dynamic>>();
     }
-    
+
 }

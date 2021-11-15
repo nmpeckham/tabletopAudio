@@ -1,7 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using TMPro;
 using UnityEngine;
-using TMPro;
 using UnityEngine.UI;
 
 public class QuickRefPrefab : MonoBehaviour
@@ -12,7 +10,6 @@ public class QuickRefPrefab : MonoBehaviour
     public Button thisButton;
     public Image categoryColor;
 
-    private string location;
     private string category;
     private string description;
     private string title;
@@ -26,25 +23,31 @@ public class QuickRefPrefab : MonoBehaviour
             category = value;
             categoryText.text = category;
             string categoryFileName = category.Replace(" ", "-");
+            //print(categoryFileName);
+            //foreach(var a in ResourceManager.categoryColors)
+            //{
+            //    print(a);
+            //}
             categoryColor.color = ResourceManager.categoryColors[categoryFileName];
         }
     }
     public string Description
     {
         get { return description; }
-        set 
+        set
         {
             description = value;
             descriptionText.text = description;
         }
     }
-    public string Title {
+    public string Title
+    {
         get { return title; }
-        set 
+        set
         {
             title = value;
             titleText.text = title;
-        } 
+        }
     }
     // Start is called before the first frame update
     void Start()
@@ -56,7 +59,7 @@ public class QuickRefPrefab : MonoBehaviour
     private void Clicked()
     {
         string itemCategory = category.Replace(" ", "-");
-        string itemId = title.ToLower().Replace(" ", "-").Replace(",", "").Replace("/", "-").Replace("(", "").Replace(")", "").Replace(":", "");
+        string itemId = title.ToLower().Replace(" ", "-").Replace(",", "").Replace("/", "-").Replace("(", "").Replace(")", "").Replace(":", "").Replace("'", "");
         if (itemCategory == "Monster")
         {
             itemId = title;

@@ -1,23 +1,18 @@
 ﻿using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using TMPro;
 using UnityEngine.UI;
 
 public class Tooltip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
-    private GameObject tooltipPrefab;
     private GameObject tooltip;
-    private GameObject tooltipParent;
+
     public string tooltipText;
 
-    void Start()
-    {
-        tooltipParent = GameObject.FindGameObjectWithTag("TooltipParent");
-    }
     public void OnPointerEnter(PointerEventData eventData)
     {
-        tooltip = Instantiate(Prefabs.tooltipPrefab, Input.mousePosition, Quaternion.identity, tooltipParent.transform);
+        tooltip = Instantiate(Prefabs.tooltipPrefab, Input.mousePosition, Quaternion.identity, MainAppController.tooltipParent);
         tooltip.GetComponentInChildren<TMP_Text>().text = tooltipText;
         StartCoroutine(UpdateTooltipPosition());
     }
@@ -31,14 +26,14 @@ public class Tooltip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     IEnumerator UpdateTooltipPosition()
     {
-        yield return new WaitForSecondsRealtime(0.5f);
+        yield return new WaitForSecondsRealtime(0.5f);  //wait half a sec before showing tooltip
         if (tooltip) tooltip.GetComponent<Image>().color = Color.white;
         if (tooltip) tooltip.GetComponentInChildren<TMP_Text>().color = Color.black;
 
         while (tooltip)
         {
             Rect rect = Rect.zero;
-            if(tooltip) rect = tooltip.GetComponent<RectTransform>().rect;
+            if (tooltip) rect = tooltip.GetComponent<RectTransform>().rect;
             float width = rect.xMax - rect.xMin + 12;
             float maxXPos = Screen.width - width;
 

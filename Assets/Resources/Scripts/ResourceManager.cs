@@ -1,16 +1,15 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
 using System.IO;
 using System.Linq;
+using TMPro;
+using UnityEngine;
 
 //Holds data for colors and images
 internal static class ResourceManager
 {
     internal static Color red = Color.red;
-    internal static Color green = Color.green;
+    internal static Color green = new Color(0.1f, 1f, 0.1f);
     internal static Color black = Color.black;
     internal static Color orange = new Color(1, 0.56f, 0, 1);
     internal static Color grey = new Color(0.878f, 0.878f, 0.878f, 1f);
@@ -21,6 +20,12 @@ internal static class ResourceManager
     internal static Color sfxButtonLight = new Color(224 / 255f, 224 / 255f, 224 / 255f);
     internal static Color sfxButtonDark = new Color(100 / 255f, 100 / 255f, 100 / 255f);
     internal static Color sfxPageBG = new Color(149 / 255f, 149 / 255f, 149 / 255f);
+
+    internal static Color tabInactiveColor = new Color(120 / 255f, 120 / 255f, 120 / 255f);
+    internal static Color tabActiveColor = new Color(200 / 255f, 200 / 255f, 200 / 255f);
+
+    internal static List<char> charTable = new List<char>();
+
 
     //internal static Color 
 
@@ -59,5 +64,8 @@ internal static class ResourceManager
     internal static void Init()
     {
         dbFiles = Directory.GetFiles(Application.streamingAssetsPath).Where(a => Path.GetExtension(a) == ".json").ToArray();
+
+        TMP_FontAsset englishAsset = Resources.Load<TMP_FontAsset>("TextMesh Pro/Fonts/Lato-Regular SDF");
+        englishAsset.characterTable.ForEach(item => charTable.Add(Convert.ToChar(item.unicode)));
     }
 }

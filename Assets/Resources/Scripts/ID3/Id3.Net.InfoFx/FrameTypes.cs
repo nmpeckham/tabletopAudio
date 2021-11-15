@@ -17,10 +17,9 @@ limitations under the License.
 */
 #endregion
 
+using Id3.Frames;
 using System;
 using System.Collections.ObjectModel;
-
-using Id3.Frames;
 
 namespace Id3.InfoFx
 {

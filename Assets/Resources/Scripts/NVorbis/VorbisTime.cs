@@ -41,7 +41,7 @@ namespace NVorbis
 
             protected override void Init(DataPacket packet)
             {
-                
+
             }
         }
     }

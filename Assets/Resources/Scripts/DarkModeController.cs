@@ -1,9 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
-using System;
 
 public class DarkModeController : MonoBehaviour
 {
@@ -34,19 +32,21 @@ public class DarkModeController : MonoBehaviour
                 obj.GetComponent<TMP_Text>().color = Color.white;
             }
 
-            GameObject[] sfxButtonsToChange = GameObject.FindGameObjectsWithTag("sfxButton");
-            foreach (GameObject obj in sfxButtonsToChange)
+            mac.pageParents.ForEach(pp =>
             {
-                obj.GetComponent<Image>().color = ResourceManager.sfxButtonDark;
-                try
+                pp.buttons.ForEach(btn =>
                 {
-                    if (obj.GetComponent<SFXButton>().isPlaying)
+                    btn.GetComponent<SFXButton>().ChangeButtonColor(ResourceManager.sfxButtonDark);
+                    try
                     {
-                        obj.GetComponent<Image>().color = Color.green;
+                        if (btn.GetComponent<SFXButton>().IsPlaying)
+                        {
+                            btn.GetComponent<Image>().color = Color.green;
+                        }
                     }
-                }
-                catch (NullReferenceException) { }
-            }
+                    catch (NullReferenceException) { }
+                });
+            });
 
             GameObject.FindGameObjectWithTag("mainBackground").GetComponent<Image>().color = ResourceManager.lightModeGrey;
 
@@ -92,7 +92,7 @@ public class DarkModeController : MonoBehaviour
                         buttonImg.color = Color.red;
                     }
                 }
-                catch (NullReferenceException) {}
+                catch (NullReferenceException) { }
                 crossfadeMaterial.SetColor("ButtonColor", ResourceManager.darkModeGrey);
             }
         }
@@ -117,19 +117,21 @@ public class DarkModeController : MonoBehaviour
                 obj.GetComponent<TMP_Text>().color = Color.black;
             }
 
-            GameObject[] sfxButtonsToChange = GameObject.FindGameObjectsWithTag("sfxButton");
-            foreach (GameObject obj in sfxButtonsToChange)
+            mac.pageParents.ForEach(pp =>
             {
-                obj.GetComponent<Image>().color = ResourceManager.sfxButtonLight;
-                try
+                pp.buttons.ForEach(btn =>
                 {
-                    if (obj.GetComponent<SFXButton>().isPlaying)
+                    btn.GetComponent<SFXButton>().ChangeButtonColor(ResourceManager.sfxButtonLight); ;
+                    try
                     {
-                        obj.GetComponent<Image>().color = Color.green;
+                        if (btn.GetComponent<SFXButton>().IsPlaying)
+                        {
+                            btn.GetComponent<Image>().color = Color.green;
+                        }
                     }
-                }
-                catch (NullReferenceException) { }
-            }
+                    catch (NullReferenceException) { }
+                });
+            });
 
             GameObject.FindGameObjectWithTag("mainBackground").GetComponent<Image>().color = Color.white;
 

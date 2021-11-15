@@ -1,11 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using Amazon.DynamoDBv2;
-using System.Text.Json;
-using System.IO;
 using Extensions;
-using System.Net;
+using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
+using UnityEngine;
 
 public static class NowPlayingWebpage
 {
@@ -23,7 +21,7 @@ public static class NowPlayingWebpage
         string credFolder = Camera.main.GetComponent<MainAppController>().saveDirectory;
 
         string fileLocation = Path.Combine(credFolder, credFileName);
-        if(System.IO.File.Exists(fileLocation))
+        if (System.IO.File.Exists(fileLocation))
         {
             try
             {
@@ -44,7 +42,7 @@ public static class NowPlayingWebpage
                 client = new AmazonDynamoDBClient(creds, region);
                 goodConfig = true;
             }
-            catch(System.Exception e)
+            catch (System.Exception e)
             {
                 Camera.main.GetComponent<MainAppController>().ShowErrorMessage("Couldn't read AWS config file: " + e.Message);
             }
@@ -53,7 +51,7 @@ public static class NowPlayingWebpage
 
     async static internal void SongChanged(Song song)
     {
-        if(goodConfig)
+        if (goodConfig)
         {
             try
             {
@@ -63,7 +61,7 @@ public static class NowPlayingWebpage
                 var durationAttribute = new Amazon.DynamoDBv2.Model.AttributeValue();
                 durationAttribute.N = song.duration.TotalSeconds.ToString("F1");    //Set as number, fixed-point with one decimal place
                 var startTimeAttribute = new Amazon.DynamoDBv2.Model.AttributeValue();
-                startTimeAttribute.N = System.DateTime.UtcNow.ToUnixTime().ToString("F1"); ////Set as number, fixed-point with one decimal place
+                startTimeAttribute.N = System.DateTime.UtcNow.ToUnixTime().ToString("F1"); //Set as number, fixed-point with one decimal place
                 var idAttribute = new Amazon.DynamoDBv2.Model.AttributeValue(id);
 
                 item.Add("id", idAttribute);
@@ -95,12 +93,12 @@ public static class NowPlayingWebpage
 
     internal async static void SongPaused(float progress)
     {
-        if(goodConfig)
+        if (goodConfig)
         {
             var idAttribute = new Amazon.DynamoDBv2.Model.AttributeValue(id);
             Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> item = new Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>();
             var startTimeAttribute = new Amazon.DynamoDBv2.Model.AttributeValue();
-            startTimeAttribute.N = System.DateTime.UtcNow.ToUnixTime().ToString("F1"); ////Set as number, fixed-point with one decimal place
+            startTimeAttribute.N = System.DateTime.UtcNow.ToUnixTime().ToString("F1"); //Set as number, fixed-point with one decimal place
             var typeAttribute = new Amazon.DynamoDBv2.Model.AttributeValue("Paused");
             var progressAttribute = new Amazon.DynamoDBv2.Model.AttributeValue();
             progressAttribute.N = progress.ToString("F1");
@@ -111,17 +109,17 @@ public static class NowPlayingWebpage
             item.Add("p", progressAttribute);
             await client.PutItemAsync("nowPlayingStatus", item);
         }
-       
+
     }
 
     internal async static void SongStopped()
     {
-        if(goodConfig)
+        if (goodConfig)
         {
             var idAttribute = new Amazon.DynamoDBv2.Model.AttributeValue(id);
             Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> item = new Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>();
             var startTimeAttribute = new Amazon.DynamoDBv2.Model.AttributeValue();
-            startTimeAttribute.N = System.DateTime.UtcNow.ToUnixTime().ToString("F1"); ////Set as number, fixed-point with one decimal place
+            startTimeAttribute.N = System.DateTime.UtcNow.ToUnixTime().ToString("F1"); //Set as number, fixed-point with one decimal place
             var typeAttribute = new Amazon.DynamoDBv2.Model.AttributeValue("Stopped");
 
             item.Add("id", idAttribute);
@@ -133,12 +131,12 @@ public static class NowPlayingWebpage
 
     internal async static void SongUnpaused(float progress)
     {
-        if(goodConfig)
+        if (goodConfig)
         {
             var idAttribute = new Amazon.DynamoDBv2.Model.AttributeValue(id);
             Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> item = new Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>();
             var startTimeAttribute = new Amazon.DynamoDBv2.Model.AttributeValue();
-            startTimeAttribute.N = System.DateTime.UtcNow.ToUnixTime().ToString("F1"); ////Set as number, fixed-point with one decimal place
+            startTimeAttribute.N = System.DateTime.UtcNow.ToUnixTime().ToString("F1"); //Set as number, fixed-point with one decimal place
             var typeAttribute = new Amazon.DynamoDBv2.Model.AttributeValue("Unpaused");
             var progressAttribute = new Amazon.DynamoDBv2.Model.AttributeValue();
             progressAttribute.N = progress.ToString("F1");
@@ -149,6 +147,25 @@ public static class NowPlayingWebpage
             item.Add("p", progressAttribute);
             await client.PutItemAsync("nowPlayingStatus", item);
         }
-        
+    }
+
+    internal async static void SongPlaybackChanged(float progress)
+    {
+        if (goodConfig)
+        {
+            var idAttribute = new Amazon.DynamoDBv2.Model.AttributeValue(id);
+            Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> item = new Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>();
+            var startTimeAttribute = new Amazon.DynamoDBv2.Model.AttributeValue();
+            startTimeAttribute.N = System.DateTime.UtcNow.ToUnixTime().ToString("F1"); //Set as number, fixed-point with one decimal place
+            var typeAttribute = new Amazon.DynamoDBv2.Model.AttributeValue("Seek");
+            var progressAttribute = new Amazon.DynamoDBv2.Model.AttributeValue();
+            progressAttribute.N = progress.ToString("F1");
+
+            item.Add("id", idAttribute);
+            item.Add("t", startTimeAttribute);
+            item.Add("z", typeAttribute);
+            item.Add("p", progressAttribute);
+            await client.PutItemAsync("nowPlayingStatus", item);
+        }
     }
 }

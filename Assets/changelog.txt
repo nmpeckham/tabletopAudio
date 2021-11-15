@@ -1,16 +1,24 @@
-TableTopAudio Changelog
+TableTopManager Changelog
 
-v1.0.3 "Inveniet" - Added DnD 5e quick reference tool
+TODO:
+Theme engine?
+Add search folders for music
 
-//TODO: add advanced option to increase mixer volume above 100% - 1.0.4
+Just play sfx button song. Plays twice :/
 
-//TODO: ensure focus is assumed for text fields
+v1.1 "Inveniet" - Added DnD 5e quick reference tool
 
-//TODO: Cleanup musicController class :/
+//TODO: Fix ogg files not being disposed on close
 
-//TODO: Fix many instance variables not being static where they should
+ - Name Change: TableTopAudio is now TableTopManager!
 
- - Added support for ID3 tags, version 1.x and 2.x. Song names and artists will be properly displayed when available.
+ - The working folder for TableTopManager is now "Music/TableTopManager", instead of "Music/TableTopAudio"
+
+ - High refresh rates are now supported. TableTopManager will target the maximum refresh rate of your monitor
+
+ - Updated to Unity 2021.1.23f1
+
+ - New UI font //TODO
 
  - Music folders will now be searched recursively for songs
 
@@ -20,17 +28,37 @@ v1.0.3 "Inveniet" - Added DnD 5e quick reference tool
 
  - Save name input field now assumes text cursor focus when save panel is opened
 
- - Shuffle mode wil no longer repeat the same song until all other songs have been played
+ - Shuffle mode will no longer repeat the same song until all other songs have been played
 
  - Added tooltips to music control buttons
 
  - Further FFT refinements - # of bins and bin size adjusted. Now uses 10 bands, mathematically calculated to be 12% more appealing, 9 times out of 10
- 
- - Added search field to music playlist
+
+ - Song names no longer contain file extensions
+
+ - Updated to most recent NLayer release (as of Sept. 25th, 2021), which fixes many mp3 decoder issues
+
+ - Song duration is now shown for playlist items
+
+ - Save names are now case sensitive on Linux
+
+ - Added option to change edge color for SFX Buttons
+
+ - Added support for ID3 tags, version 1.x and 2.x. Song names and artists will be properly displayed when available.
+
+ - Added search field to music playlist (ctrl/cmd+f shortcut)
 
  - Added "Play Next" option for playlist. Right click a song to open menu.
 
- - Song names no longer contain file extensions
+ - Added new FFT visualizer: waterfall spectrum. Click on the FFT visualizer area to change type.
+
+ - Added error message when unsupported characters are present in a song title
+
+ - Added option to clone a song in music playlist
+
+ - Fixed bug where warning to overwrite save file wouldn't be show if capitalization was different
+
+ - Fixed bug where crossfade times were consistently longer by a factor of 1.2f
 
  - Fixed bug where renaming a song in it's folder would cause music incorrect song to pley when selecting an item
 
@@ -60,6 +88,9 @@ v1.0.3 "Inveniet" - Added DnD 5e quick reference tool
 
  - Fixed bug that would cause music playlist audio to become glitched if crossfade was disabled while crossfade was in progress and another song was immediately started. This was an absolute nightmare to trackdown and fix
 
+ - Fixed bug where text input wasn't assumed on all fields when editing
+
+TODO: Not finished:
  - Advanced feature: Song history logging in AWS DynamoDB. Simply place a json file called "credentials.json" in your Music/TableTopAudio/Saves directory with the following format:
 	{
 	  "accessKeyId": "YOUR_KEY_ID_HERE",

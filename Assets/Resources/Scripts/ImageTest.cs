@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public class ImageTest : MonoBehaviour
@@ -11,9 +9,9 @@ public class ImageTest : MonoBehaviour
     void Start()
     {
         Texture2D testing = new Texture2D(100, 100);
-        for(int i = 0; i < 100; i++)
+        for (int i = 0; i < 100; i++)
         {
-            for(int j = 0; j < 100; j++)
+            for (int j = 0; j < 100; j++)
             {
                 testing.SetPixel(i, j, Color.green);
             }

@@ -37,7 +37,7 @@ namespace Id3.Frames
                 if (string.IsNullOrEmpty(value))
                     Value = null;
                 else
-                    Value = !int.TryParse(value, out int asInt) ? (int?) null : asInt;
+                    Value = !int.TryParse(value, out int asInt) ? (int?)null : asInt;
             }
         }
     }

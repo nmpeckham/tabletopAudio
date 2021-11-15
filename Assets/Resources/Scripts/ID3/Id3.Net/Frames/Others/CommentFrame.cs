@@ -17,10 +17,10 @@ limitations under the License.
 */
 #endregion
 
+using JetBrains.Annotations;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
-using JetBrains.Annotations;
 
 namespace Id3.Frames
 {

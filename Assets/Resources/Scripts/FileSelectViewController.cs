@@ -1,17 +1,17 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System.Collections.Generic;
+using System.IO;
 using TMPro;
+using UnityEngine;
 using UnityEngine.UI;
+using System.Linq;
 
 //Controls the file selection view for SFX buttons
 public class FileSelectViewController : MonoBehaviour
 {
-    MainAppController mac;
+    private static MainAppController mac;
     public Button closeButton;
-    private ButtonEditorController bec;
+    private static ButtonEditorController bec;
     public GameObject fileSelectionView;
-    private List<string> itemsToCreate;
     public GameObject fileLoadListScrollView;
 
     private void Start()
@@ -19,12 +19,14 @@ public class FileSelectViewController : MonoBehaviour
         bec = Camera.main.GetComponent<ButtonEditorController>();
         mac = Camera.main.GetComponent<MainAppController>();
         closeButton.onClick.AddListener(CloseFileSelection);
-
-        itemsToCreate = new List<string>();
     }
 
     internal void CloseFileSelection()
     {
+        foreach (FileSelectItem fsi in fileLoadListScrollView.GetComponentsInChildren<FileSelectItem>())
+        {
+            Destroy(fsi.gameObject);
+        }
         fileSelectionView.gameObject.SetActive(false);
         mac.currentMenuState = MainAppController.MenuState.editingSFXButton;
     }
@@ -33,32 +35,23 @@ public class FileSelectViewController : MonoBehaviour
     {
         fileSelectionView.gameObject.SetActive(true);
 
-        
 
-        foreach (string file in System.IO.Directory.GetFiles(mac.sfxDirectory))
+        foreach (string file in System.IO.Directory.GetFiles(mac.sfxDirectory, "*", SearchOption.AllDirectories))
         {
-            if (!LoadedFilesData.sfxClips.ContainsKey(file))
+            if (Path.GetExtension(file) == ".mp3" || Path.GetExtension(file) == ".ogg")
             {
 
-                AudioClip newClip = null;
-                LoadedFilesData.sfxClips.Add(file, newClip);
-                itemsToCreate.Add(file);
+                GameObject item = Instantiate(Prefabs.fileSelectItemPrefab, fileLoadListScrollView.transform);
+                string text = Path.GetFileName(file);
+                item.GetComponentInChildren<TMP_Text>().SetText(text);
+                item.GetComponent<FileSelectItem>().id = file;
             }
         }
-        foreach (string file in itemsToCreate)
-        {
-            GameObject item = Instantiate(Prefabs.fileSelectItemPrefab, fileLoadListScrollView.transform);
-            string text = file.Replace(mac.sfxDirectory + mac.sep, "");
-            item.GetComponentInChildren<TMP_Text>().SetText(text);
-            item.GetComponent<FileSelectItem>().id = file;
-        }
-        itemsToCreate.Clear();
     }
 
     internal void ItemSelected(string id)
     {
-        fileSelectionView.gameObject.SetActive(false);
-
+        CloseFileSelection();
         bec.UpdateFile(id);
     }
 }

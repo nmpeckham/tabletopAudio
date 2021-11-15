@@ -1,8 +1,6 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.EventSystems;
 
 public class ScrollNowPlayingTitle : MonoBehaviour
 {
@@ -15,14 +13,12 @@ public class ScrollNowPlayingTitle : MonoBehaviour
 
     IEnumerator ScrollView()
     {
-        while(true)
+        while (true)
         {
             yield return new WaitForSecondsRealtime(3);
             float amt = Mathf.Abs(0.8f / (scrollArea.content.rect.width - 390));// width of container (390px) must be subtracted for smooth scrolling
-            int i = 0;
-            while(scrollArea.horizontalNormalizedPosition < 1)
+            while (scrollArea.horizontalNormalizedPosition < 1)
             {
-                i++;
                 scrollArea.horizontalNormalizedPosition += amt;
                 //print(scrollArea.horizontalNormalizedPosition);
                 yield return null;

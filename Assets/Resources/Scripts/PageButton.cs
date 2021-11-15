@@ -1,19 +1,15 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
-using TMPro;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 //Class to take commands from page buttons, including menu and "Stop SFX" buttons
-public class PageButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler
+public class PageButton : MonoBehaviour, IPointerDownHandler
 {
     private static PageButton activeButton;
     public int id;
-    private Button thisButton;
-    private MainAppController mac;
+    static private MainAppController mac;
     private TMP_Text label;
-    private bool hasPointer = false;
     public Button playAllButton;
     public Button stopAllButton;
     public Button fadeInButton;
@@ -23,24 +19,25 @@ public class PageButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     [SerializeField]
     private int activeAudioSources = 0;
 
-    
+
     public int ActiveAudioSources
     {
-        set { 
-            activeAudioSources = value; 
-            if(activeAudioSources == 0) indicatorImage.color = new Color(1, 1, 1, 0);
+        set
+        {
+            activeAudioSources = value;
+            if (activeAudioSources == 0) indicatorImage.color = new Color(1, 1, 1, 0);
             else indicatorImage.color = Color.white;
         }
         get
         {
             return activeAudioSources;
         }
-        
+
     }
 
     public string Label
     {
-        get 
+        get
         {
             return label.text;
         }
@@ -55,7 +52,6 @@ public class PageButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     {
         label = GetComponentInChildren<TMP_Text>();
         mac = Camera.main.GetComponent<MainAppController>();
-        thisButton = GetComponent<Button>();
         playAllButton.onClick.AddListener(PlayAll);
         stopAllButton.onClick.AddListener(StopAll);
         fadeInButton.onClick.AddListener(FadeIn);
@@ -67,16 +63,16 @@ public class PageButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     void PlayAll()
     {
-        foreach(GameObject btn in mac.sfxButtons[id])
+        foreach (GameObject btn in mac.pageParents[id].buttons)
         {
             SFXButton sfxBtn = btn.GetComponent<SFXButton>();
-            if (!sfxBtn.isPlaying) sfxBtn.Play(true);
+            if (!sfxBtn.IsPlaying) sfxBtn.Play(true);
         }
     }
 
     void StopAll()
     {
-        foreach (GameObject btn in mac.sfxButtons[id])
+        foreach (GameObject btn in mac.pageParents[id].buttons)
         {
             btn.GetComponent<SFXButton>().Stop(true);
         }
@@ -84,7 +80,7 @@ public class PageButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     void FadeIn()
     {
-        foreach (GameObject btn in mac.sfxButtons[id])
+        foreach (GameObject btn in mac.pageParents[id].buttons)
         {
             btn.GetComponent<SFXButton>().FadeVolume("in", true);
         }
@@ -92,7 +88,7 @@ public class PageButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     void FadeOut()
     {
-        foreach (GameObject btn in mac.sfxButtons[id])
+        foreach (GameObject btn in mac.pageParents[id].buttons)
         {
             btn.GetComponent<SFXButton>().FadeVolume("out", true);
         }
@@ -102,16 +98,6 @@ public class PageButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     {
         if (id == -2 && gameObject.transform.GetSiblingIndex() != MainAppController.NUMPAGES + 1) gameObject.transform.SetSiblingIndex(MainAppController.NUMPAGES + 1);
         if (id == -1 && gameObject.transform.GetSiblingIndex() != 0) gameObject.transform.SetSiblingIndex(0);
-    }
-
-    public void OnPointerEnter(PointerEventData eventData)
-    {
-        hasPointer = true;
-    }
-
-    public void OnPointerExit(PointerEventData eventData)
-    {
-        hasPointer = false;
     }
 
     public void OnPointerDown(PointerEventData eventData)
@@ -134,4 +120,4 @@ public class PageButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         }
     }
 }
-      
+

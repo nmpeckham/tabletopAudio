@@ -1,8 +1,6 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 
 //Controls the reordering of songs in the playlist
 public class MoveMusicButton : MonoBehaviour, IPointerDownHandler, IPointerExitHandler
@@ -11,10 +9,11 @@ public class MoveMusicButton : MonoBehaviour, IPointerDownHandler, IPointerExitH
     private static int buttonWithMouse = -1;
     private GameObject musicButton;
     private RectTransform buttonRectTransform;
-    private Transform buttonTransform;
+    public Transform buttonTransform;
     private static MusicController mc;
+    //public int siblingIndex = -1;
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         musicButton = GetComponentInParent<MusicButton>().gameObject;
         buttonRectTransform = musicButton.GetComponent<RectTransform>();
@@ -29,34 +28,48 @@ public class MoveMusicButton : MonoBehaviour, IPointerDownHandler, IPointerExitH
     }
     internal void UpdateSongPosition()
     {
+
         if (buttonWithMouse == buttonTransform.GetSiblingIndex() && Input.GetMouseButton(0))
         {
             if ((Input.mousePosition.y - mouseYPos) > buttonRectTransform.rect.height)
             {
-                if ((buttonTransform.GetSiblingIndex() - 1) >= 0)
-                {
-                    mouseYPos = Input.mousePosition.y;
-                    int newIndex = buttonTransform.GetSiblingIndex() - 1;
-                    mc.RefreshSongOrder(newIndex + 1, newIndex);
-                    buttonTransform.SetSiblingIndex(newIndex);
-                    buttonWithMouse--;
-
-                    //mc.nowPlayingButtonID -= 1;
-                }
+                MoveSongUp(1);
             }
 
             if ((Input.mousePosition.y - mouseYPos) < -buttonRectTransform.rect.height)
             {
-                if ((buttonTransform.GetSiblingIndex() + 1) <= buttonTransform.parent.childCount - 1)
-                {
-                    mouseYPos = Input.mousePosition.y;
-                    int newIndex = buttonTransform.GetSiblingIndex() + 1;
-                    mc.RefreshSongOrder(newIndex - 1, newIndex);
-                    buttonTransform.SetSiblingIndex(newIndex);
-                    buttonWithMouse++;
+                MoveSongDown(1);
+            }
+        }
+        //siblingIndex = buttonTransform.GetSiblingIndex();
+    }
 
-                    //mc.nowPlayingButtonID += 1;
-                }
+    internal void MoveSongDown(int numPlaces = 1)
+    {
+        for (int i = 0; i < numPlaces; i++)
+        {
+            if ((buttonTransform.GetSiblingIndex() + 1) <= buttonTransform.parent.childCount - 1)
+            {
+                mouseYPos = Input.mousePosition.y;
+                int newIndex = buttonTransform.GetSiblingIndex() + 1;
+                mc.RefreshSongOrder(newIndex - 1, newIndex);
+                buttonTransform.SetSiblingIndex(newIndex);
+                buttonWithMouse++;
+            }
+        }
+    }
+
+    internal void MoveSongUp(int numPlaces = 1)
+    {
+        for (int i = 0; i < numPlaces; i++)
+        {
+            if ((buttonTransform.GetSiblingIndex() - 1) >= 0)
+            {
+                mouseYPos = Input.mousePosition.y;
+                int newIndex = buttonTransform.GetSiblingIndex() - 1;
+                mc.RefreshSongOrder(newIndex + 1, newIndex);
+                buttonTransform.SetSiblingIndex(newIndex);
+                buttonWithMouse--;
             }
         }
     }
@@ -65,6 +78,7 @@ public class MoveMusicButton : MonoBehaviour, IPointerDownHandler, IPointerExitH
     {
         mouseYPos = Input.mousePosition.y;
         buttonWithMouse = buttonTransform.GetSiblingIndex();
+
     }
 
     public void OnPointerExit(PointerEventData eventData)
@@ -74,7 +88,7 @@ public class MoveMusicButton : MonoBehaviour, IPointerDownHandler, IPointerExitH
 
     IEnumerator CheckMouse()
     {
-        while(Input.GetMouseButton(0))
+        while (Input.GetMouseButton(0))
         {
             yield return null;
         }

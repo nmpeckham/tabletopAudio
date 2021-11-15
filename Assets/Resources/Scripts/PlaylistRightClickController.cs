@@ -1,19 +1,14 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using TMPro;
 using System.Linq;
+using UnityEngine;
 
 public class PlaylistRightClickController : MonoBehaviour
 {
     private MainAppController mac;
     private MusicController mc;
+    private PlaylistTabs pt;
     internal int selectedSongId = -1;
 
-    public GameObject tooltipParent;
-
     internal RightClickRootMenu activeRightClickMenu;
-    private static List<GameObject> addToMenu;
 
     private float minX = -10f;
     private float maxX = 90f;
@@ -23,49 +18,57 @@ public class PlaylistRightClickController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        addToMenu = new List<GameObject>();
         mac = GetComponent<MainAppController>();
         mc = GetComponent<MusicController>();
+        pt = GetComponent<PlaylistTabs>();
     }
 
     internal void ShowRightClickMenu(int id)
     {
         mac.currentMenuState = MainAppController.MenuState.musicRightClickMenu;
         selectedSongId = id;
-        if (activeRightClickMenu) Destroy(activeRightClickMenu);
-        activeRightClickMenu = Instantiate(Prefabs.rightClickMenuPrefab, Input.mousePosition, Quaternion.identity, tooltipParent.transform).GetComponent<RightClickRootMenu>();
-        StartCoroutine(CheckMousePos(Input.mousePosition));
+        if (activeRightClickMenu != null)
+        {
+            Destroy(activeRightClickMenu);
+            activeRightClickMenu = null;
+        }
+        activeRightClickMenu = Instantiate(Prefabs.rightClickMenuPrefab, Input.mousePosition, Quaternion.identity, MainAppController.tooltipParent).GetComponent<RightClickRootMenu>();
+        activeRightClickMenu.AddMenuItem(0, "Remove", activeRightClickMenu.buttonParent);
+        activeRightClickMenu.AddMenuItem(1, "Play Next", activeRightClickMenu.buttonParent);
+        activeRightClickMenu.AddMenuItem(5, "Clone", activeRightClickMenu.buttonParent);
+        activeRightClickMenu.AddMenuItem(2, "Add To...", activeRightClickMenu.buttonParent);
+        activeRightClickMenu.SetBounds(minX, minY, maxX, maxY);
+
+        ShowAddToMenu();
+
+        StartCoroutine(activeRightClickMenu.CheckMousePos());
 
         if (PlaylistTabs.tabs.Count == 1)
         {
-            activeRightClickMenu.buttonParent.transform.GetChild(2).gameObject.SetActive(false);
+            activeRightClickMenu.buttonParent.transform.GetChild(3).gameObject.SetActive(false);
         }
         else
         {
-            activeRightClickMenu.buttonParent.transform.GetChild(2).gameObject.SetActive(true);
+            activeRightClickMenu.buttonParent.transform.GetChild(3).gameObject.SetActive(true);
         }
-        maxY = (((activeRightClickMenu.buttonParent.transform.GetComponentsInChildren<Transform>().Count() - 1) / 2) * 23) + 15;
+        activeRightClickMenu.maxY = (((activeRightClickMenu.buttonParent.transform.GetComponentsInChildren<Transform>().Count() - 1) / 2) * 23) + 15;    //add 23 pixels of mouse room for each item in list plus an extra 15
     }
 
     internal void CloseDeleteMusicItemTooltip()
     {
         StopAllCoroutines();
+        CloseDeleteAddToMenu();
         Destroy(activeRightClickMenu.gameObject);
         activeRightClickMenu = null;
-        CloseDeleteAddToMenu();
         mac.currentMenuState = MainAppController.MenuState.mainAppView;
-        maxX = 80f;
-        maxY = 80f;
-        
     }
 
     internal void CloseDeleteAddToMenu()
     {
-        addToMenu.ForEach(go => Destroy(go));
-        addToMenu.Clear();
+        activeRightClickMenu.HideSideMenu();
     }
 
-    internal void AddToPlayNext(int id)
+    internal void AddToPlayNext()
     {
         mc.AddToPlayNext(new PlayNextItem(selectedSongId, PlaylistTabs.selectedTab.tabId));
         CloseDeleteMusicItemTooltip();
@@ -74,48 +77,24 @@ public class PlaylistRightClickController : MonoBehaviour
     internal void ShowAddToMenu()
     {
         //Prevent duplicates
-        if(addToMenu.Count == 0)
+        if (activeRightClickMenu.sideMenuButtons.Count == 0)
         {
-            maxX += 120f;
-            maxY = Mathf.Max(maxY, (PlaylistTabs.tabs.Count * 23f) - 1 + 10);
+            activeRightClickMenu.maxX += 120f;
+            activeRightClickMenu.maxY = Mathf.Max(activeRightClickMenu.maxY, (PlaylistTabs.tabs.Count * 23f) - 1 + 10);
 
-            //GameObject newMenu = Instantiate(Prefabs.addToMenuPrefab, activeRightClickMenu.GetComponent<RightClickRootMenu>().addToParent);
-            //addToMenu.Add(newMenu);
-
-            //newMenu.transform.position = new Vector3(newMenu.transform.position.x + activeRightClickMenu.GetComponent<RectTransform>().rect.width, newMenu.transform.position.y);
             foreach (PlaylistTab tab in PlaylistTabs.tabs)
             {
                 if (tab.tabId != 0)
                 {
-                    GameObject tabOption = Instantiate(Prefabs.addToMenuItemPrefab, activeRightClickMenu.GetComponent<RightClickRootMenu>().addToParent);
-                    addToMenu.Add(tabOption);
-                    tabOption.GetComponentInChildren<TMP_Text>().text = tab.LabelText;
-                    tabOption.GetComponentInChildren<AddMusicItemButton>().playlistTabId = tab.tabId;
+                    activeRightClickMenu.AddToSideMenu(tab.tabId, tab.LabelText);
                 }
             }
         }
     }
 
-    IEnumerator CheckMousePos(Vector3 mousePos)
+    internal void DuplicateItem()
     {
-        while (activeRightClickMenu)
-        {
-            float yDelta = Input.mousePosition.y - mousePos.y;
-            float xDelta = Input.mousePosition.x - mousePos.x;
-            if (yDelta < minY || yDelta > maxY || xDelta < minX || xDelta > maxX)
-            {
-                CloseDeleteMusicItemTooltip();
-                break;
-            }
-            //else if (mac.currentMenuState == MainAppController.MenuState.mainAppView && Input.GetKey(KeyCode.Escape))
-            //{
-            //    CloseDeleteMusicItemTooltip();
-            //    break;
-            //}
-
-            yield return null;
-        }
-        yield return null;
+        pt.AddSongToPlaylist(PlaylistTabs.selectedTab.tabId, PlaylistTabs.selectedTab.GetSongAtIndex(selectedSongId), selectedSongId);
     }
 
     internal void DeleteItem()

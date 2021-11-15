@@ -1,13 +1,14 @@
-﻿using UnityEngine;
-using UnityEngine.EventSystems;
+﻿using System;
 using TMPro;
-using System;
+using UnityEngine;
+using UnityEngine.EventSystems;
 
 //Class for music items in the playlist
-public class MusicButton : MonoBehaviour,  IPointerClickHandler, IComparable
+public class MusicButton : MonoBehaviour, IPointerClickHandler, IComparable
 {
     private Song song;
-    private TMP_Text label;
+    public TMP_Text label;
+    public TMP_Text duration;
     internal Song Song
     {
         get
@@ -18,37 +19,45 @@ public class MusicButton : MonoBehaviour,  IPointerClickHandler, IComparable
         {
             song = value;
             label.text = song.SortName;
+            if(song.duration.Hours > 0)
+            {
+                duration.text = song.duration.Hours.ToString() + ":" + song.duration.Minutes.ToString("D2") + ":" + song.duration.Seconds.ToString("D2");
+            }
+            else
+            {
+                duration.text = song.duration.Minutes.ToString() + ":" + song.duration.Seconds.ToString("D2");
+            }
         }
     }
 
     public int buttonId;
     static PlaylistRightClickController prcc;
     static MusicController mc;
-    float doubleClickTime = 0.8f;
-    float timeSinceClick = 100f;
+    static float doubleClickTime = 0.3f;
+    static float timeSinceClick = -1;
+    internal MoveMusicButton mmb;
+
 
     // Start is called before the first frame update
     internal void Init()
     {
         prcc = Camera.main.GetComponent<PlaylistRightClickController>();
         mc = Camera.main.GetComponent<MusicController>();
-        timeSinceClick = Time.time;
-        label = GetComponentInChildren<TMP_Text>();
+        mmb = GetComponentInChildren<MoveMusicButton>();
     }
 
     void ItemSelected(int type)
     {
-        if(type == 0)
+        if (type == 0)
         {
-            if (Time.time - timeSinceClick < doubleClickTime)
+            if (Time.realtimeSinceStartup - timeSinceClick < doubleClickTime)
             {
                 mc.PlaylistItemSelected(buttonId);
             }
-            timeSinceClick = Time.time;
+            timeSinceClick = Time.realtimeSinceStartup;
         }
-        else if(type == 1)
+        else if (type == 1)
         {
-            print(prcc.name);
             prcc.ShowRightClickMenu(buttonId);
         }
     }
@@ -71,8 +80,8 @@ public class MusicButton : MonoBehaviour,  IPointerClickHandler, IComparable
 
     public int CompareTo(object obj)
     {
-        //Fix for songs with same name
-        string comp = ((MusicButton)obj).Song.SortName + ((MusicButton)obj).Song.SortName.GetHashCode().ToString();
-        return String.Compare(Song.SortName + Song.SortName.GetHashCode(), comp);// + " " + ((MusicButton)obj).buttonId);;
+        //Fix for songs with same name. Don't change :/
+        string comp = ((MusicButton)obj).Song.SortName + ((MusicButton)obj).Song.FileName;
+        return String.Compare(Song.SortName + Song.FileName, comp);
     }
 }
