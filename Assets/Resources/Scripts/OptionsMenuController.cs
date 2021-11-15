@@ -63,6 +63,7 @@ public class OptionsMenuController : MonoBehaviour
     public TMP_Text dmNumFreqText;
 
     private PlaylistTabs pt;
+    private string currentSaveName = "";
 
     // Start is called before the first frame update
     void Start()
@@ -76,7 +77,7 @@ public class OptionsMenuController : MonoBehaviour
         crossfadeField.onValueChanged.AddListener(CrossfadeTimeChanged);
         darkModeToggle.SetIsOnWithoutNotify(mac.darkModeEnabled);
         float val = PlayerPrefs.GetFloat("Crossfade");
-        if (val == 0) val = 10;
+        if (val == 0) val = 4f; //default crossfade time
         mc.CrossfadeTime = val;
         crossfadeField.text = val.ToString();
 
@@ -125,6 +126,7 @@ public class OptionsMenuController : MonoBehaviour
     void ConfirmNewFile()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        print("aaaaaa");
     }
 
     internal void CancelNewFile()
@@ -179,6 +181,7 @@ public class OptionsMenuController : MonoBehaviour
     {
         saveNamePanel.SetActive(true);
         saveNameField.ActivateInputField();
+        saveNameField.text = currentSaveName;
         mac.currentMenuState = MainAppController.MenuState.enterSaveFileName;
     }
 
@@ -223,7 +226,7 @@ public class OptionsMenuController : MonoBehaviour
 
     void OpenAboutMenu()
     {
-        versionText.text = "TableTop Audio v" + mac.VERSION;
+        versionText.text = "TableTopManger v" + mac.VERSION;
         aboutMenu.SetActive(true);
         mac.currentMenuState = MainAppController.MenuState.aboutMenu;
     }
@@ -252,9 +255,9 @@ public class OptionsMenuController : MonoBehaviour
 
         foreach (string saveName in Directory.GetFiles(mac.saveDirectory))
         {
-            if (Path.GetExtension(saveName) == ".xml" || Path.GetExtension(saveName) == ".xml")
+            if (Path.GetExtension(saveName) == ".xml" || Path.GetExtension(saveName) == ".txt")
             {
-                string trimmedSaveName = saveName.Replace(mac.saveDirectory, "");
+                string trimmedSaveName = saveName.Replace(mac.saveDirectory, "").Replace(Path.GetExtension(saveName), ""); ;
                 GameObject scrollItem = Instantiate(Prefabs.loadGameItemPrefab, loadGameScrollView.transform);
                 scrollItem.GetComponent<LoadGameSelectItem>().fileLocation = saveName;
                 scrollItem.GetComponentInChildren<TMP_Text>().SetText(trimmedSaveName);
@@ -264,6 +267,8 @@ public class OptionsMenuController : MonoBehaviour
 
     public void LoadItemSelected(string fileLocation)
     {
+
+        currentSaveName = Path.GetFileName(fileLocation).Replace(Path.GetExtension(fileLocation), "");
         mc.AutoCheckForNewFiles = false;
         autoUpdatePlaylistToggle.isOn = false;
         mc.Stop();
@@ -278,20 +283,30 @@ public class OptionsMenuController : MonoBehaviour
         try
         {
             file.Load(fileLocation);
-            string version = Convert.ToString(file.SelectSingleNode("/TableTopAudio-Save-File/version").InnerText);
+
+            string appLocation = file.DocumentElement.Name;
+            print(appLocation);
+
+            //string version = Convert.ToString(file.SelectSingleNode("/" + appLocation + "-Save-File/version").InnerText);
             if (true)//version == MainAppController.VERSION) //No version checking yet
             {
                 LoadedFilesData.songs.Clear();
                 LoadedFilesData.sfxClips.Clear();
                 LoadedFilesData.deletedMusicClips.Clear();
 
-                float masterVolume = Convert.ToSingle(file.SelectSingleNode("/TableTopAudio-Save-File/masterVolume").InnerText);
-                float musicVolume = Convert.ToSingle(file.SelectSingleNode("/TableTopAudio-Save-File/musicVolume").InnerText);
-                bool shuffle = Convert.ToBoolean(file.SelectSingleNode("/TableTopAudio-Save-File/shuffle").InnerText);
+                float masterVolume = Convert.ToSingle(file.SelectSingleNode("/" + appLocation + "/masterVolume").InnerText);
+                float musicVolume = Convert.ToSingle(file.SelectSingleNode("/" + appLocation + "/musicVolume").InnerText);
+                bool shuffle = Convert.ToBoolean(file.SelectSingleNode("/" + appLocation + "/shuffle").InnerText);
+                bool crossfade = false;
+                try
+                {
+                    crossfade = Convert.ToBoolean(file.SelectSingleNode("/" + appLocation + "/crossfade").InnerText);
+                }
+                catch (NullReferenceException) { }
                 Camera.main.GetComponent<VolumeController>().MasterVolume = masterVolume;
                 mc.MusicVolume = musicVolume;
 
-                XmlNodeList pages = file.SelectNodes("/TableTopAudio-Save-File/SFX-Buttons/page");
+                XmlNodeList pages = file.SelectNodes("/" + appLocation + "/SFX-Buttons/page");
 
                 foreach (XmlNode p in pages)
                 {
@@ -309,7 +324,6 @@ public class OptionsMenuController : MonoBehaviour
                         string label = b.SelectSingleNode("label").InnerText;
                         int id = Convert.ToInt32(b.SelectSingleNode("id").InnerText);
                         string clipPath = null;
-                        print(label);
                         try
                         {
                             clipPath = b.SelectSingleNode("clipPath").InnerText;
@@ -325,7 +339,6 @@ public class OptionsMenuController : MonoBehaviour
                                 mac.ShowErrorMessage("Could not load save file. Error finding clip path");
                             }
                         }
-                        clipPath = clipPath.Replace(Path.DirectorySeparatorChar.ToString(), "");
                         float localVolume = Convert.ToSingle(b.SelectSingleNode("localVolume").InnerText);
                         bool loop = Convert.ToBoolean(b.SelectSingleNode("loop").InnerText);
                         bool randomizeLoopTime = Convert.ToBoolean(b.SelectSingleNode("randomizeLoopDelay").InnerText);
@@ -372,7 +385,7 @@ public class OptionsMenuController : MonoBehaviour
                         sfxBtn.FileName = clipPath;
                         sfxBtn.LocalVolume = localVolume;
                         sfxBtn.ChangeMasterVolume(masterVolume);
-                        sfxBtn.Loop = loop;
+                        sfxBtn.LoopEnabled = loop;
                         sfxBtn.RandomizeLoopDelay = randomizeLoopTime;
                         sfxBtn.MinLoopDelay = minLoopDelay;
                         sfxBtn.MaxLoopDelay = maxLoopDelay;
@@ -385,7 +398,7 @@ public class OptionsMenuController : MonoBehaviour
                 }
 
                 int tabId = 0;
-                foreach (XmlNode n in file.SelectNodes("/TableTopAudio-Save-File/playlist/tab"))
+                foreach (XmlNode n in file.SelectNodes("/" + appLocation + "/playlist/tab"))
                 {
                     string label = n.SelectSingleNode("label").InnerText.ToString();
                     if (label != "*")
@@ -395,9 +408,10 @@ public class OptionsMenuController : MonoBehaviour
                     }
                     List<string> files = new List<string>();
                     foreach (XmlNode s in n)
-                    {
-                        if (s.Name == "song") files.Add(s.InnerText);
+                    {   
+                        if (s.Name == "song") files.Add(s.InnerText.Replace(Path.Combine("TableTopAudio", "music"), Path.Combine(mac.appDirectoryName, "music")));  //support for saves made on previous versions
                     }
+                    files.ForEach(file => mc.AddNewSong(file, tabId));
                     tabId++;
                 }
                 loadGameSelectionView.SetActive(false);
@@ -409,7 +423,6 @@ public class OptionsMenuController : MonoBehaviour
         {
             mac.ShowErrorMessage("Loading failed: Malformed save file format");
         }
-
         if (mac.darkModeEnabled) mac.SwapDarkLightMode(true);
         StartCoroutine(RebuildLayout());
     }
@@ -434,22 +447,24 @@ public class OptionsMenuController : MonoBehaviour
         return true;
     }
 
-    void Save(string filename, bool overwrite = false)
+    void Save(string fileName, bool overwrite = false)
     {
-        saveFileName = filename;
+        saveFileName = fileName;
         List<string> presentSaves = Directory.GetFiles(mac.saveDirectory).ToList();
-        presentSaves.ForEach(save => save = save.ToLower());    //check for files with same name but different capitalizations
-        if ((!presentSaves.Contains(Path.Combine(mac.saveDirectory, filename.ToLower() + ".xml"))) || overwrite)
+        presentSaves = presentSaves.Select(save => save.ToLower()).ToList();    //check for files with same name but different capitalizations
+        presentSaves.ForEach(save => print(save));    //check for files with same name but different capitalizations
+        if (((!presentSaves.Contains(Path.Combine(mac.saveDirectory, fileName + ".xml").ToLower())) && !(Application.platform == RuntimePlatform.LinuxPlayer)) || overwrite)
         {
-            using (XmlWriter writer = XmlWriter.Create(Path.Combine(mac.saveDirectory, filename + ".xml")))
+            using (XmlWriter writer = XmlWriter.Create(Path.Combine(mac.saveDirectory, fileName + ".xml")))
             {
                 writer.WriteStartDocument();
-                writer.WriteStartElement("TableTopAudio-Save-File");
+                writer.WriteStartElement(mac.appDirectoryName + "-Save-File");
                 {
                     writer.WriteElementString("version", mac.VERSION);
                     writer.WriteElementString("masterVolume", Camera.main.GetComponent<VolumeController>().MasterVolume.ToString("N1"));
                     writer.WriteElementString("musicVolume", mc.MusicVolume.ToString("N1"));
                     writer.WriteElementString("shuffle", mc.Shuffle.ToString());
+                    writer.WriteElementString("crossfade", mc.Crossfade.ToString());
 
                     writer.WriteStartElement("SFX-Buttons");
                     {
@@ -470,7 +485,7 @@ public class OptionsMenuController : MonoBehaviour
                                             writer.WriteElementString("label", button.Label);
                                             writer.WriteElementString("clipPath", button.FileName.Replace(mac.sfxDirectory, ""));
                                             writer.WriteElementString("localVolume", button.LocalVolume.ToString("N2"));
-                                            writer.WriteElementString("loop", button.Loop.ToString());
+                                            writer.WriteElementString("loop", button.LoopEnabled.ToString());
                                             writer.WriteElementString("minLoopDelay", button.MinLoopDelay.ToString("N0"));
                                             writer.WriteElementString("randomizeLoopDelay", button.RandomizeLoopDelay.ToString());
                                             writer.WriteElementString("maxLoopDelay", button.MaxLoopDelay.ToString("N0"));

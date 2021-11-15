@@ -242,7 +242,7 @@ namespace NLayer.Decoder
                 lock (_localLock)
                 {
                     var startIdx = EnsureFilled(reader, offset, ref count);
-
+                    
                     Buffer.BlockCopy(Data, startIdx, buffer, index, count);
                 }
                 return count;

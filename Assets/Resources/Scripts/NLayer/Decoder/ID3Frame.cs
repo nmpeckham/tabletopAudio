@@ -1,4 +1,9 @@
-﻿namespace NLayer.Decoder
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace NLayer.Decoder
 {
     class ID3Frame : FrameBase
     {
@@ -43,6 +48,9 @@
                         byte flagsMask;
                         switch (buf[0])
                         {
+                            case 2:
+                                flagsMask = 0x3F;
+                                break;
                             case 3:
                                 flagsMask = 0x1F;
                                 break;

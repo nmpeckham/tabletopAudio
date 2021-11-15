@@ -3,6 +3,8 @@
  * 
  */
 
+using System;
+
 namespace NLayer.Decoder
 {
     // Layer I is really just a special case of Layer II...  1 granule, 4 allocation bits per subband, 1 scalefactor per active subband, no grouping

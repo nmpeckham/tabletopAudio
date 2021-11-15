@@ -10,8 +10,6 @@ public class FftController : MonoBehaviour
     public TMP_Text freqText;
     public TMP_Text ampText;
 
-    public Slider freqSlider;
-    public Slider ampSlider;
     [Range(0.0f, 6f)]
     public float freqVal = 3f;
 
@@ -25,6 +23,8 @@ public class FftController : MonoBehaviour
     internal static float[] fadeTargets = new float[40];
     private static float[] fftOneFrameAgo = new float[10]; // values one frame ago
     private static float[] fftTwoFrameAgo = new float[10];    //values two frames ago
+    private static float[] fftThreeFrameAgo = new float[10];    //values two frames ago
+
 
     public Image spectrumImage;
     private Texture2D spectrumTex;
@@ -45,9 +45,6 @@ public class FftController : MonoBehaviour
     internal static float discoModeMinSum = 0.45f;
     internal static float discoModeNumFreq = 3;
 
-
-
-
     internal void Init()
     {
         mac = GetComponent<MainAppController>();
@@ -66,9 +63,6 @@ public class FftController : MonoBehaviour
 
         StartCoroutine(AdjustScale());
         if (PlayerPrefs.GetInt("fftType") == 1) ChangeFftType();
-
-        freqSlider.onValueChanged.AddListener(FrequencyValChanged);
-        ampSlider.onValueChanged.AddListener(AmpValChanged);
     }
 
 
@@ -98,6 +92,7 @@ public class FftController : MonoBehaviour
 
         while (true)
         {
+            if (mac.currentFPS < 30) yield return null;
 
             if (fftType == FftTypes.bouncingBars)
             {
@@ -115,7 +110,7 @@ public class FftController : MonoBehaviour
                     temp = Mathf.Min(temp, 1);
                     if (temp < fftOneFrameAgo[i])
                     {
-                        temp = (temp * 0.6f) + (fftOneFrameAgo[i] * 0.25f) + (fftTwoFrameAgo[i] * 0.15f);
+                        temp = (temp * 0.5f) + (fftOneFrameAgo[i] * 0.25f) + (fftTwoFrameAgo[i] * 0.15f) + (fftThreeFrameAgo[i] * 0.1f); // average over 4 frames
                     }
 
                     obj.localScale = new Vector3(1, temp, 1);
@@ -124,6 +119,7 @@ public class FftController : MonoBehaviour
                     fftBarMaterials[i].SetFloat("Height", temp);
                     fftOneFrameAgo[i] = temp;
                     fftTwoFrameAgo[i] = fftOneFrameAgo[i];
+                    fftThreeFrameAgo[i] = fftTwoFrameAgo[i];
                 }
             }
             else
@@ -131,6 +127,13 @@ public class FftController : MonoBehaviour
 
                 if (!MusicController.isPaused)
                 {
+                    for (int j = 0; j < spectrumTex.width; j++)
+                    {
+                        for (int k = 0; k < spectrumTex.height; k++)
+                        {
+                            spectrumTex.SetPixel(j, k, spectrumTex.GetPixel(j + 1, k));
+                        }
+                    }
                     for (int i = 0; i < fadeTargets.Length; i++)
                     {
                         b = (fadeTargets[i] > 0.05f) ? 0.5f / fadeTargets[i] : 0f;
@@ -141,13 +144,7 @@ public class FftController : MonoBehaviour
                         spectrumTex.SetPixel(spectrumTex.width - 1, i, new Color(r, g, b, a));
                     }
                     //shift all pixels left by one
-                    for (int j = 0; j < spectrumTex.width; j++)
-                    {
-                        for (int k = 0; k < spectrumTex.height; k++)
-                        {
-                            spectrumTex.SetPixel(j, k, spectrumTex.GetPixel(j + 1, k));
-                        }
-                    }
+
                     spectrumTex.Apply();
                 }
             }
@@ -158,16 +155,21 @@ public class FftController : MonoBehaviour
                 sum += fadeTargets[i];
             }
             sum *= 20f;
+            if (discoModeController.discoModeActive)
+            {
+                if (sum >= discoModeMinSum)
+                {
+                    discoModeController.ChangeColors();
+                }
+            }
+            
             if (mac.currentMenuState == MainAppController.MenuState.advancedOptionsMenu)
             {
                 discoModeSum.localScale = new Vector3(Mathf.Min(sum / discoModeMinSum, 1f), 1, 1);
                 discoModeSumSliderText.text = (sum / discoModeMinSum).ToString("F4");
             }
-            if (sum >= discoModeMinSum)
-            {
-                discoModeController.ChangeColors();
-            }
-            yield return null;
+
+            yield return new WaitForFixedUpdate();
         }
     }
 

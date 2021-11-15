@@ -16,6 +16,7 @@ public class PlaylistTab : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 
     private float initialMouseXPos = 0f;
     private bool shouldCheckMousePos = false;
+    private Camera mainCam;
 
 
     private RectTransform rect;
@@ -61,7 +62,8 @@ public class PlaylistTab : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
         label = GetComponentInChildren<TMP_Text>();
         if (tabId > 0) LabelText = tabId.ToString();
-        pt = Camera.main.GetComponent<PlaylistTabs>();
+        mainCam = Camera.main;
+        pt = mainCam.GetComponent<PlaylistTabs>();
 
         rect = GetComponent<RectTransform>();
         musicContentView = GameObject.FindGameObjectWithTag("musicContentView");
@@ -70,7 +72,7 @@ public class PlaylistTab : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 
     private void ButtonClicked()
     {
-        Camera.main.GetComponent<PlaylistTabs>().TabClicked(tabId);
+        mainCam.GetComponent<PlaylistTabs>().TabClicked(tabId);
     }
 
     public void OnPointerDown(PointerEventData eventData)
@@ -127,7 +129,7 @@ public class PlaylistTab : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 
     private void MoveTabLeft()
     {
-        if (transform.GetSiblingIndex() > 0 && tabId > 0)
+        if (transform.GetSiblingIndex() > 1 && tabId > 0)
         {
             transform.SetSiblingIndex(transform.GetSiblingIndex() - 1);
             initialMouseXPos = Input.mousePosition.x - rect.rect.width / 2;
@@ -136,7 +138,7 @@ public class PlaylistTab : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 
     private void MoveTabRight()
     {
-        if (transform.GetSiblingIndex() < PlaylistTabs.tabs.Count - 1 && tabId > 0)
+        if (transform.GetSiblingIndex() < PlaylistTabs.tabs.Count && tabId > 0)
         {
             print(transform.GetSiblingIndex());
             transform.SetSiblingIndex(transform.GetSiblingIndex() + 1);

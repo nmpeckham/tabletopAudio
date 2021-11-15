@@ -94,9 +94,7 @@ public class PlaylistRightClickController : MonoBehaviour
 
     internal void DuplicateItem()
     {
-        print(PlaylistTabs.selectedTab.tabId);
         pt.AddSongToPlaylist(PlaylistTabs.selectedTab.tabId, PlaylistTabs.selectedTab.GetSongAtIndex(selectedSongId), selectedSongId);
-
     }
 
     internal void DeleteItem()

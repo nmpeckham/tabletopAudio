@@ -39,7 +39,7 @@ public class DarkModeController : MonoBehaviour
                     btn.GetComponent<SFXButton>().ChangeButtonColor(ResourceManager.sfxButtonDark);
                     try
                     {
-                        if (btn.GetComponent<SFXButton>().isPlaying)
+                        if (btn.GetComponent<SFXButton>().IsPlaying)
                         {
                             btn.GetComponent<Image>().color = Color.green;
                         }
@@ -124,7 +124,7 @@ public class DarkModeController : MonoBehaviour
                     btn.GetComponent<SFXButton>().ChangeButtonColor(ResourceManager.sfxButtonLight); ;
                     try
                     {
-                        if (btn.GetComponent<SFXButton>().isPlaying)
+                        if (btn.GetComponent<SFXButton>().IsPlaying)
                         {
                             btn.GetComponent<Image>().color = Color.green;
                         }

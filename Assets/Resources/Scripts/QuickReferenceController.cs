@@ -169,7 +169,7 @@ public class QuickReferenceController : MonoBehaviour
                     {
                         searchMatches.Add(matchScore);
                     }
-                    if (Time.deltaTime > 1f / 30f) yield return null;
+                    if (mac.currentFPS < 10) yield return null;
                 }
                 //yield return null;
             }

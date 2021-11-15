@@ -194,6 +194,8 @@ public class QuickRefDetailView : MonoBehaviour
         }
         else if (category == "Equipment")
         {
+            print(category);
+            print(item);
             Dictionary<string, dynamic> listItem = LoadedFilesData.qrdFiles[category][item];
             quickRefObj.SetActive(true);
             titleText.text = listItem["name"].ToString();

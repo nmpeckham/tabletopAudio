@@ -66,7 +66,7 @@ public class PageButton : MonoBehaviour, IPointerDownHandler
         foreach (GameObject btn in mac.pageParents[id].buttons)
         {
             SFXButton sfxBtn = btn.GetComponent<SFXButton>();
-            if (!sfxBtn.isPlaying) sfxBtn.Play(true);
+            if (!sfxBtn.IsPlaying) sfxBtn.Play(true);
         }
     }
 

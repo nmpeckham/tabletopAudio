@@ -8,11 +8,17 @@ Just play sfx button song. Plays twice :/
 
 v1.1 "Inveniet" - Added DnD 5e quick reference tool
 
+//TODO: Fix ogg files not being disposed on close
+
  - Name Change: TableTopAudio is now TableTopManager!
 
- - The working folder for TableTopManager is now 
+ - The working folder for TableTopManager is now "Music/TableTopManager", instead of "Music/TableTopAudio"
 
-  - Updated to Unity 2021.1.23f1
+ - High refresh rates are now supported. TableTopManager will target the maximum refresh rate of your monitor
+
+ - Updated to Unity 2021.1.23f1
+
+ - New UI font //TODO
 
  - Music folders will now be searched recursively for songs
 
@@ -30,15 +36,17 @@ v1.1 "Inveniet" - Added DnD 5e quick reference tool
 
  - Song names no longer contain file extensions
 
- - Updated to NLayer v1.3, which should fix most mp3 decoder issues
+ - Updated to most recent NLayer release (as of Sept. 25th, 2021), which fixes many mp3 decoder issues
 
  - Song duration is now shown for playlist items
+
+ - Save names are now case sensitive on Linux
 
  - Added option to change edge color for SFX Buttons
 
  - Added support for ID3 tags, version 1.x and 2.x. Song names and artists will be properly displayed when available.
 
- - Added search field to music playlist
+ - Added search field to music playlist (ctrl/cmd+f shortcut)
 
  - Added "Play Next" option for playlist. Right click a song to open menu.
 

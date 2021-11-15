@@ -24,13 +24,14 @@ namespace Extensions
         //Takes a value between 0 and 1, maps to -80 and 0
         public static float ToDB(this float volume)
         {
-            return (volume * 80) - 80;
+            if (volume == 0) volume = 0.000000001f;    //log(x) is undefined for x = 0
+            return 20f * Mathf.Log10(volume);
         }
 
         // Takes a value between -80 and 0 and maps between 0 and 1
         public static float ToZeroOne(this float volume)
         {
-            return (volume + 80) / 80;
+            return Mathf.Pow(10, volume / 20f);
         }
 
         public static int Mod(this int a, int b)

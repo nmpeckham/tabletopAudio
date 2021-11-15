@@ -205,10 +205,11 @@ public class ButtonEditorController : MonoBehaviour
     {
         ////Applies all changed settings
         SFXButton button = mac.pageParents[mac.activePage].buttons[buttonID].GetComponent<SFXButton>();
+        button.Stop();
 
 
         button.FileName = clipID;
-        button.Loop = loopButton.isOn;
+        button.LoopEnabled = loopButton.isOn;
         button.RandomizeLoopDelay = randomizeLoopButton.isOn;
         button.MinLoopDelay = Convert.ToInt32(minLoopDelay.text);
         button.MaxLoopDelay = Convert.ToInt32(maxLoopDelay.text);
@@ -249,10 +250,9 @@ public class ButtonEditorController : MonoBehaviour
 
 
         SFXButton button = mac.pageParents[mac.activePage].buttons[buttonID].GetComponent<SFXButton>();
-        loopButton.isOn = button.Loop;
+        loopButton.isOn = button.LoopEnabled;
         minLoopDelay.text = button.MinLoopDelay.ToString("N0");
         clipID = button.FileName;
-        print(button.FileName);
         if (!String.IsNullOrEmpty(button.FileName)) fileNameLabel.text = Path.GetFileName(clipID);
         else fileNameLabel.text = "";
 
@@ -300,7 +300,6 @@ public class ButtonEditorController : MonoBehaviour
         newLabel = Path.GetFileNameWithoutExtension(clipID);
         buttonLabelInput.text = newLabel;
         placeholderText.text = "";
-        mac.currentMenuState = MainAppController.MenuState.editingSFXButton;
     }
 
     //Called when file is cleared

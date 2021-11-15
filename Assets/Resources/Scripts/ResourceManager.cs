@@ -65,7 +65,7 @@ internal static class ResourceManager
     {
         dbFiles = Directory.GetFiles(Application.streamingAssetsPath).Where(a => Path.GetExtension(a) == ".json").ToArray();
 
-        TMP_FontAsset englishAsset = Resources.Load<TMP_FontAsset>("Fonts & Materials/LiberationSans SDF");
+        TMP_FontAsset englishAsset = Resources.Load<TMP_FontAsset>("TextMesh Pro/Fonts/Lato-Regular SDF");
         englishAsset.characterTable.ForEach(item => charTable.Add(Convert.ToChar(item.unicode)));
     }
 }

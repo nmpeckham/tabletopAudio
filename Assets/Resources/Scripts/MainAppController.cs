@@ -6,6 +6,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Unity.Jobs.LowLevel.Unsafe;
+using System.Collections;
 
 
 //Main controller for the app. Handles various tasks
@@ -15,6 +16,7 @@ public class MainAppController : MonoBehaviour
     internal const int NUMBUTTONS = 35;
     internal string VERSION;  //save version
 
+    internal string appDirectoryName = "TableTopManager";
     internal string mainDirectory;
     internal string musicDirectory;
     internal string sfxDirectory;
@@ -57,6 +59,7 @@ public class MainAppController : MonoBehaviour
 
     private OptionsMenuController omc;
     internal bool discoModeAvailable = false;
+
     internal enum MenuState
     {
         mainAppView,
@@ -83,12 +86,19 @@ public class MainAppController : MonoBehaviour
     internal static Transform tooltipParent;
 
     public TMP_Text fpsDisplayText;
+    private KeyCode[] controlKeys =
+    {
+        KeyCode.LeftControl,
+        KeyCode.RightControl
+    };
+
+    internal int currentFPS = 0;
+
 
     // Start is called before the first frame update
     public void Start()
     {
-        //PlayerPrefs.DeleteKey("Crossfade");
-        //print(PlayerPrefs.GetFloat("Crossfade") == 0);
+        Application.targetFrameRate = Screen.currentResolution.refreshRate;
         Prefabs.LoadAll();
         if (PlayerPrefs.GetFloat("Crossfade") == 0) PlayerPrefs.SetFloat("Crossfade", 10);
         VERSION = Application.version;
@@ -99,7 +109,6 @@ public class MainAppController : MonoBehaviour
 
         pageParents = new List<SFXPage>();
         pageButtons = new List<GameObject>();
-        //sfxButtons = new List<List<GameObject>>();
 
         epl = GetComponent<EditPageLabel>();
         mc = GetComponent<MusicController>();
@@ -114,7 +123,7 @@ public class MainAppController : MonoBehaviour
 
         pageParents[0].gameObject.transform.SetSiblingIndex(NUMPAGES);
 
-        mainDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyMusic), "TableTopAudio");
+        mainDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyMusic), appDirectoryName);
         musicDirectory = Path.Combine(mainDirectory, "music") + Path.DirectorySeparatorChar;
         sfxDirectory = Path.Combine(mainDirectory, "sound effects") + Path.DirectorySeparatorChar;
         saveDirectory = Path.Combine(mainDirectory, "saves") + Path.DirectorySeparatorChar;
@@ -129,7 +138,7 @@ public class MainAppController : MonoBehaviour
         }
         catch (FormatException) { }
         SwapDarkLightMode(darkModeEnabled);
-        LoadQrdObjects();
+        StartCoroutine(LoadQrdObjects());
 
         MakeCategoryColors();
         currentMenuState = MenuState.mainAppView;
@@ -140,7 +149,7 @@ public class MainAppController : MonoBehaviour
         tooltipParent = GameObject.Find("Tooltips").transform;
 
         fpsDisplayText.gameObject.SetActive(true);
-        JobsUtility.JobWorkerCount = SystemInfo.processorCount - 1; // boosts fps by 100% :/
+        JobsUtility.JobWorkerCount = SystemInfo.processorCount - 1; // boosts fps by 100% :/        
     }
 
     void MakeCategoryColors()
@@ -158,10 +167,6 @@ public class MainAppController : MonoBehaviour
 
     static public Color UIntToColor(uint color)
     {
-        //Debug.Log((byte)(color >> 16));
-        //Debug.Log((byte)(color >> 8));
-        //Debug.Log((byte)(color >> 0));
-
         float r = (byte)(color >> 16) / 255f;
         float g = (byte)(color >> 8) / 255f;
         float b = (byte)(color >> 0) / 255f;
@@ -186,7 +191,6 @@ public class MainAppController : MonoBehaviour
         {
             System.IO.Directory.CreateDirectory(saveDirectory);
         }
-        mc.AutoCheckForNewFiles = true;
     }
 
     internal bool MakeSFXButtons()
@@ -328,12 +332,9 @@ public class MainAppController : MonoBehaviour
                     break;
             }
         }
-        if(fpsDisplayText.isActiveAndEnabled) fpsDisplayText.text = (1f / Time.smoothDeltaTime).ToString("F0") + "fps";
-        //FFT adjust panel
-        //if(Input.GetKeyDown(KeyCode.J))
-        //{
-        //    mc.ToggleModPanel();
-        //}
+        currentFPS = (int)(1f / Time.smoothDeltaTime);
+        if (fpsDisplayText.isActiveAndEnabled) fpsDisplayText.text = currentFPS.ToString() + "fps";
+
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             switch (currentMenuState)
@@ -459,27 +460,36 @@ public class MainAppController : MonoBehaviour
             ChangeSFXPage(7);
             pageButtons[7].GetComponent<Image>().color = Color.red;
         }
-        if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.D) && discoModeAvailable)
+        if (ControlKeyPressed() && Input.GetKeyDown(KeyCode.D) && discoModeAvailable)
         {
             dm.SetDiscoMode(!dm.discoModeActive); //terribly disgusting. Please fix :/
         }
-
-        if (Time.time > 600 && thankyouMessagesShown == 0 && !Application.isEditor)
+        if(ControlKeyPressed() && Input.GetKeyDown(KeyCode.F) && currentMenuState == MenuState.mainAppView)
+        {
+            print("1");
+            mc.GiveSearchFieldFocus();
+        }
+        if (thankyouMessagesShown == 0 && Time.time > 600 && !Application.isEditor)
         {
             ShowErrorMessage("Thanks for using TableTopAudio for 10 minutes! I'm always looking to improve it.\n Please send me an email at me@nathanpeckham.com with any feedback you have!", 10);
             thankyouMessagesShown = 1;
         }
-        if (Time.time > 1800 && thankyouMessagesShown == 1 && !Application.isEditor)
+        if (thankyouMessagesShown == 1 && Time.time > 1800 && !Application.isEditor)
         {
             ShowErrorMessage("Thanks for using TableTopAudio for 30 minutes! I'm always looking to improve it.\n Please send me an email at me@nathanpeckham.com with any feedback you have!", 10);
             thankyouMessagesShown = 2;
         }
     }
 
-    private void FixedUpdate()
+    bool ControlKeyPressed()
     {
-        
+        foreach(KeyCode key in controlKeys)
+        {
+            if (Input.GetKey(key)) return true;
+        }
+        return false;
     }
+
     public void SwapDarkLightMode(bool enable)
     {
         darkModeEnabled = enable;
@@ -487,13 +497,13 @@ public class MainAppController : MonoBehaviour
         PlayerPrefs.SetString("darkMode", enable.ToString());
     }
 
-    public void LoadQrdObjects()
+    public IEnumerator LoadQrdObjects()
     {
         foreach (string s in ResourceManager.dbFiles)
         {
             if (s[0] != '~') //prefix with ~ to hide.
             {
-                try
+                if (System.IO.File.Exists(s))
                 {
                     string contents = System.IO.File.ReadAllText(s);
                     QuickRefObject data = JsonSerializer.Deserialize<QuickRefObject>(contents);
@@ -507,14 +517,11 @@ public class MainAppController : MonoBehaviour
                             attributes.Add(dict.Key, dict.Value);
                             categoryName = s.Replace(".json", "").Replace(Application.streamingAssetsPath + Path.DirectorySeparatorChar, "");
                             if (!attributes.ContainsKey("categoryName")) attributes.Add("categoryName", categoryName);
+                            if (currentFPS < 30) yield return null;
                         }
                         categoryItems.Add(item["index"].ToString(), attributes);
                     }
                     LoadedFilesData.qrdFiles[categoryName] = categoryItems;
-                }
-                catch (FileNotFoundException)
-                {
-                    ShowErrorMessage("Could not load quick reference file " + s + ". Check that it exists.");
                 }
             }
 

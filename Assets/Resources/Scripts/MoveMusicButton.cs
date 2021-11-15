@@ -76,7 +76,6 @@ public class MoveMusicButton : MonoBehaviour, IPointerDownHandler, IPointerExitH
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        print("Pointer Down!");
         mouseYPos = Input.mousePosition.y;
         buttonWithMouse = buttonTransform.GetSiblingIndex();
 

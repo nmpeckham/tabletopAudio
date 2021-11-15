@@ -19,15 +19,22 @@ public class MusicButton : MonoBehaviour, IPointerClickHandler, IComparable
         {
             song = value;
             label.text = song.SortName;
-            duration.text = song.duration.Minutes.ToString() + ":" + song.duration.Seconds.ToString("D2");
+            if(song.duration.Hours > 0)
+            {
+                duration.text = song.duration.Hours.ToString() + ":" + song.duration.Minutes.ToString("D2") + ":" + song.duration.Seconds.ToString("D2");
+            }
+            else
+            {
+                duration.text = song.duration.Minutes.ToString() + ":" + song.duration.Seconds.ToString("D2");
+            }
         }
     }
 
     public int buttonId;
     static PlaylistRightClickController prcc;
     static MusicController mc;
-    static float doubleClickTime = 0.8f;
-    static float timeSinceClick = 100f;
+    static float doubleClickTime = 0.3f;
+    static float timeSinceClick = -1;
     internal MoveMusicButton mmb;
 
 
@@ -36,20 +43,18 @@ public class MusicButton : MonoBehaviour, IPointerClickHandler, IComparable
     {
         prcc = Camera.main.GetComponent<PlaylistRightClickController>();
         mc = Camera.main.GetComponent<MusicController>();
-        timeSinceClick = Time.time;
         mmb = GetComponentInChildren<MoveMusicButton>();
-
     }
 
     void ItemSelected(int type)
     {
         if (type == 0)
         {
-            if (Time.time - timeSinceClick < doubleClickTime)
+            if (Time.realtimeSinceStartup - timeSinceClick < doubleClickTime)
             {
                 mc.PlaylistItemSelected(buttonId);
             }
-            timeSinceClick = Time.time;
+            timeSinceClick = Time.realtimeSinceStartup;
         }
         else if (type == 1)
         {

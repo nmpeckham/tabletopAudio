@@ -102,7 +102,7 @@ public class PlaylistTabs : MonoBehaviour
     {
         PlaylistTab currentTab = selectedTab;
         RectTransform nr = currentTab.GetComponent<RectTransform>();
-        if (currentTab.tabId > 0) nr.sizeDelta = new Vector2(75, 40);
+        //if (currentTab.tabId > 0) nr.sizeDelta = new Vector2(75, 40);
         currentTab.GetComponent<Image>().color = ResourceManager.tabInactiveColor;
         currentTab.GetComponent<Image>().sprite = tabUnselectedSprite;
 
@@ -110,11 +110,8 @@ public class PlaylistTabs : MonoBehaviour
         currentTab.GetComponent<Image>().color = ResourceManager.tabActiveColor;
 
         nr = currentTab.GetComponent<RectTransform>();
-        if (currentTab.tabId > 0)
-        {
-            currentTab.GetComponent<Image>().sprite = tabSelectedSprite;
-            nr.sizeDelta = new Vector2(90, 40);
-        }
+        currentTab.GetComponent<Image>().sprite = tabSelectedSprite;
+        //nr.sizeDelta = new Vector2(90, 40);
         LayoutRebuilder.ForceRebuildLayoutImmediate(buttonParent.GetComponent<RectTransform>());
     }
 
@@ -155,6 +152,11 @@ public class PlaylistTabs : MonoBehaviour
         tabs[tabId].MusicButtons.Add(mb);
         mb.Song = song;
 
+        //ensure items don't populate in search results if songs are still loading
+        if(!string.IsNullOrWhiteSpace(mc.searchField.text))
+        {
+            mc.SearchTextEntered(mc.searchField.text);
+        }
         if (positionToInsertAt != -1)
         {
             for (int i = tabs[tabId].MusicButtons.Count - 2; i > positionToInsertAt; i--)

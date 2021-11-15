@@ -17,6 +17,8 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         get { return fileName; }
         set
         {
+            if (string.IsNullOrEmpty(value) && playbackBarRect.gameObject.activeSelf) playbackBarRect.gameObject.SetActive(false);
+            else if (!string.IsNullOrEmpty(value) && !playbackBarRect.gameObject.activeSelf) playbackBarRect.gameObject.SetActive(true);
             if (FileName != value)
             {
                 Stop();
@@ -50,9 +52,12 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
         }
     }
-
-    internal int page;
-    internal int id;
+    public bool IsPlaying
+    {
+        get { return aSource.isPlaying; }
+    }
+    public int page;
+    public int id;
     static private ButtonEditorController bec;
     static public FileSelectViewController vc;
     static private MainAppController mac;
@@ -90,7 +95,6 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     internal float maximumFadeVolume = 1f;
 
     private bool isWaiting = false;
-    internal bool isPlaying = false;
     private bool ignorePlayAll = false;
 
     private float waitStartedTime;
@@ -115,6 +119,9 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     Color currentColor;
     Coroutine discoCR;
+
+    private bool stopped = true;
+    bool loopDelayRoutineActive = false;
 
     internal bool IgnorePlayAll
     {
@@ -157,7 +164,7 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         }
     }
 
-    public bool Loop { get; set; } = false;
+    public bool LoopEnabled { get; set; } = false;
     public float MinLoopDelay { get; set; } = 0;
     public float MaxLoopDelay { get; set; } = 0;
     public bool RandomizeLoopDelay { get; set; } = false;
@@ -180,6 +187,9 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         mac = Camera.main.GetComponent<MainAppController>();
         volumeSlider.onValueChanged.AddListener(VolumeSliderAdjusted);
         currentColor = GetComponent<Image>().color;
+
+        print(id);
+        print(page);
     }
 
 
@@ -316,11 +326,11 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     void Clicked()
     {
-        if (aSource.isPlaying || isWaiting)
+        if (!stopped || isWaiting)
         {
             Stop();
         }
-        else if (!aSource.isPlaying)
+        else if (stopped)
         {
             Play();
         }
@@ -328,8 +338,8 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     private void ChangeLocalVolume(float newLocalVol)
     {
-        if (newLocalVol > 0 && LocalVolume <= 0 && isPlaying && !isWaiting) mac.pageButtons[page].GetComponent<PageButton>().ActiveAudioSources++;
-        else if (newLocalVol <= 0 && LocalVolume > 0 && isPlaying && !isWaiting) mac.pageButtons[page].GetComponent<PageButton>().ActiveAudioSources--;
+        if (newLocalVol > 0 && LocalVolume <= 0 && !stopped && !isWaiting) mac.pageButtons[page].GetComponent<PageButton>().ActiveAudioSources++;
+        else if (newLocalVol <= 0 && LocalVolume > 0 && !stopped && !isWaiting) mac.pageButtons[page].GetComponent<PageButton>().ActiveAudioSources--;
         LocalVolume = newLocalVol;
         aSource.volume = LocalVolume * masterVolume;
     }
@@ -348,18 +358,20 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         if (fromStopAll && IgnorePlayAll) { }
         else
         {
-            if (LocalVolume > 0 && isPlaying && !isWaiting) mac.pageButtons[page].GetComponent<PageButton>().ActiveAudioSources--;
-            isPlaying = false;
-            bgImage.color = mac.darkModeEnabled ? ResourceManager.sfxButtonDark : ResourceManager.sfxButtonLight;
-            buttonHasTrackImage.color = bgImage.color;
-            aSource.Stop();
+            print(":stop");
             if (stream != null) stream.Position = 0L;
             if (vorbis != null) vorbis.DecodedPosition = 0L;
+            if (LocalVolume > 0 && !stopped && !isWaiting) mac.pageButtons[page].GetComponent<PageButton>().ActiveAudioSources--;
+            buttonHasTrackImage.color = bgImage.color;
+            aSource.Stop();
+            stopped = true;
+            ChangeButtonColor(mac.darkModeEnabled ? ResourceManager.sfxButtonDark : ResourceManager.sfxButtonLight);
         }
     }
 
     internal void Play(bool fromPlayAll = false)
     {
+        print("play");
         if (fromPlayAll && IgnorePlayAll) { }
         else
         {
@@ -381,12 +393,13 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     void PlayValidFile()
     {
         if (LocalVolume > 0) mac.pageButtons[page].GetComponent<PageButton>().ActiveAudioSources++;
-        isPlaying = true;
+        //isPlaying = true;
         bgImage.color = ResourceManager.green;
         buttonHasTrackImage.color = ResourceManager.green;
         Image rect = playBackBar.GetComponent<Image>();
         rect.color = ResourceManager.red;
         aSource.Play();
+        stopped = false;
     }
 
     void StreamMP3File()
@@ -451,77 +464,79 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         }
     }
 
-    void FixedUpdate()
+    void Update()
     {
         if (Input.GetMouseButtonDown(1) && hasPointer == (page, id))
         {
             bec.StartEditing(id);
         }
         //this is gross.Fix pls
-        if (!aSource.isPlaying && Loop && !isWaiting && isPlaying)
+        if (!aSource.isPlaying && !stopped && LoopEnabled && !loopDelayRoutineActive && !string.IsNullOrEmpty(aSource.clip.name))
         {
             StartCoroutine("WaitForLoopDelay");
         }
-        if (!aSource.isPlaying && !isWaiting)
+        if (GetComponent<Image>().color == ResourceManager.green && !aSource.isPlaying && !loopDelayRoutineActive)
         {
+            //if (id == 0 && page == 0) print(aSource.isPlaying);
             ChangeButtonColor(mac.darkModeEnabled ? ResourceManager.sfxButtonDark : ResourceManager.sfxButtonLight);
+            Stop();
         }
-        if (aSource.isPlaying)
+        if (!stopped && !loopDelayRoutineActive)
         {
             float percentPlayed = (aSource.time / aSource.clip.length);
             playbackBarRect.sizeDelta = new Vector2(Mathf.Max(1, (percentPlayed * rectWidth)), playbackBarRect.rect.height);
             progressText.text = (aSource.time / 60f).ToString("N0") + ":" + Mathf.FloorToInt(aSource.time % 60f).ToString("D2") + "/" + (aSource.clip.length / 60f).ToString("N0") + ":" + Mathf.FloorToInt(aSource.clip.length % 60).ToString("D2");
         }
-        if (isWaiting && isPlaying)
-        {
-            float percentWaited = ((Time.time - waitStartedTime) / timeToWait);
-            playbackBarRect.sizeDelta = new Vector2((percentWaited * rectWidth), playbackBarRect.rect.height);
-        }
-
-        //prevent playback bar from showing after clip has been removed
-        if (string.IsNullOrEmpty(FileName) && playbackBarRect.gameObject.activeSelf) playbackBarRect.gameObject.SetActive(false);
-        else if (!string.IsNullOrEmpty(FileName) && !playbackBarRect.gameObject.activeSelf) playbackBarRect.gameObject.SetActive(true);
-
         framesSinceColorUpdate = Mathf.Max(framesSinceColorUpdate, framesSinceColorUpdate + 1);
     }
 
     IEnumerator WaitForLoopDelay()
     {
+        loopDelayRoutineActive = true;
+        print("loop delay started");
         if (LocalVolume > 0) mac.pageButtons[page].GetComponent<PageButton>().ActiveAudioSources--;
-        isWaiting = true;
-        waitStartedTime = Time.time;
+        waitStartedTime = Time.realtimeSinceStartup;
         Image rect = playBackBar.GetComponent<Image>();
         rect.color = Color.yellow;
 
         timeToWait = RandomizeLoopDelay ? UnityEngine.Random.Range(MinLoopDelay, MaxLoopDelay) : MinLoopDelay;
-        while (timeToWait + waitStartedTime > Time.time)
+        while (timeToWait + waitStartedTime > Time.realtimeSinceStartup)
         {
-            if (!isPlaying) break;
+            //print(Time.realtimeSinceStartup - timeToWait + waitStartedTime + " seconds left");
+            float percentWaited = ((Time.realtimeSinceStartup - waitStartedTime) / timeToWait);
+            playbackBarRect.sizeDelta = new Vector2((percentWaited * rectWidth), playbackBarRect.rect.height);
+            if (stopped)
+            {
+                print("loop stopping");
+                loopDelayRoutineActive = false;
+                break;
+            }
             yield return null;
         }
 
-        if (isPlaying)
+        if (!stopped)
         {
             if (stream != null) stream.Position = 0L;
             if (vorbis != null) vorbis.DecodedPosition = 0L;
 
+            loopDelayRoutineActive = false;
             Play();
             rect.color = ResourceManager.red;
         }
-        isWaiting = false;
+        playbackBarRect.sizeDelta = new Vector2(0f, playbackBarRect.rect.height);
+        loopDelayRoutineActive = false;
+        print("finished");
 
         yield return null;
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-
         hasPointer = (page, id);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-
         hasPointer = (-1, -1);
     }
 }
