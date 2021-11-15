@@ -503,66 +503,74 @@ public class MusicController : MonoBehaviour
     {
         if((Path.GetExtension(s) == ".mp3" || Path.GetExtension(s) == ".ogg") && !(Application.isEditor && s.Contains("testRunner")))
         {
-            return LoadedFilesData.songs.All(f => f.FileName != s) && LoadedFilesData.deletedMusicClips.All(f => f.FileName != s);
+            if (LoadedFilesData.songs.All(f => f.FileName != s) && LoadedFilesData.deletedMusicClips.All(f => f.FileName != s))
+            {
+                if (File.Exists(s)) return true;
+                else mac.ShowErrorMessage("Couldn't find file " + s + ". Was it deleted?");
+            }
         }
         return false;
     }
     internal void AddNewSong(String s, int tabId = 0)
     {
-        string artist = null;
-        string title = null;
-        TimeSpan duration = TimeSpan.Zero;
-        if (Path.GetExtension(s) == ".mp3")
+        if(FileIsValid(s))
         {
-            //Try both ID3 families
-            Mp3 mp3File = new Mp3(s);
-            Id3Tag newTag = null;
-            try
+            string artist = null;
+            string title = null;
+            TimeSpan duration = TimeSpan.Zero;
+            if (Path.GetExtension(s) == ".mp3")
             {
-                newTag = mp3File.GetTag(Id3TagFamily.Version2X);
-            }
-            catch (IndexOutOfRangeException) { }
+                //Try both ID3 families
+                Mp3 mp3File = new Mp3(s);
+                Id3Tag newTag = null;
+                try
+                {
+                    newTag = mp3File.GetTag(Id3TagFamily.Version2X);
+                }
+                catch (IndexOutOfRangeException) { }
 
-            var altTag = TagLib.File.Create(s);
+                var altTag = TagLib.File.Create(s);
 
-            if (newTag == null)
-            {
-                newTag = mp3File.GetTag(Id3TagFamily.Version1X);
+                if (newTag == null)
+                {
+                    newTag = mp3File.GetTag(Id3TagFamily.Version1X);
+                }
+                if (newTag != null)
+                {
+                    artist = newTag.Artists;
+                    title = newTag.Title;
+                    duration = newTag.Length;
+                }
+                if (altTag.Tag.Performers.Length > 0) artist = altTag.Tag.Performers[0];
+                //If duration not present in tag, get from temp mpeg stream
+                if (duration == TimeSpan.Zero)
+                {
+                    MpegFile temp = new MpegFile(s);
+                    duration = temp.Duration;
+                }
             }
-            if (newTag != null)
+            //ID3 info not supported for ogg vorbis, get duration from temp vorbis stream
+            else if (Path.GetExtension(s) == ".ogg")
             {
-                artist = newTag.Artists;
-                title = newTag.Title;
-                duration = newTag.Length;
+                VorbisReader temp = new VorbisReader(s);
+                duration = temp.TotalTime;
+                temp.Dispose();
             }
-            if (altTag.Tag.Performers.Length > 0) artist = altTag.Tag.Performers[0];
-            //If duration not present in tag, get from temp mpeg stream
-            if (duration == TimeSpan.Zero)
+            if (title == null)
             {
-                MpegFile temp = new MpegFile(s);
-                duration = temp.Duration;
+                title = Path.GetFileName(s);
             }
-        }
-        //ID3 info not supported for ogg vorbis, get duration from temp vorbis stream
-        else if (Path.GetExtension(s) == ".ogg")
-        {
-            VorbisReader temp = new VorbisReader(s);
-            duration = temp.TotalTime;
-            temp.Dispose();
-        }
-        if (title == null)
-        {
-            title = Path.GetFileName(s);
-        }
-        //Check for characters not currently in loaded character set
-        if (s.ToList().Any(item => !ResourceManager.charTable.Contains(item)))
-        {
-            mac.ShowErrorMessage("Song " + s + " contains characters not currently supported. They will not be displayed");
-        }
-        Song newSong = new Song(s, title, duration, artist);
-        LoadedFilesData.songs.Add(newSong);
+            //Check for characters not currently in loaded character set
+            if (s.ToList().Any(item => !ResourceManager.charTable.Contains(item)))
+            {
+                mac.ShowErrorMessage("Song " + s + " contains characters not currently supported. They will not be displayed");
+            }
+            Song newSong = new Song(s, title, duration, artist);
+            LoadedFilesData.songs.Add(newSong);
 
-        pt.AddSongToPlaylist(tabId, newSong);
+            pt.AddSongToPlaylist(tabId, newSong);
+        }
+        
     }
     //TODO: Sort alphabetically
     //void SortMainPlaylist()

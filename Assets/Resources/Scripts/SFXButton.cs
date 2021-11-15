@@ -187,9 +187,6 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         mac = Camera.main.GetComponent<MainAppController>();
         volumeSlider.onValueChanged.AddListener(VolumeSliderAdjusted);
         currentColor = GetComponent<Image>().color;
-
-        print(id);
-        print(page);
     }
 
 
