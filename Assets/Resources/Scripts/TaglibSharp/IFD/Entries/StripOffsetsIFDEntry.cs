@@ -38,12 +38,12 @@ namespace TagLib.IFD.Entries
         /// <value>
         ///    Store the strip length to read them before writing.
         /// </value>
-        readonly uint[] byte_counts;
+        private readonly uint[] byte_counts;
 
         /// <value>
         ///    The file the offsets belong to
         /// </value>
-        readonly File file;
+        private readonly File file;
 
         #endregion
 
@@ -72,7 +72,9 @@ namespace TagLib.IFD.Entries
             this.file = file;
 
             if (values.Length != byte_counts.Length)
+            {
                 throw new Exception("strip offsets and strip byte counts do not have the same length");
+            }
         }
 
         #endregion
@@ -131,12 +133,18 @@ namespace TagLib.IFD.Entries
             // consists at least of 4 bytes, which is probably the case every time, but to be sure ...)
             // However, the strip offset in the array must also be adjusted, if the offset_data is ignored.
             if (Values.Length > 1)
+            {
                 data.Insert(0, offset_data);
+            }
             else
+            {
                 Values[0] = offset;
+            }
 
             while (data.Count < 4)
+            {
                 data.Add(0x00);
+            }
 
             // the entry is a single long entry where the value is an offset to the data
             // the offset is automatically updated by the renderer.

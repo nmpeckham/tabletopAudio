@@ -36,12 +36,12 @@ namespace TagLib.Riff
         /// <summary>
         ///    Contains the number of audio channels.
         /// </summary>
-        readonly ushort channels;
+        private readonly ushort channels;
 
         /// <summary>
         ///    Contains the number of samples per second.
         /// </summary>
-        readonly uint samples_per_second;
+        private readonly uint samples_per_second;
 
         #endregion
 
@@ -96,13 +96,19 @@ namespace TagLib.Riff
         public WaveFormatEx(ByteVector data, int offset)
         {
             if (data == null)
+            {
                 throw new ArgumentNullException(nameof(data));
+            }
 
             if (offset < 0)
+            {
                 throw new ArgumentOutOfRangeException(nameof(offset));
+            }
 
             if (offset + 16 > data.Count)
+            {
                 throw new CorruptFileException("Expected 16 bytes.");
+            }
 
             FormatTag = data.Mid(offset, 2).ToUShort(false);
             channels = data.Mid(offset + 2, 2).ToUShort(false);
@@ -157,10 +163,7 @@ namespace TagLib.Riff
 
         #region ILosslessAudioCodec
 
-        int ILosslessAudioCodec.BitsPerSample
-        {
-            get { return BitsPerSample; }
-        }
+        int ILosslessAudioCodec.BitsPerSample => BitsPerSample;
 
         #endregion
 
@@ -174,13 +177,7 @@ namespace TagLib.Riff
         ///    A <see cref="int" /> value containing a bitrate of the
         ///    audio represented by the current instance.
         /// </value>
-        public int AudioBitrate
-        {
-            get
-            {
-                return (int)Math.Round(AverageBytesPerSecond * 8d / 1000d);
-            }
-        }
+        public int AudioBitrate => (int)Math.Round(AverageBytesPerSecond * 8d / 1000d);
 
         /// <summary>
         ///    Gets the sample rate of the audio represented by the
@@ -190,10 +187,7 @@ namespace TagLib.Riff
         ///    A <see cref="int" /> value containing the sample rate of
         ///    the audio represented by the current instance.
         /// </value>
-        public int AudioSampleRate
-        {
-            get { return (int)samples_per_second; }
-        }
+        public int AudioSampleRate => (int)samples_per_second;
 
         /// <summary>
         ///    Gets the number of channels in the audio represented by
@@ -204,10 +198,7 @@ namespace TagLib.Riff
         ///    channels in the audio represented by the current
         ///    instance.
         /// </value>
-        public int AudioChannels
-        {
-            get { return channels; }
-        }
+        public int AudioChannels => channels;
 
         /// <summary>
         ///    Gets the types of media represented by the current
@@ -216,10 +207,7 @@ namespace TagLib.Riff
         /// <value>
         ///    Always <see cref="MediaTypes.Audio" />.
         /// </value>
-        public MediaTypes MediaTypes
-        {
-            get { return MediaTypes.Audio; }
-        }
+        public MediaTypes MediaTypes => MediaTypes.Audio;
 
         /// <summary>
         ///    Gets the duration of the media represented by the current
@@ -228,10 +216,7 @@ namespace TagLib.Riff
         /// <value>
         ///    Always <see cref="TimeSpan.Zero" />.
         /// </value>
-        public TimeSpan Duration
-        {
-            get { return TimeSpan.Zero; }
-        }
+        public TimeSpan Duration => TimeSpan.Zero;
 
         /// <summary>
         ///    Gets a text description of the media represented by the
@@ -686,7 +671,9 @@ namespace TagLib.Riff
         public override bool Equals(object other)
         {
             if (!(other is WaveFormatEx))
+            {
                 return false;
+            }
 
             return Equals((WaveFormatEx)other);
         }

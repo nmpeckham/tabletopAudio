@@ -7,61 +7,41 @@ using UnityEngine.EventSystems;
 public class PlaylistTab : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler, IPointerEnterHandler
 {
     public int tabId;
-    //private List<Song> playlist = new List<Song>();
     internal GameObject musicContentView;
     private List<MusicButton> musicButtons;
     private TMP_Text label;
     private string labelText = "*";
-    static internal PlaylistTabs pt;
+    internal static PlaylistTabs pt;
 
     private float initialMouseXPos = 0f;
     private bool shouldCheckMousePos = false;
     private Camera mainCam;
-
-
     private RectTransform rect;
-
-    private bool ShouldCheckMousePos
-    {
-        get
-        {
-            return shouldCheckMousePos;
-        }
-        set
-        {
-            shouldCheckMousePos = value;
-        }
-    }
 
     internal string LabelText
     {
-        get
-        {
-            return labelText;
-        }
+        get => labelText;
         set
         {
-            label.text = value;
             labelText = value;
+            label.text = labelText;
         }
     }
     internal List<MusicButton> MusicButtons
     {
-        get
-        {
-            return musicButtons;
-        }
-        set
-        {
-            musicButtons = value;
-        }
+        get => musicButtons;
+        set => musicButtons = value;
     }
 
-    // Start is called before the first frame update
-    internal void Init()
+// Start is called before the first frame update
+internal void Init()
     {
         label = GetComponentInChildren<TMP_Text>();
-        if (tabId > 0) LabelText = tabId.ToString();
+        if (tabId > 0)
+        {
+            LabelText = tabId.ToString();
+        }
+
         mainCam = Camera.main;
         pt = mainCam.GetComponent<PlaylistTabs>();
 
@@ -72,11 +52,17 @@ public class PlaylistTab : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 
     private void ButtonClicked()
     {
+        if (mainCam == null)
+        {
+            Init();
+        }
+
         mainCam.GetComponent<PlaylistTabs>().TabClicked(tabId);
     }
 
     public void OnPointerDown(PointerEventData eventData)
     {
+
         if (eventData.button == PointerEventData.InputButton.Right && tabId > 0)
         {
             var activeRightClickMenu = Instantiate(Prefabs.rightClickMenuPrefab, Input.mousePosition, Quaternion.identity, MainAppController.tooltipParent).GetComponent<RightClickRootMenu>();
@@ -85,12 +71,11 @@ public class PlaylistTab : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
             activeRightClickMenu.SetBounds(-10f, -10f, 90f, 60f);
 
             StartCoroutine(activeRightClickMenu.CheckMousePos());
-            //pt.EditTabName(this);
         }
-        else if (eventData.button == PointerEventData.InputButton.Left)
+        else if (eventData.button == PointerEventData.InputButton.Left && tabId != -1)
         {
             initialMouseXPos = Input.mousePosition.x;
-            ShouldCheckMousePos = true;
+            shouldCheckMousePos = true;
             StartCoroutine(CheckMousePos());
         }
     }
@@ -98,14 +83,14 @@ public class PlaylistTab : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
         if (eventData.button == PointerEventData.InputButton.Left)
         {
-            ShouldCheckMousePos = false;
+            shouldCheckMousePos = false;
             ButtonClicked();
         }
     }
 
     private IEnumerator CheckMousePos()
     {
-        while (ShouldCheckMousePos && rect != null)
+        while (shouldCheckMousePos && rect != null)
         {
             float mouseXPos = Input.mousePosition.x;
             if (initialMouseXPos - mouseXPos > rect.rect.width)
@@ -138,7 +123,7 @@ public class PlaylistTab : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 
     private void MoveTabRight()
     {
-        if (transform.GetSiblingIndex() < PlaylistTabs.tabs.Count && tabId > 0)
+        if (transform.GetSiblingIndex() < PlaylistTabs.tabs.Count - 1 && tabId > 0)
         {
             print(transform.GetSiblingIndex());
             transform.SetSiblingIndex(transform.GetSiblingIndex() + 1);
@@ -153,7 +138,10 @@ public class PlaylistTab : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if (tabId > 0) pt.NowEditing = this;
+        if (tabId > 0)
+        {
+            pt.NowEditing = this;
+        }
     }
 }
 

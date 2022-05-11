@@ -45,12 +45,12 @@ namespace TagLib
         /// <summary>
         ///    Contains the codecs.
         /// </summary>
-        readonly ICodec[] codecs = new ICodec[0];
+        private readonly ICodec[] codecs = new ICodec[0];
 
         /// <summary>
         ///    Contains the duration.
         /// </summary>
-        TimeSpan duration = TimeSpan.Zero;
+        private TimeSpan duration = TimeSpan.Zero;
 
         #endregion
 
@@ -88,7 +88,9 @@ namespace TagLib
         {
             this.duration = duration;
             if (codecs != null)
+            {
                 this.codecs = codecs;
+            }
         }
 
         /// <summary>
@@ -109,7 +111,9 @@ namespace TagLib
         {
             this.duration = duration;
             if (codecs != null)
+            {
                 this.codecs = new List<ICodec>(codecs).ToArray();
+            }
         }
 
         #endregion
@@ -126,10 +130,7 @@ namespace TagLib
         ///    <see cref="ICodec" /> objects contained in the current
         ///    instance.
         /// </value>
-        public IEnumerable<ICodec> Codecs
-        {
-            get { return codecs; }
-        }
+        public IEnumerable<ICodec> Codecs => codecs;
 
         #endregion
 
@@ -156,11 +157,17 @@ namespace TagLib
                 TimeSpan duration = this.duration;
 
                 if (duration != TimeSpan.Zero)
+                {
                     return duration;
+                }
 
                 foreach (ICodec codec in codecs)
+                {
                     if (codec != null && codec.Duration > duration)
+                    {
                         duration = codec.Duration;
+                    }
+                }
 
                 return duration;
             }
@@ -181,8 +188,12 @@ namespace TagLib
                 MediaTypes types = MediaTypes.None;
 
                 foreach (ICodec codec in codecs)
+                {
                     if (codec != null)
+                    {
                         types |= codec.MediaTypes;
+                    }
+                }
 
                 return types;
             }
@@ -208,10 +219,14 @@ namespace TagLib
                 foreach (ICodec codec in codecs)
                 {
                     if (codec == null)
+                    {
                         continue;
+                    }
 
                     if (builder.Length != 0)
+                    {
                         builder.Append("; ");
+                    }
 
                     builder.Append(codec.Description);
                 }
@@ -243,10 +258,14 @@ namespace TagLib
                 foreach (ICodec codec in codecs)
                 {
                     if (codec == null || (codec.MediaTypes & MediaTypes.Audio) == 0)
+                    {
                         continue;
+                    }
 
                     if (codec is IAudioCodec audio && audio.AudioBitrate != 0)
+                    {
                         return audio.AudioBitrate;
+                    }
                 }
 
                 return 0;
@@ -273,10 +292,14 @@ namespace TagLib
                 {
                     if (codec == null ||
                         (codec.MediaTypes & MediaTypes.Audio) == 0)
+                    {
                         continue;
+                    }
 
                     if (codec is IAudioCodec audio && audio.AudioSampleRate != 0)
+                    {
                         return audio.AudioSampleRate;
+                    }
                 }
 
                 return 0;
@@ -302,10 +325,14 @@ namespace TagLib
                 foreach (ICodec codec in codecs)
                 {
                     if (codec == null || (codec.MediaTypes & MediaTypes.Audio) == 0)
+                    {
                         continue;
+                    }
 
                     if (codec is ILosslessAudioCodec lossless && lossless.BitsPerSample != 0)
+                    {
                         return lossless.BitsPerSample;
+                    }
                 }
 
                 return 0;
@@ -332,10 +359,14 @@ namespace TagLib
                 foreach (ICodec codec in codecs)
                 {
                     if (codec == null || (codec.MediaTypes & MediaTypes.Audio) == 0)
+                    {
                         continue;
+                    }
 
                     if (codec is IAudioCodec audio && audio.AudioChannels != 0)
+                    {
                         return audio.AudioChannels;
+                    }
                 }
 
                 return 0;
@@ -366,10 +397,14 @@ namespace TagLib
                 foreach (ICodec codec in codecs)
                 {
                     if (codec == null || (codec.MediaTypes & MediaTypes.Video) == 0)
+                    {
                         continue;
+                    }
 
                     if (codec is IVideoCodec video && video.VideoWidth != 0)
+                    {
                         return video.VideoWidth;
+                    }
                 }
 
                 return 0;
@@ -394,10 +429,14 @@ namespace TagLib
                 foreach (ICodec codec in codecs)
                 {
                     if (codec == null || (codec.MediaTypes & MediaTypes.Video) == 0)
+                    {
                         continue;
+                    }
 
                     if (codec is IVideoCodec video && video.VideoHeight != 0)
+                    {
                         return video.VideoHeight;
+                    }
                 }
 
                 return 0;
@@ -425,10 +464,14 @@ namespace TagLib
                 foreach (ICodec codec in codecs)
                 {
                     if (codec == null || (codec.MediaTypes & MediaTypes.Photo) == 0)
+                    {
                         continue;
+                    }
 
                     if (codec is IPhotoCodec photo && photo.PhotoWidth != 0)
+                    {
                         return photo.PhotoWidth;
+                    }
                 }
 
                 return 0;
@@ -450,10 +493,14 @@ namespace TagLib
                 foreach (ICodec codec in codecs)
                 {
                     if (codec == null || (codec.MediaTypes & MediaTypes.Photo) == 0)
+                    {
                         continue;
+                    }
 
                     if (codec is IPhotoCodec photo && photo.PhotoHeight != 0)
+                    {
                         return photo.PhotoHeight;
+                    }
                 }
 
                 return 0;
@@ -476,10 +523,14 @@ namespace TagLib
                 foreach (ICodec codec in codecs)
                 {
                     if (codec == null || (codec.MediaTypes & MediaTypes.Photo) == 0)
+                    {
                         continue;
+                    }
 
                     if (codec is IPhotoCodec photo && photo.PhotoQuality != 0)
+                    {
                         return photo.PhotoQuality;
+                    }
                 }
 
                 return 0;

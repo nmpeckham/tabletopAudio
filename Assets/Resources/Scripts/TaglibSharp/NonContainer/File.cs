@@ -64,12 +64,12 @@ namespace TagLib.NonContainer
         /// <summary>
         ///    Contains the tags.
         /// </summary>
-        Tag tag;
+        private Tag tag;
 
         /// <summary>
         ///    Contains the media properties.
         /// </summary>
-        Properties properties;
+        private Properties properties;
 
         #endregion
 
@@ -172,10 +172,7 @@ namespace TagLib.NonContainer
         ///    A <see cref="TagLib.Tag" /> object representing all tags
         ///    stored in the current instance.
         /// </value>
-        public override TagLib.Tag Tag
-        {
-            get { return tag; }
-        }
+        public override TagLib.Tag Tag => tag;
 
         /// <summary>
         ///    Gets the media properties of the file represented by the
@@ -186,10 +183,7 @@ namespace TagLib.NonContainer
         ///    media properties of the file represented by the current
         ///    instance.
         /// </value>
-        public override Properties Properties
-        {
-            get { return properties; }
-        }
+        public override Properties Properties => properties;
 
         #endregion
 
@@ -249,10 +243,7 @@ namespace TagLib.NonContainer
         ///    A <see cref="TagLib.NonContainer.StartTag" /> storing the
         ///    tags for the start of the file.
         /// </value>
-        protected StartTag StartTag
-        {
-            get { return tag.StartTag; }
-        }
+        protected StartTag StartTag => tag.StartTag;
 
         /// <summary>
         ///    Gets the collection of tags appearing at the end of the
@@ -262,10 +253,7 @@ namespace TagLib.NonContainer
         ///    A <see cref="TagLib.NonContainer.EndTag" /> storing the
         ///    tags for the end of the file.
         /// </value>
-        protected EndTag EndTag
-        {
-            get { return tag.EndTag; }
-        }
+        protected EndTag EndTag => tag.EndTag;
 
         #endregion
 
@@ -370,7 +358,7 @@ namespace TagLib.NonContainer
         ///    of accuracy to read the media properties, or <see
         ///    cref="ReadStyle.None" /> to ignore the properties.
         /// </param>
-        void Read(ReadStyle propertiesStyle)
+        private void Read(ReadStyle propertiesStyle)
         {
             Mode = AccessMode.Read;
             try

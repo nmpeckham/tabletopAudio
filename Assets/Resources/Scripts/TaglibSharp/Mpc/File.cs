@@ -164,7 +164,9 @@ namespace TagLib.MusePack
             Tag t = (Tag as TagLib.NonContainer.Tag).GetTag(type);
 
             if (t != null || !create)
+            {
                 return t;
+            }
 
             switch (type)
             {

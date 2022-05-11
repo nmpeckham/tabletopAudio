@@ -29,6 +29,9 @@ namespace Id3.Frames
         {
         }
 
-        public static implicit operator TitleFrame(string value) => new TitleFrame(value);
+        public static implicit operator TitleFrame(string value)
+        {
+            return new TitleFrame(value);
+        }
     }
 }

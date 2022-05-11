@@ -18,13 +18,14 @@ public class QuickReferenceController : MonoBehaviour
     public TMP_Text noResultsText;
 
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
         //quickRefPanel.SetActive(false);
         mac = GetComponent<MainAppController>();
         searchBox.onValueChanged.AddListener(TextEntered);
+        searchBox.onSubmit.AddListener(SubmitSearch);
         clearTextButton.onClick.AddListener(ClearText);
-        searchLoadingSpinner.gameObject.SetActive(false);
+        searchLoadingSpinner.SetActive(false);
 
         //string folder = "C:\\Users\\natha\\Documents\\GitHub\\tabletopAudio\\Assets\\StreamingAssets";
         //string files = "";
@@ -47,6 +48,15 @@ public class QuickReferenceController : MonoBehaviour
         //print(files);
     }
 
+    internal void GiveSearchFocus()
+    {
+        searchBox.ActivateInputField();
+    }
+
+    void SubmitSearch(string search)
+    {
+        scrollViewContent.transform.GetChild(0).GetComponent<QuickRefPrefab>().Clicked();
+    }
     private void ClearText()
     {
         searchBox.text = "";
@@ -76,7 +86,7 @@ public class QuickReferenceController : MonoBehaviour
         StartCoroutine(SlideOut());
     }
 
-    IEnumerator SlideIn()
+    private IEnumerator SlideIn()
     {
         // Unity UI is based on magic, don't change
         //quickRefPanel.SetActive(true);
@@ -91,7 +101,7 @@ public class QuickReferenceController : MonoBehaviour
         searchBox.ActivateInputField();
     }
 
-    IEnumerator SlideOut()
+    private IEnumerator SlideOut()
     {
 
         searchBox.DeactivateInputField();
@@ -100,7 +110,7 @@ public class QuickReferenceController : MonoBehaviour
         RectTransform quickRefTransform = quickRefPanel.GetComponent<RectTransform>();
         float endXPos = -quickRefTransform.rect.width;
         noResultsText.gameObject.SetActive(false);
-        searchLoadingSpinner.gameObject.SetActive(false);
+        searchLoadingSpinner.SetActive(false);
         while (quickRefTransform.localPosition.x > endXPos)
         {
             quickRefTransform.localPosition = new Vector3(Mathf.Max(quickRefTransform.localPosition.x - 50, endXPos), quickRefTransform.localPosition.y);
@@ -123,62 +133,81 @@ public class QuickReferenceController : MonoBehaviour
         {
             Destroy(go.gameObject);
         }
-        if(!String.IsNullOrWhiteSpace(query)) {
-            searchLoadingSpinner.gameObject.SetActive(true);
+        if (!String.IsNullOrWhiteSpace(query))
+        {
+            searchLoadingSpinner.SetActive(true);
             //print(String.IsNullOrEmpty(query));
-            Regex charsToRemove = new Regex("[^a-zA-Z ]"); //remove any unwanted characters ("';?>.,<_)(*&^%$#@!", etc.)
+            Regex charsToRemove = new("[^a-zA-Z ]"); //remove any unwanted characters ("';?>.,<_)(*&^%$#@!", etc.)
             MatchCollection searchRemoveChars = charsToRemove.Matches(query);
             foreach (Match m in searchRemoveChars)
             {
                 query = query.Replace(m.ToString(), "");
             }
             query = query.ToLower();
-            Regex wordMatch = new Regex("[a-zA-Z0-9]+");
+            Regex wordMatch = new("[a-zA-Z0-9]+");
             MatchCollection matchedWords = wordMatch.Matches(query);
             List<Match> matchedWordsList = matchedWords.OfType<Match>().ToList();
 
-            List<(KeyValuePair<string, Dictionary<string, dynamic>> item, int score)> searchMatches = new List<(KeyValuePair<string, Dictionary<string, dynamic>> item, int score)>();
+            List<(KeyValuePair<string, Dictionary<string, dynamic>> item, int score)> searchMatches = new();
             foreach (var section in LoadedFilesData.qrdFiles)
             {
-                foreach (var dbItem in section.Value)
+                if (!section.Key.Contains("StartingEquipment") && !section.Key.Contains("Level") && !section.Key.Contains("Spellcasting"))
                 {
-                    (KeyValuePair<string, Dictionary<string, dynamic>> item, int score) matchScore = (dbItem, 0);
-                    string index = dbItem.Key.ToString().ToLower().Replace("-", " ");
-                    string alias = "";
-                    if (dbItem.Value.ContainsKey("alias"))
+                    foreach (var dbItem in section.Value)
                     {
-                        alias = dbItem.Value["alias"].ToString().ToLower();
-                    }
-                    foreach (Match m in matchedWordsList)
-                    {
-                        string newIndex = index;
-                        MatchCollection indexRemoveChars = charsToRemove.Matches(index);
-
-                        foreach (Match match in indexRemoveChars)
+                        (KeyValuePair<string, Dictionary<string, dynamic>> item, int score) matchScore = (dbItem, 0);
+                        string index = dbItem.Key.ToString().ToLower().Replace("-", " ");
+                        string alias = "";
+                        if (dbItem.Value.ContainsKey("alias"))
                         {
-                            newIndex = newIndex.Replace(match.ToString(), "");
+                            alias = dbItem.Value["alias"].ToString().ToLower();
                         }
-                        Regex wordStartMatch = new Regex(@"\S*(" + m.ToString() + @")\S*");
 
-                        MatchCollection matchedStartWords = wordStartMatch.Matches(newIndex);
-                        List<Match> matchList = matchedStartWords.OfType<Match>().ToList();
+                        foreach (Match m in matchedWordsList)
+                        {
+                            foreach (string item in new string[] { alias, index })
+                            {
+                                if (!string.IsNullOrWhiteSpace(item))
+                                {
+                                    string newIndex = item;
+                                    MatchCollection indexRemoveChars = charsToRemove.Matches(index);
 
-                        matchScore.score += matchList.Count;
+                                    foreach (Match match in indexRemoveChars)
+                                    {
+                                        newIndex = newIndex.Replace(match.ToString(), "");
+                                    }
+                                    Regex wordStartMatch = new(@"\S*(" + m.ToString() + @")\S*");
+
+                                    MatchCollection matchedStartWords = wordStartMatch.Matches(newIndex);
+                                    List<Match> matchList = matchedStartWords.OfType<Match>().ToList();
+
+                                    matchScore.score += matchList.Count;
+                                }
+                            }
+
+                        }
+                        if (matchScore.score > 0)
+                        {
+                            searchMatches.Add(matchScore);
+                        }
+                        if (mac.currentFPS < 10)
+                        {
+                            yield return null;
+                        }
                     }
-                    if (matchScore.score > 0)
-                    {
-                        searchMatches.Add(matchScore);
-                    }
-                    if (mac.currentFPS < 10) yield return null;
+                    //yield return null;
                 }
-                //yield return null;
+
             }
             searchMatches = searchMatches.OrderByDescending(item => item.score).ToList();
 
             //Only show top 20 matches
-            if (searchMatches.Count > 20) searchMatches.RemoveRange(19, searchMatches.Count - 20);
+            if (searchMatches.Count > 20)
+            {
+                searchMatches.RemoveRange(19, searchMatches.Count - 20);
+            }
 
-            searchLoadingSpinner.gameObject.SetActive(false);
+            searchLoadingSpinner.SetActive(false);
             if (searchMatches.Count == 0)
             {
                 noResultsText.gameObject.SetActive(true);
@@ -214,6 +243,11 @@ public class QuickReferenceController : MonoBehaviour
                 {
                     qrp.Title = searchMatch.item.Value["name"].ToString();
                 }
+                if (searchMatch.item.Value.ContainsKey("index"))
+                {
+                    qrp.Index = searchMatch.item.Value["index"].ToString();
+                }
+                qrp.Description = qrp.Description.Replace("\n", "");
                 prefab.SetActive(true);
             }
         }

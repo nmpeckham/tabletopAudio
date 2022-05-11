@@ -55,7 +55,7 @@ namespace TagLib
         ///    Contains the registered <see cref="SupportedMimeType" />
         ///    objects.
         /// </summary>
-        static readonly List<SupportedMimeType> mimetypes = new List<SupportedMimeType>();
+        private static readonly List<SupportedMimeType> mimetypes = new List<SupportedMimeType>();
 
         /// <summary>
         ///    Constructs and initializes the <see
@@ -165,7 +165,9 @@ namespace TagLib
             get
             {
                 foreach (SupportedMimeType type in mimetypes)
+                {
                     yield return type.MimeType;
+                }
             }
         }
 
@@ -187,8 +189,12 @@ namespace TagLib
             get
             {
                 foreach (SupportedMimeType type in mimetypes)
+                {
                     if (type.Extension != null)
+                    {
                         yield return type.Extension;
+                    }
+                }
             }
         }
     }

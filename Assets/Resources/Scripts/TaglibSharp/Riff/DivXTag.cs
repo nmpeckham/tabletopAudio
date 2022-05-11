@@ -40,32 +40,32 @@ namespace TagLib.Riff
         /// <summary>
         ///    Contains the title.
         /// </summary>
-        string title;
+        private string title;
 
         /// <summary>
         ///    Contains the semicolon separated performers.
         /// </summary>
-        string artist;
+        private string artist;
 
         /// <summary>
         ///    Contains the 4 digit year.
         /// </summary>
-        string year;
+        private string year;
 
         /// <summary>
         ///    Contains a comment on track.
         /// </summary>
-        string comment;
+        private string comment;
 
         /// <summary>
         ///    Contains the genre index.
         /// </summary>
-        string genre;
+        private string genre;
 
         /// <summary>
         ///    Contains the extra 6 bytes at the end of the tag.
         /// </summary>
-        ByteVector extra_data;
+        private ByteVector extra_data;
 
         #endregion
 
@@ -129,13 +129,17 @@ namespace TagLib.Riff
         public DivXTag(File file, long position)
         {
             if (file == null)
+            {
                 throw new ArgumentNullException(nameof(file));
+            }
 
             file.Mode = TagLib.File.AccessMode.Read;
 
             if (position < 0 ||
                 position > file.Length - Size)
+            {
                 throw new ArgumentOutOfRangeException(nameof(position));
+            }
 
             file.Seek(position);
 
@@ -146,7 +150,9 @@ namespace TagLib.Riff
             // some initial sanity checking
 
             if (!data.EndsWith(FileIdentifier))
+            {
                 throw new CorruptFileException("DivX tag data does not end with identifier.");
+            }
 
             Parse(data);
         }
@@ -170,13 +176,19 @@ namespace TagLib.Riff
         public DivXTag(ByteVector data)
         {
             if (data == null)
+            {
                 throw new ArgumentNullException(nameof(data));
+            }
 
             if (data.Count < Size)
+            {
                 throw new CorruptFileException("DivX tag data is less than 128 bytes long.");
+            }
 
             if (!data.EndsWith(FileIdentifier))
+            {
                 throw new CorruptFileException("DivX tag data does not end with identifier.");
+            }
 
             Parse(data);
         }
@@ -222,7 +234,7 @@ namespace TagLib.Riff
         ///    A <see cref="ByteVector" /> object containing the
         ///    starting with an DivX tag.
         /// </param>
-        void Parse(ByteVector data)
+        private void Parse(ByteVector data)
         {
             title = data.ToString(StringType.Latin1, 0, 32).Trim();
             artist = data.ToString(StringType.Latin1, 32, 28).Trim();
@@ -243,10 +255,7 @@ namespace TagLib.Riff
         /// <value>
         ///    Always <see cref="TagTypes.Id3v1" />.
         /// </value>
-        public override TagTypes TagTypes
-        {
-            get { return TagTypes.DivX; }
-        }
+        public override TagTypes TagTypes => TagTypes.DivX;
 
         /// <summary>
         ///    Gets and sets the title for the media described by the
@@ -264,14 +273,8 @@ namespace TagLib.Riff
         /// </remarks>
         public override string Title
         {
-            get
-            {
-                return string.IsNullOrEmpty(title) ? null : title;
-            }
-            set
-            {
-                title = value != null ? value.Trim() : string.Empty;
-            }
+            get => string.IsNullOrEmpty(title) ? null : title;
+            set => title = value != null ? value.Trim() : string.Empty;
         }
 
         /// <summary>
@@ -293,14 +296,8 @@ namespace TagLib.Riff
         /// </remarks>
         public override string[] Performers
         {
-            get
-            {
-                return string.IsNullOrEmpty(artist) ? new string[0] : artist.Split(';');
-            }
-            set
-            {
-                artist = value != null ? string.Join(";", value) : string.Empty;
-            }
+            get => string.IsNullOrEmpty(artist) ? new string[0] : artist.Split(';');
+            set => artist = value != null ? string.Join(";", value) : string.Empty;
         }
 
         /// <summary>
@@ -319,14 +316,8 @@ namespace TagLib.Riff
         /// </remarks>
         public override string Comment
         {
-            get
-            {
-                return string.IsNullOrEmpty(comment) ? null : comment;
-            }
-            set
-            {
-                comment = value != null ? value.Trim() : string.Empty;
-            }
+            get => string.IsNullOrEmpty(comment) ? null : comment;
+            set => comment = value != null ? value.Trim() : string.Empty;
         }
 
         /// <summary>
@@ -352,12 +343,9 @@ namespace TagLib.Riff
 
                 return (genre_name != null) ? new[] { genre_name } : new string[0];
             }
-            set
-            {
-                genre = (value != null && value.Length > 0) ?
+            set => genre = (value != null && value.Length > 0) ?
                     TagLib.Genres.VideoToIndex(value[0].Trim()).ToString(CultureInfo.InvariantCulture)
                     : string.Empty;
-            }
         }
 
         /// <summary>
@@ -375,15 +363,9 @@ namespace TagLib.Riff
         /// </remarks>
         public override uint Year
         {
-            get
-            {
-                return uint.TryParse(year, NumberStyles.Integer, CultureInfo.InvariantCulture, out var value) ? value : 0;
-            }
+            get => uint.TryParse(year, NumberStyles.Integer, CultureInfo.InvariantCulture, out var value) ? value : 0;
 
-            set
-            {
-                year = (value > 0 && value < 10000) ? value.ToString(CultureInfo.InvariantCulture) : string.Empty;
-            }
+            set => year = (value > 0 && value < 10000) ? value.ToString(CultureInfo.InvariantCulture) : string.Empty;
         }
 
         /// <summary>

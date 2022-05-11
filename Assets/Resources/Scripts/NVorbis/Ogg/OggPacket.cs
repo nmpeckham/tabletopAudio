@@ -9,35 +9,35 @@ using System;
 
 namespace NVorbis.Ogg
 {
-    class Packet : DataPacket
+    internal class Packet : DataPacket
     {
-        long _offset;                       // 8
-        int _length;                        // 4
-        int _curOfs;                        // 4
-        Packet _mergedPacket;               // IntPtr.Size
-        Packet _next;                       // IntPtr.Size
-        Packet _prev;                       // IntPtr.Size
-        ContainerReader _containerReader;   // IntPtr.Size
+        private readonly long _offset;                       // 8
+        private readonly int _length;                        // 4
+        private int _curOfs;                        // 4
+        private Packet _mergedPacket;               // IntPtr.Size
+        private Packet _next;                       // IntPtr.Size
+        private Packet _prev;                       // IntPtr.Size
+        private readonly ContainerReader _containerReader;   // IntPtr.Size
 
         internal Packet Next
         {
-            get { return _next; }
-            set { _next = value; }
+            get => _next;
+            set => _next = value;
         }
         internal Packet Prev
         {
-            get { return _prev; }
-            set { _prev = value; }
+            get => _prev;
+            set => _prev = value;
         }
         internal bool IsContinued
         {
-            get { return GetFlag(PacketFlags.User1); }
-            set { SetFlag(PacketFlags.User1, value); }
+            get => GetFlag(PacketFlags.User1);
+            set => SetFlag(PacketFlags.User1, value);
         }
         internal bool IsContinuation
         {
-            get { return GetFlag(PacketFlags.User2); }
-            set { SetFlag(PacketFlags.User2, value); }
+            get => GetFlag(PacketFlags.User2);
+            set => SetFlag(PacketFlags.User2, value);
         }
 
         internal Packet(ContainerReader containerReader, long streamOffset, int length)
@@ -54,7 +54,10 @@ namespace NVorbis.Ogg
         {
             var op = continuation as Packet;
 
-            if (op == null) throw new ArgumentException("Incorrect packet type!");
+            if (op == null)
+            {
+                throw new ArgumentException("Incorrect packet type!");
+            }
 
             Length += continuation.Length;
 
@@ -87,7 +90,10 @@ namespace NVorbis.Ogg
         {
             if (_curOfs == _length)
             {
-                if (_mergedPacket == null) return -1;
+                if (_mergedPacket == null)
+                {
+                    return -1;
+                }
 
                 return _mergedPacket.ReadNextByte();
             }

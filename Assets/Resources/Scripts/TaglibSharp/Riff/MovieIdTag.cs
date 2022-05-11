@@ -115,10 +115,7 @@ namespace TagLib.Riff
         /// <value>
         ///    Always <see cref="TagTypes.MovieId" />.
         /// </value>
-        public override TagTypes TagTypes
-        {
-            get { return TagTypes.MovieId; }
-        }
+        public override TagTypes TagTypes => TagTypes.MovieId;
 
         /// <summary>
         ///    Gets and sets the title for the media described by the
@@ -137,12 +134,16 @@ namespace TagLib.Riff
             get
             {
                 foreach (string s in GetValuesAsStrings("TITL"))
+                {
                     if (!string.IsNullOrEmpty(s))
+                    {
                         return s;
+                    }
+                }
 
                 return null;
             }
-            set { SetValue("TITL", value); }
+            set => SetValue("TITL", value);
         }
 
         /// <summary>
@@ -160,8 +161,8 @@ namespace TagLib.Riff
         /// </remarks>
         public override string[] Performers
         {
-            get { return GetValuesAsStrings("IART"); }
-            set { SetValue("IART", value); }
+            get => GetValuesAsStrings("IART");
+            set => SetValue("IART", value);
         }
 
         /// <summary>
@@ -181,12 +182,16 @@ namespace TagLib.Riff
             get
             {
                 foreach (string s in GetValuesAsStrings("COMM"))
+                {
                     if (!string.IsNullOrEmpty(s))
+                    {
                         return s;
+                    }
+                }
 
                 return null;
             }
-            set { SetValue("COMM", value); }
+            set => SetValue("COMM", value);
         }
 
         /// <summary>
@@ -203,8 +208,8 @@ namespace TagLib.Riff
         /// </remarks>
         public override string[] Genres
         {
-            get { return GetValuesAsStrings("GENR"); }
-            set { SetValue("GENR", value); }
+            get => GetValuesAsStrings("GENR");
+            set => SetValue("GENR", value);
         }
 
         /// <summary>
@@ -221,8 +226,8 @@ namespace TagLib.Riff
         /// </remarks>
         public override uint Track
         {
-            get { return GetValueAsUInt("PRT1"); }
-            set { SetValue("PRT1", value); }
+            get => GetValueAsUInt("PRT1");
+            set => SetValue("PRT1", value);
         }
 
         /// <summary>
@@ -239,8 +244,8 @@ namespace TagLib.Riff
         /// </remarks>
         public override uint TrackCount
         {
-            get { return GetValueAsUInt("PRT2"); }
-            set { SetValue("PRT2", value); }
+            get => GetValueAsUInt("PRT2");
+            set => SetValue("PRT2", value);
         }
         #endregion
     }

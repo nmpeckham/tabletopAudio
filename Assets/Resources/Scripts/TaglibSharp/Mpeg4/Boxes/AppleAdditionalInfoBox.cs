@@ -37,7 +37,7 @@ namespace TagLib.Mpeg4
         /// <summary>
         ///    Contains the box data.
         /// </summary>
-        ByteVector data;
+        private ByteVector data;
 
         #endregion
 
@@ -99,8 +99,8 @@ namespace TagLib.Mpeg4
         /// </value>
         public override ByteVector Data
         {
-            get { return data; }
-            set { data = value ?? new ByteVector(); }
+            get => data;
+            set => data = value ?? new ByteVector();
         }
 
         /// <summary>
@@ -112,8 +112,8 @@ namespace TagLib.Mpeg4
         /// </value>
         public string Text
         {
-            get { return Data.ToString(StringType.Latin1).TrimStart('\0'); }
-            set { Data = ByteVector.FromString(value, StringType.Latin1); }
+            get => Data.ToString(StringType.Latin1).TrimStart('\0');
+            set => Data = ByteVector.FromString(value, StringType.Latin1);
         }
 
         #endregion

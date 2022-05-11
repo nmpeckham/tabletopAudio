@@ -4,23 +4,35 @@ TODO:
 Theme engine?
 Add search folders for music
 
-Just play sfx button song. Plays twice :/
-
 v1.1 "Inveniet" - Added DnD 5e quick reference tool
 
-//TODO: Fix ogg files not being disposed on close
+//TODO: Fix ogg files not being disposed on close // Fixed?
+//TODO: option to make search results a playlist	Done
+//TODO: option to add search folders for music (instead of using music/TTM folder)	Done
+//TODO: Check if folder already exists in searchFolders before Adding	Done
+//Make song deletion checking async. Somehow...	Won't do
+//TODO: Fix characters not supported in random songs. Jonathon Groff and Cast... Won't fix
+//TODO: Subclass, language description.
 
- - Name Change: TableTopAudio is now TableTopManager!
+ - Name Change: TableTopAudio is now TableTopManager! Also check out the OG TableTop Audio: https://tabletopaudio.com/
 
  - The working folder for TableTopManager is now "Music/TableTopManager", instead of "Music/TableTopAudio"
 
+ - New save file format. Saves made with previous versions of TableTopManager will likely not work.
+
+ - Added option to select which folders TTM should search for songs in. Options -> Folders
+
  - High refresh rates are now supported. TableTopManager will target the maximum refresh rate of your monitor
 
- - Updated to Unity 2021.1.23f1
+ - Updated Unity to 2021.2.7f1
 
- - New UI font //TODO
+ - Switched UI font to Lato. Lato includes 2163 font glyphs, reducing occurence of boxes in place of unsupported characters
+
+ - Added option to switch fullscreen mode between windowed, fullscreen windowed, and fullscreen exclusive
 
  - Music folders will now be searched recursively for songs
+
+ - UI pass. Many improvements in layout, consistency improved
 
  - Clicking on a fade in/out button while a fade in/out is active will cancel the active fade
  
@@ -30,13 +42,15 @@ v1.1 "Inveniet" - Added DnD 5e quick reference tool
 
  - Shuffle mode will no longer repeat the same song until all other songs have been played
 
+ - Added option to sort a playlist alphabetically
+
  - Added tooltips to music control buttons
 
  - Further FFT refinements - # of bins and bin size adjusted. Now uses 10 bands, mathematically calculated to be 12% more appealing, 9 times out of 10
 
  - Song names no longer contain file extensions
 
- - Updated to most recent NLayer release (as of Sept. 25th, 2021), which fixes many mp3 decoder issues
+ - Updated to most recent NLayer release (as of Sept. 25th, 2021), which fixes many (unfortunately not all) mp3 decoder issues
 
  - Song duration is now shown for playlist items
 
@@ -55,6 +69,12 @@ v1.1 "Inveniet" - Added DnD 5e quick reference tool
  - Added error message when unsupported characters are present in a song title
 
  - Added option to clone a song in music playlist
+
+ - Files or files contained in folders which start with "~" will be ignored
+
+ - New shortcut: ctrl/cmd+f highlights playlist search field
+
+ - New shortcut: ctrl/cmd+q shows/hides fps
 
  - Fixed bug where warning to overwrite save file wouldn't be show if capitalization was different
 
@@ -86,25 +106,12 @@ v1.1 "Inveniet" - Added DnD 5e quick reference tool
 
  - Fixed bug that could (rarely) cause playlist to skip to next song if an mp3 encoding artifact was encountered
 
- - Fixed bug that would cause music playlist audio to become glitched if crossfade was disabled while crossfade was in progress and another song was immediately started. This was an absolute nightmare to trackdown and fix
+ - Fixed bug that would cause music playlist audio to become glitched if crossfade was changed to disabled while crossfade was in progress and another song was immediately started. This was an absolute nightmare to trackdown and fix
 
  - Fixed bug where text input wasn't assumed on all fields when editing
 
-TODO: Not finished:
- - Advanced feature: Song history logging in AWS DynamoDB. Simply place a json file called "credentials.json" in your Music/TableTopAudio/Saves directory with the following format:
-	{
-	  "accessKeyId": "YOUR_KEY_ID_HERE",
-	  "secretAccessKey": "YOUR_KEY_HERE",
-	  "region": "YOUR_REGION_HERE",
-	  "tableName": "YOUR_TABLE_NAME_HERE",
-	  "id": "YOUR_READABLE_DEVICE_NAME"
-	}
+ - Fixed many, many more bugs. Added a few to fix in the future.
 
- - New experimental features section. Contains features that are incomplete, buggy, or not applicable to a wide audience. May be removed in a future release. Accessible from options menu
-
-	- *Experimental* Added new backgrounds to songs in playlist showing song intensity. Has issues with some 'imperfect' mp3 files. No ogg vorbis support at this time. Purely visual. Can be enabled in advanced menu.
-
-	- *Experimental* Added disco mode. Purely visual. Can be enabled in advanced menu, then toggled using ctrl + d. Additional tuning options are available. 
 
 v1.0.2 "Firmum" - Big stability & QoL improvements
 

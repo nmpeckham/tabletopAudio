@@ -29,7 +29,9 @@ namespace Id3.Frames
         {
         }
 
-        public static implicit operator ContentGroupDescriptionFrame(string value) =>
-            new ContentGroupDescriptionFrame(value);
+        public static implicit operator ContentGroupDescriptionFrame(string value)
+        {
+            return new ContentGroupDescriptionFrame(value);
+        }
     }
 }

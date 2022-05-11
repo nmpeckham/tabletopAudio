@@ -66,12 +66,21 @@ namespace Id3.Files
         public FileNamer([NotNull] IEnumerable<string> patterns)
         {
             if (patterns == null)
+            {
                 throw new ArgumentNullException(nameof(patterns));
+            }
+
             _patterns = patterns.ToList();
             if (_patterns.Count == 0)
+            {
                 throw new ArgumentException(FileNamerMessages.MissingPatterns, nameof(patterns));
+            }
+
             if (_patterns.Any(string.IsNullOrWhiteSpace))
+            {
                 throw new ArgumentException(FileNamerMessages.FoundNullOrEmptyPatterns, nameof(patterns));
+            }
+
             ValidatePatterns(_patterns);
         }
 
@@ -91,15 +100,20 @@ namespace Id3.Files
                 {
                     MatchCollection matches = FramePlaceholderPattern.Matches(pattern);
                     if (matches.Count == 0)
+                    {
                         throw new ArgumentException(string.Format(FileNamerMessages.MissingPlaceholdersInPattern,
                             pattern));
+                    }
+
                     return matches.Cast<Match>().Select(m => m.Groups[1].Value);
                 })
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .Where(ph => !_mapping.ContainsKey(ph))
                 .ToArray();
             if (invalidPlaceholders.Length <= 0)
+            {
                 return;
+            }
 
             //Build detailed exception and throw it.
             string invalidPlaceholderNames = string.Join(", ", invalidPlaceholders);
@@ -123,7 +137,10 @@ namespace Id3.Files
         public RenameSuggestions GetSuggestions(IEnumerable<string> filePaths)
         {
             if (filePaths == null)
+            {
                 throw new ArgumentNullException(nameof(filePaths));
+            }
+
             return new RenameSuggestions(GetRenameSuggestions(filePaths));
         }
 
@@ -143,12 +160,20 @@ namespace Id3.Files
             SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
             if (directory == null)
+            {
                 throw new ArgumentNullException(nameof(directory));
+            }
+
             if (!Directory.Exists(directory))
+            {
                 throw new ArgumentException(string.Format(FileNamerMessages.MissingDirectory, directory),
                     nameof(directory));
+            }
+
             if (string.IsNullOrWhiteSpace(fileMask))
+            {
                 fileMask = "*.mp3";
+            }
 
             IEnumerable<string> files = Directory.EnumerateFiles(directory, fileMask, searchOption);
             return new RenameSuggestions(GetRenameSuggestions(files));
@@ -168,16 +193,22 @@ namespace Id3.Files
         private IEnumerable<RenameSuggestion> GetRenameSuggestions(IEnumerable<string> filePaths)
         {
             foreach (string filePath in filePaths)
+            {
                 yield return GetRenameSuggestion(filePath);
+            }
         }
 
         private RenameSuggestion GetRenameSuggestion(string filePath)
         {
             if (string.IsNullOrWhiteSpace(filePath))
+            {
                 return new RenameSuggestion(filePath, filePath, FileNamerMessages.InvalidFilePath);
+            }
 
             if (!File.Exists(filePath))
+            {
                 return new RenameSuggestion(filePath, filePath, FileNamerMessages.MissingFile);
+            }
 
             string directory = Path.GetDirectoryName(filePath);
             string originalName = Path.GetFileName(filePath);
@@ -186,20 +217,26 @@ namespace Id3.Files
             {
                 Id3Tag tag = mp3.GetTag(Id3Version.V23);
                 if (tag == null)
+                {
                     return new RenameSuggestion(directory, originalName, FileNamerMessages.MissingId3v23TagInFile);
+                }
 
                 //TODO: Get ID3v1 tag as well and merge with the v2 tag
 
                 string newName = GetNewName(tag, originalName, out string missingFrameName);
 
                 if (missingFrameName != null)
+                {
                     return new RenameSuggestion(directory, originalName,
                         string.Format(FileNamerMessages.MissingDataForFrame, missingFrameName));
+                }
 
                 newName += ".mp3";
                 RenamingEventArgs renamingEventResult = FireRenamingEvent(tag, originalName, newName);
                 if (renamingEventResult.Cancel)
+                {
                     return new RenameSuggestion(directory, originalName, RenameStatus.Cancelled);
+                }
 
                 newName = renamingEventResult.NewName;
 
@@ -229,7 +266,9 @@ namespace Id3.Files
                     {
                         //If this pattern already has missing frames, don't proces anything
                         if (hasMissingFrames)
+                        {
                             return string.Empty;
+                        }
 
                         string frameName = match.Groups[1].Value;
                         PropertyInfo frameProperty = _mapping[frameName];
@@ -238,13 +277,17 @@ namespace Id3.Files
                         var frame = (Id3Frame)frameProperty.GetValue(tag, null);
 
                         if (frame.IsAssigned)
+                        {
                             return frame.ToString();
+                        }
 
                         if (iteration == 1)
                         {
                             string frameValue = FireResolveMissingDataEvent(tag, frame, originalName);
                             if (!string.IsNullOrWhiteSpace(frameValue))
+                            {
                                 return frameValue;
+                            }
                         }
                         hasMissingFrames = true;
                         missingFrame = frameName;
@@ -252,7 +295,9 @@ namespace Id3.Files
                     });
 
                     if (!hasMissingFrames)
+                    {
                         return newName;
+                    }
                 }
             }
 
@@ -265,7 +310,10 @@ namespace Id3.Files
         {
             EventHandler<ResolveMissingDataEventArgs> resolveMissingData = ResolveMissingData;
             if (resolveMissingData == null)
+            {
                 return null;
+            }
+
             var args = new ResolveMissingDataEventArgs(tag, frame, sourceName);
             resolveMissingData(this, args);
             return args.Value;
@@ -329,9 +377,15 @@ namespace Id3.Files
             {
                 PropertyInfo property = tagType.GetProperty(frame);
                 if (property == null)
+                {
                     throw new Exception($"No property named {frame} exists on Id3Tag. Please check the whitelist.");
+                }
+
                 if (!property.PropertyType.IsSubclassOf(baseFrameType))
+                {
                     throw new Exception($"Property Id3Tag.{frame} is not a frame type. Please check the whitelist.");
+                }
+
                 _mapping.Add(frame, property);
             }
         }

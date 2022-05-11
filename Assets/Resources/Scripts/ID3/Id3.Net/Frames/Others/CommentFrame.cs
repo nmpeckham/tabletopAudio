@@ -63,7 +63,10 @@ namespace Id3.Frames
 
         public Id3Language Language { get; set; } = Id3Language.eng;
 
-        public static implicit operator CommentFrame(string comment) => new CommentFrame(comment);
+        public static implicit operator CommentFrame(string comment)
+        {
+            return new CommentFrame(comment);
+        }
     }
 
     public sealed class CommentFrameList : Collection<CommentFrame>

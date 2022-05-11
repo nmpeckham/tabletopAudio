@@ -69,17 +69,17 @@ namespace TagLib.Ogg
         ///    Contains the sizes of the packets contained in the
         ///    current instance.
         /// </summary>
-        readonly List<int> packet_sizes;
+        private readonly List<int> packet_sizes;
 
         /// <summary>
         ///    Contains the OGG version.
         /// </summary>
-        readonly byte version;
+        private readonly byte version;
 
         /// <summary>
         ///    Contains the page absolute granular postion.
         /// </summary>
-        readonly ulong absolute_granular_position;
+        private readonly ulong absolute_granular_position;
 
         #endregion
 
@@ -118,7 +118,9 @@ namespace TagLib.Ogg
             LastPacketComplete = false;
 
             if (pageNumber == 0 && (flags & PageFlags.FirstPacketContinued) == 0)
+            {
                 Flags |= PageFlags.FirstPageOfStream;
+            }
         }
 
         /// <summary>
@@ -148,10 +150,14 @@ namespace TagLib.Ogg
         public PageHeader(File file, long position)
         {
             if (file == null)
+            {
                 throw new ArgumentNullException(nameof(file));
+            }
 
             if (position < 0 || position > file.Length - 27)
+            {
                 throw new ArgumentOutOfRangeException(nameof(position));
+            }
 
             file.Seek(position);
 
@@ -161,7 +167,9 @@ namespace TagLib.Ogg
 
             ByteVector data = file.ReadBlock(27);
             if (data.Count < 27 || !data.StartsWith("OggS"))
+            {
                 throw new CorruptFileException("Error reading page header");
+            }
 
             version = data[4];
             Flags = (PageFlags)data[5];
@@ -179,7 +187,9 @@ namespace TagLib.Ogg
 
             // Another sanity check.
             if (page_segment_count < 1 || page_segments.Count != page_segment_count)
+            {
                 throw new CorruptFileException("Incorrect number of page segments");
+            }
 
             // The base size of an Ogg page 27 bytes plus the number
             // of lacing values.
@@ -202,7 +212,9 @@ namespace TagLib.Ogg
             }
 
             if (packet_size > 0)
+            {
                 packet_sizes.Add(packet_size);
+            }
 
             LastPacketComplete = page_segments[page_segment_count - 1] < 255;
         }
@@ -238,7 +250,9 @@ namespace TagLib.Ogg
             LastPacketComplete = false;
 
             if (PageSequenceNumber == 0 && (flags & PageFlags.FirstPacketContinued) == 0)
+            {
                 Flags |= PageFlags.FirstPageOfStream;
+            }
         }
 
         #endregion
@@ -256,7 +270,7 @@ namespace TagLib.Ogg
         /// </value>
         public int[] PacketSizes
         {
-            get { return packet_sizes.ToArray(); }
+            get => packet_sizes.ToArray();
             set
             {
                 packet_sizes.Clear();
@@ -290,10 +304,7 @@ namespace TagLib.Ogg
         ///    A <see cref="long" /> value containing the absolute
         ///    granular position of the page.
         /// </value>
-        public long AbsoluteGranularPosition
-        {
-            get { return (long)absolute_granular_position; }
-        }
+        public long AbsoluteGranularPosition => (long)absolute_granular_position;
 
         /// <summary>
         ///    Gets the sequence number of the page described by the
@@ -379,7 +390,7 @@ namespace TagLib.Ogg
         ///    A <see cref="ByteVector" /> object containing the
         ///    rendered lacing values.
         /// </value>
-        ByteVector LacingValues
+        private ByteVector LacingValues
         {
             get
             {
@@ -401,11 +412,15 @@ namespace TagLib.Ogg
                     int rem = sizes[i] % 255;
 
                     for (int j = 0; j < quot; j++)
+                    {
                         data.Add(255);
+                    }
 
                     if (i < sizes.Length - 1 ||
                         (packet_sizes[i] % 255) != 0)
+                    {
                         data.Add((byte)rem);
+                    }
                 }
 
                 return data;
@@ -454,7 +469,9 @@ namespace TagLib.Ogg
         public override bool Equals(object other)
         {
             if (!(other is PageHeader))
+            {
                 return false;
+            }
 
             return Equals((PageHeader)other);
         }

@@ -35,7 +35,7 @@ namespace TagLib.Flac
         /// <summary>
         ///    Contains the block header.
         /// </summary>
-        readonly BlockHeader header;
+        private readonly BlockHeader header;
 
         #endregion
 
@@ -66,10 +66,14 @@ namespace TagLib.Flac
         public Block(BlockHeader header, ByteVector data)
         {
             if (data == null)
+            {
                 throw new ArgumentNullException(nameof(data));
+            }
 
             if (header.BlockSize != data.Count)
+            {
                 throw new CorruptFileException("Data count not equal to block size.");
+            }
 
             this.header = header;
             Data = data;
@@ -94,7 +98,9 @@ namespace TagLib.Flac
         public Block(BlockType type, ByteVector data)
         {
             if (data == null)
+            {
                 throw new ArgumentNullException(nameof(data));
+            }
 
             header = new BlockHeader(type, (uint)data.Count);
 
@@ -114,10 +120,7 @@ namespace TagLib.Flac
         ///    A <see cref="BlockType" /> value indicating the type of
         ///    data contained in <see cref="Data" />.
         /// </value>
-        public BlockType Type
-        {
-            get { return header.BlockType; }
-        }
+        public BlockType Type => header.BlockType;
 
         /// <summary>
         ///    Gets whether or not the block represented by the current
@@ -130,28 +133,19 @@ namespace TagLib.Flac
         ///    langword="false" /> if another block appears after the
         ///    current one or the block was not read from disk.
         /// </value>
-        public bool IsLastBlock
-        {
-            get { return header.IsLastBlock; }
-        }
+        public bool IsLastBlock => header.IsLastBlock;
 
         /// <summary>
         ///    Gets the size of the data contained in the current
         ///    instance.
         /// </summary>
-        public uint DataSize
-        {
-            get { return header.BlockSize; }
-        }
+        public uint DataSize => header.BlockSize;
 
         /// <summary>
         ///    Gets the total size of the block represented by the
         ///    current instance as it appears on disk.
         /// </summary>
-        public uint TotalSize
-        {
-            get { return DataSize + BlockHeader.Size; }
-        }
+        public uint TotalSize => DataSize + BlockHeader.Size;
 
         /// <summary>
         ///    Gets the data contained in the current instance.
@@ -183,7 +177,9 @@ namespace TagLib.Flac
         public ByteVector Render(bool isLastBlock)
         {
             if (Data == null)
+            {
                 throw new InvalidOperationException("Cannot render empty blocks.");
+            }
 
             ByteVector data = header.Render(isLastBlock);
             data.Add(Data);

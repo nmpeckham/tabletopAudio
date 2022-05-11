@@ -37,7 +37,7 @@ namespace TagLib.Audible
     {
         #region Private Fields
 
-        List<KeyValuePair<string, string>> tags;
+        private List<KeyValuePair<string, string>> tags;
 
         #endregion
 
@@ -100,7 +100,9 @@ namespace TagLib.Audible
         {
 
             if (data == null)
+            {
                 throw new ArgumentNullException(nameof(data));
+            }
 
             Clear();
             Parse(data);
@@ -122,7 +124,7 @@ namespace TagLib.Audible
         ///    <paramref name="data" /> is less than 128 bytes or does
         ///    not start with FileIdentifier.
         /// </exception>
-        void Parse(ByteVector data)
+        private void Parse(ByteVector data)
         {
             string currentKey, currentValue;
             int keyLen, valueLen;
@@ -146,7 +148,9 @@ namespace TagLib.Audible
 
                     // if it is not the last item remove the end byte (null terminated)
                     if (data.Count != 0)
+                    {
                         data.RemoveRange(0, 1);
+                    }
                 }
                 while (data.Count >= 4);
             }
@@ -156,24 +160,30 @@ namespace TagLib.Audible
             }
 
             if (data.Count != 0)
+            {
                 throw new CorruptFileException();
+            }
         }
 
-        void setTag(string tagName, string value)
+        private void setTag(string tagName, string value)
         {
             for (int i = 0; i < tags.Count; i++)
             {
                 if (tags[i].Key == tagName)
+                {
                     tags[i] = new KeyValuePair<string, string>(tags[i].Key, value);
+                }
             }
         }
 
-        string getTag(string tagName)
+        private string getTag(string tagName)
         {
             foreach (KeyValuePair<string, string> tag in tags)
             {
                 if (tag.Key == tagName)
+                {
                     return tag.Value;
+                }
             }
             return null;
         }
@@ -217,22 +227,13 @@ namespace TagLib.Audible
         /// <value>
         ///    Always <see cref="TagTypes.AudibleMetadata" />.
         /// </value>
-        public override TagTypes TagTypes
-        {
-            get { return TagTypes.AudibleMetadata; }
-        }
+        public override TagTypes TagTypes => TagTypes.AudibleMetadata;
 
         /// <summary>
         /// Get or Set the Author Tag
         /// </summary>
 
-        public string Author
-        {
-            get
-            {
-                return getTag("author");
-            }
-        }
+        public string Author => getTag("author");
 
         /// <summary>
         /// Get or Set the Copyright Tag
@@ -240,35 +241,20 @@ namespace TagLib.Audible
 
         public override string Copyright
         {
-            get
-            {
-                return getTag("copyright");
-            }
-            set
-            {
-                setTag("copyright", value);
-            }
+            get => getTag("copyright");
+            set => setTag("copyright", value);
         }
 
         /// <summary>
         /// Get or Set the Description Tag
         /// </summary>
 
-        public override string Description
-        {
-            get { return getTag("description"); }
-        }
+        public override string Description => getTag("description");
 
         /// <summary>
         /// Get or Set the Narrator Tag
         /// </summary>
-        public string Narrator
-        {
-            get
-            {
-                return getTag("narrator");
-            }
-        }
+        public string Narrator => getTag("narrator");
 
         /// <summary>
         ///    Gets the title for the media described by the
@@ -279,13 +265,7 @@ namespace TagLib.Audible
         ///    the media described by the current instance or <see
         ///    langword="null" /> if no value is present.
         /// </value>
-        public override string Title
-        {
-            get
-            {
-                return getTag("title");
-            }
-        }
+        public override string Title => getTag("title");
 
         /// <summary>
         ///    Gets the album for the media described by the
@@ -296,15 +276,7 @@ namespace TagLib.Audible
         ///    the media described by the current instance or <see
         ///    langword="null" /> if no value is present.
         /// </value>
-        public override string Album
-        {
-            get
-            {
-                return getTag("provider");
-                //return string.IsNullOrEmpty (album) ?
-                //	null : album;
-            }
-        }
+        public override string Album => getTag("provider");//return string.IsNullOrEmpty (album) ?//	null : album;
 
         /// <summary>
         ///    Gets the album artist for the media described by the

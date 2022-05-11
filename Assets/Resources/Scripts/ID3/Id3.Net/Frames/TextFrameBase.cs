@@ -32,11 +32,15 @@ namespace Id3.Frames
                 text.TextValue == TextValue;
         }
 
-        public sealed override int GetHashCode() =>
-            TextValue.GetHashCode();
+        public sealed override int GetHashCode()
+        {
+            return TextValue.GetHashCode();
+        }
 
-        public override string ToString() =>
-            IsAssigned ? TextValue : string.Empty;
+        public override string ToString()
+        {
+            return IsAssigned ? TextValue : string.Empty;
+        }
 
         public Id3TextEncoding EncodingType { get; set; }
 

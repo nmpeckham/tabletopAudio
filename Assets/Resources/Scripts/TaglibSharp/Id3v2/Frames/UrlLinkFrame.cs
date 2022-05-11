@@ -113,12 +113,12 @@ namespace TagLib.Id3v2
         /// <summary>
         ///    Contains the encoding to use for the text.
         /// </summary>
-        StringType encoding = StringType.Latin1;
+        private StringType encoding = StringType.Latin1;
 
         /// <summary>
         ///    Contains the text fields.
         /// </summary>
-        string[] text_fields = new string[0];
+        private string[] text_fields = new string[0];
 
         /// <summary>
         ///    Contains the raw data from the frame, or
@@ -129,12 +129,12 @@ namespace TagLib.Id3v2
         ///    it is parsed on demand, reducing the ammount of
         ///    unnecessary conversion.
         /// </remarks>
-        ByteVector raw_data;
+        private ByteVector raw_data;
 
         /// <summary>
         ///    Contains the ID3v2 version of <see cref="raw_data" />.
         /// </summary>
-        byte raw_version;
+        private byte raw_version;
 
         #endregion
 
@@ -265,7 +265,7 @@ namespace TagLib.Id3v2
                 ParseRawData();
                 return encoding;
             }
-            set { encoding = value; }
+            set => encoding = value;
         }
 
         #endregion
@@ -326,20 +326,30 @@ namespace TagLib.Id3v2
         public static UrlLinkFrame Get(Tag tag, ByteVector ident, bool create)
         {
             if (tag == null)
+            {
                 throw new ArgumentNullException(nameof(tag));
+            }
 
             if (ident == null)
+            {
                 throw new ArgumentNullException(nameof(ident));
+            }
 
             if (ident.Count != 4)
+            {
                 throw new ArgumentException("Identifier must be four bytes long.",
                   nameof(ident));
+            }
 
             foreach (var frame in tag.GetFrames<UrlLinkFrame>(ident))
+            {
                 return frame;
+            }
 
             if (!create)
+            {
                 return null;
+            }
 
             var new_frame = new UrlLinkFrame(ident);
             tag.AddFrame(new_frame);
@@ -382,7 +392,9 @@ namespace TagLib.Id3v2
         protected void ParseRawData()
         {
             if (raw_data == null)
+            {
                 return;
+            }
 
             ByteVector data = raw_data;
             raw_data = null;
@@ -404,12 +416,16 @@ namespace TagLib.Id3v2
                 // Do a fast removal of end bytes.
                 if (value.Length > 1 &&
                   value[value.Length - 1] == 0)
+                {
                     for (int i = value.Length - 1; i >= 0; i--)
+                    {
                         if (value[i] != 0)
                         {
                             value = value.Substring(0, i + 1);
                             break;
                         }
+                    }
+                }
 
                 field_list.Add(value);
             }
@@ -418,7 +434,9 @@ namespace TagLib.Id3v2
             // end of a string, resulting in empty strings at the
             // end of the FieldList. Strip them off.
             while (field_list.Count != 0 && string.IsNullOrEmpty(field_list[field_list.Count - 1]))
+            {
                 field_list.RemoveAt(field_list.Count - 1);
+            }
 
             text_fields = field_list.ToArray();
         }
@@ -438,7 +456,9 @@ namespace TagLib.Id3v2
         protected override ByteVector RenderFields(byte version)
         {
             if (raw_data != null && raw_version == version)
+            {
                 return raw_data;
+            }
 
             StringType encoding = CorrectEncoding(TextEncoding, version);
 
@@ -447,9 +467,14 @@ namespace TagLib.Id3v2
             ByteVector v;
 
             if (wxxx)
+            {
                 v = new ByteVector((byte)encoding);
+            }
             else
+            {
                 v = new ByteVector();
+            }
+
             string[] text = text_fields;
 
             if (version > 3 || wxxx)
@@ -457,10 +482,14 @@ namespace TagLib.Id3v2
                 if (wxxx)
                 {
                     if (text.Length == 0)
+                    {
                         text = new string[] { null, null };
+                    }
                     else if (text.Length == 1)
+                    {
                         text = new[] {text [0],
                             null};
+                    }
                 }
 
                 v.Add(ByteVector.FromString(string.Join("/", text), StringType.Latin1));
@@ -494,7 +523,9 @@ namespace TagLib.Id3v2
 
             frame.text_fields = (string[])text_fields.Clone();
             if (raw_data != null)
+            {
                 frame.raw_data = new ByteVector(raw_data);
+            }
 
             frame.raw_version = raw_version;
             return frame;
@@ -633,9 +664,13 @@ namespace TagLib.Id3v2
             {
                 string[] text = base.Text;
                 if (text.Length > 0)
+                {
                     text[0] = value;
+                }
                 else
+                {
                     text = new[] { value };
+                }
 
                 base.Text = text;
             }
@@ -660,11 +695,15 @@ namespace TagLib.Id3v2
             {
                 string[] text = base.Text;
                 if (text.Length < 2)
+                {
                     return new string[0];
+                }
 
                 string[] new_text = new string[text.Length - 1];
                 for (int i = 0; i < new_text.Length; i++)
+                {
                     new_text[i] = text[i + 1];
+                }
 
                 return new_text;
             }
@@ -676,7 +715,9 @@ namespace TagLib.Id3v2
                 new_value[0] = Description;
 
                 for (int i = 1; i < new_value.Length; i++)
+                {
                     new_value[i] = value[i - 1];
+                }
 
                 base.Text = new_value;
             }
@@ -736,21 +777,33 @@ namespace TagLib.Id3v2
         public static UserUrlLinkFrame Get(Tag tag, string description, StringType type, bool create)
         {
             if (tag == null)
+            {
                 throw new ArgumentNullException(nameof(tag));
+            }
 
             if (description == null)
+            {
                 throw new ArgumentNullException(nameof(description));
+            }
 
             if (description.Length == 0)
+            {
                 throw new ArgumentException("Description must not be empty.",
                   nameof(description));
+            }
 
             foreach (var frame in tag.GetFrames<UserUrlLinkFrame>(FrameType.WXXX))
+            {
                 if (description.Equals(frame.Description))
+                {
                     return frame;
+                }
+            }
 
             if (!create)
+            {
                 return null;
+            }
 
             var new_frame = new UserUrlLinkFrame(description, type);
             tag.AddFrame(new_frame);

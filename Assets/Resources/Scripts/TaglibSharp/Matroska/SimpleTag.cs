@@ -107,7 +107,7 @@ namespace TagLib.Matroska
         /// </summary>
         public ByteVector Value
         {
-            get { return this; }
+            get => this;
             set { Clear(); Add(value); }
         }
 

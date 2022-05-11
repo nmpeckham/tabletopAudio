@@ -183,7 +183,7 @@ namespace TagLib
         /// </remarks>
         public virtual string Title
         {
-            get { return null; }
+            get => null;
             set { }
         }
 
@@ -201,7 +201,7 @@ namespace TagLib
         /// </remarks>
         public virtual string TitleSort
         {
-            get { return null; }
+            get => null;
             set { }
         }
 
@@ -225,7 +225,7 @@ namespace TagLib
         /// </remarks>
         public virtual string Subtitle
         {
-            get { return null; }
+            get => null;
             set { }
         }
 
@@ -252,7 +252,7 @@ namespace TagLib
         /// </remarks>
         public virtual string Description
         {
-            get { return null; }
+            get => null;
             set { }
         }
 
@@ -282,7 +282,7 @@ namespace TagLib
         /// </remarks>
         public virtual string[] Performers
         {
-            get { return new string[] { }; }
+            get => new string[] { };
             set { }
         }
 
@@ -305,7 +305,7 @@ namespace TagLib
         /// </remarks>
         public virtual string[] PerformersSort
         {
-            get { return new string[] { }; }
+            get => new string[] { };
             set { }
         }
 
@@ -331,7 +331,7 @@ namespace TagLib
         /// </remarks>
         public virtual string[] PerformersRole
         {
-            get { return new string[] { }; }
+            get => new string[] { };
             set { }
         }
 
@@ -363,7 +363,7 @@ namespace TagLib
         /// </remarks>
         public virtual string[] AlbumArtists
         {
-            get { return new string[] { }; }
+            get => new string[] { };
             set { }
         }
 
@@ -396,7 +396,7 @@ namespace TagLib
         /// </remarks>
         public virtual string[] AlbumArtistsSort
         {
-            get { return new string[] { }; }
+            get => new string[] { };
             set { }
         }
 
@@ -416,7 +416,7 @@ namespace TagLib
         /// </remarks>
         public virtual string[] Composers
         {
-            get { return new string[] { }; }
+            get => new string[] { };
             set { }
         }
 
@@ -441,7 +441,7 @@ namespace TagLib
         /// </remarks>
         public virtual string[] ComposersSort
         {
-            get { return new string[] { }; }
+            get => new string[] { };
             set { }
         }
 
@@ -469,7 +469,7 @@ namespace TagLib
         /// </remarks>
         public virtual string Album
         {
-            get { return null; }
+            get => null;
             set { }
         }
 
@@ -489,7 +489,7 @@ namespace TagLib
         /// </remarks>
         public virtual string AlbumSort
         {
-            get { return null; }
+            get => null;
             set { }
         }
 
@@ -515,7 +515,7 @@ namespace TagLib
         /// </remarks>
         public virtual string Comment
         {
-            get { return null; }
+            get => null;
             set { }
         }
 
@@ -539,7 +539,7 @@ namespace TagLib
         /// </remarks>
         public virtual string[] Genres
         {
-            get { return new string[] { }; }
+            get => new string[] { };
             set { }
         }
 
@@ -563,7 +563,7 @@ namespace TagLib
         /// </remarks>
         public virtual uint Year
         {
-            get { return 0; }
+            get => 0;
             set { }
         }
 
@@ -590,7 +590,7 @@ namespace TagLib
         /// </remarks>
         public virtual uint Track
         {
-            get { return 0; }
+            get => 0;
             set { }
         }
 
@@ -612,7 +612,7 @@ namespace TagLib
         /// </remarks>
         public virtual uint TrackCount
         {
-            get { return 0; }
+            get => 0;
             set { }
         }
 
@@ -635,7 +635,7 @@ namespace TagLib
         /// </remarks>
         public virtual uint Disc
         {
-            get { return 0; }
+            get => 0;
             set { }
         }
 
@@ -657,7 +657,7 @@ namespace TagLib
         /// </remarks>
         public virtual uint DiscCount
         {
-            get { return 0; }
+            get => 0;
             set { }
         }
 
@@ -680,7 +680,7 @@ namespace TagLib
         /// </remarks>
         public virtual string Lyrics
         {
-            get { return null; }
+            get => null;
             set { }
         }
 
@@ -701,7 +701,7 @@ namespace TagLib
         /// </remarks>
         public virtual string Grouping
         {
-            get { return null; }
+            get => null;
             set { }
         }
 
@@ -721,7 +721,7 @@ namespace TagLib
         /// </remarks>
         public virtual uint BeatsPerMinute
         {
-            get { return 0; }
+            get => 0;
             set { }
         }
 
@@ -740,7 +740,7 @@ namespace TagLib
         /// </remarks>
         public virtual string Conductor
         {
-            get { return null; }
+            get => null;
             set { }
         }
 
@@ -764,7 +764,7 @@ namespace TagLib
         /// </remarks>
         public virtual string Copyright
         {
-            get { return null; }
+            get => null;
             set { }
         }
 
@@ -779,7 +779,7 @@ namespace TagLib
         /// </value>
         public virtual DateTime? DateTagged
         {
-            get { return null; }
+            get => null;
             set { }
         }
 
@@ -799,7 +799,7 @@ namespace TagLib
         /// </remarks>
         public virtual string MusicBrainzArtistId
         {
-            get { return null; }
+            get => null;
             set { }
         }
 
@@ -818,7 +818,7 @@ namespace TagLib
         /// </remarks>
         public virtual string MusicBrainzReleaseGroupId
         {
-            get { return null; }
+            get => null;
             set { }
         }
 
@@ -837,7 +837,7 @@ namespace TagLib
         /// </remarks>
         public virtual string MusicBrainzReleaseId
         {
-            get { return null; }
+            get => null;
             set { }
         }
 
@@ -856,7 +856,7 @@ namespace TagLib
         /// </remarks>
         public virtual string MusicBrainzReleaseArtistId
         {
-            get { return null; }
+            get => null;
             set { }
         }
 
@@ -875,7 +875,7 @@ namespace TagLib
         /// </remarks>
         public virtual string MusicBrainzTrackId
         {
-            get { return null; }
+            get => null;
             set { }
         }
 
@@ -895,7 +895,7 @@ namespace TagLib
         /// </remarks>
         public virtual string MusicBrainzDiscId
         {
-            get { return null; }
+            get => null;
             set { }
         }
 
@@ -914,7 +914,7 @@ namespace TagLib
         /// </remarks>
         public virtual string MusicIpId
         {
-            get { return null; }
+            get => null;
             set { }
         }
 
@@ -933,7 +933,7 @@ namespace TagLib
         /// </remarks>
         public virtual string AmazonId
         {
-            get { return null; }
+            get => null;
             set { }
         }
 
@@ -953,7 +953,7 @@ namespace TagLib
         /// </remarks>
         public virtual string MusicBrainzReleaseStatus
         {
-            get { return null; }
+            get => null;
             set { }
         }
 
@@ -975,7 +975,7 @@ namespace TagLib
         /// </remarks>
         public virtual string MusicBrainzReleaseType
         {
-            get { return null; }
+            get => null;
             set { }
         }
 
@@ -997,7 +997,7 @@ namespace TagLib
         /// </remarks>
         public virtual string MusicBrainzReleaseCountry
         {
-            get { return null; }
+            get => null;
             set { }
         }
 
@@ -1010,7 +1010,7 @@ namespace TagLib
         /// </value>
         public virtual double ReplayGainTrackGain
         {
-            get { return double.NaN; }
+            get => double.NaN;
             set { }
         }
 
@@ -1023,7 +1023,7 @@ namespace TagLib
         /// </value>
         public virtual double ReplayGainTrackPeak
         {
-            get { return double.NaN; }
+            get => double.NaN;
             set { }
         }
 
@@ -1036,7 +1036,7 @@ namespace TagLib
         /// </value>
         public virtual double ReplayGainAlbumGain
         {
-            get { return double.NaN; }
+            get => double.NaN;
             set { }
         }
 
@@ -1049,7 +1049,7 @@ namespace TagLib
         /// </value>
         public virtual double ReplayGainAlbumPeak
         {
-            get { return double.NaN; }
+            get => double.NaN;
             set { }
         }
 
@@ -1062,7 +1062,7 @@ namespace TagLib
         /// </value>
         public virtual string InitialKey
         {
-            get { return null; }
+            get => null;
             set { }
         }
 
@@ -1075,7 +1075,7 @@ namespace TagLib
         /// </value>
         public virtual string RemixedBy
         {
-            get { return null; }
+            get => null;
             set { }
         }
 
@@ -1088,7 +1088,7 @@ namespace TagLib
         /// </value>
         public virtual string Publisher
         {
-            get { return null; }
+            get => null;
             set { }
         }
 
@@ -1100,7 +1100,7 @@ namespace TagLib
         /// </value>
         public virtual string ISRC
         {
-            get { return null; }
+            get => null;
             set { }
         }
 
@@ -1121,7 +1121,7 @@ namespace TagLib
         /// </remarks>
         public virtual IPicture[] Pictures
         {
-            get { return new IPicture[] { }; }
+            get => new IPicture[] { };
             set { }
         }
 
@@ -1140,8 +1140,8 @@ namespace TagLib
         [Obsolete("For album artists use AlbumArtists. For track artists, use Performers")]
         public virtual string[] Artists
         {
-            get { return Performers; }
-            set { Performers = value; }
+            get => Performers;
+            set => Performers = value;
         }
 
         /// <summary>
@@ -1156,10 +1156,7 @@ namespace TagLib
         ///    cref="FirstAlbumArtist" /> for album artists.
         /// </remarks>
         [Obsolete("For album artists use FirstAlbumArtist. For track artists, use FirstPerformer")]
-        public string FirstArtist
-        {
-            get { return FirstPerformer; }
-        }
+        public string FirstArtist => FirstPerformer;
 
         /// <summary>
         ///    Gets the first value contained in <see
@@ -1174,10 +1171,7 @@ namespace TagLib
         ///    This property is provided for convenience. Use <see
         ///    cref="AlbumArtists" /> to set the value.
         /// </remarks>
-        public string FirstAlbumArtist
-        {
-            get { return FirstInGroup(AlbumArtists); }
-        }
+        public string FirstAlbumArtist => FirstInGroup(AlbumArtists);
 
         /// <summary>
         ///    Gets the first value contained in <see
@@ -1192,10 +1186,7 @@ namespace TagLib
         ///    This property is provided for convenience. Use <see
         ///    cref="AlbumArtistsSort" /> to set the value.
         /// </remarks>
-        public string FirstAlbumArtistSort
-        {
-            get { return FirstInGroup(AlbumArtistsSort); }
-        }
+        public string FirstAlbumArtistSort => FirstInGroup(AlbumArtistsSort);
 
         /// <summary>
         ///    Gets the first value contained in <see
@@ -1210,10 +1201,7 @@ namespace TagLib
         ///    This property is provided for convenience. Use <see
         ///    cref="Performers" /> to set the value.
         /// </remarks>
-        public string FirstPerformer
-        {
-            get { return FirstInGroup(Performers); }
-        }
+        public string FirstPerformer => FirstInGroup(Performers);
 
         /// <summary>
         ///    Gets the first value contained in <see
@@ -1228,10 +1216,7 @@ namespace TagLib
         ///    This property is provided for convenience. Use <see
         ///    cref="PerformersSort" /> to set the value.
         /// </remarks>
-        public string FirstPerformerSort
-        {
-            get { return FirstInGroup(PerformersSort); }
-        }
+        public string FirstPerformerSort => FirstInGroup(PerformersSort);
 
         /// <summary>
         ///    Gets the first value contained in <see
@@ -1246,10 +1231,7 @@ namespace TagLib
         ///    This property is provided for convenience. Use <see
         ///    cref="ComposersSort" /> to set the value.
         /// </remarks>
-        public string FirstComposerSort
-        {
-            get { return FirstInGroup(ComposersSort); }
-        }
+        public string FirstComposerSort => FirstInGroup(ComposersSort);
 
         /// <summary>
         ///    Gets the first value contained in <see
@@ -1264,10 +1246,7 @@ namespace TagLib
         ///    This property is provided for convenience. Use <see
         ///    cref="Composers" /> to set the value.
         /// </remarks>
-        public string FirstComposer
-        {
-            get { return FirstInGroup(Composers); }
-        }
+        public string FirstComposer => FirstInGroup(Composers);
 
         /// <summary>
         ///    Gets the first value contained in <see cref="Genres" />.
@@ -1281,10 +1260,7 @@ namespace TagLib
         ///    This property is provided for convenience. Use <see
         ///    cref="Genres" /> to set the value.
         /// </remarks>
-        public string FirstGenre
-        {
-            get { return FirstInGroup(Genres); }
-        }
+        public string FirstGenre => FirstInGroup(Genres);
 
         /// <summary>
         ///    Gets the same value as <see cref="JoinedPerformers" />.
@@ -1298,10 +1274,7 @@ namespace TagLib
         ///    cref="JoinedAlbumArtists" /> for album artists.
         /// </remarks>
         [Obsolete("For album artists use JoinedAlbumArtists. For track artists, use JoinedPerformers")]
-        public string JoinedArtists
-        {
-            get { return JoinedPerformers; }
-        }
+        public string JoinedArtists => JoinedPerformers;
 
         /// <summary>
         ///    Gets a semicolon separated string containing the values
@@ -1315,10 +1288,7 @@ namespace TagLib
         ///    This property is provided for convenience. Use <see
         ///    cref="AlbumArtists" /> to set the value.
         /// </remarks>
-        public string JoinedAlbumArtists
-        {
-            get { return JoinGroup(AlbumArtists); }
-        }
+        public string JoinedAlbumArtists => JoinGroup(AlbumArtists);
 
         /// <summary>
         ///    Gets a semicolon separated string containing the values
@@ -1332,10 +1302,7 @@ namespace TagLib
         ///    This property is provided for convenience. Use <see
         ///    cref="Performers" /> to set the value.
         /// </remarks>
-        public string JoinedPerformers
-        {
-            get { return JoinGroup(Performers); }
-        }
+        public string JoinedPerformers => JoinGroup(Performers);
 
         /// <summary>
         ///    Gets a semicolon separated string containing the values
@@ -1349,10 +1316,7 @@ namespace TagLib
         ///    This property is provided for convenience. Use <see
         ///    cref="PerformersSort" /> to set the value.
         /// </remarks>
-        public string JoinedPerformersSort
-        {
-            get { return JoinGroup(PerformersSort); }
-        }
+        public string JoinedPerformersSort => JoinGroup(PerformersSort);
 
         /// <summary>
         ///    Gets a semicolon separated string containing the values
@@ -1366,10 +1330,7 @@ namespace TagLib
         ///    This property is provided for convenience. Use <see
         ///    cref="Composers" /> to set the value.
         /// </remarks>
-        public string JoinedComposers
-        {
-            get { return JoinGroup(Composers); }
-        }
+        public string JoinedComposers => JoinGroup(Composers);
 
         /// <summary>
         ///    Gets a semicolon separated string containing the values
@@ -1383,10 +1344,7 @@ namespace TagLib
         ///    This property is provided for convenience. Use <see
         ///    cref="Genres" /> to set the value.
         /// </remarks>
-        public string JoinedGenres
-        {
-            get { return JoinGroup(Genres); }
-        }
+        public string JoinedGenres => JoinGroup(Genres);
 
         /// <summary>
         ///    Gets the first string in an array.
@@ -1399,7 +1357,7 @@ namespace TagLib
         ///    <paramref name="group" />, or <see langword="null" /> if
         ///    the array is <see langword="null" /> or empty.
         /// </returns>
-        static string FirstInGroup(string[] group)
+        private static string FirstInGroup(string[] group)
         {
             return group == null || group.Length == 0 ?
                 null : group[0];
@@ -1416,10 +1374,12 @@ namespace TagLib
         ///    A semicolon separated <see cref="string" /> object
         ///    containing the values from <paramref name="group" />.
         /// </returns>
-        static string JoinGroup(string[] group)
+        private static string JoinGroup(string[] group)
         {
             if (group == null || group.Length == 0)
+            {
                 return null;
+            }
 
             return string.Join("; ", group);
         }
@@ -1436,11 +1396,7 @@ namespace TagLib
         ///    supported by <see cref="Tag" />, but it may be extended
         ///    by child classes to support other values.
         /// </remarks>
-        public virtual bool IsEmpty
-        {
-            get
-            {
-                return IsNullOrLikeEmpty(Title) &&
+        public virtual bool IsEmpty => IsNullOrLikeEmpty(Title) &&
                 IsNullOrLikeEmpty(Grouping) &&
                 IsNullOrLikeEmpty(AlbumArtists) &&
                 IsNullOrLikeEmpty(Performers) &&
@@ -1456,8 +1412,6 @@ namespace TagLib
                 TrackCount == 0 &&
                 Disc == 0 &&
                 DiscCount == 0;
-            }
-        }
 
         /// <summary>
         ///    Clears the values stored in the current instance.
@@ -1518,10 +1472,14 @@ namespace TagLib
                                       bool overwrite)
         {
             if (source == null)
+            {
                 throw new ArgumentNullException(nameof(source));
+            }
 
             if (target == null)
+            {
                 throw new ArgumentNullException(nameof(target));
+            }
 
             source.CopyTo(target, overwrite);
         }
@@ -1553,82 +1511,134 @@ namespace TagLib
         public virtual void CopyTo(Tag target, bool overwrite)
         {
             if (target == null)
+            {
                 throw new ArgumentNullException(nameof(target));
+            }
 
             if (overwrite || IsNullOrLikeEmpty(target.Title))
+            {
                 target.Title = Title;
+            }
 
             if (overwrite || IsNullOrLikeEmpty(target.Subtitle))
+            {
                 target.Subtitle = Subtitle;
+            }
 
             if (overwrite || IsNullOrLikeEmpty(target.Description))
+            {
                 target.Description = Description;
+            }
 
             if (overwrite || IsNullOrLikeEmpty(target.AlbumArtists))
+            {
                 target.AlbumArtists = AlbumArtists;
+            }
 
             if (overwrite || IsNullOrLikeEmpty(target.Performers))
+            {
                 target.Performers = Performers;
+            }
 
             if (overwrite || IsNullOrLikeEmpty(target.PerformersRole))
+            {
                 target.PerformersRole = PerformersRole;
+            }
 
             if (overwrite || IsNullOrLikeEmpty(target.Composers))
+            {
                 target.Composers = Composers;
+            }
 
             if (overwrite || IsNullOrLikeEmpty(target.Album))
+            {
                 target.Album = Album;
+            }
 
             if (overwrite || IsNullOrLikeEmpty(target.Comment))
+            {
                 target.Comment = Comment;
+            }
 
             if (overwrite || IsNullOrLikeEmpty(target.Genres))
+            {
                 target.Genres = Genres;
+            }
 
             if (overwrite || target.Year == 0)
+            {
                 target.Year = Year;
+            }
 
             if (overwrite || target.Track == 0)
+            {
                 target.Track = Track;
+            }
 
             if (overwrite || target.TrackCount == 0)
+            {
                 target.TrackCount = TrackCount;
+            }
 
             if (overwrite || target.Disc == 0)
+            {
                 target.Disc = Disc;
+            }
 
             if (overwrite || target.DiscCount == 0)
+            {
                 target.DiscCount = DiscCount;
+            }
 
             if (overwrite || target.BeatsPerMinute == 0)
+            {
                 target.BeatsPerMinute = BeatsPerMinute;
+            }
 
             if (overwrite || IsNullOrLikeEmpty(target.InitialKey))
+            {
                 target.InitialKey = InitialKey;
+            }
 
             if (overwrite || IsNullOrLikeEmpty(target.Publisher))
+            {
                 target.Publisher = Publisher;
+            }
 
             if (overwrite || IsNullOrLikeEmpty(target.ISRC))
+            {
                 target.ISRC = ISRC;
+            }
 
             if (overwrite || IsNullOrLikeEmpty(target.RemixedBy))
+            {
                 target.RemixedBy = RemixedBy;
+            }
 
             if (overwrite || IsNullOrLikeEmpty(target.Grouping))
+            {
                 target.Grouping = Grouping;
+            }
 
             if (overwrite || IsNullOrLikeEmpty(target.Conductor))
+            {
                 target.Conductor = Conductor;
+            }
 
             if (overwrite || IsNullOrLikeEmpty(target.Copyright))
+            {
                 target.Copyright = Copyright;
+            }
 
             if (overwrite || target.DateTagged == null)
+            {
                 target.DateTagged = DateTagged;
+            }
 
             if (overwrite || target.Pictures == null || target.Pictures.Length == 0)
+            {
                 target.Pictures = Pictures;
+            }
         }
 
         /// <summary>
@@ -1643,7 +1653,7 @@ namespace TagLib
         ///    langword="null" /> or contains only whitespace
         ///    characters. Otherwise <see langword="false" />.
         /// </returns>
-        static bool IsNullOrLikeEmpty(string value)
+        private static bool IsNullOrLikeEmpty(string value)
         {
             return value == null || value.Trim().Length == 0;
         }
@@ -1664,14 +1674,20 @@ namespace TagLib
         ///    cref="IsNullOrLikeEmpty(string)" />. Otherwise <see
         ///    langword="false" />.
         /// </returns>
-        static bool IsNullOrLikeEmpty(string[] value)
+        private static bool IsNullOrLikeEmpty(string[] value)
         {
             if (value == null)
+            {
                 return true;
+            }
 
             foreach (string s in value)
+            {
                 if (!IsNullOrLikeEmpty(s))
+                {
                     return false;
+                }
+            }
 
             return true;
         }

@@ -97,10 +97,14 @@ namespace TagLib.Flac
         public BlockHeader(ByteVector data)
         {
             if (data == null)
+            {
                 throw new ArgumentNullException(nameof(data));
+            }
 
             if (data.Count < Size)
+            {
                 throw new CorruptFileException("Not enough data in Flac header.");
+            }
 
             BlockType = (BlockType)(data[0] & 0x7f);
             IsLastBlock = (data[0] & 0x80) != 0;

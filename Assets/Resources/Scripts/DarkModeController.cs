@@ -8,10 +8,13 @@ public class DarkModeController : MonoBehaviour
     private MusicController mc;
     private MainAppController mac;
     public Material crossfadeMaterial;
+    private SFXPageController spc;
     internal void SwapDarkMode(bool enable)
     {
         mc = GetComponent<MusicController>();
         mac = GetComponent<MainAppController>();
+        spc = GetComponent<SFXPageController>();
+        
         if (enable)
         {
             GameObject[] imgToChange = GameObject.FindGameObjectsWithTag("imageChangeOnDarkMode");
@@ -32,7 +35,7 @@ public class DarkModeController : MonoBehaviour
                 obj.GetComponent<TMP_Text>().color = Color.white;
             }
 
-            mac.pageParents.ForEach(pp =>
+            spc.pageParents.ForEach(pp =>
             {
                 pp.buttons.ForEach(btn =>
                 {
@@ -87,7 +90,7 @@ public class DarkModeController : MonoBehaviour
                 try
                 {
                     int pageId = obj.GetComponent<PageButton>().id;
-                    if (pageId == mac.activePage)
+                    if (pageId == SFXPageController.activePage)
                     {
                         buttonImg.color = Color.red;
                     }
@@ -117,7 +120,7 @@ public class DarkModeController : MonoBehaviour
                 obj.GetComponent<TMP_Text>().color = Color.black;
             }
 
-            mac.pageParents.ForEach(pp =>
+            spc.pageParents.ForEach(pp =>
             {
                 pp.buttons.ForEach(btn =>
                 {
@@ -152,7 +155,7 @@ public class DarkModeController : MonoBehaviour
             foreach (GameObject obj in bgToChange)
             {
                 Image buttonImg = obj.GetComponent<Image>();
-                buttonImg.color = ResourceManager.lightModeGrey;
+                buttonImg.color = ResourceManager.sfxButtonLight;
                 try
                 {
                     string buttonId = obj.GetComponent<AudioControlButton>().id;
@@ -173,7 +176,7 @@ public class DarkModeController : MonoBehaviour
                 try
                 {
                     int pageId = obj.GetComponent<PageButton>().id;
-                    if (pageId == mac.activePage)
+                    if (pageId == SFXPageController.activePage)
                     {
                         buttonImg.color = Color.red;
                     }

@@ -62,10 +62,16 @@ namespace Id3.Frames
         public string GetExtension()
         {
             if (string.IsNullOrEmpty(MimeType))
+            {
                 return "jpg";
+            }
+
             string[] parts = MimeType.Split('/');
             if (parts.Length < 2 || string.IsNullOrEmpty(parts[1]))
+            {
                 return "jpg";
+            }
+
             return parts[1];
         }
 

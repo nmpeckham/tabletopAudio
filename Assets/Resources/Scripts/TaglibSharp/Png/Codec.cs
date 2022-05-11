@@ -38,7 +38,7 @@ namespace TagLib.Png
         ///    A <see cref="string" /> object containing a description
         ///    of the media represented by the current instance.
         /// </value>
-        public override string Description { get { return "PNG File"; } }
+        public override string Description => "PNG File";
 
 
         /// <summary>

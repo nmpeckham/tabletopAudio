@@ -37,7 +37,7 @@ namespace TagLib.Ogg.Codecs
         /// <summary>
         ///    Contains the file identifier.
         /// </summary>
-        static readonly ByteVector id = "vorbis";
+        private static readonly ByteVector id = "vorbis";
 
         #endregion
 
@@ -48,12 +48,12 @@ namespace TagLib.Ogg.Codecs
         /// <summary>
         ///    Contains the header packet.
         /// </summary>
-        HeaderPacket header;
+        private HeaderPacket header;
 
         /// <summary>
         ///    Contains the comment data.
         /// </summary>
-        ByteVector comment_data;
+        private ByteVector comment_data;
 
         #endregion
 
@@ -65,7 +65,7 @@ namespace TagLib.Ogg.Codecs
         ///    Constructs and initializes a new instance of <see
         ///    cref="Vorbis" />.
         /// </summary>
-        Vorbis()
+        private Vorbis()
         {
         }
 
@@ -106,23 +106,35 @@ namespace TagLib.Ogg.Codecs
         public override bool ReadPacket(ByteVector packet, int index)
         {
             if (packet == null)
+            {
                 throw new ArgumentNullException(nameof(packet));
+            }
 
             if (index < 0)
+            {
                 throw new ArgumentOutOfRangeException(nameof(index), "index must be at least zero.");
+            }
 
             int type = PacketType(packet);
             if (type != 1 && index == 0)
+            {
                 throw new CorruptFileException("Stream does not begin with vorbis header.");
+            }
 
             if (comment_data == null)
             {
                 if (type == 1)
+                {
                     header = new HeaderPacket(packet);
+                }
                 else if (type == 3)
+                {
                     comment_data = packet.Mid(7);
+                }
                 else
+                {
                     return true;
+                }
             }
 
             return comment_data != null;
@@ -170,18 +182,28 @@ namespace TagLib.Ogg.Codecs
         public override void SetCommentPacket(ByteVectorCollection packets, XiphComment comment)
         {
             if (packets == null)
+            {
                 throw new ArgumentNullException(nameof(packets));
+            }
 
             if (comment == null)
+            {
                 throw new ArgumentNullException(nameof(comment));
+            }
 
-            ByteVector data = new ByteVector((byte)0x03);
-            data.Add(id);
-            data.Add(comment.Render(true));
+            ByteVector data = new ByteVector((byte)0x03)
+            {
+                id,
+                comment.Render(true)
+            };
             if (packets.Count > 1 && PacketType(packets[1]) == 0x03)
+            {
                 packets[1] = data;
+            }
             else
+            {
                 packets.Insert(1, data);
+            }
         }
 
         #endregion
@@ -198,13 +220,7 @@ namespace TagLib.Ogg.Codecs
         ///    A <see cref="int" /> value containing a bitrate of the
         ///    audio represented by the current instance.
         /// </value>
-        public int AudioBitrate
-        {
-            get
-            {
-                return (int)(header.bitrate_nominal / 1000f + 0.5);
-            }
-        }
+        public int AudioBitrate => (int)(header.bitrate_nominal / 1000f + 0.5);
 
         /// <summary>
         ///    Gets the sample rate of the audio represented by the
@@ -214,10 +230,7 @@ namespace TagLib.Ogg.Codecs
         ///    A <see cref="int" /> value containing the sample rate of
         ///    the audio represented by the current instance.
         /// </value>
-        public int AudioSampleRate
-        {
-            get { return (int)header.sample_rate; }
-        }
+        public int AudioSampleRate => (int)header.sample_rate;
 
         /// <summary>
         ///    Gets the number of channels in the audio represented by
@@ -228,10 +241,7 @@ namespace TagLib.Ogg.Codecs
         ///    channels in the audio represented by the current
         ///    instance.
         /// </value>
-        public int AudioChannels
-        {
-            get { return (int)header.channels; }
-        }
+        public int AudioChannels => (int)header.channels;
 
         /// <summary>
         ///    Gets the types of media represented by the current
@@ -240,10 +250,7 @@ namespace TagLib.Ogg.Codecs
         /// <value>
         ///    Always <see cref="MediaTypes.Audio" />.
         /// </value>
-        public override MediaTypes MediaTypes
-        {
-            get { return MediaTypes.Audio; }
-        }
+        public override MediaTypes MediaTypes => MediaTypes.Audio;
 
         /// <summary>
         ///    Gets the raw Xiph comment data contained in the codec.
@@ -252,10 +259,7 @@ namespace TagLib.Ogg.Codecs
         ///    A <see cref="ByteVector" /> object containing a raw Xiph
         ///    comment or <see langword="null"/> if none was found.
         /// </value>
-        public override ByteVector CommentData
-        {
-            get { return comment_data; }
-        }
+        public override ByteVector CommentData => comment_data;
 
         /// <summary>
         ///    Gets a text description of the media represented by the
@@ -265,13 +269,7 @@ namespace TagLib.Ogg.Codecs
         ///    A <see cref="string" /> object containing a description
         ///    of the media represented by the current instance.
         /// </value>
-        public override string Description
-        {
-            get
-            {
-                return $"Vorbis Version {header.vorbis_version} Audio";
-            }
-        }
+        public override string Description => $"Vorbis Version {header.vorbis_version} Audio";
 
         #endregion
 
@@ -315,14 +313,20 @@ namespace TagLib.Ogg.Codecs
         ///    A <see cref="int" /> value containing the packet type or
         ///    -1 if the packet is invalid.
         /// </returns>
-        static int PacketType(ByteVector packet)
+        private static int PacketType(ByteVector packet)
         {
             if (packet.Count <= id.Count)
+            {
                 return -1;
+            }
 
             for (int i = 0; i < id.Count; i++)
+            {
                 if (packet[i + 1] != id[i])
+                {
                     return -1;
+                }
+            }
 
             return packet[0];
         }
@@ -332,7 +336,7 @@ namespace TagLib.Ogg.Codecs
         /// <summary>
         ///    This structure represents a Vorbis header packet.
         /// </summary>
-        struct HeaderPacket
+        private struct HeaderPacket
         {
             public uint sample_rate;
             public uint channels;

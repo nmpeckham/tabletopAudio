@@ -8,7 +8,7 @@ public class RightClickRootMenu : MonoBehaviour
     public Transform buttonParent;
     public Transform addToParent;
     internal float minX, minY, maxX, maxY = 0;
-    internal List<GameObject> sideMenuButtons = new List<GameObject>();
+    internal List<GameObject> sideMenuButtons = new();
 
     internal void AddMenuItem(int id, string label, Transform parent)
     {

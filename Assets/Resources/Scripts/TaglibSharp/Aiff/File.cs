@@ -44,17 +44,17 @@ namespace TagLib.Aiff
         /// <summary>
         ///    Contains the address of the AIFF header block.
         /// </summary>
-        ByteVector header_block;
+        private ByteVector header_block;
 
         /// <summary>
         ///  Contains the Id3v2 tag.
         /// </summary>
-        Id3v2.Tag tag;
+        private Id3v2.Tag tag;
 
         /// <summary>
         ///  Contains the media properties.
         /// </summary>
-        Properties properties;
+        private Properties properties;
 
         #endregion
 
@@ -208,10 +208,7 @@ namespace TagLib.Aiff
         ///    A <see cref="TagLib.Tag" /> object representing all tags
         ///    stored in the current instance.
         /// </value>
-        public override Tag Tag
-        {
-            get { return tag; }
-        }
+        public override Tag Tag => tag;
 
         /// <summary>
         ///    Gets the media properties of the file represented by the
@@ -222,10 +219,7 @@ namespace TagLib.Aiff
         ///    media properties of the file represented by the current
         ///    instance.
         /// </value>
-        public override Properties Properties
-        {
-            get { return properties; }
-        }
+        public override Properties Properties => properties;
 
         #endregion
 
@@ -252,7 +246,9 @@ namespace TagLib.Aiff
                     if (tag_data.Count > 10)
                     {
                         if (tag_data.Count % 2 == 1)
+                        {
                             tag_data.Add(0);
+                        }
 
                         data.Add("ID3 ");
                         data.Add(ByteVector.FromUInt((uint)tag_data.Count, true));
@@ -266,7 +262,9 @@ namespace TagLib.Aiff
                 // If tagging info cannot be found, place it at
                 // the end of the file.
                 if (tag_start < 12 || tag_end < tag_start)
+                {
                     tag_start = tag_end = Length;
+                }
 
                 int length = (int)(tag_end - tag_start + 8);
 
@@ -374,7 +372,7 @@ namespace TagLib.Aiff
         ///    Position of the chunk in the stream, or -1
         ///    if no chunk was found.
         /// </returns>
-        long FindChunk(ByteVector chunkName, long startPos)
+        private long FindChunk(ByteVector chunkName, long startPos)
         {
             long initialPos = Tell;
 
@@ -445,11 +443,13 @@ namespace TagLib.Aiff
         ///    The file does not begin with <see cref="FileIdentifier"
         ///    />.
         /// </exception>
-        void Read(bool read_tags, ReadStyle style, out uint aiff_size, out long tag_start, out long tag_end)
+        private void Read(bool read_tags, ReadStyle style, out uint aiff_size, out long tag_start, out long tag_end)
         {
             Seek(0);
             if (ReadBlock(4) != FileIdentifier)
+            {
                 throw new CorruptFileException("File does not begin with AIFF identifier");
+            }
 
             aiff_size = ReadBlock(4).ToUInt(true);
             tag_start = -1;
@@ -457,7 +457,9 @@ namespace TagLib.Aiff
 
             // Check formType
             if (ReadBlock(4) != AIFFFormType)
+            {
                 throw new CorruptFileException("File form type is not AIFF");
+            }
 
             long formBlockChunksPosition = Tell;
 

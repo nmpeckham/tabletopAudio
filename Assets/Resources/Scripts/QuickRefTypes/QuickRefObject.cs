@@ -3,10 +3,10 @@
 [System.Serializable]
 public class QuickRefObject
 {
-    public List<Dictionary<string, dynamic>> contents { get; set; }
+    public List<Dictionary<string, dynamic>> Contents { get; set; }
     public QuickRefObject()
     {
-        contents = new List<Dictionary<string, dynamic>>();
+        Contents = new List<Dictionary<string, dynamic>>();
     }
 
 }

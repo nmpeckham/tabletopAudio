@@ -85,7 +85,7 @@ namespace TagLib.Image
         ///    A <see cref="TagLib.Tag" /> object representing all tags
         ///    stored in the current instance.
         /// </value>
-        public override Tag Tag { get { return ImageTag; } }
+        public override Tag Tag => ImageTag;
 
         /// <summary>
         ///    Gets a abstract representation of all tags stored in the
@@ -112,7 +112,9 @@ namespace TagLib.Image
             foreach (TagTypes type in Enum.GetValues(typeof(TagTypes)))
             {
                 if ((type & ImageTag.AllowedTypes) != 0x00 && type != TagTypes.AllTags)
+                {
                     GetTag(type, true);
+                }
             }
         }
 
@@ -134,11 +136,15 @@ namespace TagLib.Image
             foreach (ImageTag tag in ImageTag.AllTags)
             {
                 if ((tag.TagTypes & types) == tag.TagTypes)
+                {
                     to_delete.Add(tag);
+                }
             }
 
             foreach (ImageTag tag in to_delete)
+            {
                 ImageTag.RemoveTag(tag);
+            }
         }
 
         /// <summary>
@@ -165,11 +171,15 @@ namespace TagLib.Image
             foreach (Tag tag in ImageTag.AllTags)
             {
                 if ((tag.TagTypes & type) == type)
+                {
                     return tag;
+                }
             }
 
             if (!create || (type & ImageTag.AllowedTypes) == 0)
+            {
                 return null;
+            }
 
             ImageTag new_tag = null;
             switch (type)
@@ -218,7 +228,9 @@ namespace TagLib.Image
             foreach (var prop in typeof(ImageTag).GetProperties())
             {
                 if (!prop.CanWrite || prop.Name == "TagTypes")
+                {
                     continue;
+                }
 
                 var value = prop.GetValue(from_tag, null);
                 prop.SetValue(to_tag, value, null);

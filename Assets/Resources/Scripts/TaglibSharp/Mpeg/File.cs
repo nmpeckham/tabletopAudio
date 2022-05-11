@@ -101,7 +101,7 @@ namespace TagLib.Mpeg
     {
         #region Private Static Fields
 
-        static readonly ByteVector MarkerStart = new byte[] { 0, 0, 1 };
+        private static readonly ByteVector MarkerStart = new byte[] { 0, 0, 1 };
 
         #endregion
 
@@ -111,37 +111,37 @@ namespace TagLib.Mpeg
         /// <summary>
         ///    Contains the MPEG version.
         /// </summary>
-        Version version;
+        private Version version;
 
         /// <summary>
         ///    Contains the first audio header.
         /// </summary>
-        AudioHeader audio_header;
+        private AudioHeader audio_header;
 
         /// <summary>
         ///    Contains the first video header.
         /// </summary>
-        VideoHeader video_header;
+        private VideoHeader video_header;
 
         /// <summary>
         ///    Indicates whether or not audio was found.
         /// </summary>
-        bool video_found;
+        private bool video_found;
 
         /// <summary>
         ///    Indicates whether or not video was found.
         /// </summary>
-        bool audio_found;
+        private bool audio_found;
 
         /// <summary>
         ///    Contains the start time of the file.
         /// </summary>
-        double? start_time;
+        private double? start_time;
 
         /// <summary>
         ///    Contains the end time of the file.
         /// </summary>
-        double end_time;
+        private double end_time;
 
         #endregion
 
@@ -265,7 +265,9 @@ namespace TagLib.Mpeg
             Tag t = (Tag as TagLib.NonContainer.Tag).GetTag(type);
 
             if (t != null || !create)
+            {
                 return t;
+            }
 
             switch (type)
             {
@@ -305,7 +307,9 @@ namespace TagLib.Mpeg
         protected override void ReadStart(long start, ReadStyle propertiesStyle)
         {
             if ((propertiesStyle & ReadStyle.Average) == 0)
+            {
                 return;
+            }
 
             FindMarker(ref start, Marker.SystemSyncPacket);
             ReadSystemFile(start);
@@ -331,11 +335,15 @@ namespace TagLib.Mpeg
             GetTag(TagTypes.Id3v2, true);
 
             if ((propertiesStyle & ReadStyle.Average) == 0 || start_time == null)
+            {
                 return;
+            }
 
             // Enable to search the marker in the entire file if none is found so far
             if (end == Length)
+            {
                 end = 0;
+            }
 
             RFindMarker(ref end, Marker.SystemSyncPacket);
 
@@ -393,7 +401,9 @@ namespace TagLib.Mpeg
             ByteVector identifier = ReadBlock(4);
 
             if (identifier.Count == 4 && identifier.StartsWith(MarkerStart))
+            {
                 return (Marker)identifier[3];
+            }
 
             throw new CorruptFileException("Invalid marker at position " + position);
         }
@@ -417,7 +427,9 @@ namespace TagLib.Mpeg
         {
             position = Find(MarkerStart, position);
             if (position < 0)
+            {
                 throw new CorruptFileException("Marker not found");
+            }
 
             return GetMarker(position);
         }
@@ -440,12 +452,16 @@ namespace TagLib.Mpeg
         /// </exception>
         protected void FindMarker(ref long position, Marker marker)
         {
-            ByteVector packet = new ByteVector(MarkerStart);
-            packet.Add((byte)marker);
+            ByteVector packet = new ByteVector(MarkerStart)
+            {
+                (byte)marker
+            };
             position = Find(packet, position);
 
             if (position < 0)
+            {
                 throw new CorruptFileException("Marker not found");
+            }
         }
 
         /// <summary>
@@ -466,12 +482,16 @@ namespace TagLib.Mpeg
         /// </exception>
         protected void RFindMarker(ref long position, Marker marker)
         {
-            ByteVector packet = new ByteVector(MarkerStart);
-            packet.Add((byte)marker);
+            ByteVector packet = new ByteVector(MarkerStart)
+            {
+                (byte)marker
+            };
             position = RFind(packet, position);
 
             if (position < 0)
+            {
                 throw new CorruptFileException("Marker not found");
+            }
         }
 
         /// <summary>
@@ -545,13 +565,16 @@ namespace TagLib.Mpeg
         ///    position at which to start reading the packet. This value
         ///    is updated to the position of the next packet.
         /// </param>
-        void ReadAudioPacket(ref long position)
+        private void ReadAudioPacket(ref long position)
         {
             Seek(position + 4);
             int length = ReadBlock(2).ToUShort();
 
             if (!audio_found)
+            {
                 audio_found = AudioHeader.Find(out audio_header, this, position + 15, length - 9);
+            }
+
             position += length;
         }
 
@@ -564,13 +587,14 @@ namespace TagLib.Mpeg
         ///    position at which to start reading the packet. This value
         ///    is updated to the position of the next packet.
         /// </param>
-        void ReadVideoPacket(ref long position)
+        private void ReadVideoPacket(ref long position)
         {
             Seek(position + 4);
             int length = ReadBlock(2).ToUShort();
             long offset = position + 6;
 
             while (!video_found && offset < position + length)
+            {
                 if (FindMarker(ref offset) == Marker.VideoSyncPacket)
                 {
                     video_header = new VideoHeader(this, offset + 4);
@@ -584,6 +608,7 @@ namespace TagLib.Mpeg
                     // posible pes packet with a size =0 would be 6 bytes.
                     offset += 6;
                 }
+            }
 
             position += length;
         }
@@ -602,7 +627,7 @@ namespace TagLib.Mpeg
         /// <exception cref="UnsupportedFormatException">
         ///    The MPEG version contained in the packet is unknown.
         /// </exception>
-        void ReadSystemSyncPacket(ref long position)
+        private void ReadSystemSyncPacket(ref long position)
         {
             int packet_size = 0;
             Seek(position + 4);
@@ -620,10 +645,14 @@ namespace TagLib.Mpeg
                 packet_size = 14 + (ReadBlock(1)[0] & 0x07);
             }
             else
+            {
                 throw new UnsupportedFormatException("Unknown MPEG version.");
+            }
 
             if (start_time == null)
+            {
                 start_time = ReadTimestamp(position + 4);
+            }
 
             position += packet_size;
         }
@@ -641,7 +670,7 @@ namespace TagLib.Mpeg
         ///    A <see cref="double" /> value containing the read time in
         ///    seconds.
         /// </returns>
-        double ReadTimestamp(long position)
+        private double ReadTimestamp(long position)
         {
             double high;
             uint low;

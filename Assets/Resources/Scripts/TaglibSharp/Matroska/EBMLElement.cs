@@ -140,7 +140,9 @@ namespace TagLib.Matroska
                     mask >>= 8;
                 }
                 if (id_length == 0)
+                {
                     throw new CorruptFileException("invalid EBML ID (zero)");
+                }
 
                 return id_length;
             }
@@ -149,10 +151,7 @@ namespace TagLib.Matroska
         /// <summary>
         /// Get the size of the EBML data-size, in bytes
         /// </summary>
-        public long DataSizeSize
-        {
-            get { return EBMLByteSize((ulong)DataSize) + (IncSize ? 1 : 0); }
-        }
+        public long DataSizeSize => EBMLByteSize((ulong)DataSize) + (IncSize ? 1 : 0);
 
 
         /// <summary>
@@ -170,7 +169,9 @@ namespace TagLib.Matroska
                     ret = Data.Count;
 
                     if (Children != null)
+                    {
                         throw new UnsupportedFormatException("EBML element cannot contain both Data and Children");
+                    }
                 }
                 else
                 {
@@ -203,7 +204,10 @@ namespace TagLib.Matroska
             {
                 foreach (var child in Children)
                 {
-                    if (child.IncrementSize()) return true;
+                    if (child.IncrementSize())
+                    {
+                        return true;
+                    }
                 }
             }
 
@@ -298,9 +302,17 @@ namespace TagLib.Matroska
         /// <returns>a string object containing the parsed value.</returns>
         public string GetString()
         {
-            if (Data == null) return null;
+            if (Data == null)
+            {
+                return null;
+            }
+
             var idx = Data.IndexOf(0x00); // Detected Null termination
-            if (idx >= 0) return Data.ToString(StringType.UTF8, 0, idx);
+            if (idx >= 0)
+            {
+                return Data.ToString(StringType.UTF8, 0, idx);
+            }
+
             return Data.ToString(StringType.UTF8);
         }
 
@@ -310,7 +322,11 @@ namespace TagLib.Matroska
         /// <returns>a bool containing the parsed value.</returns>
         public bool GetBool()
         {
-            if (Data == null) return false;
+            if (Data == null)
+            {
+                return false;
+            }
+
             return (Data.ToUInt() > 0);
         }
 
@@ -320,7 +336,10 @@ namespace TagLib.Matroska
         /// <returns>a double containing the parsed value.</returns>
         public double GetDouble()
         {
-            if (Data == null) return 0;
+            if (Data == null)
+            {
+                return 0;
+            }
 
             double result = 0.0;
 
@@ -346,7 +365,11 @@ namespace TagLib.Matroska
         /// <returns>a ulong containing the parsed value.</returns>
         public ulong GetULong()
         {
-            if (Data == null) return 0;
+            if (Data == null)
+            {
+                return 0;
+            }
+
             return Data.ToULong();
         }
 
@@ -407,13 +430,19 @@ namespace TagLib.Matroska
         public void Write(File file, long position, long reserved = 0)
         {
             if (file == null)
+            {
                 throw new ArgumentNullException(nameof(file));
+            }
 
             if (position > file.Length || position < 0)
+            {
                 throw new ArgumentOutOfRangeException(nameof(position));
+            }
 
             if (Data != null && Children != null)
+            {
                 throw new UnsupportedFormatException("EBML element cannot contain both Data and Children");
+            }
 
 
             // Reserve required size upfront to speed up writing

@@ -57,7 +57,10 @@ namespace Id3.Frames
 
         public string Lyrics { get; set; }
 
-        public static implicit operator LyricsFrame(string lyrics) => new LyricsFrame(lyrics);
+        public static implicit operator LyricsFrame(string lyrics)
+        {
+            return new LyricsFrame(lyrics);
+        }
     }
 
     public sealed class LyricsFrameList : Collection<LyricsFrame>

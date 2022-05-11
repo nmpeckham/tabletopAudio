@@ -28,7 +28,7 @@ namespace TagLib.Tiff
     /// </summary>
     public class Codec : Image.Codec
     {
-        readonly string description = "TIFF File";
+        private readonly string description = "TIFF File";
 
         /// <summary>
         ///    Gets a text description of the media represented by the
@@ -38,7 +38,7 @@ namespace TagLib.Tiff
         ///    A <see cref="string" /> object containing a description
         ///    of the media represented by the current instance.
         /// </value>
-        public override string Description { get { return description; } }
+        public override string Description => description;
 
 
         /// <summary>

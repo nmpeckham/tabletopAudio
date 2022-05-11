@@ -1,4 +1,5 @@
-﻿using TMPro;
+﻿using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -6,15 +7,17 @@ using UnityEngine.UI;
 //Class to take commands from page buttons, including menu and "Stop SFX" buttons
 public class PageButton : MonoBehaviour, IPointerDownHandler
 {
-    private static PageButton activeButton;
+
+
     public int id;
-    static private MainAppController mac;
+    private static MainAppController mac;
     private TMP_Text label;
     public Button playAllButton;
     public Button stopAllButton;
     public Button fadeInButton;
     public Button fadeOutButton;
     public Image indicatorImage;
+    private static SFXPageController spc;
 
     [SerializeField]
     private int activeAudioSources = 0;
@@ -25,26 +28,23 @@ public class PageButton : MonoBehaviour, IPointerDownHandler
         set
         {
             activeAudioSources = value;
-            if (activeAudioSources == 0) indicatorImage.color = new Color(1, 1, 1, 0);
-            else indicatorImage.color = Color.white;
+            if (activeAudioSources == 0)
+            {
+                indicatorImage.color = new Color(1, 1, 1, 0);
+            }
+            else
+            {
+                indicatorImage.color = Color.white;
+            }
         }
-        get
-        {
-            return activeAudioSources;
-        }
+        get => activeAudioSources;
 
     }
 
     public string Label
     {
-        get
-        {
-            return label.text;
-        }
-        set
-        {
-            label.text = value;
-        }
+        get => label.text;
+        set => label.text = value;
     }
 
     // Start is called before the first frame update
@@ -56,39 +56,50 @@ public class PageButton : MonoBehaviour, IPointerDownHandler
         stopAllButton.onClick.AddListener(StopAll);
         fadeInButton.onClick.AddListener(FadeIn);
         fadeOutButton.onClick.AddListener(FadeOut);
+        spc = Camera.main.GetComponent<SFXPageController>();
 
-        if (id == -2 && gameObject.transform.GetSiblingIndex() != MainAppController.NUMPAGES + 1) gameObject.transform.SetSiblingIndex(MainAppController.NUMPAGES + 1);
-        if (id == 0) activeButton = this;
+        if (id == -2 && gameObject.transform.GetSiblingIndex() != MainAppController.NUMPAGES + 1)
+        {
+            gameObject.transform.SetSiblingIndex(MainAppController.NUMPAGES + 1);
+        }
+
+        //if (id == 0)
+        //{
+        //    SFXPageController.activePage = this;
+        //}
     }
 
-    void PlayAll()
+    private void PlayAll()
     {
-        foreach (GameObject btn in mac.pageParents[id].buttons)
+        foreach (GameObject btn in spc.pageParents[id].buttons)
         {
             SFXButton sfxBtn = btn.GetComponent<SFXButton>();
-            if (!sfxBtn.IsPlaying) sfxBtn.Play(true);
+            if (!sfxBtn.IsPlaying)
+            {
+                sfxBtn.Play(true);
+            }
         }
     }
 
-    void StopAll()
+    private void StopAll()
     {
-        foreach (GameObject btn in mac.pageParents[id].buttons)
+        foreach (GameObject btn in spc.pageParents[id].buttons)
         {
             btn.GetComponent<SFXButton>().Stop(true);
         }
     }
 
-    void FadeIn()
+    private void FadeIn()
     {
-        foreach (GameObject btn in mac.pageParents[id].buttons)
+        foreach (GameObject btn in spc.pageParents[id].buttons)
         {
             btn.GetComponent<SFXButton>().FadeVolume("in", true);
         }
     }
 
-    void FadeOut()
+    private void FadeOut()
     {
-        foreach (GameObject btn in mac.pageParents[id].buttons)
+        foreach (GameObject btn in spc.pageParents[id].buttons)
         {
             btn.GetComponent<SFXButton>().FadeVolume("out", true);
         }
@@ -96,8 +107,15 @@ public class PageButton : MonoBehaviour, IPointerDownHandler
 
     internal void RefreshOrder()
     {
-        if (id == -2 && gameObject.transform.GetSiblingIndex() != MainAppController.NUMPAGES + 1) gameObject.transform.SetSiblingIndex(MainAppController.NUMPAGES + 1);
-        if (id == -1 && gameObject.transform.GetSiblingIndex() != 0) gameObject.transform.SetSiblingIndex(0);
+        if (id == -2 && gameObject.transform.GetSiblingIndex() != MainAppController.NUMPAGES + 1)
+        {
+            gameObject.transform.SetSiblingIndex(MainAppController.NUMPAGES + 1);
+        }
+
+        if (id == -1 && gameObject.transform.GetSiblingIndex() != 0)
+        {
+            gameObject.transform.SetSiblingIndex(0);
+        }
     }
 
     public void OnPointerDown(PointerEventData eventData)
@@ -108,15 +126,23 @@ public class PageButton : MonoBehaviour, IPointerDownHandler
         }
         else if (eventData.button == PointerEventData.InputButton.Left)
         {
-            if (id >= 0)
-            {
-                activeButton.GetComponent<Image>().color = mac.darkModeEnabled ? ResourceManager.darkModeGrey : Color.white;
-                activeButton = this;
-                mac.ChangeSFXPage(id);
-                GetComponent<Image>().color = ResourceManager.red;
-            }
-            else if (id == -2) mac.ControlButtonClicked("STOP-SFX");
-            else if (id == -1) mac.ControlButtonClicked("OPTIONS");
+            Clicked();
+        }
+    }
+
+    internal void Clicked()
+    {
+        if (id >= 0)
+        {
+            spc.ChangeSFXPage(id);
+        }
+        else if (id == -2)
+        {
+            mac.ControlButtonClicked("STOP-SFX");
+        }
+        else if (id == -1)
+        {
+            mac.ControlButtonClicked("OPTIONS");
         }
     }
 }

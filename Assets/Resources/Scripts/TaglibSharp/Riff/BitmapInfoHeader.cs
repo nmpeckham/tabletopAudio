@@ -36,12 +36,12 @@ namespace TagLib.Riff
         /// <summary>
         ///    Contains the video width.
         /// </summary>
-        readonly uint width;
+        private readonly uint width;
 
         /// <summary>
         ///    Contains the video height.
         /// </summary>
-        readonly uint height;
+        private readonly uint height;
 
         #endregion
 
@@ -95,13 +95,19 @@ namespace TagLib.Riff
         public BitmapInfoHeader(ByteVector data, int offset)
         {
             if (data == null)
+            {
                 throw new ArgumentNullException(nameof(data));
+            }
 
             if (offset + 40 > data.Count)
+            {
                 throw new CorruptFileException("Expected 40 bytes.");
+            }
 
             if (offset < 0)
+            {
                 throw new ArgumentOutOfRangeException(nameof(offset));
+            }
 
             HeaderSize = data.Mid(offset + 0, 4).ToUInt(false);
             width = data.Mid(offset + 4, 4).ToUInt(false);
@@ -222,10 +228,7 @@ namespace TagLib.Riff
         ///    A <see cref="int" /> value containing the width of the
         ///    video represented by the current instance.
         /// </value>
-        public int VideoWidth
-        {
-            get { return (int)width; }
-        }
+        public int VideoWidth => (int)width;
 
         /// <summary>
         ///    Gets the height of the video represented by the current
@@ -235,10 +238,7 @@ namespace TagLib.Riff
         ///    A <see cref="int" /> value containing the height of the
         ///    video represented by the current instance.
         /// </value>
-        public int VideoHeight
-        {
-            get { return (int)height; }
-        }
+        public int VideoHeight => (int)height;
 
         /// <summary>
         ///    Gets the types of media represented by the current
@@ -247,10 +247,7 @@ namespace TagLib.Riff
         /// <value>
         ///    Always <see cref="MediaTypes.Video" />.
         /// </value>
-        public MediaTypes MediaTypes
-        {
-            get { return MediaTypes.Video; }
-        }
+        public MediaTypes MediaTypes => MediaTypes.Video;
 
         /// <summary>
         ///    Gets the duration of the media represented by the current
@@ -259,10 +256,7 @@ namespace TagLib.Riff
         /// <value>
         ///    Always <see cref="TimeSpan.Zero" />.
         /// </value>
-        public TimeSpan Duration
-        {
-            get { return TimeSpan.Zero; }
-        }
+        public TimeSpan Duration => TimeSpan.Zero;
 
         /// <summary>
         ///    Gets a text description of the media represented by the
@@ -716,7 +710,9 @@ namespace TagLib.Riff
         public override bool Equals(object other)
         {
             if (!(other is BitmapInfoHeader))
+            {
                 return false;
+            }
 
             return Equals((BitmapInfoHeader)other);
         }

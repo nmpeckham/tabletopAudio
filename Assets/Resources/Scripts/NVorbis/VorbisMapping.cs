@@ -9,7 +9,7 @@ using System.IO;
 
 namespace NVorbis
 {
-    abstract class VorbisMapping
+    internal abstract class VorbisMapping
     {
         internal static VorbisMapping Init(VorbisStreamDecoder vorbis, DataPacket packet)
         {
@@ -20,20 +20,23 @@ namespace NVorbis
             {
                 case 0: mapping = new Mapping0(vorbis); break;
             }
-            if (mapping == null) throw new InvalidDataException();
+            if (mapping == null)
+            {
+                throw new InvalidDataException();
+            }
 
             mapping.Init(packet);
             return mapping;
         }
 
-        VorbisStreamDecoder _vorbis;
+        private readonly VorbisStreamDecoder _vorbis;
 
         protected VorbisMapping(VorbisStreamDecoder vorbis)
         {
             _vorbis = vorbis;
         }
 
-        abstract protected void Init(DataPacket packet);
+        protected abstract void Init(DataPacket packet);
 
         internal Submap[] Submaps;
 
@@ -41,14 +44,17 @@ namespace NVorbis
 
         internal CouplingStep[] CouplingSteps;
 
-        class Mapping0 : VorbisMapping
+        private class Mapping0 : VorbisMapping
         {
             internal Mapping0(VorbisStreamDecoder vorbis) : base(vorbis) { }
 
             protected override void Init(DataPacket packet)
             {
                 var submapCount = 1;
-                if (packet.ReadBit()) submapCount += (int)packet.ReadBits(4);
+                if (packet.ReadBit())
+                {
+                    submapCount += (int)packet.ReadBits(4);
+                }
 
                 // square polar mapping
                 var couplingSteps = 0;
@@ -64,12 +70,18 @@ namespace NVorbis
                     var magnitude = (int)packet.ReadBits(couplingBits);
                     var angle = (int)packet.ReadBits(couplingBits);
                     if (magnitude == angle || magnitude > _vorbis._channels - 1 || angle > _vorbis._channels - 1)
+                    {
                         throw new InvalidDataException();
+                    }
+
                     CouplingSteps[j] = new CouplingStep { Angle = angle, Magnitude = magnitude };
                 }
 
                 // reserved bits
-                if (packet.ReadBits(2) != 0UL) throw new InvalidDataException();
+                if (packet.ReadBits(2) != 0UL)
+                {
+                    throw new InvalidDataException();
+                }
 
                 // channel multiplex
                 var mux = new int[_vorbis._channels];
@@ -78,7 +90,10 @@ namespace NVorbis
                     for (int c = 0; c < ChannelSubmap.Length; c++)
                     {
                         mux[c] = (int)packet.ReadBits(4);
-                        if (mux[c] >= submapCount) throw new InvalidDataException();
+                        if (mux[c] >= submapCount)
+                        {
+                            throw new InvalidDataException();
+                        }
                     }
                 }
 
@@ -88,9 +103,16 @@ namespace NVorbis
                 {
                     packet.ReadBits(8); // unused placeholder
                     var floorNum = (int)packet.ReadBits(8);
-                    if (floorNum >= _vorbis.Floors.Length) throw new InvalidDataException();
+                    if (floorNum >= _vorbis.Floors.Length)
+                    {
+                        throw new InvalidDataException();
+                    }
+
                     var residueNum = (int)packet.ReadBits(8);
-                    if (residueNum >= _vorbis.Residues.Length) throw new InvalidDataException();
+                    if (residueNum >= _vorbis.Residues.Length)
+                    {
+                        throw new InvalidDataException();
+                    }
 
                     Submaps[j] = new Submap
                     {

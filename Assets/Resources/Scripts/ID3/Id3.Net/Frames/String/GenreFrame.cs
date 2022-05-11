@@ -29,6 +29,9 @@ namespace Id3.Frames
         {
         }
 
-        public static implicit operator GenreFrame(string value) => new GenreFrame(value);
+        public static implicit operator GenreFrame(string value)
+        {
+            return new GenreFrame(value);
+        }
     }
 }

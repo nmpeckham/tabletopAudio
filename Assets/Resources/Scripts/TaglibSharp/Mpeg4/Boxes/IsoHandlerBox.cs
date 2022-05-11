@@ -59,15 +59,20 @@ namespace TagLib.Mpeg4
             : base(header, file, handler)
         {
             if (file == null)
+            {
                 throw new ArgumentNullException(nameof(file));
+            }
 
             file.Seek(DataPosition + 4);
             ByteVector box_data = file.ReadBlock(DataSize - 4);
             HandlerType = box_data.Mid(0, 4);
 
-            int end = box_data.Find((byte)0, 16);
+            int end = box_data.Find(0, 16);
             if (end < 16)
+            {
                 end = box_data.Count;
+            }
+
             Name = end > 16 ? box_data.ToString(StringType.UTF8, 16, end - 16) : string.Empty;
         }
 
@@ -95,11 +100,15 @@ namespace TagLib.Mpeg4
             : base("hdlr", 0, 0)
         {
             if (handlerType == null)
+            {
                 throw new ArgumentNullException(nameof(handlerType));
+            }
 
             if (handlerType.Count < 4)
+            {
                 throw new ArgumentException("The handler type must be four bytes long.",
                     nameof(handlerType));
+            }
 
             HandlerType = handlerType.Mid(0, 4);
             Name = name;

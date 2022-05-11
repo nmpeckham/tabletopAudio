@@ -1,9 +1,7 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Linq;
 
 //Controls the file selection view for SFX buttons
 public class FileSelectViewController : MonoBehaviour
@@ -27,16 +25,16 @@ public class FileSelectViewController : MonoBehaviour
         {
             Destroy(fsi.gameObject);
         }
-        fileSelectionView.gameObject.SetActive(false);
+        fileSelectionView.SetActive(false);
         mac.currentMenuState = MainAppController.MenuState.editingSFXButton;
     }
 
-    internal void LoadFileSelectionView(int buttonID)
+    internal void LoadFileSelectionView()
     {
-        fileSelectionView.gameObject.SetActive(true);
+        fileSelectionView.SetActive(true);
 
 
-        foreach (string file in System.IO.Directory.GetFiles(mac.sfxDirectory, "*", SearchOption.AllDirectories))
+        foreach (string file in System.IO.Directory.GetFiles(MainAppController.workingDirectories["sfxDirectory"], "*", SearchOption.AllDirectories))
         {
             if (Path.GetExtension(file) == ".mp3" || Path.GetExtension(file) == ".ogg")
             {

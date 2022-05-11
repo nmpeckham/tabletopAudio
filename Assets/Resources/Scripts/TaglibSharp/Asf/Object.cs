@@ -37,7 +37,7 @@ namespace TagLib.Asf
         /// <summary>
         ///    Contains the GUID of the object.
         /// </summary>
-        readonly System.Guid id;
+        private readonly System.Guid id;
 
         #endregion
 
@@ -68,11 +68,15 @@ namespace TagLib.Asf
         protected Object(File file, long position)
         {
             if (file == null)
+            {
                 throw new ArgumentNullException(nameof(file));
+            }
 
             if (position < 0 ||
                 position > file.Length - 24)
+            {
                 throw new ArgumentOutOfRangeException(nameof(position));
+            }
 
             file.Seek(position);
             id = file.ReadGuid();
@@ -105,10 +109,7 @@ namespace TagLib.Asf
         ///    A <see cref="System.Guid" /> object containing the GUID
         ///    of the current instance.
         /// </value>
-        public System.Guid Guid
-        {
-            get { return id; }
-        }
+        public System.Guid Guid => id;
 
         /// <summary>
         ///    Gets the original size of the current instance.

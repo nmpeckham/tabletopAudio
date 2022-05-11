@@ -7,7 +7,8 @@ public class OptionsMenuButton : MonoBehaviour
     public string id = "";
     private Button thisButton;
     private OptionsMenuController omc;
-    void Start()
+
+    private void Start()
     {
         omc = Camera.main.GetComponent<OptionsMenuController>();
         thisButton = GetComponent<Button>();

@@ -29,6 +29,9 @@ namespace Id3.Frames
         {
         }
 
-        public static implicit operator PublisherFrame(string value) => new PublisherFrame(value);
+        public static implicit operator PublisherFrame(string value)
+        {
+            return new PublisherFrame(value);
+        }
     }
 }

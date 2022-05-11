@@ -40,7 +40,7 @@ namespace TagLib.Ogg
         /// <summary>
         ///    Contains the packets.
         /// </summary>
-        readonly ByteVectorCollection packets;
+        private readonly ByteVectorCollection packets;
 
         #endregion
 
@@ -92,7 +92,9 @@ namespace TagLib.Ogg
             file.Seek(position + Header.Size);
 
             foreach (int packet_size in Header.PacketSizes)
+            {
                 packets.Add(file.ReadBlock(packet_size));
+            }
         }
 
         /// <summary>
@@ -114,7 +116,9 @@ namespace TagLib.Ogg
             : this(header)
         {
             if (packets == null)
+            {
                 throw new ArgumentNullException(nameof(packets));
+            }
 
             this.packets = new ByteVectorCollection(packets);
 
@@ -122,7 +126,9 @@ namespace TagLib.Ogg
 
             // Build a page from the list of packets.
             foreach (ByteVector v in packets)
+            {
                 packet_sizes.Add(v.Count);
+            }
 
             header.PacketSizes = packet_sizes.ToArray();
         }
@@ -145,7 +151,9 @@ namespace TagLib.Ogg
             ByteVector data = Header.Render();
 
             foreach (ByteVector v in packets)
+            {
                 data.Add(v);
+            }
 
             // Compute and set the checksum for the Ogg page. The
             // checksum is taken over the entire page with the 4
@@ -156,7 +164,9 @@ namespace TagLib.Ogg
                 data.Checksum, false);
 
             for (int i = 0; i < 4; i++)
+            {
                 data[i + 22] = checksum[i];
+            }
 
             return data;
         }
@@ -183,10 +193,7 @@ namespace TagLib.Ogg
         ///    A <see cref="T:ByteVector[]" /> containing the packets
         ///    contained in the current instance.
         /// </value>
-        public ByteVector[] Packets
-        {
-            get { return packets.ToArray(); }
-        }
+        public ByteVector[] Packets => packets.ToArray();
 
         /// <summary>
         ///    Gets the total size of the current instance as it
@@ -196,10 +203,7 @@ namespace TagLib.Ogg
         ///    A <see cref="uint" /> value containing the size of the
         ///    page, including the header, as it appeared on disk.
         /// </value>
-        public uint Size
-        {
-            get { return Header.Size + Header.DataSize; }
-        }
+        public uint Size => Header.Size + Header.DataSize;
 
         #endregion
 
@@ -242,23 +246,31 @@ namespace TagLib.Ogg
         public static void OverwriteSequenceNumbers(File file, long position, IDictionary<uint, int> shiftTable)
         {
             if (file == null)
+            {
                 throw new ArgumentNullException(nameof(file));
+            }
 
             if (shiftTable == null)
+            {
                 throw new ArgumentNullException(nameof(shiftTable));
+            }
 
             // Check to see if there are no changes to be made.
             bool done = true;
             foreach (var pair in shiftTable)
+            {
                 if (pair.Value != 0)
                 {
                     done = false;
                     break;
                 }
+            }
 
             // If the file is fine, quit.
             if (done)
+            {
                 return;
+            }
 
             while (position < file.Length - 27)
             {
@@ -277,9 +289,14 @@ namespace TagLib.Ogg
                         false);
 
                     for (int i = 18; i < 22; i++)
+                    {
                         page_data[i] = new_data[i - 18];
+                    }
+
                     for (int i = 22; i < 26; i++)
+                    {
                         page_data[i] = 0;
+                    }
 
                     new_data.Add(ByteVector.FromUInt(
                         page_data.Checksum, false));

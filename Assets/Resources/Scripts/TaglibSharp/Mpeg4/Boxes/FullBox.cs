@@ -36,7 +36,7 @@ namespace TagLib.Mpeg4
         /// <summary>
         ///    Contains the box version.
         /// </summary>
-        byte version;
+        private byte version;
 
         #endregion
 
@@ -68,7 +68,9 @@ namespace TagLib.Mpeg4
             : base(header, handler)
         {
             if (file == null)
+            {
                 throw new ArgumentNullException(nameof(file));
+            }
 
             file.Seek(base.DataPosition);
             ByteVector header_data = file.ReadBlock(4);
@@ -143,10 +145,7 @@ namespace TagLib.Mpeg4
         ///    A <see cref="long" /> value containing the position of
         ///    the data contained in the current instance.
         /// </value>
-        protected override long DataPosition
-        {
-            get { return base.DataPosition + 4; }
-        }
+        protected override long DataPosition => base.DataPosition + 4;
 
         /// <summary>
         ///    Gets and sets the version number of the current instance.
@@ -157,8 +156,8 @@ namespace TagLib.Mpeg4
         /// </value>
         public uint Version
         {
-            get { return version; }
-            set { version = (byte)value; }
+            get => version;
+            set => version = (byte)value;
         }
 
         /// <summary>

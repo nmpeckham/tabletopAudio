@@ -166,7 +166,7 @@ namespace TagLib
         /// <summary>
         ///    Contains the current stream used in reading/writing.
         /// </summary>
-        Stream file_stream;
+        private Stream file_stream;
 
         /// <summary>
         ///    Contains the internal file abstraction.
@@ -176,18 +176,18 @@ namespace TagLib
         /// <summary>
         ///    Contains buffer size to use when reading.
         /// </summary>
-        static readonly int buffer_size = 1024;
+        private static readonly int buffer_size = 1024;
 
         /// <summary>
         ///    Contains the file type resolvers to use in <see
         ///    cref="Create(string)" />.
         /// </summary>
-        static readonly List<FileTypeResolver> file_type_resolvers = new List<FileTypeResolver>();
+        private static readonly List<FileTypeResolver> file_type_resolvers = new List<FileTypeResolver>();
 
         /// <summary>
         ///    The reasons (if any) why this file is marked as corrupt.
         /// </summary>
-        List<string> corruption_reasons;
+        private List<string> corruption_reasons;
 
         #endregion
 
@@ -225,7 +225,9 @@ namespace TagLib
         protected File(string path)
         {
             if (path == null)
+            {
                 throw new ArgumentNullException(nameof(path));
+            }
 
             file_abstraction = new LocalFileAbstraction(path);
         }
@@ -245,7 +247,9 @@ namespace TagLib
         protected File(IFileAbstraction abstraction)
         {
             if (abstraction == null)
+            {
                 throw new ArgumentNullException(nameof(abstraction));
+            }
 
             file_abstraction = abstraction;
         }
@@ -391,27 +395,39 @@ namespace TagLib
             get
             {
                 if (file_stream == null)
+                {
                     return AccessMode.Closed;
+                }
 
                 if (file_stream.CanWrite)
+                {
                     return AccessMode.Write;
+                }
 
                 return AccessMode.Read;
             }
             set
             {
                 if (Mode == value || (Mode == AccessMode.Write && value == AccessMode.Read))
+                {
                     return;
+                }
 
                 if (file_stream != null)
+                {
                     file_abstraction.CloseStream(file_stream);
+                }
 
                 file_stream = null;
 
                 if (value == AccessMode.Read)
+                {
                     file_stream = file_abstraction.ReadStream;
+                }
                 else if (value == AccessMode.Write)
+                {
                     file_stream = file_abstraction.WriteStream;
+                }
 
                 Mode = value;
             }
@@ -462,7 +478,10 @@ namespace TagLib
         internal void MarkAsCorrupt(string reason)
         {
             if (corruption_reasons == null)
+            {
                 corruption_reasons = new List<string>();
+            }
+
             corruption_reasons.Add(reason);
         }
 
@@ -623,10 +642,14 @@ namespace TagLib
         public ByteVector ReadBlock(int length)
         {
             if (length < 0)
+            {
                 throw new ArgumentException("Length must be non-negative", nameof(length));
+            }
 
             if (length == 0)
+            {
                 return new ByteVector();
+            }
 
             Mode = AccessMode.Read;
 
@@ -664,7 +687,9 @@ namespace TagLib
         public void WriteBlock(ByteVector data)
         {
             if (data == null)
+            {
                 throw new ArgumentNullException(nameof(data));
+            }
 
             Mode = AccessMode.Write;
 
@@ -698,12 +723,16 @@ namespace TagLib
         public long Find(ByteVector pattern, long startPosition, ByteVector before)
         {
             if (pattern == null)
+            {
                 throw new ArgumentNullException(nameof(pattern));
+            }
 
             Mode = AccessMode.Read;
 
             if (pattern.Count > buffer_size)
+            {
                 return -1;
+            }
 
             // The position in the file that the current buffer
             // starts at.
@@ -722,17 +751,24 @@ namespace TagLib
                     {
                         var beforeLocation = buffer.Find(before);
                         if (beforeLocation < location)
+                        {
                             return -1;
+                        }
                     }
 
                     if (location >= 0)
+                    {
                         return buffer_offset + location;
+                    }
 
                     // Ensure that we always rewind the stream a little so we never have a partial
                     // match where our data exists between the end of read A and the start of read B.
                     buffer_offset += buffer_size - pattern.Count;
                     if (before != null && before.Count > pattern.Count)
+                    {
                         buffer_offset -= before.Count - pattern.Count;
+                    }
+
                     file_stream.Position = buffer_offset;
                 }
 
@@ -816,15 +852,19 @@ namespace TagLib
         /// <exception cref="ArgumentNullException">
         ///    <paramref name="pattern" /> is <see langword="null" />.
         /// </exception>
-        long RFind(ByteVector pattern, long startPosition, ByteVector after)
+        private long RFind(ByteVector pattern, long startPosition, ByteVector after)
         {
             if (pattern == null)
+            {
                 throw new ArgumentNullException(nameof(pattern));
+            }
 
             Mode = AccessMode.Read;
 
             if (pattern.Count > buffer_size)
+            {
                 return -1;
+            }
 
             // The position in the file that the current buffer
             // starts at.
@@ -880,7 +920,9 @@ namespace TagLib
                 read_size = (int)Math.Min(buffer_offset, buffer_size);
                 buffer_offset -= read_size;
                 if (read_size + pattern.Count > buffer_size)
+                {
                     buffer_offset += pattern.Count;
+                }
 
                 file_stream.Position = buffer_offset;
             }
@@ -961,7 +1003,9 @@ namespace TagLib
         public void Insert(ByteVector data, long start, long replace)
         {
             if (data == null)
+            {
                 throw new ArgumentNullException(nameof(data));
+            }
 
             Insert(data, data.Count, start, replace);
         }
@@ -1035,7 +1079,9 @@ namespace TagLib
         public void RemoveBlock(long start, long length)
         {
             if (length <= 0)
+            {
                 return;
+            }
 
             Mode = AccessMode.Write;
 
@@ -1044,7 +1090,7 @@ namespace TagLib
             long read_position = start + length;
             long write_position = start;
 
-            ByteVector buffer = (byte)1;
+            ByteVector buffer = 1;
 
             while (buffer.Count != 0)
             {
@@ -1075,7 +1121,9 @@ namespace TagLib
         public void Seek(long offset, SeekOrigin origin)
         {
             if (Mode != AccessMode.Closed)
+            {
                 file_stream.Seek(offset, origin);
+            }
         }
 
         /// <summary>
@@ -1289,7 +1337,9 @@ namespace TagLib
                 int index = abstraction.Name.LastIndexOf(".") + 1;
 
                 if (index >= 1 && index < abstraction.Name.Length)
+                {
                     ext = abstraction.Name.Substring(index, abstraction.Name.Length - index);
+                }
 
                 mimetype = "taglib/" + ext.ToLower(CultureInfo.InvariantCulture);
             }
@@ -1299,12 +1349,16 @@ namespace TagLib
                 var file = resolver(abstraction, mimetype, propertiesStyle);
 
                 if (file != null)
+                {
                     return file;
+                }
             }
 
             if (!FileTypes.AvailableTypes.ContainsKey(mimetype))
+            {
                 throw new UnsupportedFormatException(
                     string.Format(CultureInfo.InvariantCulture, "{0} ({1})", abstraction.Name, mimetype));
+            }
 
             var file_type = FileTypes.AvailableTypes[mimetype];
 
@@ -1338,7 +1392,9 @@ namespace TagLib
         public static void AddFileTypeResolver(FileTypeResolver resolver)
         {
             if (resolver != null)
+            {
                 file_type_resolvers.Insert(0, resolver);
+            }
         }
 
         #endregion
@@ -1356,10 +1412,14 @@ namespace TagLib
             // Check validity
 
             if (!Writeable)
+            {
                 throw new InvalidOperationException("File not writeable.");
+            }
 
             if (PossiblyCorrupt)
+            {
                 throw new CorruptFileException("Corrupted file cannot be saved.");
+            }
 
             // All the Lazy objects must be loaded before opening the file
             // in Write mode
@@ -1405,7 +1465,7 @@ namespace TagLib
         ///    tag with a new one of different size, use <see
         ///    cref="Insert(ByteVector,long,long)" />.
         /// </remarks>
-        void Insert(ByteVector data, long size, long start, long replace)
+        private void Insert(ByteVector data, long size, long start, long replace)
         {
             Mode = AccessMode.Write;
 
@@ -1444,7 +1504,10 @@ namespace TagLib
 
             int buffer_length = (int)(size - replace);
             int modulo = buffer_length % buffer_size;
-            if (modulo != 0) buffer_length += buffer_size - modulo;
+            if (modulo != 0)
+            {
+                buffer_length += buffer_size - modulo;
+            }
 
 
             // Set where to start the reading and writing.
@@ -1539,7 +1602,7 @@ namespace TagLib
         /// Causes the original strack trace of the exception to be preserved when it is rethrown
         /// </summary>
         /// <param name="ex"></param>
-        static void PrepareExceptionForRethrow(Exception ex)
+        private static void PrepareExceptionForRethrow(Exception ex)
         {
             var ctx = new StreamingContext(StreamingContextStates.CrossAppDomain);
             var mgr = new ObjectManager(null, ctx);
@@ -1570,7 +1633,7 @@ namespace TagLib
             /// <summary>
             ///    Contains the name used to open the file.
             /// </summary>
-            readonly string name;
+            private readonly string name;
 
             /// <summary>
             ///    Constructs and initializes a new instance of
@@ -1588,7 +1651,9 @@ namespace TagLib
             public LocalFileAbstraction(string path)
             {
                 if (path == null)
+                {
                     throw new ArgumentNullException(nameof(path));
+                }
 
                 name = path;
             }
@@ -1641,7 +1706,9 @@ namespace TagLib
             public void CloseStream(Stream stream)
             {
                 if (stream == null)
+                {
                     throw new ArgumentNullException(nameof(stream));
+                }
 
                 stream.Close();
             }

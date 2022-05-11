@@ -70,8 +70,8 @@ namespace TagLib.Jpeg
         /// </value>
         public override string Comment
         {
-            get { return Value; }
-            set { Value = value; }
+            get => Value;
+            set => Value = value;
         }
 
         #endregion
@@ -84,10 +84,7 @@ namespace TagLib.Jpeg
         /// <value>
         ///    Always <see cref="TagTypes.JpegComment" />.
         /// </value>
-        public override TagTypes TagTypes
-        {
-            get { return TagTypes.JpegComment; }
-        }
+        public override TagTypes TagTypes => TagTypes.JpegComment;
 
         /// <summary>
         ///    Clears the values stored in the current instance.

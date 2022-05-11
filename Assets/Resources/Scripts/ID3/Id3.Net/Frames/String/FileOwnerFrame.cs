@@ -29,6 +29,9 @@ namespace Id3.Frames
         {
         }
 
-        public static implicit operator FileOwnerFrame(string value) => new FileOwnerFrame(value);
+        public static implicit operator FileOwnerFrame(string value)
+        {
+            return new FileOwnerFrame(value);
+        }
     }
 }

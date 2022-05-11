@@ -32,7 +32,10 @@ namespace Id3.Frames
         {
         }
 
-        public static implicit operator ArtistUrlFrame(string url) => new ArtistUrlFrame(url);
+        public static implicit operator ArtistUrlFrame(string url)
+        {
+            return new ArtistUrlFrame(url);
+        }
     }
 
     public sealed class ArtistUrlFrameList : Collection<ArtistUrlFrame>

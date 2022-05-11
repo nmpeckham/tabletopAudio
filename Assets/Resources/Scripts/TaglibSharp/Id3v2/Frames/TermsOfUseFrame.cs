@@ -39,7 +39,7 @@ namespace TagLib.Id3v2
         ///    Contains the ISO-639-2 language code of the current
         ///    instance.
         /// </summary>
-        string language;
+        private string language;
 
         #endregion
 
@@ -172,12 +172,9 @@ namespace TagLib.Id3v2
         /// </remarks>
         public string Language
         {
-            get
-            {
-                return (language != null && language.Length > 2)
+            get => (language != null && language.Length > 2)
                     ? language.Substring(0, 3) : "XXX";
-            }
-            set { language = value; }
+            set => language = value;
         }
 
         /// <summary>
@@ -239,11 +236,15 @@ namespace TagLib.Id3v2
             foreach (Frame f in tag.GetFrames(FrameType.USER))
             {
                 if (f is TermsOfUseFrame cf && (language == null || language == cf.Language))
+                {
                     return cf;
+                }
             }
 
             if (!create)
+            {
                 return null;
+            }
 
             var frame = new TermsOfUseFrame(language);
             tag.AddFrame(frame);
@@ -273,13 +274,19 @@ namespace TagLib.Id3v2
             foreach (Frame f in tag.GetFrames(FrameType.USER))
             {
                 if (!(f is TermsOfUseFrame cf))
+                {
                     continue;
+                }
 
                 if (cf.Language == language)
+                {
                     return cf;
+                }
 
                 if (best == null)
+                {
                     best = cf;
+                }
             }
 
             return best;
@@ -306,7 +313,9 @@ namespace TagLib.Id3v2
         protected override void ParseFields(ByteVector data, byte version)
         {
             if (data.Count < 4)
+            {
                 throw new CorruptFileException("Not enough bytes in field.");
+            }
 
             TextEncoding = (StringType)data[0];
             language = data.ToString(StringType.Latin1, 1, 3);

@@ -265,11 +265,15 @@ namespace TagLib.Id3v2
                 pcnt = frame as PlayCountFrame;
 
                 if (pcnt != null)
+                {
                     return pcnt;
+                }
             }
 
             if (!create)
+            {
                 return null;
+            }
 
             pcnt = new PlayCountFrame();
             tag.AddFrame(pcnt);
@@ -315,7 +319,9 @@ namespace TagLib.Id3v2
         {
             ByteVector data = ByteVector.FromULong(PlayCount);
             while (data.Count > 4 && data[0] == 0)
+            {
                 data.RemoveAt(0);
+            }
 
             return data;
         }

@@ -39,7 +39,7 @@ namespace TagLib.Matroska
         /// <summary>
         /// Define if this represent a video content (true), or an audio content (false)
         /// </summary>
-        bool IsVideo
+        private bool IsVideo
         {
             get
             {
@@ -47,7 +47,10 @@ namespace TagLib.Matroska
                 {
                     foreach (var uid in Elements)
                     {
-                        if (uid is VideoTrack || uid is SubtitleTrack) return true;
+                        if (uid is VideoTrack || uid is SubtitleTrack)
+                        {
+                            return true;
+                        }
                     }
                     return false;
                 }
@@ -72,8 +75,16 @@ namespace TagLib.Matroska
         /// <param name="element">The UID element that should be represented by this tag.</param>
         public Tag(Tags tags = null, TargetType targetTypeValue = 0, IUIDElement element = null)
         {
-            if (targetTypeValue != 0) TargetType = targetTypeValue;
-            if (element != null) Elements = new List<IUIDElement> { element };
+            if (targetTypeValue != 0)
+            {
+                TargetType = targetTypeValue;
+            }
+
+            if (element != null)
+            {
+                Elements = new List<IUIDElement> { element };
+            }
+
             Tags = tags;
             tags?.Add(this);
         }
@@ -113,7 +124,7 @@ namespace TagLib.Matroska
         /// <param name="create">Create one if it doesn't exist yet.</param>
         /// <param name="targetType">Target Type Value.</param>
         /// <returns>the Tag representing the collection</returns>
-        Tag TagsGet(bool create, TargetType targetType)
+        private Tag TagsGet(bool create, TargetType targetType)
         {
             Tag ret = Tags?.Get(targetType);
             if (ret == null && create)
@@ -129,7 +140,7 @@ namespace TagLib.Matroska
         /// </summary>
         /// <param name="create">Create one if it doesn't exist yet.</param>
         /// <returns>the Tag representing the collection</returns>
-        Tag TagsAlbum(bool create)
+        private Tag TagsAlbum(bool create)
         {
             Tag ret = null;
             if (Tags != null)
@@ -167,7 +178,10 @@ namespace TagLib.Matroska
                                 {
                                     if (list.Count > 1)
                                     {
-                                        if (slist.Count > 0) slist.RemoveAt(0);
+                                        if (slist.Count > 0)
+                                        {
+                                            slist.RemoveAt(0);
+                                        }
                                     }
                                     else
                                     {
@@ -183,7 +197,10 @@ namespace TagLib.Matroska
                     }
                 }
 
-                if (subkey == null) SimpleTags.Remove(key);
+                if (subkey == null)
+                {
+                    SimpleTags.Remove(key);
+                }
             }
         }
 
@@ -206,10 +223,14 @@ namespace TagLib.Matroska
             SimpleTags.TryGetValue(key, out var list);
 
             if (list == null)
+            {
                 SimpleTags[key] = list = new List<SimpleTag>(1);
+            }
 
             if (list.Count == 0)
+            {
                 list.Add(new SimpleTag());
+            }
 
             if (subkey == null)
             {
@@ -218,17 +239,23 @@ namespace TagLib.Matroska
             else
             {
                 if (list[0].SimpleTags == null)
+                {
                     list[0].SimpleTags = new Dictionary<string, List<SimpleTag>>(StringComparer.OrdinalIgnoreCase);
+                }
 
                 list[0].SimpleTags.TryGetValue(subkey, out var slist);
 
                 if (slist == null)
+                {
                     slist = new List<SimpleTag>(1);
+                }
 
                 list[0].SimpleTags[subkey] = slist;
 
                 if (slist.Count == 0)
+                {
                     slist.Add(new SimpleTag());
+                }
 
                 // Sub-values
                 var svalues = value.Split(';');
@@ -237,15 +264,21 @@ namespace TagLib.Matroska
                 {
                     SimpleTag subtag;
                     if (j >= slist.Count)
+                    {
                         slist.Add(subtag = new SimpleTag());
+                    }
                     else
+                    {
                         subtag = slist[j];
+                    }
 
                     subtag.Value = svalues[j];
                 }
 
                 if (j < slist.Count)
+                {
                     slist.RemoveRange(j, slist.Count - j);
+                }
             }
 
         }
@@ -286,16 +319,22 @@ namespace TagLib.Matroska
             SimpleTags.TryGetValue(key, out var list);
 
             if (list == null)
+            {
                 SimpleTags[key] = list = new List<SimpleTag>(1);
+            }
 
             int i;
             for (i = 0; i < values.Length; i++)
             {
                 SimpleTag stag;
                 if (i >= list.Count)
+                {
                     list.Add(stag = new SimpleTag());
+                }
                 else
+                {
                     stag = list[i];
+                }
 
                 if (subkey == null)
                 {
@@ -304,12 +343,16 @@ namespace TagLib.Matroska
                 else
                 {
                     if (stag.SimpleTags == null)
+                    {
                         stag.SimpleTags = new Dictionary<string, List<SimpleTag>>(StringComparer.OrdinalIgnoreCase);
+                    }
 
                     stag.SimpleTags.TryGetValue(subkey, out var slist);
 
                     if (slist == null)
+                    {
                         slist = new List<SimpleTag>(1);
+                    }
 
                     stag.SimpleTags[subkey] = slist;
 
@@ -320,21 +363,29 @@ namespace TagLib.Matroska
                     {
                         SimpleTag subtag;
                         if (j >= slist.Count)
+                        {
                             slist.Add(subtag = new SimpleTag());
+                        }
                         else
+                        {
                             subtag = slist[j];
+                        }
 
                         subtag.Value = svalues[j].Trim();
                     }
 
                     if (j < slist.Count)
+                    {
                         slist.RemoveRange(j, slist.Count - j);
+                    }
                 }
             }
 
 
             if (subkey == null && i < list.Count)
+            {
                 list.RemoveRange(i, list.Count - i);
+            }
         }
 
 
@@ -411,12 +462,15 @@ namespace TagLib.Matroska
         /// <param name="subkey">Nested SimpleTag to find (if non null) Tag name</param>
         /// <param name="recu">Also search in parent Tag if true (default: true)</param>
         /// <returns>Tag value</returns>
-        string GetString(string key, string subkey = null, bool recu = true)
+        private string GetString(string key, string subkey = null, bool recu = true)
         {
             string ret = null;
 
             string[] list = Get(key, subkey, recu);
-            if (list != null && list.Length > 0) ret = list[0];
+            if (list != null && list.Length > 0)
+            {
+                ret = list[0];
+            }
 
             return ret;
         }
@@ -429,7 +483,7 @@ namespace TagLib.Matroska
         /// <param name="subkey">Nested SimpleTag to find (if non null) Tag name</param>
         /// <param name="recu">Also search in parent Tag if true (default: false)</param>
         /// <returns>Tag value as unsigned integer</returns>
-        uint GetUint(string key, string subkey = null, bool recu = false)
+        private uint GetUint(string key, string subkey = null, bool recu = false)
         {
             uint ret = 0;
             string val = GetString(key, subkey, recu);
@@ -533,10 +587,7 @@ namespace TagLib.Matroska
         /// </summary>
         public TargetType TargetType
         {
-            get
-            {
-                return _TargetType;
-            }
+            get => _TargetType;
             set
             {
                 _TargetType = value;
@@ -549,7 +600,7 @@ namespace TagLib.Matroska
             }
         }
 
-        TargetType _TargetType = TargetType.DEFAULT;
+        private TargetType _TargetType = TargetType.DEFAULT;
 
         /// <summary>
         /// Array of UID elements the tag applies to. If null, the tag apply to all elements.
@@ -570,10 +621,7 @@ namespace TagLib.Matroska
         /// <value>
         ///    Always <see cref="TagTypes.Matroska" />.
         /// </value>
-        public override TagTypes TagTypes
-        {
-            get { return TagTypes.Matroska; }
-        }
+        public override TagTypes TagTypes => TagTypes.Matroska;
 
         /// <summary>
         ///    Gets and sets the title for the media described by the
@@ -592,13 +640,20 @@ namespace TagLib.Matroska
             get
             {
                 var ret = GetString("TITLE");
-                if (ret == null && Tags != null && Tags.Medium == this) ret = Tags.Title;
+                if (ret == null && Tags != null && Tags.Medium == this)
+                {
+                    ret = Tags.Title;
+                }
+
                 return ret;
             }
             set
             {
                 Set("TITLE", null, value);
-                if (Tags != null && Tags.Medium == this) Tags.Title = value;
+                if (Tags != null && Tags.Medium == this)
+                {
+                    Tags.Title = value;
+                }
             }
         }
 
@@ -617,8 +672,8 @@ namespace TagLib.Matroska
         /// </remarks>
         public override string TitleSort
         {
-            get { return GetString("TITLE", "SORT_WITH"); }
-            set { Set("TITLE", "SORT_WITH", value); }
+            get => GetString("TITLE", "SORT_WITH");
+            set => Set("TITLE", "SORT_WITH", value);
         }
 
         /// <summary>
@@ -636,8 +691,8 @@ namespace TagLib.Matroska
         /// </remarks>
         public override string Subtitle
         {
-            get { return GetString("SUBTITLE"); }
-            set { Set("SUBTITLE", null, value); }
+            get => GetString("SUBTITLE");
+            set => Set("SUBTITLE", null, value);
         }
 
         /// <summary>
@@ -660,8 +715,8 @@ namespace TagLib.Matroska
         /// </remarks>
         public override string Description
         {
-            get { return GetString("SUMMARY"); }
-            set { Set("SUMMARY", null, value); }
+            get => GetString("SUMMARY");
+            set => Set("SUMMARY", null, value);
         }
 
         /// <summary>
@@ -680,8 +735,8 @@ namespace TagLib.Matroska
         /// </remarks>
         public override string[] Performers
         {
-            get { return Get(IsVideo ? "ACTOR" : "PERFORMER"); }
-            set { Set(IsVideo ? "ACTOR" : "PERFORMER", null, value); }
+            get => Get(IsVideo ? "ACTOR" : "PERFORMER");
+            set => Set(IsVideo ? "ACTOR" : "PERFORMER", null, value);
         }
 
         /// <summary>
@@ -700,8 +755,8 @@ namespace TagLib.Matroska
         /// </remarks>
         public override string[] PerformersSort
         {
-            get { return Get(IsVideo ? "ACTOR" : "PERFORMER", "SORT_WITH"); }
-            set { Set(IsVideo ? "ACTOR" : "PERFORMER", "SORT_WITH", value); }
+            get => Get(IsVideo ? "ACTOR" : "PERFORMER", "SORT_WITH");
+            set => Set(IsVideo ? "ACTOR" : "PERFORMER", "SORT_WITH", value);
         }
 
 
@@ -724,8 +779,8 @@ namespace TagLib.Matroska
         /// </remarks>
         public override string[] PerformersRole
         {
-            get { return Get(IsVideo ? "ACTOR" : "PERFORMER", IsVideo ? "CHARACTER" : "INSTRUMENTS"); }
-            set { Set(IsVideo ? "ACTOR" : "PERFORMER", IsVideo ? "CHARACTER" : "INSTRUMENTS", value); }
+            get => Get(IsVideo ? "ACTOR" : "PERFORMER", IsVideo ? "CHARACTER" : "INSTRUMENTS");
+            set => Set(IsVideo ? "ACTOR" : "PERFORMER", IsVideo ? "CHARACTER" : "INSTRUMENTS", value);
         }
 
 
@@ -753,7 +808,10 @@ namespace TagLib.Matroska
             set
             {
                 var tag = TagsAlbum(true);
-                if (tag != null) tag.Set("ARTIST", null, value);
+                if (tag != null)
+                {
+                    tag.Set("ARTIST", null, value);
+                }
             }
         }
 
@@ -785,7 +843,10 @@ namespace TagLib.Matroska
             set
             {
                 var tag = TagsAlbum(true);
-                if (tag != null) tag.Set("ARTIST", "SORT_WITH", value);
+                if (tag != null)
+                {
+                    tag.Set("ARTIST", "SORT_WITH", value);
+                }
             }
         }
 
@@ -803,8 +864,8 @@ namespace TagLib.Matroska
         /// </remarks>
         public override string[] Composers
         {
-            get { return Get("COMPOSER"); }
-            set { Set("COMPOSER", null, value); }
+            get => Get("COMPOSER");
+            set => Set("COMPOSER", null, value);
         }
 
 
@@ -833,8 +894,8 @@ namespace TagLib.Matroska
         /// </remarks>
         public override string[] ComposersSort
         {
-            get { return Get("COMPOSER", "SORT_WITH"); }
-            set { Set("COMPOSER", "SORT_WITH", value); }
+            get => Get("COMPOSER", "SORT_WITH");
+            set => Set("COMPOSER", "SORT_WITH", value);
         }
 
 
@@ -860,7 +921,10 @@ namespace TagLib.Matroska
             set
             {
                 var tag = TagsAlbum(true);
-                if (tag != null) tag.Set("TITLE", null, value);
+                if (tag != null)
+                {
+                    tag.Set("TITLE", null, value);
+                }
             }
         }
 
@@ -887,7 +951,10 @@ namespace TagLib.Matroska
             set
             {
                 var tag = TagsAlbum(true);
-                if (tag != null) tag.Set("TITLE", "SORT_WITH", value);
+                if (tag != null)
+                {
+                    tag.Set("TITLE", "SORT_WITH", value);
+                }
             }
         }
 
@@ -905,8 +972,8 @@ namespace TagLib.Matroska
         /// </remarks>
         public override string Comment
         {
-            get { return GetString("COMMENT"); }
-            set { Set("COMMENT", null, value); }
+            get => GetString("COMMENT");
+            set => Set("COMMENT", null, value);
         }
 
         /// <summary>
@@ -928,7 +995,9 @@ namespace TagLib.Matroska
                 string value = GetString("GENRE");
 
                 if (value == null || value.Trim().Length == 0)
+                {
                     return new string[] { };
+                }
 
                 string[] result = value.Split(';');
 
@@ -940,8 +1009,10 @@ namespace TagLib.Matroska
                     if (closing > 0 && genre[0] == '(' &&
                         byte.TryParse(genre.Substring(
                         1, closing - 1), out var genre_id))
+                    {
                         genre = TagLib.Genres
                             .IndexToAudio(genre_id);
+                    }
 
                     result[i] = genre;
                 }
@@ -949,10 +1020,7 @@ namespace TagLib.Matroska
                 return result;
             }
 
-            set
-            {
-                Set("GENRE", null, value != null ? string.Join("; ", value) : null);
-            }
+            set => Set("GENRE", null, value != null ? string.Join("; ", value) : null);
         }
 
         /// <summary>
@@ -978,14 +1046,18 @@ namespace TagLib.Matroska
                 if (val != null)
                 {
                     int off = val.IndexOf('-');
-                    if (off > 0) val = val.Substring(0, off);
+                    if (off > 0)
+                    {
+                        val = val.Substring(0, off);
+                    }
+
                     uint.TryParse(val, NumberStyles.Any, CultureInfo.InvariantCulture, out ret);
                 }
 
                 return ret;
             }
 
-            set { Set("DATE_RECORDED", null, value); }
+            set => Set("DATE_RECORDED", null, value);
         }
 
         /// <summary>
@@ -1002,8 +1074,8 @@ namespace TagLib.Matroska
         /// </remarks>
         public override uint Track
         {
-            get { return GetUint("PART_NUMBER"); }
-            set { Set("PART_NUMBER", null, value, "00"); }
+            get => GetUint("PART_NUMBER");
+            set => Set("PART_NUMBER", null, value, "00");
         }
 
         /// <summary>
@@ -1029,7 +1101,10 @@ namespace TagLib.Matroska
             set
             {
                 var tag = TagsGet(true, MakeTargetType((ushort)(TargetTypeValue + 10)));
-                if (tag != null) tag.Set("TOTAL_PARTS", null, value);
+                if (tag != null)
+                {
+                    tag.Set("TOTAL_PARTS", null, value);
+                }
             }
         }
 
@@ -1056,7 +1131,10 @@ namespace TagLib.Matroska
             set
             {
                 var tag = TagsGet(true, IsVideo ? TargetType.VOLUME : TargetType.PART);
-                if (tag != null) tag.Set("PART_NUMBER", null, value);
+                if (tag != null)
+                {
+                    tag.Set("PART_NUMBER", null, value);
+                }
             }
         }
 
@@ -1083,7 +1161,10 @@ namespace TagLib.Matroska
             set
             {
                 var tag = TagsGet(true, IsVideo ? TargetType.COLLECTION : TargetType.ALBUM);
-                if (tag != null) tag.Set("TOTAL_PARTS", null, value);
+                if (tag != null)
+                {
+                    tag.Set("TOTAL_PARTS", null, value);
+                }
             }
         }
 
@@ -1098,8 +1179,8 @@ namespace TagLib.Matroska
         /// </value>
         public override string Lyrics
         {
-            get { return GetString("LYRICS"); }
-            set { Set("LYRICS", null, value); }
+            get => GetString("LYRICS");
+            set => Set("LYRICS", null, value);
         }
 
         /// <summary>
@@ -1121,7 +1202,10 @@ namespace TagLib.Matroska
             set
             {
                 var tag = TagsAlbum(true);
-                if (tag != null) tag.Set("GROUPING", null, value);
+                if (tag != null)
+                {
+                    tag.Set("GROUPING", null, value);
+                }
             }
         }
 
@@ -1136,8 +1220,8 @@ namespace TagLib.Matroska
         /// </value>
         public override uint BeatsPerMinute
         {
-            get { return GetUint("BPM", null, true); }
-            set { Set("BPM", null, value); }
+            get => GetUint("BPM", null, true);
+            set => Set("BPM", null, value);
         }
 
         /// <summary>
@@ -1151,8 +1235,8 @@ namespace TagLib.Matroska
         /// </value>
         public override string Conductor
         {
-            get { return GetString(IsVideo ? "DIRECTOR" : "CONDUCTOR"); }
-            set { Set(IsVideo ? "DIRECTOR" : "CONDUCTOR", null, value); }
+            get => GetString(IsVideo ? "DIRECTOR" : "CONDUCTOR");
+            set => Set(IsVideo ? "DIRECTOR" : "CONDUCTOR", null, value);
         }
 
         /// <summary>
@@ -1169,8 +1253,8 @@ namespace TagLib.Matroska
         /// </remarks>
         public override string Copyright
         {
-            get { return GetString("COPYRIGHT"); }
-            set { Set("COPYRIGHT", null, value); }
+            get => GetString("COPYRIGHT");
+            set => Set("COPYRIGHT", null, value);
         }
 
 
@@ -1221,7 +1305,7 @@ namespace TagLib.Matroska
         /// </value>
         public override string MusicBrainzArtistId
         {
-            get { return null; }
+            get => null;
             set { }
         }
 
@@ -1236,7 +1320,7 @@ namespace TagLib.Matroska
         /// </value>
         public override string MusicBrainzReleaseGroupId
         {
-            get { return null; }
+            get => null;
             set { }
         }
 
@@ -1251,7 +1335,7 @@ namespace TagLib.Matroska
         /// </value>
         public override string MusicBrainzReleaseId
         {
-            get { return null; }
+            get => null;
             set { }
         }
 
@@ -1266,7 +1350,7 @@ namespace TagLib.Matroska
         /// </value>
         public override string MusicBrainzReleaseArtistId
         {
-            get { return null; }
+            get => null;
             set { }
         }
 
@@ -1281,7 +1365,7 @@ namespace TagLib.Matroska
         /// </value>
         public override string MusicBrainzTrackId
         {
-            get { return null; }
+            get => null;
             set { }
         }
 
@@ -1296,7 +1380,7 @@ namespace TagLib.Matroska
         /// </value>
         public override string MusicBrainzDiscId
         {
-            get { return null; }
+            get => null;
             set { }
         }
 
@@ -1311,7 +1395,7 @@ namespace TagLib.Matroska
         /// </value>
         public override string MusicIpId
         {
-            get { return null; }
+            get => null;
             set { }
         }
 
@@ -1344,7 +1428,7 @@ namespace TagLib.Matroska
         /// </value>
         public override string MusicBrainzReleaseStatus
         {
-            get { return null; }
+            get => null;
             set { }
         }
 
@@ -1359,7 +1443,7 @@ namespace TagLib.Matroska
         /// </value>
         public override string MusicBrainzReleaseType
         {
-            get { return null; }
+            get => null;
             set { }
         }
 
@@ -1374,7 +1458,7 @@ namespace TagLib.Matroska
         /// </value>
         public override string MusicBrainzReleaseCountry
         {
-            get { return null; }
+            get => null;
             set { }
         }
 
@@ -1389,10 +1473,7 @@ namespace TagLib.Matroska
         /// </value>
         public override IPicture[] Pictures
         {
-            get
-            {
-                return Tags?.Attachments;
-            }
+            get => Tags?.Attachments;
 
             set
             {
@@ -1431,13 +1512,7 @@ namespace TagLib.Matroska
         ///    <see langword="true" /> if the current instance does not
         ///    any values. Otherwise <see langword="false" />.
         /// </value>
-        public override bool IsEmpty
-        {
-            get
-            {
-                return SimpleTags.Count == 0;
-            }
-        }
+        public override bool IsEmpty => SimpleTags.Count == 0;
 
         /// <summary>
         ///    Clears the values stored in the current instance.

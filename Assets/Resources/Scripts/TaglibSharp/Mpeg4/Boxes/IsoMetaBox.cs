@@ -84,10 +84,14 @@ namespace TagLib.Mpeg4
             : base("meta", 0, 0)
         {
             if (handlerType == null)
+            {
                 throw new ArgumentNullException(nameof(handlerType));
+            }
 
             if (handlerType.Count < 4)
+            {
                 throw new ArgumentException("The handler type must be four bytes long.", nameof(handlerType));
+            }
 
             Children = new List<Box>();
             AddChild(new IsoHandlerBox(handlerType, handlerName));

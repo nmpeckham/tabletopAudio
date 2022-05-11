@@ -60,7 +60,9 @@ namespace TagLib.Mpeg4
             : base(header, file, handler)
         {
             if (file == null)
+            {
                 throw new ArgumentNullException(nameof(file));
+            }
 
             EntryCount = file.ReadBlock(4).ToUInt();
             Children = LoadChildren(file);
@@ -79,10 +81,7 @@ namespace TagLib.Mpeg4
         ///    A <see cref="long" /> value containing the position of
         ///    the data contained in the current instance.
         /// </value>
-        protected override long DataPosition
-        {
-            get { return base.DataPosition + 4; }
-        }
+        protected override long DataPosition => base.DataPosition + 4;
 
         /// <summary>
         ///    Gets the number of boxes at the begining of the children

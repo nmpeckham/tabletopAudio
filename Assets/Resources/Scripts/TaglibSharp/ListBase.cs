@@ -42,7 +42,7 @@ namespace TagLib
         /// <summary>
         ///    Contains the internal list.
         /// </summary>
-        readonly List<T> data = new List<T>();
+        private readonly List<T> data = new List<T>();
 
         #region Constructors
 
@@ -65,7 +65,9 @@ namespace TagLib
         public ListBase(ListBase<T> list)
         {
             if (list != null)
+            {
                 Add(list);
+            }
         }
 
         /// <summary>
@@ -79,7 +81,9 @@ namespace TagLib
         public ListBase(params T[] list)
         {
             if (list != null)
+            {
                 Add(list);
+            }
         }
 
         #endregion
@@ -93,10 +97,7 @@ namespace TagLib
         ///    <see langword="true" /> if the current instance is empty;
         ///    otherwise <see langword="false" />.
         /// </value>
-        public bool IsEmpty
-        {
-            get { return Count == 0; }
-        }
+        public bool IsEmpty => Count == 0;
 
         #endregion
 
@@ -165,7 +166,9 @@ namespace TagLib
         public virtual void SortedInsert(T item, bool unique)
         {
             if (item == null)
+            {
                 throw new ArgumentNullException(nameof(item));
+            }
 
             int i = 0;
             for (; i < data.Count; i++)
@@ -197,7 +200,9 @@ namespace TagLib
         public void SortedInsert(T item)
         {
             if (item == null)
+            {
                 throw new ArgumentNullException(nameof(item));
+            }
 
             SortedInsert(item, false);
         }
@@ -224,10 +229,7 @@ namespace TagLib
         /// <value>
         ///    Always <see langword="false" />.
         /// </value>
-        public bool IsReadOnly
-        {
-            get { return false; }
-        }
+        public bool IsReadOnly => false;
 
         /// <summary>
         ///    Gets whether or not the current instance has a fixed
@@ -236,18 +238,15 @@ namespace TagLib
         /// <value>
         ///    Always <see langword="false" />.
         /// </value>
-        public bool IsFixedSize
-        {
-            get { return false; }
-        }
+        public bool IsFixedSize => false;
 
         /// <summary>
         ///    Gets and sets the value as a specified index.
         /// </summary>
         public T this[int index]
         {
-            get { return data[index]; }
-            set { data[index] = value; }
+            get => data[index];
+            set => data[index] = value;
         }
 
         /// <summary>
@@ -400,10 +399,7 @@ namespace TagLib
         ///    A <see cref="int" /> value containing the number of
         ///    elements in the current instance.
         /// </value>
-        public int Count
-        {
-            get { return data.Count; }
-        }
+        public int Count => data.Count;
 
         /// <summary>
         ///    Gets whether or not the current instance is synchronized.
@@ -411,10 +407,7 @@ namespace TagLib
         /// <value>
         ///    Always <see langword="false" />.
         /// </value>
-        public bool IsSynchronized
-        {
-            get { return false; }
-        }
+        public bool IsSynchronized => false;
 
         /// <summary>
         ///    Gets the object that can be used to synchronize the
@@ -424,10 +417,7 @@ namespace TagLib
         ///    A <see cref="object" /> that can be used to synchronize
         ///    the current instance.
         /// </value>
-        public object SyncRoot
-        {
-            get { return this; }
-        }
+        public object SyncRoot => this;
 
         /// <summary>
         ///    Copies the current instance to an array, starting at a

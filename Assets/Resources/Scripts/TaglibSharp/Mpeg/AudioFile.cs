@@ -63,7 +63,7 @@ namespace TagLib.Mpeg
         /// <summary>
         ///    Contains the first audio header.
         /// </summary>
-        AudioHeader first_header;
+        private AudioHeader first_header;
 
         #endregion
 
@@ -187,7 +187,9 @@ namespace TagLib.Mpeg
             Tag t = (Tag as TagLib.NonContainer.Tag).GetTag(type);
 
             if (t != null || !create)
+            {
                 return t;
+            }
 
             switch (type)
             {
@@ -235,7 +237,9 @@ namespace TagLib.Mpeg
             // reading a bad file forever.
             if ((propertiesStyle & ReadStyle.Average) != 0 &&
                 !AudioHeader.Find(out first_header, this, start, 0x4000))
+            {
                 throw new CorruptFileException("MPEG audio header not found.");
+            }
         }
 
         /// <summary>

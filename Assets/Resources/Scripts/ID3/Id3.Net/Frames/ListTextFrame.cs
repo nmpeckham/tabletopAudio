@@ -50,14 +50,18 @@ namespace Id3.Frames
             set
             {
                 if (string.IsNullOrEmpty(value))
+                {
                     Value.Clear();
+                }
                 else
                 {
                     string[] breakup = value.Split(Separator[0]);
                     foreach (string s in breakup)
                     {
                         if (!string.IsNullOrWhiteSpace(s))
+                        {
                             Value.Add(s);
+                        }
                     }
                 }
             }

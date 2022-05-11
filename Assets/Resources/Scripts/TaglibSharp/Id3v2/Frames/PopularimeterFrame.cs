@@ -39,7 +39,7 @@ namespace TagLib.Id3v2
         /// <summary>
         ///    Contains the email of the user this frame belongs to.
         /// </summary>
-        string user = string.Empty;
+        private string user = string.Empty;
 
         #endregion
 
@@ -125,8 +125,8 @@ namespace TagLib.Id3v2
         /// </value>
         public string User
         {
-            get { return user; }
-            set { user = value ?? string.Empty; }
+            get => user;
+            set => user = value ?? string.Empty;
         }
 
         /// <summary>
@@ -182,11 +182,15 @@ namespace TagLib.Id3v2
                 popm = frame as PopularimeterFrame;
 
                 if (popm != null && popm.user.Equals(user))
+                {
                     return popm;
+                }
             }
 
             if (!create)
+            {
                 return null;
+            }
 
             popm = new PopularimeterFrame(user);
             tag.AddFrame(popm);
@@ -217,10 +221,14 @@ namespace TagLib.Id3v2
 
             int index = data.Find(delim);
             if (index < 0)
+            {
                 throw new CorruptFileException("Popularimeter frame does not contain a text delimiter");
+            }
 
             if (index + 2 > data.Count)
+            {
                 throw new CorruptFileException("Popularimeter is too short");
+            }
 
             user = data.ToString(StringType.Latin1, 0, index);
             Rating = data[index + 1];
@@ -243,7 +251,9 @@ namespace TagLib.Id3v2
         {
             ByteVector data = ByteVector.FromULong(PlayCount);
             while (data.Count > 0 && data[0] == 0)
+            {
                 data.RemoveAt(0);
+            }
 
             data.Insert(0, Rating);
             data.Insert(0, 0);
@@ -266,9 +276,11 @@ namespace TagLib.Id3v2
         /// </returns>
         public override Frame Clone()
         {
-            PopularimeterFrame frame = new PopularimeterFrame(user);
-            frame.PlayCount = PlayCount;
-            frame.Rating = Rating;
+            PopularimeterFrame frame = new PopularimeterFrame(user)
+            {
+                PlayCount = PlayCount,
+                Rating = Rating
+            };
             return frame;
         }
 

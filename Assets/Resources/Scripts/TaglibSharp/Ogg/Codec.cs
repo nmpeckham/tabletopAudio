@@ -88,7 +88,7 @@ namespace TagLib.Ogg
         /// <summary>
         ///    Contains registered codec providers.
         /// </summary>
-        static readonly List<CodecProvider> providers = new List<CodecProvider>();
+        private static readonly List<CodecProvider> providers = new List<CodecProvider>();
 
         #endregion
 
@@ -125,20 +125,29 @@ namespace TagLib.Ogg
             foreach (CodecProvider p in providers)
             {
                 c = p(packet);
-                if (c != null) return c;
+                if (c != null)
+                {
+                    return c;
+                }
             }
 
             c = Codecs.Vorbis.FromPacket(packet);
             if (c != null)
+            {
                 return c;
+            }
 
             c = Codecs.Theora.FromPacket(packet);
             if (c != null)
+            {
                 return c;
+            }
 
             c = Codecs.Opus.FromPacket(packet);
             if (c != null)
+            {
                 return c;
+            }
 
             throw new UnsupportedFormatException("Unknown codec.");
         }
@@ -207,10 +216,7 @@ namespace TagLib.Ogg
         ///    first and last granular positions will be passed to <see
         ///    cref="GetDuration" />.
         /// </remarks>
-        public TimeSpan Duration
-        {
-            get { return TimeSpan.Zero; }
-        }
+        public TimeSpan Duration => TimeSpan.Zero;
 
         #endregion
 

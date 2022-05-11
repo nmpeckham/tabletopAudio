@@ -11,15 +11,12 @@ public class MusicButton : MonoBehaviour, IPointerClickHandler, IComparable
     public TMP_Text duration;
     internal Song Song
     {
-        get
-        {
-            return song;
-        }
+        get => song;
         set
         {
             song = value;
             label.text = song.SortName;
-            if(song.duration.Hours > 0)
+            if (song.duration.Hours > 0)
             {
                 duration.text = song.duration.Hours.ToString() + ":" + song.duration.Minutes.ToString("D2") + ":" + song.duration.Seconds.ToString("D2");
             }
@@ -31,10 +28,10 @@ public class MusicButton : MonoBehaviour, IPointerClickHandler, IComparable
     }
 
     public int buttonId;
-    static PlaylistRightClickController prcc;
-    static MusicController mc;
-    static float doubleClickTime = 0.3f;
-    static float timeSinceClick = -1;
+    private static PlaylistRightClickController prcc;
+    private static MusicController mc;
+    private static readonly float doubleClickTime = 0.4f;
+    private static float timeSinceClick = -1;
     internal MoveMusicButton mmb;
 
 
@@ -46,36 +43,42 @@ public class MusicButton : MonoBehaviour, IPointerClickHandler, IComparable
         mmb = GetComponentInChildren<MoveMusicButton>();
     }
 
-    void ItemSelected(int type)
+    private void ItemSelected(int type)
     {
         if (type == 0)
         {
             if (Time.realtimeSinceStartup - timeSinceClick < doubleClickTime)
             {
-                mc.PlaylistItemSelected(buttonId);
+                mc.PlaylistItemSelected(this);
             }
             timeSinceClick = Time.realtimeSinceStartup;
         }
         else if (type == 1)
         {
-            prcc.ShowRightClickMenu(buttonId);
+            prcc.ShowRightClickMenu(this);
         }
     }
 
-    void LeftClicked()
+    private void LeftClicked()
     {
         ItemSelected(0);
     }
 
-    void RightClicked()
+    private void RightClicked()
     {
         ItemSelected(1);
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (eventData.button == PointerEventData.InputButton.Left) LeftClicked();
-        else if (eventData.button == PointerEventData.InputButton.Right) RightClicked();
+        if (eventData.button == PointerEventData.InputButton.Left)
+        {
+            LeftClicked();
+        }
+        else if (eventData.button == PointerEventData.InputButton.Right)
+        {
+            RightClicked();
+        }
     }
 
     public int CompareTo(object obj)

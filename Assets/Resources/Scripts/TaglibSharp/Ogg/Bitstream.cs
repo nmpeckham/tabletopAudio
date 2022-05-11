@@ -38,18 +38,18 @@ namespace TagLib.Ogg
         ///    Contains the last packet of the previous page in case it
         ///    is continued in the next frame.
         /// </summary>
-        ByteVector previous_packet;
+        private ByteVector previous_packet;
 
         /// <summary>
         ///    Contains the index of the next packet to be processed.
         /// </summary>
-        int packet_index;
+        private int packet_index;
 
         /// <summary>
         ///    Contains the absolute granular position of the first
         ///    page.
         /// </summary>
-        readonly long first_absolute_granular_position;
+        private readonly long first_absolute_granular_position;
 
         #endregion
 
@@ -80,7 +80,9 @@ namespace TagLib.Ogg
         public Bitstream(Page page)
         {
             if (page == null)
+            {
                 throw new ArgumentNullException(nameof(page));
+            }
 
             // Assume that the first packet is completely enclosed.
             // This should be sufficient for codec recognition.
@@ -114,7 +116,9 @@ namespace TagLib.Ogg
         public bool ReadPage(Page page)
         {
             if (page == null)
+            {
                 throw new ArgumentNullException(nameof(page));
+            }
 
             ByteVector[] packets = page.Packets;
 
@@ -204,7 +208,7 @@ namespace TagLib.Ogg
         ///    called again, typically once the Xiph comment has been
         ///    found. Otherwise <see langword="false" />.
         /// </returns>
-        bool ReadPacket(ByteVector packet)
+        private bool ReadPacket(ByteVector packet)
         {
             return Codec.ReadPacket(packet, packet_index++);
         }

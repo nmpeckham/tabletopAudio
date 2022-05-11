@@ -115,10 +115,7 @@ namespace TagLib.Riff
         /// <value>
         ///    Always <see cref="TagTypes.RiffInfo" />.
         /// </value>
-        public override TagTypes TagTypes
-        {
-            get { return TagTypes.RiffInfo; }
-        }
+        public override TagTypes TagTypes => TagTypes.RiffInfo;
 
         /// <summary>
         ///    Gets and sets the title for the media described by the
@@ -137,12 +134,16 @@ namespace TagLib.Riff
             get
             {
                 foreach (string s in GetValuesAsStrings("INAM"))
+                {
                     if (!string.IsNullOrEmpty(s))
+                    {
                         return s;
+                    }
+                }
 
                 return null;
             }
-            set { SetValue("INAM", value); }
+            set => SetValue("INAM", value);
         }
 
         /// <summary>
@@ -166,12 +167,16 @@ namespace TagLib.Riff
             get
             {
                 foreach (string s in GetValuesAsStrings("ISBJ"))
+                {
                     if (!string.IsNullOrEmpty(s))
+                    {
                         return s;
+                    }
+                }
 
                 return null;
             }
-            set { SetValue("ISBJ", value); }
+            set => SetValue("ISBJ", value);
         }
 
 
@@ -190,8 +195,8 @@ namespace TagLib.Riff
         /// </remarks>
         public override string[] Performers
         {
-            get { return GetValuesAsStrings("ISTR"); }
-            set { SetValue("ISTR", value); }
+            get => GetValuesAsStrings("ISTR");
+            set => SetValue("ISTR", value);
         }
 
         /// <summary>
@@ -210,8 +215,8 @@ namespace TagLib.Riff
         /// </remarks>
         public override string[] AlbumArtists
         {
-            get { return GetValuesAsStrings("IART"); }
-            set { SetValue("IART", value); }
+            get => GetValuesAsStrings("IART");
+            set => SetValue("IART", value);
         }
 
         /// <summary>
@@ -228,8 +233,8 @@ namespace TagLib.Riff
         /// </remarks>
         public override string[] Composers
         {
-            get { return GetValuesAsStrings("IWRI"); }
-            set { SetValue("IWRI", value); }
+            get => GetValuesAsStrings("IWRI");
+            set => SetValue("IWRI", value);
         }
 
 
@@ -251,12 +256,16 @@ namespace TagLib.Riff
             get
             {
                 foreach (string s in GetValuesAsStrings("DIRC"))
+                {
                     if (!string.IsNullOrEmpty(s))
+                    {
                         return s;
+                    }
+                }
 
                 return null;
             }
-            set { SetValue("DIRC", value); }
+            set => SetValue("DIRC", value);
         }
 
         /// <summary>
@@ -277,12 +286,16 @@ namespace TagLib.Riff
             get
             {
                 foreach (string s in GetValuesAsStrings("ICNM"))
+                {
                     if (!string.IsNullOrEmpty(s))
+                    {
                         return s;
+                    }
+                }
 
                 return null;
             }
-            set { SetValue("ICNM", value); }
+            set => SetValue("ICNM", value);
         }
 
 
@@ -303,12 +316,16 @@ namespace TagLib.Riff
             get
             {
                 foreach (string s in GetValuesAsStrings("ICMT"))
+                {
                     if (!string.IsNullOrEmpty(s))
+                    {
                         return s;
+                    }
+                }
 
                 return null;
             }
-            set { SetValue("ICMT", value); }
+            set => SetValue("ICMT", value);
         }
 
         /// <summary>
@@ -325,8 +342,8 @@ namespace TagLib.Riff
         /// </remarks>
         public override string[] Genres
         {
-            get { return GetValuesAsStrings("IGNR"); }
-            set { SetValue("IGNR", value); }
+            get => GetValuesAsStrings("IGNR");
+            set => SetValue("IGNR", value);
         }
 
         /// <summary>
@@ -343,8 +360,8 @@ namespace TagLib.Riff
         /// </remarks>
         public override uint Year
         {
-            get { return GetValueAsUInt("ICRD"); }
-            set { SetValue("ICRD", value); }
+            get => GetValueAsUInt("ICRD");
+            set => SetValue("ICRD", value);
         }
 
         /// <summary>
@@ -361,8 +378,8 @@ namespace TagLib.Riff
         /// </remarks>
         public override uint Track
         {
-            get { return GetValueAsUInt("IPRT"); }
-            set { SetValue("IPRT", value); }
+            get => GetValueAsUInt("IPRT");
+            set => SetValue("IPRT", value);
         }
 
         /// <summary>
@@ -379,8 +396,8 @@ namespace TagLib.Riff
         /// </remarks>
         public override uint TrackCount
         {
-            get { return GetValueAsUInt("IFRM"); }
-            set { SetValue("IFRM", value); }
+            get => GetValueAsUInt("IFRM");
+            set => SetValue("IFRM", value);
         }
 
         /// <summary>
@@ -400,12 +417,16 @@ namespace TagLib.Riff
             get
             {
                 foreach (string s in GetValuesAsStrings("ICOP"))
+                {
                     if (!string.IsNullOrEmpty(s))
+                    {
                         return s;
+                    }
+                }
 
                 return null;
             }
-            set { SetValue("ICOP", value); }
+            set => SetValue("ICOP", value);
         }
         #endregion
     }

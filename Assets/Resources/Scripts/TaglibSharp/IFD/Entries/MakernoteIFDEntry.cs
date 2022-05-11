@@ -133,25 +133,25 @@ namespace TagLib.IFD.Entries
         /// <value>
         ///    Stores the prefix of the makernote
         /// </value>
-        readonly ByteVector prefix;
+        private readonly ByteVector prefix;
 
         /// <value>
         ///    Stores the offset of the IFD contained in makernote
         /// </value>
-        readonly uint ifd_offset;
+        private readonly uint ifd_offset;
 
         /// <value>
         ///    Indicates, if the offsets are relative to the current makernote
         ///    or absolut to the base_offset of the surrounding IFD.
         /// </value>
-        readonly bool absolute_offset;
+        private readonly bool absolute_offset;
 
         /// <value>
         ///    Stores, if the makernote is encoded in big- or little endian.
         ///    If the field is <see langword="null"/>, the endianess of the
         ///    surrounding IFD is used.
         /// </value>
-        readonly bool? is_bigendian;
+        private readonly bool? is_bigendian;
 
         #endregion
 

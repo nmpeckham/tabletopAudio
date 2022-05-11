@@ -49,10 +49,7 @@ namespace TagLib.Tiff.Dng
         ///    A <see cref="bool" /> which is true if tags can be written to the
         ///    current file, otherwise false.
         /// </value>
-        public override bool Writeable
-        {
-            get { return false; }
-        }
+        public override bool Writeable => false;
 
 
         #endregion

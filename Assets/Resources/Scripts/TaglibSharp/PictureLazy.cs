@@ -43,38 +43,38 @@ namespace TagLib
         /// <summary>
         ///    Contains the mime-type.
         /// </summary>
-        string mime_type;
+        private string mime_type;
 
         /// <summary>
         ///    Contains the content type.
         /// </summary>
-        PictureType type;
+        private PictureType type;
 
         /// <summary>
         ///    Contains the filename.
         /// </summary>
-        string filename;
+        private string filename;
 
         /// <summary>
         ///    Contains the picture data.
         /// </summary>
-        ByteVector data;
+        private ByteVector data;
 
 
         /// <summary>
         /// Stream where the picture is located
         /// </summary>
-        File.IFileAbstraction file;
+        private File.IFileAbstraction file;
 
         /// <summary>
         /// Offset from where the picture start in the <see cref="file"/>
         /// </summary>
-        readonly long stream_offset;
+        private readonly long stream_offset;
 
         /// <summary>
         /// Size of the picture in the <see cref="file"/> (-1 = until end of Stream)
         /// </summary>
-        readonly long stream_size = -1;
+        private readonly long stream_size = -1;
 
         #endregion
 
@@ -104,7 +104,9 @@ namespace TagLib
         public PictureLazy(string path)
         {
             if (path == null)
+            {
                 throw new ArgumentNullException(nameof(path));
+            }
 
             file = new File.LocalFileAbstraction(path);
 
@@ -138,8 +140,9 @@ namespace TagLib
         public PictureLazy(File.IFileAbstraction abstraction, long offset = 0, long size = -1)
         {
             if (abstraction == null)
+            {
                 throw new ArgumentNullException(nameof(abstraction));
-
+            }
 
             file = abstraction;
             stream_offset = offset;
@@ -171,7 +174,9 @@ namespace TagLib
         public PictureLazy(ByteVector data)
         {
             if (data == null)
+            {
                 throw new ArgumentNullException(nameof(data));
+            }
 
             Data = new ByteVector(data);
             string ext = Picture.GetExtensionFromData(data);
@@ -223,7 +228,10 @@ namespace TagLib
         public void Load()
         {
             // Already loaded ?
-            if (data != null) return;
+            if (data != null)
+            {
+                return;
+            }
 
 
             // Load the picture from the stream
@@ -284,13 +292,17 @@ namespace TagLib
                 {
                     type = PictureType.FrontCover;
                     if (filename == null)
+                    {
                         filename = Description = "cover" + ext;
+                    }
                 }
                 else
                 {
                     type = PictureType.NotAPicture;
                     if (filename == null)
+                    {
                         filename = "UnknownType";
+                    }
                 }
             }
         }
@@ -313,10 +325,13 @@ namespace TagLib
             get
             {
                 if (mime_type == null)
+                {
                     Load();
+                }
+
                 return mime_type;
             }
-            set { mime_type = value; }
+            set => mime_type = value;
         }
 
         /// <summary>
@@ -333,10 +348,13 @@ namespace TagLib
             get
             {
                 if (type == PictureType.Other && mime_type == null)
+                {
                     Load();
+                }
+
                 return type;
             }
-            set { type = value; }
+            set => type = value;
         }
 
         /// <summary>
@@ -352,10 +370,13 @@ namespace TagLib
             get
             {
                 if (filename == null)
+                {
                     Load();
+                }
+
                 return filename;
             }
-            set { filename = value; }
+            set => filename = value;
         }
 
         /// <summary>
@@ -381,23 +402,20 @@ namespace TagLib
             get
             {
                 if (data == null)
+                {
                     Load();
+                }
+
                 return data;
             }
-            set { data = value; }
+            set => data = value;
         }
 
 
         /// <summary>
         ///    Gets an indication whether the picture is loaded.
         /// </summary>
-        public bool IsLoaded
-        {
-            get
-            {
-                return data != null;
-            }
-        }
+        public bool IsLoaded => data != null;
 
         #endregion
 

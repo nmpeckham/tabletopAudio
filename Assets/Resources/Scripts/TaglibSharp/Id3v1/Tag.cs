@@ -42,37 +42,37 @@ namespace TagLib.Id3v1
         /// <summary>
         ///    Contains the title.
         /// </summary>
-        string title;
+        private string title;
 
         /// <summary>
         ///    Contains the semicolon separated performers.
         /// </summary>
-        string artist;
+        private string artist;
 
         /// <summary>
         ///    Contains the album name.
         /// </summary>
-        string album;
+        private string album;
 
         /// <summary>
         ///    Contains the 4 digit year.
         /// </summary>
-        string year;
+        private string year;
 
         /// <summary>
         ///    Contains a comment on track.
         /// </summary>
-        string comment;
+        private string comment;
 
         /// <summary>
         ///    Contains the track number in the album.
         /// </summary>
-        byte track;
+        private byte track;
 
         /// <summary>
         ///    Contains the genre index.
         /// </summary>
-        byte genre;
+        private byte genre;
 
         #endregion
 
@@ -136,12 +136,16 @@ namespace TagLib.Id3v1
         public Tag(File file, long position)
         {
             if (file == null)
+            {
                 throw new ArgumentNullException(nameof(file));
+            }
 
             file.Mode = File.AccessMode.Read;
 
             if (position < 0 || position > file.Length - Size)
+            {
                 throw new ArgumentOutOfRangeException(nameof(position));
+            }
 
             file.Seek(position);
 
@@ -152,7 +156,9 @@ namespace TagLib.Id3v1
             // some initial sanity checking
 
             if (!data.StartsWith(FileIdentifier))
+            {
                 throw new CorruptFileException("ID3v1 data does not start with identifier.");
+            }
 
             Parse(data);
         }
@@ -175,13 +181,19 @@ namespace TagLib.Id3v1
         public Tag(ByteVector data)
         {
             if (data == null)
+            {
                 throw new ArgumentNullException(nameof(data));
+            }
 
             if (data.Count < Size)
+            {
                 throw new CorruptFileException("ID3v1 data is less than 128 bytes long.");
+            }
 
             if (!data.StartsWith(FileIdentifier))
+            {
                 throw new CorruptFileException("ID3v1 data does not start with identifier.");
+            }
 
             Parse(data);
         }
@@ -245,7 +257,7 @@ namespace TagLib.Id3v1
         ///    A <see cref="ByteVector" /> object containing the
         ///    starting with an ID3v1 tag.
         /// </param>
-        void Parse(ByteVector data)
+        private void Parse(ByteVector data)
         {
             title = DefaultStringHandler.Parse(data.Mid(3, 30));
             artist = DefaultStringHandler.Parse(data.Mid(33, 30));
@@ -285,10 +297,7 @@ namespace TagLib.Id3v1
         /// <value>
         ///    Always <see cref="TagTypes.Id3v1" />.
         /// </value>
-        public override TagTypes TagTypes
-        {
-            get { return TagTypes.Id3v1; }
-        }
+        public override TagTypes TagTypes => TagTypes.Id3v1;
 
         /// <summary>
         ///    Gets and sets the title for the media described by the
@@ -306,16 +315,10 @@ namespace TagLib.Id3v1
         /// </remarks>
         public override string Title
         {
-            get
-            {
-                return string.IsNullOrEmpty(title) ?
+            get => string.IsNullOrEmpty(title) ?
                     null : title;
-            }
-            set
-            {
-                title = value != null ?
+            set => title = value != null ?
                     value.Trim() : string.Empty;
-            }
         }
 
         /// <summary>
@@ -337,14 +340,8 @@ namespace TagLib.Id3v1
         /// </remarks>
         public override string[] Performers
         {
-            get
-            {
-                return string.IsNullOrEmpty(artist) ? new string[0] : artist.Split(';');
-            }
-            set
-            {
-                artist = value != null ? string.Join(";", value) : string.Empty;
-            }
+            get => string.IsNullOrEmpty(artist) ? new string[0] : artist.Split(';');
+            set => artist = value != null ? string.Join(";", value) : string.Empty;
         }
 
         /// <summary>
@@ -363,14 +360,8 @@ namespace TagLib.Id3v1
         /// </remarks>
         public override string Album
         {
-            get
-            {
-                return string.IsNullOrEmpty(album) ? null : album;
-            }
-            set
-            {
-                album = value != null ? value.Trim() : string.Empty;
-            }
+            get => string.IsNullOrEmpty(album) ? null : album;
+            set => album = value != null ? value.Trim() : string.Empty;
         }
 
         /// <summary>
@@ -389,14 +380,8 @@ namespace TagLib.Id3v1
         /// </remarks>
         public override string Comment
         {
-            get
-            {
-                return string.IsNullOrEmpty(comment) ? null : comment;
-            }
-            set
-            {
-                comment = value != null ? value.Trim() : string.Empty;
-            }
+            get => string.IsNullOrEmpty(comment) ? null : comment;
+            set => comment = value != null ? value.Trim() : string.Empty;
         }
 
         /// <summary>
@@ -422,11 +407,8 @@ namespace TagLib.Id3v1
 
                 return (genre_name != null) ? new[] { genre_name } : new string[0];
             }
-            set
-            {
-                genre = (value == null || value.Length == 0) ?
+            set => genre = (value == null || value.Length == 0) ?
                     (byte)255 : TagLib.Genres.AudioToIndex(value[0].Trim());
-            }
         }
 
         /// <summary>
@@ -444,14 +426,8 @@ namespace TagLib.Id3v1
         /// </remarks>
         public override uint Year
         {
-            get
-            {
-                return uint.TryParse(year, NumberStyles.Integer, CultureInfo.InvariantCulture, out var value) ? value : 0;
-            }
-            set
-            {
-                year = (value > 0 && value < 10000) ? value.ToString(CultureInfo.InvariantCulture) : string.Empty;
-            }
+            get => uint.TryParse(year, NumberStyles.Integer, CultureInfo.InvariantCulture, out var value) ? value : 0;
+            set => year = (value > 0 && value < 10000) ? value.ToString(CultureInfo.InvariantCulture) : string.Empty;
         }
 
         /// <summary>
@@ -469,8 +445,8 @@ namespace TagLib.Id3v1
         /// </remarks>
         public override uint Track
         {
-            get { return track; }
-            set { track = (byte)(value < 256 ? value : 0); }
+            get => track;
+            set => track = (byte)(value < 256 ? value : 0);
         }
 
         /// <summary>

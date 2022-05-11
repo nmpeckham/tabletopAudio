@@ -39,17 +39,17 @@ namespace TagLib.Id3v2
         ///    Contains the ISO-639-2 language code of the current
         ///    instance.
         /// </summary>
-        string language;
+        private string language;
 
         /// <summary>
         ///    Contains the description of the current instance.
         /// </summary>
-        string description;
+        private string description;
 
         /// <summary>
         ///    Contains the lyrics text of the current instance.
         /// </summary>
-        string text;
+        private string text;
 
         #endregion
 
@@ -214,11 +214,13 @@ namespace TagLib.Id3v2
             get
             {
                 if (language != null && language.Length > 2)
+                {
                     return language.Substring(0, 3);
+                }
 
                 return "XXX";
             }
-            set { language = value; }
+            set => language = value;
         }
 
         /// <summary>
@@ -238,11 +240,13 @@ namespace TagLib.Id3v2
             get
             {
                 if (description != null)
+                {
                     return description;
+                }
 
                 return string.Empty;
             }
-            set { description = value; }
+            set => description = value;
         }
 
         /// <summary>
@@ -258,11 +262,13 @@ namespace TagLib.Id3v2
             get
             {
                 if (text != null)
+                {
                     return text;
+                }
 
                 return string.Empty;
             }
-            set { text = value; }
+            set => text = value;
         }
 
         #endregion
@@ -321,19 +327,27 @@ namespace TagLib.Id3v2
                 uslt = frame as UnsynchronisedLyricsFrame;
 
                 if (uslt == null)
+                {
                     continue;
+                }
 
                 if (uslt.Description != description)
+                {
                     continue;
+                }
 
                 if (language != null && language != uslt.Language)
+                {
                     continue;
+                }
 
                 return uslt;
             }
 
             if (!create)
+            {
                 return null;
+            }
 
             uslt = new UnsynchronisedLyricsFrame(description,
                 language);
@@ -394,18 +408,24 @@ namespace TagLib.Id3v2
             foreach (Frame frame in tag.GetFrames(FrameType.USLT))
             {
                 if (!(frame is UnsynchronisedLyricsFrame uslt))
+                {
                     continue;
+                }
 
                 bool same_name = uslt.Description == description;
                 bool same_lang = uslt.Language == language;
 
                 if (same_name && same_lang)
+                {
                     return uslt;
+                }
 
                 int value = same_lang ? 2 : same_name ? 1 : 0;
 
                 if (value <= best_value)
+                {
                     continue;
+                }
 
                 best_value = value;
                 best_frame = uslt;
@@ -435,7 +455,9 @@ namespace TagLib.Id3v2
         protected override void ParseFields(ByteVector data, byte version)
         {
             if (data.Count < 4)
+            {
                 throw new CorruptFileException("Not enough bytes in field.");
+            }
 
             TextEncoding = (StringType)data[0];
             language = data.ToString(StringType.Latin1, 1, 3);

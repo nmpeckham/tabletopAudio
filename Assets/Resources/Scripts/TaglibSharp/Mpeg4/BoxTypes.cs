@@ -39,7 +39,7 @@ namespace TagLib.Mpeg4
     ///    result.</para>
     ///    <see url="https://picard.musicbrainz.org/docs/mappings/"/> 
     /// </remarks>
-    static class BoxType
+    internal static class BoxType
     {
         public static readonly ReadOnlyByteVector Aart = "aART";
         public static readonly ReadOnlyByteVector Alb = AppleTag.FixId("alb");

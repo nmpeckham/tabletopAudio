@@ -377,12 +377,12 @@ namespace TagLib.Id3v2
         /// <summary>
         ///    Contains the encoding to use for the text.
         /// </summary>
-        StringType encoding = Tag.DefaultEncoding;
+        private StringType encoding = Tag.DefaultEncoding;
 
         /// <summary>
         ///    Contains the text fields.
         /// </summary>
-        string[] text_fields = new string[0];
+        private string[] text_fields = new string[0];
 
         /// <summary>
         ///    Contains the raw data from the frame, or <see
@@ -393,17 +393,17 @@ namespace TagLib.Id3v2
         ///    it is parsed on demand, reducing the ammount of
         ///    unnecessary conversion.
         /// </remarks>
-        ByteVector raw_data;
+        private ByteVector raw_data;
 
         /// <summary>
         ///    Contains the ID3v2 version of <see cref="raw_data" />.
         /// </summary>
-        byte raw_version;
+        private byte raw_version;
 
         /// <summary>
         ///    Contains the Encoding of the raw_data
         /// </summary>
-        StringType raw_encoding = StringType.Latin1;
+        private StringType raw_encoding = StringType.Latin1;
 
         #endregion
 
@@ -579,7 +579,7 @@ namespace TagLib.Id3v2
                 ParseRawData();
                 return encoding;
             }
-            set { encoding = value; }
+            set => encoding = value;
         }
 
         #endregion
@@ -643,31 +643,43 @@ namespace TagLib.Id3v2
         public override ByteVector Render(byte version)
         {
             if (version != 3 || FrameId != FrameType.TDRC)
+            {
                 return base.Render(version);
+            }
 
             string text = ToString();
             if (text.Length < 10 || text[4] != '-' || text[7] != '-')
+            {
                 return base.Render(version);
+            }
 
             ByteVector output = new ByteVector();
             TextInformationFrame f;
 
-            f = new TextInformationFrame(FrameType.TYER, encoding);
-            f.Text = new[] { text.Substring(0, 4) };
+            f = new TextInformationFrame(FrameType.TYER, encoding)
+            {
+                Text = new[] { text.Substring(0, 4) }
+            };
             output.Add(f.Render(version));
 
-            f = new TextInformationFrame(FrameType.TDAT, encoding);
-            f.Text = new[] {
+            f = new TextInformationFrame(FrameType.TDAT, encoding)
+            {
+                Text = new[] {
                 text.Substring (5, 2) + text.Substring (8, 2)
+            }
             };
             output.Add(f.Render(version));
 
             if (text.Length < 16 || text[10] != 'T' || text[13] != ':')
+            {
                 return output;
+            }
 
-            f = new TextInformationFrame(FrameType.TIME, encoding);
-            f.Text = new[] {
+            f = new TextInformationFrame(FrameType.TIME, encoding)
+            {
+                Text = new[] {
                 text.Substring (11, 2) + text.Substring (14, 2)
+            }
             };
             output.Add(f.Render(version));
 
@@ -722,19 +734,29 @@ namespace TagLib.Id3v2
         public static TextInformationFrame Get(Tag tag, ByteVector ident, StringType encoding, bool create)
         {
             if (tag == null)
+            {
                 throw new ArgumentNullException(nameof(tag));
+            }
 
             if (ident == null)
+            {
                 throw new ArgumentNullException(nameof(ident));
+            }
 
             if (ident.Count != 4)
+            {
                 throw new ArgumentException("Identifier must be four bytes long.", nameof(ident));
+            }
 
             foreach (var frame in tag.GetFrames<TextInformationFrame>(ident))
+            {
                 return frame;
+            }
 
             if (!create)
+            {
                 return null;
+            }
 
             var new_frame = new TextInformationFrame(ident, encoding);
             tag.AddFrame(new_frame);
@@ -848,7 +870,9 @@ namespace TagLib.Id3v2
         protected void ParseRawData()
         {
             if (raw_data == null)
+            {
                 return;
+            }
 
             ByteVector data = raw_data;
             raw_data = null;
@@ -896,7 +920,9 @@ namespace TagLib.Id3v2
                     {
                         int closing = value.IndexOf(')');
                         if (closing < 0)
+                        {
                             break;
+                        }
 
                         string number = value.Substring(1, closing - 1);
 
@@ -906,11 +932,15 @@ namespace TagLib.Id3v2
 
                         string text = Genres.IndexToAudio(number);
                         if (text != null && value.StartsWith(text))
+                        {
                             value = value.Substring(text.Length).TrimStart('/', ' ');
+                        }
                     }
 
                     if (value.Length > 0)
+                    {
                         field_list.AddRange(value.Split(new[] { '/', ';' }));
+                    }
                 }
                 else
                 {
@@ -922,7 +952,9 @@ namespace TagLib.Id3v2
             // end of a string, resulting in empty strings at the
             // end of the FieldList. Strip them off.
             while (field_list.Count != 0 && string.IsNullOrEmpty(field_list[field_list.Count - 1]))
+            {
                 field_list.RemoveAt(field_list.Count - 1);
+            }
 
             text_fields = field_list.ToArray();
         }
@@ -942,7 +974,9 @@ namespace TagLib.Id3v2
         protected override ByteVector RenderFields(byte version)
         {
             if (raw_data != null && raw_version == version && raw_encoding == Tag.DefaultEncoding)
+            {
                 return raw_data;
+            }
 
             StringType encoding = CorrectEncoding(TextEncoding, version);
             ByteVector v = new ByteVector((byte)encoding);
@@ -956,9 +990,13 @@ namespace TagLib.Id3v2
                 if (txxx)
                 {
                     if (text.Length == 0)
+                    {
                         text = new string[] { null, null };
+                    }
                     else if (text.Length == 1)
+                    {
                         text = new[] { text[0], null };
+                    }
                 }
 
                 for (int i = 0; i < text.Length; i++)
@@ -970,10 +1008,14 @@ namespace TagLib.Id3v2
                     // encoding.
 
                     if (i != 0)
+                    {
                         v.Add(ByteVector.TextDelimiter(encoding));
+                    }
 
                     if (text[i] != null)
+                    {
                         v.Add(ByteVector.FromString(text[i], encoding));
+                    }
                 }
             }
             else if (FrameId == FrameType.TCON)
@@ -990,9 +1032,13 @@ namespace TagLib.Id3v2
 
                     // FIXME, Should this be "==" or "="?
                     if (prev_value_indexed = byte.TryParse(s, out var id))
+                    {
                         data.AppendFormat(CultureInfo.InvariantCulture, "({0})", id);
+                    }
                     else
+                    {
                         data.Append(s);
+                    }
                 }
 
                 v.Add(ByteVector.FromString(data.ToString(), encoding));
@@ -1024,7 +1070,10 @@ namespace TagLib.Id3v2
             var frame = (this is UserTextInformationFrame) ? new UserTextInformationFrame(null, encoding) : new TextInformationFrame(FrameId, encoding);
             frame.text_fields = (string[])text_fields.Clone();
             if (raw_data != null)
+            {
                 frame.raw_data = new ByteVector(raw_data);
+            }
+
             frame.raw_version = raw_version;
             return frame;
         }
@@ -1162,9 +1211,13 @@ namespace TagLib.Id3v2
             {
                 string[] text = base.Text;
                 if (text.Length > 0)
+                {
                     text[0] = value;
+                }
                 else
+                {
                     text = new[] { value };
+                }
 
                 base.Text = text;
             }
@@ -1189,11 +1242,15 @@ namespace TagLib.Id3v2
             {
                 string[] text = base.Text;
                 if (text.Length < 2)
+                {
                     return new string[0];
+                }
 
                 string[] new_text = new string[text.Length - 1];
                 for (int i = 0; i < new_text.Length; i++)
+                {
                     new_text[i] = text[i + 1];
+                }
 
                 return new_text;
             }
@@ -1204,7 +1261,9 @@ namespace TagLib.Id3v2
                 new_value[0] = Description;
 
                 for (int i = 1; i < new_value.Length; i++)
+                {
                     new_value[i] = value[i - 1];
+                }
 
                 base.Text = new_value;
             }
@@ -1269,24 +1328,36 @@ namespace TagLib.Id3v2
         public static UserTextInformationFrame Get(Tag tag, string description, StringType type, bool create, bool caseSensitive)
         {
             if (tag == null)
+            {
                 throw new ArgumentNullException(nameof(tag));
+            }
 
             if (description == null)
+            {
                 throw new ArgumentNullException(nameof(description));
+            }
 
             if (description.Length == 0)
+            {
                 throw new ArgumentException("Description must not be empty.", nameof(description));
+            }
 
             StringComparison stringComparison =
                 caseSensitive ? StringComparison.InvariantCulture :
                     StringComparison.InvariantCultureIgnoreCase;
 
             foreach (var frame in tag.GetFrames<UserTextInformationFrame>(FrameType.TXXX))
+            {
                 if (description.Equals(frame.Description, stringComparison))
+                {
                     return frame;
+                }
+            }
 
             if (!create)
+            {
                 return null;
+            }
 
             var new_frame = new UserTextInformationFrame(description, type);
             tag.AddFrame(new_frame);

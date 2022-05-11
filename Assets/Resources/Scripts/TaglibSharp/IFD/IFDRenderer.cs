@@ -40,19 +40,19 @@ namespace TagLib.IFD
         /// <summary>
         ///    The IFD structure that will be rendered.
         /// </summary>
-        readonly IFDStructure structure;
+        private readonly IFDStructure structure;
 
         /// <summary>
         ///    If IFD should be encoded in BigEndian or not.
         /// </summary>
-        readonly bool is_bigendian;
+        private readonly bool is_bigendian;
 
         /// <summary>
         ///    A <see cref="System.UInt32"/> value with the offset of the
         ///    current IFD. All offsets inside the IFD must be adjusted
         ///    according to this given offset.
         /// </summary>
-        readonly uint ifd_offset;
+        private readonly uint ifd_offset;
 
         #endregion
 
@@ -131,10 +131,12 @@ namespace TagLib.IFD
         /// <returns>
         ///    A <see cref="ByteVector"/> with the rendered IFD.
         /// </returns>
-        ByteVector RenderIFD(IFDDirectory directory, uint ifd_offset, bool last)
+        private ByteVector RenderIFD(IFDDirectory directory, uint ifd_offset, bool last)
         {
             if (directory.Count > ushort.MaxValue)
+            {
                 throw new Exception($"Directory has too much entries: {directory.Count}");
+            }
 
             // Remove empty SUB ifds.
             var tags = new List<ushort>(directory.Keys);
@@ -161,15 +163,23 @@ namespace TagLib.IFD
             entry_data.Add(ByteVector.FromUShort(entry_count, is_bigendian));
 
             foreach (IFDEntry entry in directory.Values)
+            {
                 RenderEntryData(entry, entry_data, offset_data, data_offset);
+            }
 
             if (last)
+            {
                 entry_data.Add("\0\0\0\0");
+            }
             else
+            {
                 entry_data.Add(ByteVector.FromUInt((uint)(data_offset + offset_data.Count), is_bigendian));
+            }
 
             if (data_offset - ifd_offset != entry_data.Count)
+            {
                 throw new Exception($"Expected IFD data size was {data_offset - ifd_offset} but is {entry_data.Count}");
+            }
 
             entry_data.Add(offset_data);
 
@@ -240,7 +250,9 @@ namespace TagLib.IFD
             {
 
                 while (data.Count < 4)
+                {
                     data.Add("\0");
+                }
 
                 offset = data.ToUInt(is_bigendian);
                 data = null;
@@ -248,7 +260,9 @@ namespace TagLib.IFD
 
             // preserve word boundary of offsets
             if (data != null && data.Count % 2 != 0)
+            {
                 data.Add("\0");
+            }
 
             RenderEntry(entry_data, tag, type, count, offset);
             offset_data.Add(data);

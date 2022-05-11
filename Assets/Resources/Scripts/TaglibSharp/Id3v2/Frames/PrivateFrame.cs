@@ -307,11 +307,15 @@ namespace TagLib.Id3v2
             {
                 priv = frame as PrivateFrame;
                 if (priv != null && priv.Owner == owner)
+                {
                     return priv;
+                }
             }
 
             if (!create)
+            {
                 return null;
+            }
 
             priv = new PrivateFrame(owner);
             tag.AddFrame(priv);
@@ -339,7 +343,9 @@ namespace TagLib.Id3v2
         protected override void ParseFields(ByteVector data, byte version)
         {
             if (data.Count < 1)
+            {
                 throw new CorruptFileException("A private frame must contain at least 1 byte.");
+            }
 
             var l = ByteVectorCollection.Split(data, ByteVector.TextDelimiter(StringType.Latin1), 1, 2);
 
@@ -369,7 +375,9 @@ namespace TagLib.Id3v2
         protected override ByteVector RenderFields(byte version)
         {
             if (version < 3)
+            {
                 throw new NotImplementedException();
+            }
 
             var v = new ByteVector {
                 ByteVector.FromString (Owner, StringType.Latin1),
@@ -397,7 +405,10 @@ namespace TagLib.Id3v2
         {
             var frame = new PrivateFrame(Owner);
             if (PrivateData != null)
+            {
                 frame.PrivateData = new ByteVector(PrivateData);
+            }
+
             return frame;
         }
 

@@ -7,9 +7,10 @@ using UnityEngine;
 public class DiscoMode : MonoBehaviour
 {
     internal bool discoModeActive = false;
-    float currentCooldown = 0;
+    private float currentCooldown = 0;
     internal float cooldown = 15;
-    internal static List<Color> colours = new List<Color>
+    private SFXPageController spc;
+    internal static List<Color> colours = new()
     {
         Color.red,
         Color.green,
@@ -18,7 +19,7 @@ public class DiscoMode : MonoBehaviour
         Color.yellow,
         Color.magenta,
     };
-    readonly List<List<int>> diagonal = new List<List<int>>
+    private readonly List<List<int>> diagonal = new()
     {
         new List<int>
         {
@@ -47,7 +48,8 @@ public class DiscoMode : MonoBehaviour
         new List<int>
         {
             6, 12, 18, 24, 30
-        }, new List<int>
+        },
+        new List<int>
         {
             13, 19, 25, 31
         },
@@ -64,8 +66,7 @@ public class DiscoMode : MonoBehaviour
             34
         }
     };
-
-    readonly List<List<int>> square = new List<List<int>>
+    private readonly List<List<int>> square = new()
     {
         new List<int>
         {
@@ -84,12 +85,11 @@ public class DiscoMode : MonoBehaviour
             17
         }
     };
+    private int discoSetting;
+    private MainAppController mac;
+    private int iteration = 0;
 
-    int discoSetting;
-
-    MainAppController mac;
-    int iteration = 0;
-    enum Settings
+    private enum Settings
     {
         random,
         diagonal,
@@ -97,17 +97,18 @@ public class DiscoMode : MonoBehaviour
         reverseDiagonal,
     }
 
-    Settings setting = Settings.random;
+    private Settings setting = Settings.random;
 
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
         mac = Camera.main.GetComponent<MainAppController>();
+        spc = Camera.main.GetComponent<SFXPageController>();
         StartCoroutine(ChangeSetting());
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
         currentCooldown--;
     }
@@ -121,20 +122,22 @@ public class DiscoMode : MonoBehaviour
     {
         if (currentCooldown <= 0 && discoModeActive)
         {
-            print(iteration.Mod(11));
             if (setting == Settings.random)
             {
                 foreach (GameObject go in GameObject.FindGameObjectsWithTag("sfxButton"))
                 {
                     float rand = UnityEngine.Random.Range(0f, 1f);
-                    if (rand > 0.5f) go.GetComponent<SFXButton>().ChangeColor();
+                    if (rand > 0.5f)
+                    {
+                        go.GetComponent<SFXButton>().ChangeColor();
+                    }
                 }
             }
             else if (setting == Settings.diagonal)
             {
                 foreach (int i in diagonal[iteration.Mod(11)])
                 {
-                    mac.pageParents[mac.activePage].buttons[i].GetComponent<SFXButton>().ChangeColor();
+                    spc.pageParents[SFXPageController.activePage].buttons[i].GetComponent<SFXButton>().ChangeColor();
                 }
                 iteration++;
             }
@@ -142,7 +145,7 @@ public class DiscoMode : MonoBehaviour
             {
                 foreach (int i in diagonal[iteration.Mod(11)])
                 {
-                    mac.pageParents[mac.activePage].buttons[i].GetComponent<SFXButton>().ChangeColor();
+                    spc.pageParents[SFXPageController.activePage].buttons[i].GetComponent<SFXButton>().ChangeColor();
                 }
                 iteration--;
             }
@@ -150,7 +153,7 @@ public class DiscoMode : MonoBehaviour
             {
                 foreach (int i in square[iteration.Mod(4)])
                 {
-                    mac.pageParents[mac.activePage].buttons[i].GetComponent<SFXButton>().ChangeColor();
+                    spc.pageParents[SFXPageController.activePage].buttons[i].GetComponent<SFXButton>().ChangeColor();
                 }
                 iteration++;
             }
@@ -158,7 +161,8 @@ public class DiscoMode : MonoBehaviour
             currentCooldown = cooldown;
         }
     }
-    IEnumerator ToggleDiscoModes()
+
+    private IEnumerator ToggleDiscoModes()
     {
         foreach (GameObject go in GameObject.FindGameObjectsWithTag("sfxButton"))
         {
@@ -173,7 +177,8 @@ public class DiscoMode : MonoBehaviour
             }
         }
     }
-    IEnumerator ChangeSetting()
+
+    private IEnumerator ChangeSetting()
     {
         while (true)
         {

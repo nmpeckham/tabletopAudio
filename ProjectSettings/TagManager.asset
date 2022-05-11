@@ -17,6 +17,14 @@ TagManager:
   - fftBar
   - playlistItem
   - musicContentView
+  - sfxPage0
+  - sfxPage1
+  - sfxPage2
+  - sfxPage3
+  - sfxPage4
+  - sfxPage5
+  - sfxPage6
+  - sfxPage7
   layers:
   - Default
   - TransparentFX

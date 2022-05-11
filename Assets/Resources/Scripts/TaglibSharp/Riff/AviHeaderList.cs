@@ -36,7 +36,7 @@ namespace TagLib.Riff
         /// <summary>
         ///    Contains the AVI codec information.
         /// </summary>
-        readonly List<ICodec> codecs = new List<ICodec>();
+        private readonly List<ICodec> codecs = new List<ICodec>();
 
         /// <summary>
         ///    Constructs and initializes a new instance of <see
@@ -71,22 +71,32 @@ namespace TagLib.Riff
         public AviHeaderList(TagLib.File file, long position, int length)
         {
             if (file == null)
+            {
                 throw new ArgumentNullException(nameof(file));
+            }
 
             if (length < 0)
+            {
                 throw new ArgumentOutOfRangeException(nameof(length));
+            }
 
             if (position < 0 || position > file.Length - length)
+            {
                 throw new ArgumentOutOfRangeException(nameof(position));
+            }
 
             List list = new List(file, position, length);
 
             if (!list.ContainsKey("avih"))
+            {
                 throw new CorruptFileException("Avi header not found.");
+            }
 
             ByteVector header_data = list["avih"][0];
             if (header_data.Count != 0x38)
+            {
                 throw new CorruptFileException("Invalid header length.");
+            }
 
             Header = new AviHeader(header_data, 0);
 
@@ -96,7 +106,9 @@ namespace TagLib.Riff
                 {
                     AviStream stream = AviStream.ParseStreamList(list_data);
                     if (stream != null)
+                    {
                         codecs.Add(stream.Codec);
+                    }
                 }
             }
         }
@@ -117,10 +129,7 @@ namespace TagLib.Riff
         ///    A <see cref="T:ICodec[]" /> containing the codecs contained
         ///    in the current instance.
         /// </value>
-        public ICodec[] Codecs
-        {
-            get { return codecs.ToArray(); }
-        }
+        public ICodec[] Codecs => codecs.ToArray();
     }
 
     /// <summary>
@@ -176,13 +185,19 @@ namespace TagLib.Riff
         public AviHeader(ByteVector data, int offset)
         {
             if (data == null)
+            {
                 throw new ArgumentNullException(nameof(data));
+            }
 
             if (offset < 0)
+            {
                 throw new ArgumentOutOfRangeException(nameof(offset));
+            }
 
             if (offset + 40 > data.Count)
+            {
                 throw new CorruptFileException("Expected 40 bytes.");
+            }
 
             MicrosecondsPerFrame = data.Mid(offset, 4).ToUInt(false);
             MaxBytesPerSecond = data.Mid(offset + 4, 4).ToUInt(false);
@@ -281,12 +296,6 @@ namespace TagLib.Riff
         ///    A <see cref="TimeSpan" /> value containing the duration
         ///    of the file.
         /// </value>
-        public TimeSpan Duration
-        {
-            get
-            {
-                return TimeSpan.FromMilliseconds(TotalFrames * (double)MicrosecondsPerFrame / 1000.0);
-            }
-        }
+        public TimeSpan Duration => TimeSpan.FromMilliseconds(TotalFrames * (double)MicrosecondsPerFrame / 1000.0);
     }
 }

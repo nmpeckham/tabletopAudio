@@ -36,7 +36,7 @@ namespace TagLib.Id3v2
     ///    external user could use <c>tag.GetTextAsString ("TIT2");</c> with
     ///    the same result.</para>
     /// </remarks>
-    static class FrameType
+    internal static class FrameType
     {
         public static readonly ReadOnlyByteVector APIC = "APIC";
         public static readonly ReadOnlyByteVector COMM = "COMM";

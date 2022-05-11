@@ -45,32 +45,32 @@ namespace TagLib.Dsf
         /// <summary>
         ///    Contains the address of the DSF header block.
         /// </summary>
-        ByteVector header_block;
+        private ByteVector header_block;
 
         /// <summary>
         ///  Contains the Id3v2 tag.
         /// </summary>
-        Id3v2.Tag tag;
+        private Id3v2.Tag tag;
 
         /// <summary>
         ///  Contains the media properties.
         /// </summary>
-        Properties properties;
+        private Properties properties;
 
         /// <summary>
         /// Contains the size of the DSF File
         /// </summary>
-        readonly uint dsf_size;
+        private readonly uint dsf_size;
 
         /// <summary>
         /// Contains the start position of the Tag
         /// </summary>
-        long tag_start;
+        private long tag_start;
 
         /// <summary>
         /// Contains the end position of the Tag
         /// </summary>
-        long tag_end;
+        private long tag_end;
 
         #endregion
 
@@ -207,10 +207,7 @@ namespace TagLib.Dsf
         ///    A <see cref="TagLib.Tag" /> object representing all tags
         ///    stored in the current instance.
         /// </value>
-        public override Tag Tag
-        {
-            get { return tag; }
-        }
+        public override Tag Tag => tag;
 
         /// <summary>
         ///    Gets the media properties of the file represented by the
@@ -221,10 +218,7 @@ namespace TagLib.Dsf
         ///    media properties of the file represented by the current
         ///    instance.
         /// </value>
-        public override Properties Properties
-        {
-            get { return properties; }
-        }
+        public override Properties Properties => properties;
 
         #endregion
 
@@ -379,11 +373,13 @@ namespace TagLib.Dsf
         ///    The file does not begin with <see cref="FileIdentifier"
         ///    />.
         /// </exception>
-        void Read(bool read_tags, ReadStyle style, out uint dsf_size, out long tag_start, out long tag_end)
+        private void Read(bool read_tags, ReadStyle style, out uint dsf_size, out long tag_start, out long tag_end)
         {
             Seek(0);
             if (ReadBlock(4) != FileIdentifier)
+            {
                 throw new CorruptFileException("File does not begin with DSF identifier");
+            }
 
             Seek(12);
             dsf_size = ReadBlock(8).ToUInt(false);

@@ -51,15 +51,21 @@ namespace Id3
             } while (position < _audioStream.Length - 4 && !isValidHeader);
 
             if (!isValidHeader)
+            {
                 throw new Id3Exception("Invalid header format for MP3 audio stream");
+            }
 
             position += 3;
 
             int modeIndex = ModeIndex;
             if (VersionIndex == 3)
+            {
                 position += modeIndex == 3 ? 17 : 19;
+            }
             else
+            {
                 position += modeIndex == 3 ? 9 : 17;
+            }
 
             var variableBitrateHeader = new byte[12];
             Array.Copy(_audioStream, position, variableBitrateHeader, 0, 12);
@@ -73,7 +79,9 @@ namespace Id3
             _isVariableBitrate = false;
 
             if (header[0] != 88 || header[1] != 105 || header[2] != 110 || header[3] != 103)
+            {
                 return;
+            }
 
             int flags = (((header[4] & 255) << 24) | ((header[5] & 255) << 16) | ((header[6] & 255) << 8) | ((header[7] & 255)));
 
@@ -83,7 +91,9 @@ namespace Id3
                 _isVariableBitrate = true;
             }
             else
+            {
                 _variableFrames = -1;
+            }
         }
 
         private bool IsValidHeader => (FrameSync & 2047) == 2047 && (VersionIndex & 3) != 1 && (LayerIndex & 3) != 0 && (BitrateIndex & 15) != 0 &&

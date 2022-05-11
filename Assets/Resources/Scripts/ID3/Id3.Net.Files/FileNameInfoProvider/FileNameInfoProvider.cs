@@ -31,11 +31,15 @@ namespace Id3.Files
         {
             string filename = Path.GetFileNameWithoutExtension(Inputs.FileName);
             if (filename == null)
+            {
                 return Empty;
+            }
 
             string[] breakup = filename.Split(new[] { " - " }, StringSplitOptions.None);
             if (breakup.Length <= 1)
+            {
                 return Empty;
+            }
 
             var result = new Id3Tag();
             result.Artists.Value.Add(breakup[0].Trim());

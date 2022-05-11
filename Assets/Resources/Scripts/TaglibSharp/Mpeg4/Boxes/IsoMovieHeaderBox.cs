@@ -37,32 +37,32 @@ namespace TagLib.Mpeg4
         /// <summary>
         ///    Contains the creation time of the movie.
         /// </summary>
-        readonly ulong creation_time;
+        private readonly ulong creation_time;
 
         /// <summary>
         ///    Contains the modification time of the movie.
         /// </summary>
-        readonly ulong modification_time;
+        private readonly ulong modification_time;
 
         /// <summary>
         ///    Contains the timescale.
         /// </summary>
-        readonly uint timescale;
+        private readonly uint timescale;
 
         /// <summary>
         ///    Contains the duration.
         /// </summary>
-        readonly ulong duration;
+        private readonly ulong duration;
 
         /// <summary>
         ///    Contains the rate.
         /// </summary>
-        readonly uint rate;
+        private readonly uint rate;
 
         /// <summary>
         ///    Contains the volume.
         /// </summary>
-        readonly ushort volume;
+        private readonly ushort volume;
 
         #endregion
 
@@ -94,7 +94,9 @@ namespace TagLib.Mpeg4
             : base(header, file, handler)
         {
             if (file == null)
+            {
                 throw new ArgumentNullException(nameof(file));
+            }
 
             int bytes_remaining = DataSize;
             ByteVector data;
@@ -105,15 +107,27 @@ namespace TagLib.Mpeg4
                 data = file.ReadBlock(Math.Min(28,
                     bytes_remaining));
                 if (data.Count >= 8)
+                {
                     creation_time = data.Mid(0,
                         8).ToULong();
+                }
+
                 if (data.Count >= 16)
+                {
                     modification_time = data.Mid(8,
                         8).ToULong();
+                }
+
                 if (data.Count >= 20)
+                {
                     timescale = data.Mid(16, 4).ToUInt();
+                }
+
                 if (data.Count >= 28)
+                {
                     duration = data.Mid(20, 8).ToULong();
+                }
+
                 bytes_remaining -= 28;
             }
             else
@@ -122,23 +136,41 @@ namespace TagLib.Mpeg4
                 data = file.ReadBlock(Math.Min(16,
                     bytes_remaining));
                 if (data.Count >= 4)
+                {
                     creation_time = data.Mid(0,
                         4).ToUInt();
+                }
+
                 if (data.Count >= 8)
+                {
                     modification_time = data.Mid(4,
                         4).ToUInt();
+                }
+
                 if (data.Count >= 12)
+                {
                     timescale = data.Mid(8, 4).ToUInt();
+                }
+
                 if (data.Count >= 16)
+                {
                     duration = data.Mid(12, 4).ToUInt();
+                }
+
                 bytes_remaining -= 16;
             }
 
             data = file.ReadBlock(Math.Min(6, bytes_remaining));
             if (data.Count >= 4)
+            {
                 rate = data.Mid(0, 4).ToUInt();
+            }
+
             if (data.Count >= 6)
+            {
                 volume = data.Mid(4, 2).ToUShort();
+            }
+
             file.Seek(file.Tell + 70);
             bytes_remaining -= 76;
 
@@ -146,7 +178,9 @@ namespace TagLib.Mpeg4
                 bytes_remaining));
 
             if (data.Count >= 4)
+            {
                 NextTrackId = data.Mid(0, 4).ToUInt();
+            }
         }
 
         #endregion
@@ -163,14 +197,8 @@ namespace TagLib.Mpeg4
         ///    A <see cref="DateTime" /> value containing the creation
         ///    time of the movie represented by the current instance.
         /// </value>
-        public DateTime CreationTime
-        {
-            get
-            {
-                return new DateTime(1904, 1, 1, 0, 0,
+        public DateTime CreationTime => new DateTime(1904, 1, 1, 0, 0,
                     0).AddTicks((long)(10000000 * creation_time));
-            }
-        }
 
         /// <summary>
         ///    Gets the modification time of movie represented by the
@@ -181,14 +209,8 @@ namespace TagLib.Mpeg4
         ///    modification time of the movie represented by the current
         ///    instance.
         /// </value>
-        public DateTime ModificationTime
-        {
-            get
-            {
-                return new DateTime(1904, 1, 1, 0, 0,
+        public DateTime ModificationTime => new DateTime(1904, 1, 1, 0, 0,
                     0).AddTicks((long)(10000000 * modification_time));
-            }
-        }
 
         /// <summary>
         ///    Gets the duration of the movie represented by the current
@@ -198,15 +220,10 @@ namespace TagLib.Mpeg4
         ///    A <see cref="TimeSpan" /> value containing the duration
         ///    of the movie represented by the current instance.
         /// </value>
-        public TimeSpan Duration
-        {
-            get
-            {
+        public TimeSpan Duration =>
                 // The length is the number of ticks divided by
                 // ticks per second.
-                return TimeSpan.FromSeconds(duration / (double)timescale);
-            }
-        }
+                TimeSpan.FromSeconds(duration / (double)timescale);
 
         /// <summary>
         ///    Gets the playback rate of the movie represented by the
@@ -216,10 +233,7 @@ namespace TagLib.Mpeg4
         ///    A <see cref="double" /> value containing the playback
         ///    rate of the movie represented by the current instance.
         /// </value>
-        public double Rate
-        {
-            get { return rate / ((double)0x10000); }
-        }
+        public double Rate => rate / ((double)0x10000);
 
         /// <summary>
         ///    Gets the playback volume of the movie represented by the
@@ -229,10 +243,7 @@ namespace TagLib.Mpeg4
         ///    A <see cref="double" /> value containing the playback
         ///    volume of the movie represented by the current instance.
         /// </value>
-        public double Volume
-        {
-            get { return volume / ((double)0x100); }
-        }
+        public double Volume => volume / ((double)0x100);
 
         /// <summary>
         ///    Gets the ID of the next track in the movie represented by

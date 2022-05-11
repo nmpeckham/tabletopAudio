@@ -7,10 +7,10 @@ using UnityEngine;
 
 public static class NowPlayingWebpage
 {
-    static AmazonDynamoDBClient client;
-    static bool goodConfig = false;
-    static string tableName;
-    static string id;
+    private static AmazonDynamoDBClient client;
+    private static bool goodConfig = false;
+    private static string tableName;
+    private static string id;
 
     internal static void Init()
     {
@@ -18,7 +18,7 @@ public static class NowPlayingWebpage
         string secretAccessKey;
         Amazon.RegionEndpoint region;
         const string credFileName = "credentials.json";
-        string credFolder = Camera.main.GetComponent<MainAppController>().saveDirectory;
+        string credFolder = MainAppController.workingDirectories["saveDirectory"];
 
         string fileLocation = Path.Combine(credFolder, credFileName);
         if (System.IO.File.Exists(fileLocation))
@@ -44,12 +44,12 @@ public static class NowPlayingWebpage
             }
             catch (System.Exception e)
             {
-                Camera.main.GetComponent<MainAppController>().ShowErrorMessage("Couldn't read AWS config file: " + e.Message);
+                Camera.main.GetComponent<MainAppController>().ShowErrorMessage("Couldn't read AWS config file: " + e.Message, 0);
             }
         }
     }
 
-    async static internal void SongChanged(Song song)
+    internal static async void SongChanged(Song song)
     {
         if (goodConfig)
         {
@@ -58,15 +58,23 @@ public static class NowPlayingWebpage
                 Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> item = new Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>();
                 var titleAttribute = new Amazon.DynamoDBv2.Model.AttributeValue(song.title);
                 var artistAttribute = new Amazon.DynamoDBv2.Model.AttributeValue(song.artist);
-                var durationAttribute = new Amazon.DynamoDBv2.Model.AttributeValue();
-                durationAttribute.N = song.duration.TotalSeconds.ToString("F1");    //Set as number, fixed-point with one decimal place
-                var startTimeAttribute = new Amazon.DynamoDBv2.Model.AttributeValue();
-                startTimeAttribute.N = System.DateTime.UtcNow.ToUnixTime().ToString("F1"); //Set as number, fixed-point with one decimal place
+                var durationAttribute = new Amazon.DynamoDBv2.Model.AttributeValue
+                {
+                    N = song.duration.TotalSeconds.ToString("F1")    //Set as number, fixed-point with one decimal place
+                };
+                var startTimeAttribute = new Amazon.DynamoDBv2.Model.AttributeValue
+                {
+                    N = System.DateTime.UtcNow.ToUnixTime().ToString("F1") //Set as number, fixed-point with one decimal place
+                };
                 var idAttribute = new Amazon.DynamoDBv2.Model.AttributeValue(id);
 
                 item.Add("id", idAttribute);
                 item.Add("s", titleAttribute);
-                if (song.artist != null) item.Add("a", artistAttribute);
+                if (song.artist != null)
+                {
+                    item.Add("a", artistAttribute);
+                }
+
                 item.Add("d", durationAttribute);
                 item.Add("t", startTimeAttribute);
                 await client.PutItemAsync("nowPlayingSong", item);
@@ -85,23 +93,27 @@ public static class NowPlayingWebpage
             }
             catch (System.Exception e)
             {
-                Camera.main.GetComponent<MainAppController>().ShowErrorMessage("Couldn't send AWS update: " + e.Message);
+                Camera.main.GetComponent<MainAppController>().ShowErrorMessage("Couldn't send AWS update: " + e.Message, 0);
             }
         }
         return;
     }
 
-    internal async static void SongPaused(float progress)
+    internal static async void SongPaused(float progress)
     {
         if (goodConfig)
         {
             var idAttribute = new Amazon.DynamoDBv2.Model.AttributeValue(id);
             Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> item = new Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>();
-            var startTimeAttribute = new Amazon.DynamoDBv2.Model.AttributeValue();
-            startTimeAttribute.N = System.DateTime.UtcNow.ToUnixTime().ToString("F1"); //Set as number, fixed-point with one decimal place
+            var startTimeAttribute = new Amazon.DynamoDBv2.Model.AttributeValue
+            {
+                N = System.DateTime.UtcNow.ToUnixTime().ToString("F1") //Set as number, fixed-point with one decimal place
+            };
             var typeAttribute = new Amazon.DynamoDBv2.Model.AttributeValue("Paused");
-            var progressAttribute = new Amazon.DynamoDBv2.Model.AttributeValue();
-            progressAttribute.N = progress.ToString("F1");
+            var progressAttribute = new Amazon.DynamoDBv2.Model.AttributeValue
+            {
+                N = progress.ToString("F1")
+            };
 
             item.Add("id", idAttribute);
             item.Add("t", startTimeAttribute);
@@ -112,14 +124,16 @@ public static class NowPlayingWebpage
 
     }
 
-    internal async static void SongStopped()
+    internal static async void SongStopped()
     {
         if (goodConfig)
         {
             var idAttribute = new Amazon.DynamoDBv2.Model.AttributeValue(id);
-            Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> item = new Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>();
-            var startTimeAttribute = new Amazon.DynamoDBv2.Model.AttributeValue();
-            startTimeAttribute.N = System.DateTime.UtcNow.ToUnixTime().ToString("F1"); //Set as number, fixed-point with one decimal place
+            Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> item = new();
+            var startTimeAttribute = new Amazon.DynamoDBv2.Model.AttributeValue
+            {
+                N = System.DateTime.UtcNow.ToUnixTime().ToString("F1") //Set as number, fixed-point with one decimal place
+            };
             var typeAttribute = new Amazon.DynamoDBv2.Model.AttributeValue("Stopped");
 
             item.Add("id", idAttribute);
@@ -129,17 +143,21 @@ public static class NowPlayingWebpage
         }
     }
 
-    internal async static void SongUnpaused(float progress)
+    internal static async void SongUnpaused(float progress)
     {
         if (goodConfig)
         {
             var idAttribute = new Amazon.DynamoDBv2.Model.AttributeValue(id);
             Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> item = new Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>();
-            var startTimeAttribute = new Amazon.DynamoDBv2.Model.AttributeValue();
-            startTimeAttribute.N = System.DateTime.UtcNow.ToUnixTime().ToString("F1"); //Set as number, fixed-point with one decimal place
+            var startTimeAttribute = new Amazon.DynamoDBv2.Model.AttributeValue
+            {
+                N = System.DateTime.UtcNow.ToUnixTime().ToString("F1") //Set as number, fixed-point with one decimal place
+            };
             var typeAttribute = new Amazon.DynamoDBv2.Model.AttributeValue("Unpaused");
-            var progressAttribute = new Amazon.DynamoDBv2.Model.AttributeValue();
-            progressAttribute.N = progress.ToString("F1");
+            var progressAttribute = new Amazon.DynamoDBv2.Model.AttributeValue
+            {
+                N = progress.ToString("F1")
+            };
 
             item.Add("id", idAttribute);
             item.Add("t", startTimeAttribute);
@@ -149,17 +167,21 @@ public static class NowPlayingWebpage
         }
     }
 
-    internal async static void SongPlaybackChanged(float progress)
+    internal static async void SongPlaybackChanged(float progress)
     {
         if (goodConfig)
         {
             var idAttribute = new Amazon.DynamoDBv2.Model.AttributeValue(id);
             Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> item = new Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>();
-            var startTimeAttribute = new Amazon.DynamoDBv2.Model.AttributeValue();
-            startTimeAttribute.N = System.DateTime.UtcNow.ToUnixTime().ToString("F1"); //Set as number, fixed-point with one decimal place
+            var startTimeAttribute = new Amazon.DynamoDBv2.Model.AttributeValue
+            {
+                N = System.DateTime.UtcNow.ToUnixTime().ToString("F1") //Set as number, fixed-point with one decimal place
+            };
             var typeAttribute = new Amazon.DynamoDBv2.Model.AttributeValue("Seek");
-            var progressAttribute = new Amazon.DynamoDBv2.Model.AttributeValue();
-            progressAttribute.N = progress.ToString("F1");
+            var progressAttribute = new Amazon.DynamoDBv2.Model.AttributeValue
+            {
+                N = progress.ToString("F1")
+            };
 
             item.Add("id", idAttribute);
             item.Add("t", startTimeAttribute);

@@ -6,16 +6,17 @@ public class AudioControlButton : MonoBehaviour
 {
     public string id;
     private Button thisButton;
-    MainAppController mac;
+    private MainAppController mac;
+
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
         thisButton = GetComponent<Button>();
         thisButton.onClick.AddListener(Clicked);
         mac = Camera.main.GetComponent<MainAppController>();
     }
 
-    void Clicked()
+    private void Clicked()
     {
         mac.ControlButtonClicked(id);
     }

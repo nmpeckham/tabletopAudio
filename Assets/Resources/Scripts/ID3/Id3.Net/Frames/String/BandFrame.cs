@@ -29,6 +29,9 @@ namespace Id3.Frames
         {
         }
 
-        public static implicit operator BandFrame(string value) => new BandFrame(value);
+        public static implicit operator BandFrame(string value)
+        {
+            return new BandFrame(value);
+        }
     }
 }

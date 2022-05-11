@@ -45,7 +45,7 @@ namespace TagLib.Tiff
         /// <summary>
         ///    Contains the media properties.
         /// </summary>
-        Properties properties;
+        private Properties properties;
 
         #endregion
 
@@ -154,10 +154,7 @@ namespace TagLib.Tiff
         ///    media properties of the file represented by the current
         ///    instance.
         /// </value>
-        public override Properties Properties
-        {
-            get { return properties; }
-        }
+        public override Properties Properties => properties;
 
         #endregion
 
@@ -192,12 +189,14 @@ namespace TagLib.Tiff
         /// <summary>
         ///    Render the whole file and write it back.
         /// </summary>
-        void WriteFile()
+        private void WriteFile()
         {
             // Check, if IFD0 is contained
             IFDTag exif = ImageTag.Exif;
             if (exif == null)
+            {
                 throw new Exception("Tiff file without tags");
+            }
 
             UpdateTags(exif);
 
@@ -218,14 +217,16 @@ namespace TagLib.Tiff
         /// <param name="exif">
         ///    A <see cref="IFDTag"/> The Tiff IFD to update the entries
         /// </param>
-        void UpdateTags(IFDTag exif)
+        private void UpdateTags(IFDTag exif)
         {
             // update the XMP entry
             exif.Structure.RemoveTag(0, (ushort)IFDEntryTag.XMP);
 
             XmpTag xmp = ImageTag.Xmp;
             if (xmp != null)
+            {
                 exif.Structure.AddEntry(0, new ByteVectorIFDEntry((ushort)IFDEntryTag.XMP, xmp.Render()));
+            }
         }
 
         /// <summary>
@@ -251,7 +252,9 @@ namespace TagLib.Tiff
                 }
 
                 if ((propertiesStyle & ReadStyle.Average) == 0)
+                {
                     return;
+                }
 
                 properties = ExtractProperties();
             }

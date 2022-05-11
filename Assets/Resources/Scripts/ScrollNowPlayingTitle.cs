@@ -6,21 +6,22 @@ public class ScrollNowPlayingTitle : MonoBehaviour
 {
     public ScrollRect scrollArea;
     // Start is called before the first frame update
-    void Start()
+    private readonly float rate = 1f;
+
+    private void Start()
     {
         StartCoroutine(ScrollView());
     }
 
-    IEnumerator ScrollView()
+    private IEnumerator ScrollView()
     {
         while (true)
         {
             yield return new WaitForSecondsRealtime(3);
-            float amt = Mathf.Abs(0.8f / (scrollArea.content.rect.width - 390));// width of container (390px) must be subtracted for smooth scrolling
+            float amt = Mathf.Abs(rate / (scrollArea.content.rect.width - 390));// width of container (390px) must be subtracted for smooth scrolling
             while (scrollArea.horizontalNormalizedPosition < 1)
             {
                 scrollArea.horizontalNormalizedPosition += amt;
-                //print(scrollArea.horizontalNormalizedPosition);
                 yield return null;
             }
             yield return new WaitForSecondsRealtime(2);

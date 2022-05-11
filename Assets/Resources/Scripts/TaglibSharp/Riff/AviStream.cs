@@ -101,10 +101,14 @@ namespace TagLib.Riff
         public static AviStream ParseStreamList(ByteVector data)
         {
             if (data == null)
+            {
                 throw new ArgumentNullException(nameof(data));
+            }
 
             if (!data.StartsWith("strl"))
+            {
                 return null;
+            }
 
             AviStream stream = null;
             int pos = 4;
@@ -118,9 +122,13 @@ namespace TagLib.Riff
                 {
                     var stream_header = new AviStreamHeader(data, pos + 8);
                     if (stream_header.Type == "vids")
+                    {
                         stream = new AviVideoStream(stream_header);
+                    }
                     else if (stream_header.Type == "auds")
+                    {
                         stream = new AviAudioStream(stream_header);
+                    }
                 }
                 else if (stream != null)
                 {
@@ -175,7 +183,9 @@ namespace TagLib.Riff
         public override void ParseItem(ByteVector id, ByteVector data, int start, int length)
         {
             if (id == "strf")
+            {
                 Codec = new WaveFormatEx(data, start);
+            }
         }
     }
 
@@ -220,7 +230,9 @@ namespace TagLib.Riff
         public override void ParseItem(ByteVector id, ByteVector data, int start, int length)
         {
             if (id == "strf")
+            {
                 Codec = new BitmapInfoHeader(data, start);
+            }
         }
     }
 
@@ -277,13 +289,19 @@ namespace TagLib.Riff
         public AviStreamHeader(ByteVector data, int offset)
         {
             if (data == null)
+            {
                 throw new ArgumentNullException(nameof(data));
+            }
 
             if (offset < 0)
+            {
                 throw new ArgumentOutOfRangeException(nameof(offset));
+            }
 
             if (offset + 56 > data.Count)
+            {
                 throw new CorruptFileException("Expected 56 bytes.");
+            }
 
             Type = data.Mid(offset, 4);
             Handler = data.Mid(offset + 4, 4);

@@ -38,22 +38,22 @@ namespace TagLib.Asf
         /// <summary>
         ///    Contains the GUID for the file.
         /// </summary>
-        System.Guid file_id;
+        private System.Guid file_id;
 
         /// <summary>
         ///    Contains the creation date.
         /// </summary>
-        readonly ulong creation_date;
+        private readonly ulong creation_date;
 
         /// <summary>
         ///    Contains the play duration.
         /// </summary>
-        readonly ulong play_duration;
+        private readonly ulong play_duration;
 
         /// <summary>
         ///    Contains the send duration.
         /// </summary>
-        readonly ulong send_duration;
+        private readonly ulong send_duration;
 
         #endregion
 
@@ -89,10 +89,14 @@ namespace TagLib.Asf
             : base(file, position)
         {
             if (!Guid.Equals(Asf.Guid.AsfFilePropertiesObject))
+            {
                 throw new CorruptFileException("Object GUID incorrect.");
+            }
 
             if (OriginalSize < 104)
+            {
                 throw new CorruptFileException("Object size too small.");
+            }
 
             file_id = file.ReadGuid();
             FileSize = file.ReadQWord();
@@ -121,10 +125,7 @@ namespace TagLib.Asf
         ///    A <see cref="System.Guid" /> value containing the GUID
         ///    for the file described by the current instance.
         /// </value>
-        public System.Guid FileId
-        {
-            get { return file_id; }
-        }
+        public System.Guid FileId => file_id;
 
         /// <summary>
         ///    Gets the size of the file described by the current
@@ -144,10 +145,7 @@ namespace TagLib.Asf
         ///    A <see cref="DateTime" /> value containing the creation
         ///    date of the file described by the current instance.
         /// </value>
-        public DateTime CreationDate
-        {
-            get { return new DateTime((long)creation_date); }
-        }
+        public DateTime CreationDate => new DateTime((long)creation_date);
 
         /// <summary>
         ///    Gets the number of data packets in the file described by
@@ -168,10 +166,7 @@ namespace TagLib.Asf
         ///    A <see cref="TimeSpan" /> value containing the play
         ///    duration of the file described by the current instance.
         /// </value>
-        public TimeSpan PlayDuration
-        {
-            get { return new TimeSpan((long)play_duration); }
-        }
+        public TimeSpan PlayDuration => new TimeSpan((long)play_duration);
 
         /// <summary>
         ///    Gets the send duration of the file described by the
@@ -181,10 +176,7 @@ namespace TagLib.Asf
         ///    A <see cref="TimeSpan" /> value containing the send
         ///    duration of the file described by the current instance.
         /// </value>
-        public TimeSpan SendDuration
-        {
-            get { return new TimeSpan((long)send_duration); }
-        }
+        public TimeSpan SendDuration => new TimeSpan((long)send_duration);
 
         /// <summary>
         ///    Gets the pre-roll of the file described by the current

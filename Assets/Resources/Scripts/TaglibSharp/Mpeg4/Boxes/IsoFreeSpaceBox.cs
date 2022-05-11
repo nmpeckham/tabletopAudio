@@ -35,7 +35,7 @@ namespace TagLib.Mpeg4
         /// <summary>
         ///    Contains the size of the padding.
         /// </summary>
-        long padding;
+        private long padding;
 
         #endregion
 
@@ -95,8 +95,8 @@ namespace TagLib.Mpeg4
         /// </value>
         public override ByteVector Data
         {
-            get { return new ByteVector((int)padding); }
-            set { padding = (value != null) ? value.Count : 0; }
+            get => new ByteVector((int)padding);
+            set => padding = (value != null) ? value.Count : 0;
         }
 
         /// <summary>
@@ -109,8 +109,8 @@ namespace TagLib.Mpeg4
         /// </value>
         public long PaddingSize
         {
-            get { return padding + 8; }
-            set { padding = value - 8; }
+            get => padding + 8;
+            set => padding = value - 8;
         }
 
         #endregion

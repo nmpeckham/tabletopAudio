@@ -92,7 +92,7 @@ namespace TagLib.Id3v2
         /// <summary>
         ///    Contains the channel data.
         /// </summary>
-        readonly ChannelData[] channels = new ChannelData[9];
+        private readonly ChannelData[] channels = new ChannelData[9];
 
         #endregion
 
@@ -190,8 +190,13 @@ namespace TagLib.Id3v2
             {
                 var types = new List<ChannelType>();
                 for (int i = 0; i < 9; i++)
+                {
                     if (channels[i].IsSet)
+                    {
                         types.Add((ChannelType)i);
+                    }
+                }
+
                 return types.ToArray();
             }
         }
@@ -410,16 +415,22 @@ namespace TagLib.Id3v2
                 rva2 = frame as RelativeVolumeFrame;
 
                 if (rva2 == null)
+                {
                     continue;
+                }
 
                 if (rva2.Identification != identification)
+                {
                     continue;
+                }
 
                 return rva2;
             }
 
             if (!create)
+            {
                 return null;
+            }
 
             rva2 = new RelativeVolumeFrame(identification);
             tag.AddFrame(rva2);
@@ -451,7 +462,9 @@ namespace TagLib.Id3v2
         {
             int pos = data.Find(ByteVector.TextDelimiter(StringType.Latin1));
             if (pos < 0)
+            {
                 return;
+            }
 
             Identification = data.ToString(StringType.Latin1, 0, pos++);
 
@@ -470,7 +483,9 @@ namespace TagLib.Id3v2
                 int bytes = BitsToBytes(data[pos++]);
 
                 if (data.Count < pos + bytes)
+                {
                     break;
+                }
 
                 channels[type].PeakVolumeIndex = data.Mid(pos, bytes).ToULong();
                 pos += bytes;
@@ -499,7 +514,9 @@ namespace TagLib.Id3v2
             for (byte i = 0; i < 9; i++)
             {
                 if (!channels[i].IsSet)
+                {
                     continue;
+                }
 
                 data.Add(i);
                 unchecked
@@ -510,13 +527,19 @@ namespace TagLib.Id3v2
                 byte bits = 0;
 
                 for (byte j = 0; j < 64; j++)
+                {
                     if ((channels[i].PeakVolumeIndex & (1UL << j)) != 0)
+                    {
                         bits = (byte)(j + 1);
+                    }
+                }
 
                 data.Add(bits);
 
                 if (bits > 0)
+                {
                     data.Add(ByteVector.FromULong(channels[i].PeakVolumeIndex).Mid(8 - BitsToBytes(bits)));
+                }
             }
 
             return data;
@@ -539,7 +562,10 @@ namespace TagLib.Id3v2
         {
             var frame = new RelativeVolumeFrame(Identification);
             for (int i = 0; i < 9; i++)
+            {
                 frame.channels[i] = channels[i];
+            }
+
             return frame;
         }
 
@@ -549,7 +575,7 @@ namespace TagLib.Id3v2
 
         #region Private Static Methods
 
-        static int BitsToBytes(int i)
+        private static int BitsToBytes(int i)
         {
             return i % 8 == 0 ? i / 8 : (i - i % 8) / 8 + 1;
         }
@@ -560,30 +586,24 @@ namespace TagLib.Id3v2
 
         #region Classes
 
-        struct ChannelData
+        private struct ChannelData
         {
             public short VolumeAdjustmentIndex;
             public ulong PeakVolumeIndex;
 
-            public bool IsSet
-            {
-                get
-                {
-                    return VolumeAdjustmentIndex != 0 ||
+            public bool IsSet => VolumeAdjustmentIndex != 0 ||
                         PeakVolumeIndex != 0;
-                }
-            }
 
             public float VolumeAdjustment
             {
-                get { return VolumeAdjustmentIndex / 512f; }
-                set { VolumeAdjustmentIndex = (short)(value * 512f); }
+                get => VolumeAdjustmentIndex / 512f;
+                set => VolumeAdjustmentIndex = (short)(value * 512f);
             }
 
             public double PeakVolume
             {
-                get { return PeakVolumeIndex / 512.0; }
-                set { PeakVolumeIndex = (ulong)(value * 512.0); }
+                get => PeakVolumeIndex / 512.0;
+                set => PeakVolumeIndex = (ulong)(value * 512.0);
             }
         }
 

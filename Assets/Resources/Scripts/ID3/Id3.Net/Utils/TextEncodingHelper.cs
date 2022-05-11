@@ -38,9 +38,15 @@ namespace Id3
         internal static Encoding GetEncoding(Id3TextEncoding encodingType)
         {
             if (encodingType == Id3TextEncoding.Iso8859_1)
+            {
                 return Encoding.GetEncoding("iso-8859-1");
+            }
+
             if (encodingType == Id3TextEncoding.Unicode)
+            {
                 return Encoding.Unicode;
+            }
+
             Debug.Assert(false, "Invalid Encoding type specified");
             return null;
         }
@@ -53,7 +59,9 @@ namespace Id3
             if (encodingType == Id3TextEncoding.Unicode)
             {
                 if (str[0] == '\xFFFE' || str[0] == '\xFEFF')
+                {
                     str = str.Remove(0, 1);
+                }
             }
 
             return str;
@@ -63,11 +71,16 @@ namespace Id3
         {
             byte[][] splitBytes = ByteArrayHelper.SplitBySequence(bytes, start, count, GetSplitterBytes(encodingType));
             if (splitBytes.Length == 0)
+            {
                 return new[] { string.Empty };
+            }
 
             var strings = new string[splitBytes.Length];
             for (int splitByteIdx = 0; splitByteIdx < splitBytes.Length; splitByteIdx++)
+            {
                 strings[splitByteIdx] = GetString(splitBytes[splitByteIdx], 0, splitBytes[splitByteIdx].Length, encodingType);
+            }
+
             return strings;
         }
 
@@ -80,9 +93,15 @@ namespace Id3
         private static int GetSplitterLength(Id3TextEncoding encodingType)
         {
             if (encodingType == Id3TextEncoding.Iso8859_1)
+            {
                 return 1;
+            }
+
             if (encodingType == Id3TextEncoding.Unicode)
+            {
                 return 2;
+            }
+
             Debug.Assert(false, "Invalid encoding type specified");
             return -1;
         }

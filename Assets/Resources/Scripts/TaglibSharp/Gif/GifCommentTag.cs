@@ -72,8 +72,8 @@ namespace TagLib.Gif
         /// </value>
         public override string Comment
         {
-            get { return Value; }
-            set { Value = value; }
+            get => Value;
+            set => Value = value;
         }
 
         #endregion
@@ -86,10 +86,7 @@ namespace TagLib.Gif
         /// <value>
         ///    Always <see cref="TagTypes.GifComment" />.
         /// </value>
-        public override TagTypes TagTypes
-        {
-            get { return TagTypes.GifComment; }
-        }
+        public override TagTypes TagTypes => TagTypes.GifComment;
 
         /// <summary>
         ///    Clears the values stored in the current instance.

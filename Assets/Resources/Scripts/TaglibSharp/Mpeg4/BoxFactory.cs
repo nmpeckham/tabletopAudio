@@ -55,7 +55,7 @@ namespace TagLib.Mpeg4
         /// <returns>
         ///    A newly created <see cref="Box" /> object.
         /// </returns>
-        static Box CreateBox(TagLib.File file,
+        private static Box CreateBox(TagLib.File file,
                                       BoxHeader header,
                                       BoxHeader parent,
                                       IsoHandlerBox handler,
@@ -68,18 +68,26 @@ namespace TagLib.Mpeg4
                 index < (parent.Box as IsoSampleDescriptionBox).EntryCount)
             {
                 if (handler != null && handler.HandlerType == BoxType.Soun)
+                {
                     return new IsoAudioSampleEntry(header, file, handler);
+                }
 
                 if (handler != null && handler.HandlerType == BoxType.Vide)
+                {
                     return new IsoVisualSampleEntry(header, file, handler);
+                }
 
                 if (handler != null && handler.HandlerType == BoxType.Alis)
                 {
                     if (header.BoxType == BoxType.Text)
+                    {
                         return new TextBox(header, file, handler);
+                    }
 
                     if (header.BoxType == BoxType.Url)
+                    {
                         return new UrlBox(header, file, handler);
+                    }
                     // This could be anything, so just parse it
                     return new UnknownBox(header, file, handler);
                 }
@@ -91,37 +99,65 @@ namespace TagLib.Mpeg4
             ByteVector type = header.BoxType;
 
             if (type == BoxType.Mvhd)
+            {
                 return new IsoMovieHeaderBox(header, file, handler);
+            }
             else if (type == BoxType.Stbl)
+            {
                 return new IsoSampleTableBox(header, file, handler);
+            }
             else if (type == BoxType.Stsd)
+            {
                 return new IsoSampleDescriptionBox(header, file, handler);
+            }
             else if (type == BoxType.Stco)
+            {
                 return new IsoChunkOffsetBox(header, file, handler);
+            }
             else if (type == BoxType.Co64)
+            {
                 return new IsoChunkLargeOffsetBox(header, file, handler);
+            }
             else if (type == BoxType.Hdlr)
+            {
                 return new IsoHandlerBox(header, file, handler);
+            }
             else if (type == BoxType.Udta)
+            {
                 return new IsoUserDataBox(header, file, handler);
+            }
             else if (type == BoxType.Meta)
+            {
                 return new IsoMetaBox(header, file, handler);
+            }
             else if (type == BoxType.Ilst)
+            {
                 return new AppleItemListBox(header, file, handler);
+            }
             else if (type == BoxType.Data)
+            {
                 return new AppleDataBox(header, file, handler);
+            }
             else if (type == BoxType.Esds)
+            {
                 return new AppleElementaryStreamDescriptor(header, file, handler);
+            }
             else if (type == BoxType.Free || type == BoxType.Skip)
+            {
                 return new IsoFreeSpaceBox(header, file, handler);
+            }
             else if (type == BoxType.Mean || type == BoxType.Name)
+            {
                 return new AppleAdditionalInfoBox(header, file, handler);
+            }
 
             // If we still don't have a tag, and we're inside an
             // ItemListBox, load the box as an AnnotationBox
             // (Apple tag item).
             if (parent.BoxType == BoxType.Ilst)
+            {
                 return new AppleAnnotationBox(header, file, handler);
+            }
 
             // Nothing good. Go generic.
             return new UnknownBox(header, file, handler);

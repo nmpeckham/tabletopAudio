@@ -49,13 +49,13 @@ namespace TagLib.NonContainer
         /// <summary>
         ///    Contains the file to operate on.
         /// </summary>
-        readonly TagLib.File file;
+        private readonly TagLib.File file;
 
         /// <summary>
         ///    Contains the number of bytes that must be read to
         ///    hold all applicable indicators.
         /// </summary>
-        readonly int read_size = (int)Math.Max(Ape.Footer.Size, Id3v2.Header.Size);
+        private readonly int read_size = (int)Math.Max(Ape.Footer.Size, Id3v2.Header.Size);
 
         #endregion
 
@@ -99,7 +99,9 @@ namespace TagLib.NonContainer
                 long size = 0;
 
                 while (ReadTagInfo(ref size) != TagTypes.None)
+                {
                     ;
+                }
 
                 return size;
             }
@@ -127,7 +129,9 @@ namespace TagLib.NonContainer
             long end = 0;
 
             while ((tag = ReadTag(ref end, style)) != null)
+            {
                 AddTag(tag);
+            }
 
             return end;
         }
@@ -150,9 +154,13 @@ namespace TagLib.NonContainer
             foreach (TagLib.Tag t in Tags)
             {
                 if (t is Ape.Tag)
+                {
                     data.Add((t as TagLib.Ape.Tag).Render());
+                }
                 else if (t is Id3v2.Tag)
+                {
                     data.Add((t as TagLib.Id3v2.Tag).Render());
+                }
             }
 
             return data;
@@ -271,7 +279,7 @@ namespace TagLib.NonContainer
         ///    found at the specified position, or <see langword="null"
         ///    /> if no tag was found.
         /// </returns>
-        TagLib.Tag ReadTag(ref long start, ReadStyle style)
+        private TagLib.Tag ReadTag(ref long start, ReadStyle style)
         {
             long end = start;
             TagTypes type = ReadTagInfo(ref end);
@@ -306,7 +314,7 @@ namespace TagLib.NonContainer
         ///    type of tag found at the specified position, or <see
         ///    cref="TagTypes.None" /> if no tag was found.
         /// </returns>
-        TagTypes ReadTagInfo(ref long position)
+        private TagTypes ReadTagInfo(ref long position)
         {
             file.Seek(position);
             ByteVector data = file.ReadBlock(read_size);

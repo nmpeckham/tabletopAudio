@@ -48,12 +48,12 @@ namespace TagLib.Id3v2
         ///    Contains the language to use for language specific
         ///    fields.
         /// </summary>
-        static string language = CultureInfo.CurrentCulture.ThreeLetterISOLanguageName;
+        private static string language = CultureInfo.CurrentCulture.ThreeLetterISOLanguageName;
 
         /// <summary>
         ///    Contains the field to use for new tags.
         /// </summary>
-        static byte default_version = 3;
+        private static byte default_version = 3;
 
         #endregion
 
@@ -64,23 +64,23 @@ namespace TagLib.Id3v2
         /// <summary>
         ///    Contains the tag's header.
         /// </summary>
-        Header header;
+        private Header header;
 
         /// <summary>
         ///    Contains the tag's extended header.
         /// </summary>
-        ExtendedHeader extended_header;
+        private ExtendedHeader extended_header;
 
         /// <summary>
         ///    Contains the tag's frames.
         /// </summary>
-        readonly List<Frame> frame_list = new List<Frame>();
+        private readonly List<Frame> frame_list = new List<Frame>();
 
 
         /// <summary>
         /// Store the PerformersRole property
         /// </summary>
-        string[] performers_role;
+        private string[] performers_role;
 
         #endregion
 
@@ -123,12 +123,16 @@ namespace TagLib.Id3v2
         public Tag(File file, long position, ReadStyle style)
         {
             if (file == null)
+            {
                 throw new ArgumentNullException(nameof(file));
+            }
 
             file.Mode = File.AccessMode.Read;
 
             if (position < 0 || position > file.Length - Header.Size)
+            {
                 throw new ArgumentOutOfRangeException(nameof(position));
+            }
 
             Read(file, position, style);
         }
@@ -150,10 +154,14 @@ namespace TagLib.Id3v2
         public Tag(ByteVector data)
         {
             if (data == null)
+            {
                 throw new ArgumentNullException(nameof(data));
+            }
 
             if (data.Count < Header.Size)
+            {
                 throw new CorruptFileException("Does not contain enough header data.");
+            }
 
             header = new Header(data);
 
@@ -161,10 +169,14 @@ namespace TagLib.Id3v2
             // Tags must contain at least one frame.
 
             if (header.TagSize == 0)
+            {
                 return;
+            }
 
             if (data.Count - Header.Size < header.TagSize)
+            {
                 throw new CorruptFileException("Does not contain enough tag data.");
+            }
 
             Parse(data.Mid((int)Header.Size, (int)header.TagSize), null, 0, ReadStyle.None);
         }
@@ -194,9 +206,13 @@ namespace TagLib.Id3v2
             Frame frame;
             // Handle URL LInk frames differently
             if (ident[0] == 'W')
+            {
                 frame = UrlLinkFrame.Get(this, ident, false);
+            }
             else
+            {
                 frame = TextInformationFrame.Get(this, ident, false);
+            }
 
             string result = frame?.ToString();
             return string.IsNullOrEmpty(result) ? null : result;
@@ -235,14 +251,22 @@ namespace TagLib.Id3v2
         public IEnumerable<Frame> GetFrames(ByteVector ident)
         {
             if (ident == null)
+            {
                 throw new ArgumentNullException(nameof(ident));
+            }
 
             if (ident.Count != 4)
+            {
                 throw new ArgumentException("Identifier must be four bytes long.", nameof(ident));
+            }
 
             foreach (Frame f in frame_list)
+            {
                 if (f.FrameId.Equals(ident))
+                {
                     yield return f;
+                }
+            }
         }
 
         /// <summary>
@@ -262,7 +286,9 @@ namespace TagLib.Id3v2
             foreach (Frame f in frame_list)
             {
                 if (f is T tf)
+                {
                     yield return tf;
+                }
             }
         }
 
@@ -293,15 +319,21 @@ namespace TagLib.Id3v2
             where T : Frame
         {
             if (ident == null)
+            {
                 throw new ArgumentNullException(nameof(ident));
+            }
 
             if (ident.Count != 4)
+            {
                 throw new ArgumentException("Identifier must be four bytes long.", nameof(ident));
+            }
 
             foreach (Frame f in frame_list)
             {
                 if (f is T tf && f.FrameId.Equals(ident))
+                {
                     yield return tf;
+                }
             }
         }
 
@@ -318,7 +350,9 @@ namespace TagLib.Id3v2
         public void AddFrame(Frame frame)
         {
             if (frame == null)
+            {
                 throw new ArgumentNullException(nameof(frame));
+            }
 
             frame_list.Add(frame);
         }
@@ -342,19 +376,29 @@ namespace TagLib.Id3v2
         public void ReplaceFrame(Frame oldFrame, Frame newFrame)
         {
             if (oldFrame == null)
+            {
                 throw new ArgumentNullException(nameof(oldFrame));
+            }
 
             if (newFrame == null)
+            {
                 throw new ArgumentNullException(nameof(newFrame));
+            }
 
             if (oldFrame == newFrame)
+            {
                 return;
+            }
 
             int i = frame_list.IndexOf(oldFrame);
             if (i >= 0)
+            {
                 frame_list[i] = newFrame;
+            }
             else
+            {
                 frame_list.Add(newFrame);
+            }
         }
 
         /// <summary>
@@ -370,10 +414,14 @@ namespace TagLib.Id3v2
         public void RemoveFrame(Frame frame)
         {
             if (frame == null)
+            {
                 throw new ArgumentNullException(nameof(frame));
+            }
 
             if (frame_list.Contains(frame))
+            {
                 frame_list.Remove(frame);
+            }
         }
 
         /// <summary>
@@ -393,14 +441,22 @@ namespace TagLib.Id3v2
         public void RemoveFrames(ByteVector ident)
         {
             if (ident == null)
+            {
                 throw new ArgumentNullException(nameof(ident));
+            }
 
             if (ident.Count != 4)
+            {
                 throw new ArgumentException("Identifier must be four bytes long.", nameof(ident));
+            }
 
             for (int i = frame_list.Count - 1; i >= 0; i--)
+            {
                 if (frame_list[i].FrameId.Equals(ident))
+                {
                     frame_list.RemoveAt(i);
+                }
+            }
         }
 
         /// <summary>
@@ -424,18 +480,28 @@ namespace TagLib.Id3v2
         public void SetTextFrame(ByteVector ident, params string[] text)
         {
             if (ident == null)
+            {
                 throw new ArgumentNullException(nameof(ident));
+            }
 
             if (ident.Count != 4)
+            {
                 throw new ArgumentException("Identifier must be four bytes long.",
                     nameof(ident));
+            }
 
             bool empty = true;
 
             if (text != null)
+            {
                 for (int i = 0; empty && i < text.Length; i++)
+                {
                     if (!string.IsNullOrEmpty(text[i]))
+                    {
                         empty = false;
+                    }
+                }
+            }
 
             if (empty)
             {
@@ -481,9 +547,13 @@ namespace TagLib.Id3v2
         public void SetTextFrame(ByteVector ident, StringCollection text)
         {
             if (text == null || text.Count == 0)
+            {
                 RemoveFrames(ident);
+            }
             else
+            {
                 SetTextFrame(ident, text.ToArray());
+            }
         }
 
         /// <summary>
@@ -525,10 +595,14 @@ namespace TagLib.Id3v2
         public void SetNumberFrame(ByteVector ident, uint number, uint count, string format = "0")
         {
             if (ident == null)
+            {
                 throw new ArgumentNullException(nameof(ident));
+            }
 
             if (ident.Count != 4)
+            {
                 throw new ArgumentException("Identifier must be four bytes long.", nameof(ident));
+            }
 
             if (number == 0 && count == 0)
             {
@@ -574,7 +648,9 @@ namespace TagLib.Id3v2
                 {
                     var insts = performers_role[i];
                     if (string.IsNullOrEmpty(insts))
+                    {
                         continue;
+                    }
 
                     var instlist = insts.Split(';');
                     foreach (var iinst in instlist)
@@ -633,11 +709,15 @@ namespace TagLib.Id3v2
             foreach (Frame frame in frame_list)
             {
                 if (unsynchAtFrameLevel)
+                {
                     frame.Flags |= FrameFlags.Unsynchronisation;
+                }
 
                 if ((frame.Flags &
                     FrameFlags.TagAlterPreservation) != 0)
+                {
                     continue;
+                }
 
                 try
                 {
@@ -650,24 +730,30 @@ namespace TagLib.Id3v2
 
             // Add unsyncronization bytes if necessary.
             if (unsynchAtTagLevel)
+            {
                 SynchData.UnsynchByteVector(tag_data);
+            }
 
             // Compute the amount of padding, and append that to
             // tag_data.
 
 
             if (!has_footer)
+            {
                 tag_data.Add(new ByteVector((int)
                     ((tag_data.Count < header.TagSize) ?
                     (header.TagSize - tag_data.Count) :
                     1024)));
+            }
 
             // Set the tag size.
             header.TagSize = (uint)tag_data.Count;
 
             tag_data.Insert(0, header.Render());
             if (has_footer)
+            {
                 tag_data.Add(new Footer(header).Render());
+            }
 
             return tag_data;
         }
@@ -688,8 +774,8 @@ namespace TagLib.Id3v2
         /// </value>
         public HeaderFlags Flags
         {
-            get { return header.Flags; }
-            set { header.Flags = value; }
+            get => header.Flags;
+            set => header.Flags = value;
         }
 
         /// <summary>
@@ -704,14 +790,13 @@ namespace TagLib.Id3v2
         /// </exception>
         public byte Version
         {
-            get
-            {
-                return ForceDefaultVersion ? DefaultVersion : header.MajorVersion;
-            }
+            get => ForceDefaultVersion ? DefaultVersion : header.MajorVersion;
             set
             {
                 if (value < 2 || value > 4)
+                {
                     throw new ArgumentOutOfRangeException(nameof(value), "Version must be 2, 3, or 4");
+                }
 
                 header.MajorVersion = value;
             }
@@ -738,11 +823,8 @@ namespace TagLib.Id3v2
         /// </remarks>
         public static string Language
         {
-            get { return language; }
-            set
-            {
-                language = (value == null || value.Length < 3) ? "   " : value.Substring(0, 3);
-            }
+            get => language;
+            set => language = (value == null || value.Length < 3) ? "   " : value.Substring(0, 3);
         }
 
         /// <summary>
@@ -763,11 +845,13 @@ namespace TagLib.Id3v2
         /// </exception>
         public static byte DefaultVersion
         {
-            get { return default_version; }
+            get => default_version;
             set
             {
                 if (value < 2 || value > 4)
+                {
                     throw new ArgumentOutOfRangeException(nameof(value), "Version must be 2, 3, or 4");
+                }
 
                 default_version = value;
             }
@@ -853,12 +937,16 @@ namespace TagLib.Id3v2
         protected void Read(File file, long position, ReadStyle style)
         {
             if (file == null)
+            {
                 throw new ArgumentNullException(nameof(file));
+            }
 
             file.Mode = File.AccessMode.Read;
 
             if (position < 0 || position > file.Length - Header.Size)
+            {
                 throw new ArgumentOutOfRangeException(nameof(position));
+            }
 
             file.Seek(position);
 
@@ -868,7 +956,9 @@ namespace TagLib.Id3v2
             // Tags must contain at least one frame.
 
             if (header.TagSize == 0)
+            {
                 return;
+            }
 
             position += Header.Size;
             Parse(null, file, position, style);
@@ -921,7 +1011,9 @@ namespace TagLib.Id3v2
             }
 
             if (fullTagUnsynch)
+            {
                 SynchData.ResynchByteVector(data);
+            }
 
             int frame_data_position = data != null ? 0 : (int)position;
             int frame_data_endposition = (data != null ? data.Count : (int)header.TagSize)
@@ -968,18 +1060,24 @@ namespace TagLib.Id3v2
                 }
 
                 if (frame == null)
+                {
                     break;
+                }
 
                 // Only add frames that contain data.
                 if (frame.Size == 0)
+                {
                     continue;
+                }
 
                 AddFrame(frame);
 
                 // If the tag is version 4, no post-processing
                 // is needed.
                 if (header.MajorVersion == 4)
+                {
                     continue;
+                }
 
                 // Load up the first instance of each, for
                 // post-processing.
@@ -1015,7 +1113,9 @@ namespace TagLib.Id3v2
 
             string year = tdrc.ToString();
             if (year.Length != 4)
+            {
                 return;
+            }
 
             // Start with the year already in TDRC, then add the TDAT and TIME if available
             var tdrc_text = new StringBuilder();
@@ -1035,7 +1135,9 @@ namespace TagLib.Id3v2
                         string time_text = time.ToString();
 
                         if (time_text.Length == 4)
+                        {
                             tdrc_text.Append("T").Append(time_text, 0, 2).Append(":").Append(time_text, 2, 2);
+                        }
 
                         RemoveFrames(FrameType.TIME);
                     }
@@ -1067,7 +1169,7 @@ namespace TagLib.Id3v2
         ///    specified frame, or an empty array if no values were
         ///    found.
         /// </returns>
-        string[] GetTextAsArray(ByteVector ident)
+        private string[] GetTextAsArray(ByteVector ident)
         {
             var frame = TextInformationFrame.Get(this, ident, false);
 
@@ -1090,21 +1192,27 @@ namespace TagLib.Id3v2
         ///    A <see cref="uint" /> value read from the list in the
         ///    frame, or 0 if the value wasn't found.
         /// </returns>
-        uint GetTextAsUInt32(ByteVector ident, int index)
+        private uint GetTextAsUInt32(ByteVector ident, int index)
         {
             string text = GetTextAsString(ident);
 
             if (text == null)
+            {
                 return 0;
+            }
 
             string[] values = text.Split(new[] { '/' },
                 index + 2);
 
             if (values.Length < index + 1)
+            {
                 return 0;
+            }
 
             if (uint.TryParse(values[index], out var result))
+            {
                 return result;
+            }
 
             return 0;
         }
@@ -1116,7 +1224,7 @@ namespace TagLib.Id3v2
         /// <param name="description">String containing the description field</param>
         /// <param name="caseSensitive">case-sensitive search if true.</param>
         /// <returns>UserTextInformationFrame (TXXX) that corresponds to the description</returns>
-        string GetUserTextAsString(string description, bool caseSensitive)
+        private string GetUserTextAsString(string description, bool caseSensitive)
         {
             //Gets the TXXX frame, frame will be null if nonexistant
             var frame = UserTextInformationFrame.Get(this, description, DefaultEncoding, false, caseSensitive);
@@ -1133,7 +1241,7 @@ namespace TagLib.Id3v2
         /// </summary>
         /// <param name="description">String containing the description field</param>
         /// <returns>UserTextInformationFrame (TXXX) that corresponds to the description</returns>
-        string GetUserTextAsString(string description)
+        private string GetUserTextAsString(string description)
         {
             return GetUserTextAsString(description, true);
         }
@@ -1179,7 +1287,7 @@ namespace TagLib.Id3v2
         /// </summary>
         /// <param name="owner">String containing the "Owner" data</param>
         /// <returns>String containing the text from the UFID frame, or null</returns>
-        string GetUfidText(string owner)
+        private string GetUfidText(string owner)
         {
             //Get the UFID frame, frame will be null if nonexistant
             var frame = UniqueFileIdentifierFrame.Get(this, owner, false);
@@ -1194,7 +1302,7 @@ namespace TagLib.Id3v2
         /// </summary>
         /// <param name="owner">String containing the Owner field</param>
         /// <param name="text">String containing the text to set for the frame</param>
-        void SetUfidText(string owner, string text)
+        private void SetUfidText(string owner, string text)
         {
 
             //Get a UFID frame, create if necessary
@@ -1221,7 +1329,7 @@ namespace TagLib.Id3v2
         ///    A <see cref="Frame" /> object to make the first of its
         ///    type.
         /// </param>
-        void MakeFirstOfType(Frame frame)
+        private void MakeFirstOfType(Frame frame)
         {
             ByteVector type = frame.FrameId;
             Frame swapping = null;
@@ -1230,9 +1338,13 @@ namespace TagLib.Id3v2
                 if (swapping == null)
                 {
                     if (frame_list[i].FrameId.Equals(type))
+                    {
                         swapping = frame;
+                    }
                     else
+                    {
                         continue;
+                    }
                 }
 
                 Frame tmp = frame_list[i];
@@ -1240,11 +1352,15 @@ namespace TagLib.Id3v2
                 swapping = tmp;
 
                 if (swapping == frame)
+                {
                     return;
+                }
             }
 
             if (swapping != null)
+            {
                 frame_list.Add(swapping);
+            }
         }
 
         #endregion
@@ -1282,10 +1398,7 @@ namespace TagLib.Id3v2
         /// <value>
         ///    Always <see cref="TagTypes.Id3v2" />.
         /// </value>
-        public override TagTypes TagTypes
-        {
-            get { return TagTypes.Id3v2; }
-        }
+        public override TagTypes TagTypes => TagTypes.Id3v2;
 
         /// <summary>
         ///    Gets and sets the title for the media described by the
@@ -1302,8 +1415,8 @@ namespace TagLib.Id3v2
         /// </remarks>
         public override string Title
         {
-            get { return GetTextAsString(FrameType.TIT2); }
-            set { SetTextFrame(FrameType.TIT2, value); }
+            get => GetTextAsString(FrameType.TIT2);
+            set => SetTextFrame(FrameType.TIT2, value);
         }
 
         /// <summary>
@@ -1321,8 +1434,8 @@ namespace TagLib.Id3v2
         /// </remarks>
         public override string TitleSort
         {
-            get { return GetTextAsString(FrameType.TSOT); }
-            set { SetTextFrame(FrameType.TSOT, value); }
+            get => GetTextAsString(FrameType.TSOT);
+            set => SetTextFrame(FrameType.TSOT, value);
         }
 
 
@@ -1349,8 +1462,8 @@ namespace TagLib.Id3v2
         /// </remarks>
         public override string Subtitle
         {
-            get { return GetTextAsString(FrameType.TIT3); }
-            set { SetTextFrame(FrameType.TIT3, value); }
+            get => GetTextAsString(FrameType.TIT3);
+            set => SetTextFrame(FrameType.TIT3, value);
         }
 
         /// <summary>
@@ -1376,8 +1489,8 @@ namespace TagLib.Id3v2
         /// </remarks>
         public override string Description
         {
-            get { return GetUserTextAsString("Description"); }
-            set { SetUserTextAsString("Description", value); }
+            get => GetUserTextAsString("Description");
+            set => SetUserTextAsString("Description", value);
         }
 
 
@@ -1397,8 +1510,8 @@ namespace TagLib.Id3v2
         /// </remarks>
         public override string[] Performers
         {
-            get { return GetTextAsArray(FrameType.TPE1); }
-            set { SetTextFrame(FrameType.TPE1, value); }
+            get => GetTextAsArray(FrameType.TPE1);
+            set => SetTextFrame(FrameType.TPE1, value);
         }
 
         /// <summary>
@@ -1417,8 +1530,8 @@ namespace TagLib.Id3v2
         /// </remarks>
         public override string[] PerformersSort
         {
-            get { return GetTextAsArray(FrameType.TSOP); }
-            set { SetTextFrame(FrameType.TSOP, value); }
+            get => GetTextAsArray(FrameType.TSOP);
+            set => SetTextFrame(FrameType.TSOP, value);
         }
 
         /// <summary>
@@ -1459,7 +1572,9 @@ namespace TagLib.Id3v2
 
                 var perfref = Performers;
                 if (Performers == null)
+                {
                     return performers_role = new string[0];
+                }
 
                 // Map the instruments to the performers
 
@@ -1471,14 +1586,24 @@ namespace TagLib.Id3v2
                     string perfs = map[i + 1];
                     if (string.IsNullOrEmpty(inst)
                         || string.IsNullOrEmpty(perfs))
+                    {
                         continue;
+                    }
 
                     var perflist = perfs.Split(',');
                     foreach (string iperf in perflist)
                     {
-                        if (iperf == null) continue;
+                        if (iperf == null)
+                        {
+                            continue;
+                        }
+
                         var perf = iperf.Trim();
-                        if (string.IsNullOrEmpty(perf)) continue;
+                        if (string.IsNullOrEmpty(perf))
+                        {
+                            continue;
+                        }
+
                         for (int j = 0; j < perfref.Length; j++)
                         {
                             if (perfref[j] == perf)
@@ -1493,10 +1618,7 @@ namespace TagLib.Id3v2
                 return performers_role;
             }
 
-            set
-            {
-                performers_role = value ?? new string[0];
-            }
+            set => performers_role = value ?? new string[0];
         }
 
 
@@ -1517,8 +1639,8 @@ namespace TagLib.Id3v2
         /// </remarks>
         public override string[] AlbumArtistsSort
         {
-            get { return GetTextAsArray(FrameType.TSO2); }
-            set { SetTextFrame(FrameType.TSO2, value); }
+            get => GetTextAsArray(FrameType.TSO2);
+            set => SetTextFrame(FrameType.TSO2, value);
         }
 
         /// <summary>
@@ -1538,8 +1660,8 @@ namespace TagLib.Id3v2
         /// </remarks>
         public override string[] AlbumArtists
         {
-            get { return GetTextAsArray(FrameType.TPE2); }
-            set { SetTextFrame(FrameType.TPE2, value); }
+            get => GetTextAsArray(FrameType.TPE2);
+            set => SetTextFrame(FrameType.TPE2, value);
         }
 
         /// <summary>
@@ -1557,8 +1679,8 @@ namespace TagLib.Id3v2
         /// </remarks>
         public override string[] Composers
         {
-            get { return GetTextAsArray(FrameType.TCOM); }
-            set { SetTextFrame(FrameType.TCOM, value); }
+            get => GetTextAsArray(FrameType.TCOM);
+            set => SetTextFrame(FrameType.TCOM, value);
         }
 
         /// <summary>
@@ -1577,8 +1699,8 @@ namespace TagLib.Id3v2
         /// </remarks>
         public override string[] ComposersSort
         {
-            get { return GetTextAsArray(FrameType.TSOC); }
-            set { SetTextFrame(FrameType.TSOC, value); }
+            get => GetTextAsArray(FrameType.TSOC);
+            set => SetTextFrame(FrameType.TSOC, value);
         }
 
         /// <summary>
@@ -1596,8 +1718,8 @@ namespace TagLib.Id3v2
         /// </remarks>
         public override string Album
         {
-            get { return GetTextAsString(FrameType.TALB); }
-            set { SetTextFrame(FrameType.TALB, value); }
+            get => GetTextAsString(FrameType.TALB);
+            set => SetTextFrame(FrameType.TALB, value);
         }
 
         /// <summary>
@@ -1615,8 +1737,8 @@ namespace TagLib.Id3v2
         /// </remarks>
         public override string AlbumSort
         {
-            get { return GetTextAsString(FrameType.TSOA); }
-            set { SetTextFrame(FrameType.TSOA, value); }
+            get => GetTextAsString(FrameType.TSOA);
+            set => SetTextFrame(FrameType.TSOA, value);
         }
 
         /// <summary>
@@ -1647,7 +1769,9 @@ namespace TagLib.Id3v2
                 if (string.IsNullOrEmpty(value))
                 {
                     while ((frame = CommentsFrame.GetPreferred(this, string.Empty, Language)) != null)
+                    {
                         RemoveFrame(frame);
+                    }
 
                     return;
                 }
@@ -1680,14 +1804,18 @@ namespace TagLib.Id3v2
                 string[] text = GetTextAsArray(FrameType.TCON);
 
                 if (text.Length == 0)
+                {
                     return text;
+                }
 
                 var list = new List<string>();
 
                 foreach (string genre in text)
                 {
                     if (string.IsNullOrEmpty(genre))
+                    {
                         continue;
+                    }
 
                     // The string may just be a genre
                     // number.
@@ -1695,9 +1823,13 @@ namespace TagLib.Id3v2
                     string genre_from_index = TagLib.Genres.IndexToAudio(genre);
 
                     if (genre_from_index != null)
+                    {
                         list.Add(genre_from_index);
+                    }
                     else
+                    {
                         list.Add(genre);
+                    }
                 }
 
                 return list.ToArray();
@@ -1719,7 +1851,9 @@ namespace TagLib.Id3v2
                     int index = TagLib.Genres.AudioToIndex(value[i]);
 
                     if (index != 255)
+                    {
                         value[i] = index.ToString(CultureInfo.InvariantCulture);
+                    }
                 }
 
                 SetTextFrame(FrameType.TCON, value);
@@ -1747,17 +1881,23 @@ namespace TagLib.Id3v2
                 string text = GetTextAsString(FrameType.TDRC);
 
                 if (text == null || text.Length < 4)
+                {
                     return 0;
+                }
 
                 if (uint.TryParse(text.Substring(0, 4), out var value))
+                {
                     return value;
+                }
 
                 return 0;
             }
             set
             {
                 if (value > 9999)
+                {
                     value = 0;
+                }
 
                 SetNumberFrame(FrameType.TDRC, value, 0);
             }
@@ -1778,8 +1918,8 @@ namespace TagLib.Id3v2
         /// </remarks>
         public override uint Track
         {
-            get { return GetTextAsUInt32(FrameType.TRCK, 0); }
-            set { SetNumberFrame(FrameType.TRCK, value, TrackCount, "00"); }
+            get => GetTextAsUInt32(FrameType.TRCK, 0);
+            set => SetNumberFrame(FrameType.TRCK, value, TrackCount, "00");
         }
 
         /// <summary>
@@ -1797,8 +1937,8 @@ namespace TagLib.Id3v2
         /// </remarks>
         public override uint TrackCount
         {
-            get { return GetTextAsUInt32(FrameType.TRCK, 1); }
-            set { SetNumberFrame(FrameType.TRCK, Track, value); }
+            get => GetTextAsUInt32(FrameType.TRCK, 1);
+            set => SetNumberFrame(FrameType.TRCK, Track, value);
         }
 
         /// <summary>
@@ -1816,8 +1956,8 @@ namespace TagLib.Id3v2
         /// </remarks>
         public override uint Disc
         {
-            get { return GetTextAsUInt32(FrameType.TPOS, 0); }
-            set { SetNumberFrame(FrameType.TPOS, value, DiscCount); }
+            get => GetTextAsUInt32(FrameType.TPOS, 0);
+            set => SetNumberFrame(FrameType.TPOS, value, DiscCount);
         }
 
         /// <summary>
@@ -1835,8 +1975,8 @@ namespace TagLib.Id3v2
         /// </remarks>
         public override uint DiscCount
         {
-            get { return GetTextAsUInt32(FrameType.TPOS, 1); }
-            set { SetNumberFrame(FrameType.TPOS, Disc, value); }
+            get => GetTextAsUInt32(FrameType.TPOS, 1);
+            set => SetNumberFrame(FrameType.TPOS, Disc, value);
         }
 
         /// <summary>
@@ -1868,7 +2008,9 @@ namespace TagLib.Id3v2
                 if (string.IsNullOrEmpty(value))
                 {
                     while ((frame = UnsynchronisedLyricsFrame.GetPreferred(this, string.Empty, Language)) != null)
+                    {
                         RemoveFrame(frame);
+                    }
 
                     return;
                 }
@@ -1895,8 +2037,8 @@ namespace TagLib.Id3v2
         /// </remarks>
         public override string Grouping
         {
-            get { return GetTextAsString(FrameType.TIT1); }
-            set { SetTextFrame(FrameType.TIT1, value); }
+            get => GetTextAsString(FrameType.TIT1);
+            set => SetTextFrame(FrameType.TIT1, value);
         }
 
         /// <summary>
@@ -1919,14 +2061,18 @@ namespace TagLib.Id3v2
                 string text = GetTextAsString(FrameType.TBPM);
 
                 if (text == null)
+                {
                     return 0;
+                }
 
                 if (double.TryParse(text, out var result) && result >= 0.0)
+                {
                     return (uint)Math.Round(result);
+                }
 
                 return 0;
             }
-            set { SetNumberFrame(FrameType.TBPM, value, 0); }
+            set => SetNumberFrame(FrameType.TBPM, value, 0);
         }
 
         /// <summary>
@@ -1944,8 +2090,8 @@ namespace TagLib.Id3v2
         /// </remarks>
         public override string Conductor
         {
-            get { return GetTextAsString(FrameType.TPE3); }
-            set { SetTextFrame(FrameType.TPE3, value); }
+            get => GetTextAsString(FrameType.TPE3);
+            set => SetTextFrame(FrameType.TPE3, value);
         }
 
         /// <summary>
@@ -1963,8 +2109,8 @@ namespace TagLib.Id3v2
         /// </remarks>
         public override string Copyright
         {
-            get { return GetTextAsString(FrameType.TCOP); }
-            set { SetTextFrame(FrameType.TCOP, value); }
+            get => GetTextAsString(FrameType.TCOP);
+            set => SetTextFrame(FrameType.TCOP, value);
         }
 
         /// <summary>
@@ -2020,8 +2166,8 @@ namespace TagLib.Id3v2
         /// </remarks>
         public override string MusicBrainzArtistId
         {
-            get { return GetUserTextAsString("MusicBrainz Artist Id", false); }
-            set { SetUserTextAsString("MusicBrainz Artist Id", value); }
+            get => GetUserTextAsString("MusicBrainz Artist Id", false);
+            set => SetUserTextAsString("MusicBrainz Artist Id", value);
         }
 
         /// <summary>
@@ -2038,8 +2184,8 @@ namespace TagLib.Id3v2
         /// </remarks>
         public override string MusicBrainzReleaseGroupId
         {
-            get { return GetUserTextAsString("MusicBrainz Release Group Id", false); }
-            set { SetUserTextAsString("MusicBrainz Release Group Id", value); }
+            get => GetUserTextAsString("MusicBrainz Release Group Id", false);
+            set => SetUserTextAsString("MusicBrainz Release Group Id", value);
         }
 
         /// <summary>
@@ -2056,8 +2202,8 @@ namespace TagLib.Id3v2
         /// </remarks>
         public override string MusicBrainzReleaseId
         {
-            get { return GetUserTextAsString("MusicBrainz Album Id", false); }
-            set { SetUserTextAsString("MusicBrainz Album Id", value); }
+            get => GetUserTextAsString("MusicBrainz Album Id", false);
+            set => SetUserTextAsString("MusicBrainz Album Id", value);
         }
 
         /// <summary>
@@ -2074,8 +2220,8 @@ namespace TagLib.Id3v2
         /// </remarks>
         public override string MusicBrainzReleaseArtistId
         {
-            get { return GetUserTextAsString("MusicBrainz Album Artist Id", false); }
-            set { SetUserTextAsString("MusicBrainz Album Artist Id", value); }
+            get => GetUserTextAsString("MusicBrainz Album Artist Id", false);
+            set => SetUserTextAsString("MusicBrainz Album Artist Id", value);
         }
 
         /// <summary>
@@ -2092,8 +2238,8 @@ namespace TagLib.Id3v2
         /// </remarks>
         public override string MusicBrainzTrackId
         {
-            get { return GetUfidText("http://musicbrainz.org"); }
-            set { SetUfidText("http://musicbrainz.org", value); }
+            get => GetUfidText("http://musicbrainz.org");
+            set => SetUfidText("http://musicbrainz.org", value);
         }
 
         /// <summary>
@@ -2110,8 +2256,8 @@ namespace TagLib.Id3v2
         /// </remarks>
         public override string MusicBrainzDiscId
         {
-            get { return GetUserTextAsString("MusicBrainz Disc Id", false); }
-            set { SetUserTextAsString("MusicBrainz Disc Id", value); }
+            get => GetUserTextAsString("MusicBrainz Disc Id", false);
+            set => SetUserTextAsString("MusicBrainz Disc Id", value);
         }
 
         /// <summary>
@@ -2128,8 +2274,8 @@ namespace TagLib.Id3v2
         /// </remarks>
         public override string MusicIpId
         {
-            get { return GetUserTextAsString("MusicIP PUID"); }
-            set { SetUserTextAsString("MusicIP PUID", value); }
+            get => GetUserTextAsString("MusicIP PUID");
+            set => SetUserTextAsString("MusicIP PUID", value);
         }
 
         /// <summary>
@@ -2146,8 +2292,8 @@ namespace TagLib.Id3v2
         /// </remarks>
         public override string AmazonId
         {
-            get { return GetUserTextAsString("ASIN"); }
-            set { SetUserTextAsString("ASIN", value); }
+            get => GetUserTextAsString("ASIN");
+            set => SetUserTextAsString("ASIN", value);
         }
 
         /// <summary>
@@ -2164,8 +2310,8 @@ namespace TagLib.Id3v2
         /// </remarks>
         public override string MusicBrainzReleaseStatus
         {
-            get { return GetUserTextAsString("MusicBrainz Album Status", false); }
-            set { SetUserTextAsString("MusicBrainz Album Status", value); }
+            get => GetUserTextAsString("MusicBrainz Album Status", false);
+            set => SetUserTextAsString("MusicBrainz Album Status", value);
         }
 
         /// <summary>
@@ -2182,8 +2328,8 @@ namespace TagLib.Id3v2
         /// </remarks>
         public override string MusicBrainzReleaseType
         {
-            get { return GetUserTextAsString("MusicBrainz Album Type", false); }
-            set { SetUserTextAsString("MusicBrainz Album Type", value); }
+            get => GetUserTextAsString("MusicBrainz Album Type", false);
+            set => SetUserTextAsString("MusicBrainz Album Type", value);
         }
 
         /// <summary>
@@ -2200,8 +2346,8 @@ namespace TagLib.Id3v2
         /// </remarks>
         public override string MusicBrainzReleaseCountry
         {
-            get { return GetUserTextAsString("MusicBrainz Album Release Country", false); }
-            set { SetUserTextAsString("MusicBrainz Album Release Country", value); }
+            get => GetUserTextAsString("MusicBrainz Album Release Country", false);
+            set => SetUserTextAsString("MusicBrainz Album Release Country", value);
         }
 
         /// <summary>
@@ -2387,8 +2533,8 @@ namespace TagLib.Id3v2
         /// </remarks>
         public override string InitialKey
         {
-            get { return GetTextAsString(FrameType.TKEY); }
-            set { SetTextFrame(FrameType.TKEY, value); }
+            get => GetTextAsString(FrameType.TKEY);
+            set => SetTextFrame(FrameType.TKEY, value);
         }
 
         /// <summary>
@@ -2402,8 +2548,8 @@ namespace TagLib.Id3v2
         /// </remarks>
         public override string RemixedBy
         {
-            get { return GetTextAsString(FrameType.TPE4); }
-            set { SetTextFrame(FrameType.TPE4, value); }
+            get => GetTextAsString(FrameType.TPE4);
+            set => SetTextFrame(FrameType.TPE4, value);
         }
 
         /// <summary>
@@ -2417,8 +2563,8 @@ namespace TagLib.Id3v2
         /// </remarks>
         public override string Publisher
         {
-            get { return GetTextAsString(FrameType.TPUB); }
-            set { SetTextFrame(FrameType.TPUB, value); }
+            get => GetTextAsString(FrameType.TPUB);
+            set => SetTextFrame(FrameType.TPUB, value);
         }
 
         /// <summary>
@@ -2432,8 +2578,8 @@ namespace TagLib.Id3v2
         /// </remarks>
         public override string ISRC
         {
-            get { return GetTextAsString(FrameType.TSRC); }
-            set { SetTextFrame(FrameType.TSRC, value); }
+            get => GetTextAsString(FrameType.TSRC);
+            set => SetTextFrame(FrameType.TSRC, value);
         }
 
         /// <summary>
@@ -2451,22 +2597,23 @@ namespace TagLib.Id3v2
         /// </remarks>
         public override IPicture[] Pictures
         {
-            get
-            {
-                return new List<AttachmentFrame>(GetFrames<AttachmentFrame>()).ToArray();
-            }
+            get => new List<AttachmentFrame>(GetFrames<AttachmentFrame>()).ToArray();
             set
             {
                 RemoveFrames(FrameType.APIC);
                 RemoveFrames(FrameType.GEOB);
 
                 if (value == null || value.Length == 0)
+                {
                     return;
+                }
 
                 foreach (var picture in value)
                 {
                     if (!(picture is AttachmentFrame frame))
+                    {
                         frame = new AttachmentFrame(picture);
+                    }
 
                     AddFrame(frame);
                 }
@@ -2480,10 +2627,7 @@ namespace TagLib.Id3v2
         ///    <see langword="true" /> if the current instance does not
         ///    any values. Otherwise <see langword="false" />.
         /// </value>
-        public override bool IsEmpty
-        {
-            get { return frame_list.Count == 0; }
-        }
+        public override bool IsEmpty => frame_list.Count == 0;
 
         /// <summary>
         ///    Clears the values stored in the current instance.
@@ -2513,7 +2657,7 @@ namespace TagLib.Id3v2
                 string val = GetTextAsString(FrameType.TCMP);
                 return !string.IsNullOrEmpty(val) && val != "0";
             }
-            set { SetTextFrame(FrameType.TCMP, value ? "1" : null); }
+            set => SetTextFrame(FrameType.TCMP, value ? "1" : null);
         }
 
         /// <summary>
@@ -2541,7 +2685,9 @@ namespace TagLib.Id3v2
         public override void CopyTo(TagLib.Tag target, bool overwrite)
         {
             if (target == null)
+            {
                 throw new ArgumentNullException(nameof(target));
+            }
 
             if (!(target is Tag match))
             {
@@ -2561,11 +2707,13 @@ namespace TagLib.Id3v2
                 else
                 {
                     foreach (Frame f in match.frame_list)
+                    {
                         if (f.FrameId.Equals(ident))
                         {
                             copy = false;
                             break;
                         }
+                    }
                 }
 
                 for (int i = 0; i < frames.Count;)
@@ -2573,7 +2721,9 @@ namespace TagLib.Id3v2
                     if (frames[i].FrameId.Equals(ident))
                     {
                         if (copy)
+                        {
                             match.frame_list.Add(frames[i].Clone());
+                        }
 
                         frames.RemoveAt(i);
                     }
@@ -2605,10 +2755,14 @@ namespace TagLib.Id3v2
                 header = header
             };
             if (tag.extended_header != null)
+            {
                 tag.extended_header = extended_header.Clone();
+            }
 
             foreach (Frame frame in frame_list)
+            {
                 tag.frame_list.Add(frame.Clone());
+            }
 
             return tag;
         }

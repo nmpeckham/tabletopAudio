@@ -71,7 +71,7 @@ namespace TagLib.Mpeg
         ///    A <see cref="uint" /> value specifying the stream size of
         ///    the audio represented by the new instance.
         /// </param>
-        XingHeader(uint frame, uint size)
+        private XingHeader(uint frame, uint size)
         {
             TotalFrames = frame;
             TotalSize = size;
@@ -96,11 +96,15 @@ namespace TagLib.Mpeg
         public XingHeader(ByteVector data)
         {
             if (data == null)
+            {
                 throw new ArgumentNullException(nameof(data));
+            }
 
             // Check to see if a valid Xing header is available.
             if (!data.StartsWith(FileIdentifier))
+            {
                 throw new CorruptFileException("Not a valid Xing header");
+            }
 
             int position = 8;
 
@@ -110,7 +114,9 @@ namespace TagLib.Mpeg
                 position += 4;
             }
             else
+            {
                 TotalFrames = 0;
+            }
 
             if ((data[7] & 0x02) != 0)
             {
@@ -118,7 +124,9 @@ namespace TagLib.Mpeg
                 position += 4;
             }
             else
+            {
                 TotalSize = 0;
+            }
 
             Present = true;
         }
@@ -186,9 +194,13 @@ namespace TagLib.Mpeg
             bool single_channel = channelMode == ChannelMode.SingleChannel;
 
             if (version == Version.Version1)
+            {
                 return single_channel ? 0x15 : 0x24;
+            }
             else
+            {
                 return single_channel ? 0x0D : 0x15;
+            }
         }
 
         #endregion

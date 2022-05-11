@@ -31,6 +31,9 @@ namespace Id3.Frames
         {
         }
 
-        public static implicit operator CopyrightUrlFrame(string url) => new CopyrightUrlFrame(url);
+        public static implicit operator CopyrightUrlFrame(string url)
+        {
+            return new CopyrightUrlFrame(url);
+        }
     }
 }

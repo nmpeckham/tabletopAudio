@@ -29,6 +29,9 @@ namespace Id3.Frames
         {
         }
 
-        public static implicit operator BeatsPerMinuteFrame(int value) => new BeatsPerMinuteFrame(value);
+        public static implicit operator BeatsPerMinuteFrame(int value)
+        {
+            return new BeatsPerMinuteFrame(value);
+        }
     }
 }

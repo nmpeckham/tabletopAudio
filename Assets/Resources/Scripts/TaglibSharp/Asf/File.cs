@@ -43,12 +43,12 @@ namespace TagLib.Asf
         /// <summary>
         ///    Contains the file's tag.
         /// </summary>
-        Tag asf_tag;
+        private Tag asf_tag;
 
         /// <summary>
         ///    Contains the file's properties.
         /// </summary>
-        Properties properties;
+        private Properties properties;
 
         #endregion
 
@@ -152,10 +152,7 @@ namespace TagLib.Asf
         ///    A <see cref="TagLib.Tag" /> object representing all tags
         ///    stored in the current instance.
         /// </value>
-        public override TagLib.Tag Tag
-        {
-            get { return asf_tag; }
-        }
+        public override TagLib.Tag Tag => asf_tag;
 
         /// <summary>
         ///    Gets the media properties of the file represented by the
@@ -166,10 +163,7 @@ namespace TagLib.Asf
         ///    media properties of the file represented by the current
         ///    instance.
         /// </value>
-        public override Properties Properties
-        {
-            get { return properties; }
-        }
+        public override Properties Properties => properties;
 
         #endregion
 
@@ -241,7 +235,9 @@ namespace TagLib.Asf
         public override TagLib.Tag GetTag(TagTypes type, bool create)
         {
             if (type == TagTypes.Asf)
+            {
                 return asf_tag;
+            }
 
             return null;
         }
@@ -260,7 +256,9 @@ namespace TagLib.Asf
         public override void RemoveTags(TagTypes types)
         {
             if ((types & TagTypes.Asf) == TagTypes.Asf)
+            {
                 asf_tag.Clear();
+            }
         }
 
         /// <summary>
@@ -375,32 +373,46 @@ namespace TagLib.Asf
             System.Guid id = ReadGuid();
 
             if (id.Equals(Guid.AsfFilePropertiesObject))
+            {
                 return new FilePropertiesObject(this,
                     position);
+            }
 
             if (id.Equals(Guid.AsfStreamPropertiesObject))
+            {
                 return new StreamPropertiesObject(this,
                     position);
+            }
 
             if (id.Equals(Guid.AsfContentDescriptionObject))
+            {
                 return new ContentDescriptionObject(this,
                     position);
+            }
 
             if (id.Equals(
                 Guid.AsfExtendedContentDescriptionObject))
+            {
                 return new ExtendedContentDescriptionObject(
                     this, position);
+            }
 
             if (id.Equals(Guid.AsfPaddingObject))
+            {
                 return new PaddingObject(this, position);
+            }
 
             if (id.Equals(Guid.AsfHeaderExtensionObject))
+            {
                 return new HeaderExtensionObject(this,
                     position);
+            }
 
             if (id.Equals(Guid.AsfMetadataLibraryObject))
+            {
                 return new MetadataLibraryObject(this,
                     position);
+            }
 
             return new UnknownObject(this, position);
         }
@@ -419,7 +431,7 @@ namespace TagLib.Asf
         ///    of accuracy to read the media properties, or <see
         ///    cref="ReadStyle.None" /> to ignore the properties.
         /// </param>
-        void Read(ReadStyle propertiesStyle)
+        private void Read(ReadStyle propertiesStyle)
         {
             Mode = AccessMode.Read;
             try
@@ -427,7 +439,9 @@ namespace TagLib.Asf
                 HeaderObject header = new HeaderObject(this, 0);
 
                 if (header.HasContentDescriptors)
+                {
                     TagTypesOnDisk |= TagTypes.Asf;
+                }
 
                 asf_tag = new Tag(header);
 
@@ -435,7 +449,9 @@ namespace TagLib.Asf
                 InvariantEndPosition = Length;
 
                 if ((propertiesStyle & ReadStyle.Average) != 0)
+                {
                     properties = header.Properties;
+                }
             }
             finally
             {

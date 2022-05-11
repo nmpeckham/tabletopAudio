@@ -30,7 +30,9 @@ namespace Id3.v2
         internal override void DeleteTag(Stream stream)
         {
             if (!HasTag(stream))
+            {
                 return;
+            }
 
             var buffer = new byte[BufferSize];
             int tagSize = GetTagSize(stream);
@@ -41,7 +43,10 @@ namespace Id3.v2
                 stream.Seek(readPos, SeekOrigin.Begin);
                 bytesRead = stream.Read(buffer, 0, BufferSize);
                 if (bytesRead == 0)
+                {
                     continue;
+                }
+
                 stream.Seek(writePos, SeekOrigin.Begin);
                 stream.Write(buffer, 0, bytesRead);
                 readPos += bytesRead;
@@ -55,7 +60,9 @@ namespace Id3.v2
         internal override byte[] GetTagBytes(Stream stream)
         {
             if (!HasTag(stream))
+            {
                 return null;
+            }
 
             var sizeBytes = new byte[4];
             stream.Seek(6, SeekOrigin.Begin);
@@ -127,7 +134,9 @@ namespace Id3.v2
                     currentPos += 10;
                 }
                 else
+                {
                     currentPos += 6;
+                }
 
                 headerContainer.ExtendedHeader = extendedHeader;
             }
@@ -167,10 +176,14 @@ namespace Id3.v2
             {
                 int currentTagSize = GetTagSize(stream);
                 if (requiredTagSize > currentTagSize)
+                {
                     MakeSpaceForTag(stream, currentTagSize, requiredTagSize);
+                }
             }
             else
+            {
                 MakeSpaceForTag(stream, 0, requiredTagSize);
+            }
 
             stream.Seek(0, SeekOrigin.Begin);
             stream.Write(tagBytes, 0, requiredTagSize);
@@ -267,10 +280,16 @@ namespace Id3.v2
             foreach (Id3Frame frame in tag)
             {
                 if (!frame.IsAssigned)
+                {
                     continue;
+                }
+
                 FrameHandler mapping = FrameHandlers[frame.GetType()];
                 if (mapping == null)
+                {
                     continue;
+                }
+
                 byte[] frameBytes = mapping.Encoder(frame);
                 bytes.AddRange(Encoding.ASCII.GetBytes(GetFrameIdFromFrame(frame)));
                 bytes.AddRange(SyncSafeNumber.EncodeNormal(frameBytes.Length));
@@ -294,7 +313,9 @@ namespace Id3.v2
         private static void MakeSpaceForTag(Stream stream, int currentTagSize, int requiredTagSize)
         {
             if (currentTagSize >= requiredTagSize)
+            {
                 return;
+            }
 
             int increaseRequired = requiredTagSize - currentTagSize;
             var readPos = (int)stream.Length;

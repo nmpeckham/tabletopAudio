@@ -40,17 +40,17 @@ namespace TagLib.Flac
         /// <summary>
         ///    Contains the flags.
         /// </summary>
-        readonly uint flags;
+        private readonly uint flags;
 
         /// <summary>
         ///    Contains the low portion of the length.
         /// </summary>
-        readonly uint low_length;
+        private readonly uint low_length;
 
         /// <summary>
         ///    Contains the stream length.
         /// </summary>
-        readonly long stream_length;
+        private readonly long stream_length;
 
         #endregion
 
@@ -80,10 +80,14 @@ namespace TagLib.Flac
         public StreamHeader(ByteVector data, long streamLength)
         {
             if (data == null)
+            {
                 throw new ArgumentNullException(nameof(data));
+            }
 
             if (data.Count < 18)
+            {
                 throw new CorruptFileException("Not enough data in FLAC header.");
+            }
 
             stream_length = streamLength;
             flags = data.Mid(10, 4).ToUInt(true);
@@ -104,18 +108,12 @@ namespace TagLib.Flac
         ///    A <see cref="TimeSpan" /> containing the duration of the
         ///    media represented by the current instance.
         /// </value>
-        public TimeSpan Duration
-        {
-            get
-            {
-                return (AudioSampleRate > 0 && stream_length > 0)
+        public TimeSpan Duration => (AudioSampleRate > 0 && stream_length > 0)
                     ? TimeSpan.FromSeconds(
                         low_length /
                         (double)AudioSampleRate +
                         HighLength) :
                     TimeSpan.Zero;
-            }
-        }
 
         /// <summary>
         ///    Gets the bitrate of the audio represented by the current
@@ -125,14 +123,8 @@ namespace TagLib.Flac
         ///    A <see cref="int" /> value containing a bitrate of the
         ///    audio represented by the current instance.
         /// </value>
-        public int AudioBitrate
-        {
-            get
-            {
-                return (int)(Duration > TimeSpan.Zero ?
+        public int AudioBitrate => (int)(Duration > TimeSpan.Zero ?
                     ((stream_length * 8L) / Duration.TotalSeconds) / 1000 : 0);
-            }
-        }
 
         /// <summary>
         ///    Gets the sample rate of the audio represented by the
@@ -142,10 +134,7 @@ namespace TagLib.Flac
         ///    A <see cref="int" /> value containing the sample rate of
         ///    the audio represented by the current instance.
         /// </value>
-        public int AudioSampleRate
-        {
-            get { return (int)(flags >> 12); }
-        }
+        public int AudioSampleRate => (int)(flags >> 12);
 
         /// <summary>
         ///    Gets the number of channels in the audio represented by
@@ -156,10 +145,7 @@ namespace TagLib.Flac
         ///    channels in the audio represented by the current
         ///    instance.
         /// </value>
-        public int AudioChannels
-        {
-            get { return (int)(((flags >> 9) & 7) + 1); }
-        }
+        public int AudioChannels => (int)(((flags >> 9) & 7) + 1);
 
         /// <summary>
         ///    Gets the types of media represented by the current
@@ -168,10 +154,7 @@ namespace TagLib.Flac
         /// <value>
         ///    Always <see cref="MediaTypes.Audio" />.
         /// </value>
-        public MediaTypes MediaTypes
-        {
-            get { return MediaTypes.Audio; }
-        }
+        public MediaTypes MediaTypes => MediaTypes.Audio;
 
         /// <summary>
         ///    Gets the sample width of the audio represented by the
@@ -182,10 +165,7 @@ namespace TagLib.Flac
         ///    the audio represented by the current instance.
         /// </value>
         [Obsolete("This property is depreciated, use BitsPerSample instead")]
-        public int AudioSampleWidth
-        {
-            get { return BitsPerSample; }
-        }
+        public int AudioSampleWidth => BitsPerSample;
 
         /// <summary>
         ///    Gets the number of bits per sample in the audio
@@ -196,10 +176,7 @@ namespace TagLib.Flac
         ///    per sample in the audio represented by the current
         ///    instance.
         /// </value>
-        public int BitsPerSample
-        {
-            get { return (int)(((flags >> 4) & 31) + 1); }
-        }
+        public int BitsPerSample => (int)(((flags >> 4) & 31) + 1);
 
         /// <summary>
         ///    Gets a text description of the media represented by the
@@ -209,10 +186,7 @@ namespace TagLib.Flac
         ///    A <see cref="string" /> object containing a description
         ///    of the media represented by the current instance.
         /// </value>
-        public string Description
-        {
-            get { return "Flac Audio"; }
-        }
+        public string Description => "Flac Audio";
 
         #endregion
 
@@ -228,18 +202,13 @@ namespace TagLib.Flac
         ///    A <see cref="uint" /> value containing the high portion
         ///    of the length.
         /// </value>
-        uint HighLength
-        {
-            get
-            {
+        private uint HighLength =>
                 // The last 4 bits are the most significant 4
                 // bits for the 36 bit stream length in samples.
                 // (Audio files measured in days)
-                return (uint)(AudioSampleRate > 0 ?
+                (uint)(AudioSampleRate > 0 ?
                     (((flags & 0xf) << 28) /
                     AudioSampleRate) << 4 : 0);
-            }
-        }
 
         #endregion
     }

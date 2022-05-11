@@ -31,7 +31,10 @@ namespace Id3.Frames
         {
         }
 
-        public static implicit operator CustomTextFrame(string value) => new CustomTextFrame(value);
+        public static implicit operator CustomTextFrame(string value)
+        {
+            return new CustomTextFrame(value);
+        }
     }
 
     public sealed class CustomTextFrameList : Collection<CustomTextFrame>

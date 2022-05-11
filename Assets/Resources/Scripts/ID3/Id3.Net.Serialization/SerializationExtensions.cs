@@ -36,7 +36,9 @@ namespace Id3.Serialization
             where TFormatter : IFormatter
         {
             if (formatter == null)
+            {
                 throw new ArgumentNullException(nameof(formatter));
+            }
 
             var selector = new SurrogateSelector();
 
@@ -121,7 +123,9 @@ namespace Id3.Serialization
             where TSurrogate : ISerializationSurrogate, new()
         {
             foreach (Type frameType in frameTypes)
+            {
                 selector.AddSurrogate(frameType, new StreamingContext(StreamingContextStates.All), new TSurrogate());
+            }
         }
     }
 }

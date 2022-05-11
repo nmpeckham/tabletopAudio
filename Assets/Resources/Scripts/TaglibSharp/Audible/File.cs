@@ -42,7 +42,7 @@ namespace TagLib.Audible
         /// <summary>
         ///   Contains the tags for the file.
         /// </summary>
-        readonly TagLib.Tag tag;
+        private readonly TagLib.Tag tag;
 
         #endregion
 
@@ -226,7 +226,9 @@ namespace TagLib.Audible
         public override TagLib.Tag GetTag(TagTypes type, bool create)
         {
             if (type == TagTypes.AudibleMetadata)
+            {
                 return tag;
+            }
 
             return null;
 
@@ -245,10 +247,7 @@ namespace TagLib.Audible
         ///    A <see cref="TagLib.Tag" /> object representing all tags
         ///    stored in the current instance.
         /// </value>
-        public override TagLib.Tag Tag
-        {
-            get { return tag; }
-        }
+        public override TagLib.Tag Tag => tag;
 
         /// <summary>
         ///    Gets the media properties of the file represented by the

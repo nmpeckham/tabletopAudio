@@ -33,9 +33,9 @@ namespace TagLib.Matroska
         #region Private fields
 
 #pragma warning disable 414 // Assigned, never used
-        readonly double rate;
-        readonly ulong channels;
-        readonly ulong depth;
+        private readonly double rate;
+        private readonly ulong channels;
+        private readonly ulong depth;
 #pragma warning restore 414
 
 
@@ -117,10 +117,7 @@ namespace TagLib.Matroska
         /// <summary>
         /// This type of track only has audio media type.
         /// </summary>
-        public override MediaTypes MediaTypes
-        {
-            get { return MediaTypes.Audio; }
-        }
+        public override MediaTypes MediaTypes => MediaTypes.Audio;
 
         #endregion
 
@@ -129,26 +126,17 @@ namespace TagLib.Matroska
         /// <summary>
         /// Audio track bitrate.
         /// </summary>
-        public int AudioBitrate
-        {
-            get { return 0; }
-        }
+        public int AudioBitrate => 0;
 
         /// <summary>
         /// Audio track sampling rate.
         /// </summary>
-        public int AudioSampleRate
-        {
-            get { return (int)rate; }
-        }
+        public int AudioSampleRate => (int)rate;
 
         /// <summary>
         /// Number of audio channels in this track.
         /// </summary>
-        public int AudioChannels
-        {
-            get { return (int)channels; }
-        }
+        public int AudioChannels => (int)channels;
 
         #endregion
     }

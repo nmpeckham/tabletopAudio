@@ -50,7 +50,9 @@ namespace TagLib.Id3v1
         public virtual string Parse(ByteVector data)
         {
             if (data == null)
+            {
                 throw new ArgumentNullException(nameof(data));
+            }
 
             string output = data.ToString(StringType.Latin1).Trim();
             int i = output.IndexOf('\0');

@@ -42,10 +42,14 @@ namespace Id3.Frames
             set
             {
                 if (string.IsNullOrWhiteSpace(value))
+                {
                     Value = FileAudioType.Mpeg;
+                }
                 else
+                {
                     Value = FileAudioTypeMapping.TryGetValue(value, out FileAudioType audioType)
                         ? audioType : FileAudioType.Mpeg;
+                }
             }
         }
 
@@ -61,7 +65,10 @@ namespace Id3.Frames
             ["PCM"] = FileAudioType.Pcm
         };
 
-        public static implicit operator FileTypeFrame(FileAudioType value) => new FileTypeFrame(value);
+        public static implicit operator FileTypeFrame(FileAudioType value)
+        {
+            return new FileTypeFrame(value);
+        }
     }
 
     public enum FileAudioType

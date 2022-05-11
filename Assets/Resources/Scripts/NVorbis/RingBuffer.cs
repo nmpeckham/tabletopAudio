@@ -9,12 +9,12 @@ using System;
 
 namespace NVorbis
 {
-    class RingBuffer
+    internal class RingBuffer
     {
-        float[] _buffer;
-        int _start;
-        int _end;
-        int _bufLen;
+        private float[] _buffer;
+        private int _start;
+        private int _end;
+        private int _bufLen;
 
         internal RingBuffer(int size)
         {
@@ -49,14 +49,20 @@ namespace NVorbis
 
         internal void CopyTo(float[] buffer, int index, int count)
         {
-            if (index < 0 || index + count > buffer.Length) throw new ArgumentOutOfRangeException("index");
+            if (index < 0 || index + count > buffer.Length)
+            {
+                throw new ArgumentOutOfRangeException("index");
+            }
 
             var start = _start;
             RemoveItems(count);
 
             // this is used to pull data out of the buffer, so we'll update the start position too...
             var len = (_end - start + _bufLen) % _bufLen;
-            if (count > len) throw new ArgumentOutOfRangeException("count");
+            if (count > len)
+            {
+                throw new ArgumentOutOfRangeException("count");
+            }
 
             var cnt = Math.Min(count, _bufLen - start);
             Buffer.BlockCopy(_buffer, start * sizeof(float), buffer, index * sizeof(float), cnt * sizeof(float));
@@ -72,12 +78,18 @@ namespace NVorbis
             var cnt = (count + _start) % _bufLen;
             if (_end > _start)
             {
-                if (cnt > _end || cnt < _start) throw new ArgumentOutOfRangeException();
+                if (cnt > _end || cnt < _start)
+                {
+                    throw new ArgumentOutOfRangeException();
+                }
             }
             else
             {
                 // wrap-around
-                if (cnt < _start && cnt > _end) throw new ArgumentOutOfRangeException();
+                if (cnt < _start && cnt > _end)
+                {
+                    throw new ArgumentOutOfRangeException();
+                }
             }
 
             _start = cnt;
@@ -93,7 +105,11 @@ namespace NVorbis
             get
             {
                 var temp = _end - _start;
-                if (temp < 0) temp += _bufLen;
+                if (temp < 0)
+                {
+                    temp += _bufLen;
+                }
+
                 return temp;
             }
         }

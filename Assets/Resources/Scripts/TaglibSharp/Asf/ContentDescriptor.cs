@@ -81,17 +81,17 @@ namespace TagLib.Asf
         /// <summary>
         ///    Contains the string value.
         /// </summary>
-        string strValue;
+        private string strValue;
 
         /// <summary>
         ///    Contains the byte value.
         /// </summary>
-        ByteVector byteValue;
+        private ByteVector byteValue;
 
         /// <summary>
         ///    Contains the long value.
         /// </summary>
-        ulong longValue;
+        private ulong longValue;
 
         #endregion
 
@@ -240,10 +240,14 @@ namespace TagLib.Asf
         protected internal ContentDescriptor(File file)
         {
             if (file == null)
+            {
                 throw new ArgumentNullException(nameof(file));
+            }
 
             if (!Parse(file))
+            {
                 throw new CorruptFileException("Failed to parse content descriptor.");
+            }
         }
 
         #endregion
@@ -286,10 +290,14 @@ namespace TagLib.Asf
         public override string ToString()
         {
             if (Type == DataType.Unicode)
+            {
                 return strValue;
+            }
 
             if (Type == DataType.Bytes)
+            {
                 return byteValue.ToString(StringType.UTF16LE);
+            }
 
             return longValue.ToString();
         }
@@ -330,7 +338,9 @@ namespace TagLib.Asf
         public uint ToDWord()
         {
             if (Type == DataType.Unicode && strValue != null && uint.TryParse(strValue, out var value))
+            {
                 return value;
+            }
 
             return (uint)longValue;
         }
@@ -345,7 +355,9 @@ namespace TagLib.Asf
         public ulong ToQWord()
         {
             if (Type == DataType.Unicode && strValue != null && ulong.TryParse(strValue, out var value))
+            {
                 return value;
+            }
 
             return longValue;
         }
@@ -360,7 +372,9 @@ namespace TagLib.Asf
         public ushort ToWord()
         {
             if (Type == DataType.Unicode && strValue != null && ushort.TryParse(strValue, out var value))
+            {
                 return value;
+            }
 
             return (ushort)longValue;
         }

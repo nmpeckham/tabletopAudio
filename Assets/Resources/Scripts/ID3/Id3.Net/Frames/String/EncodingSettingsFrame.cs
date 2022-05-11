@@ -29,6 +29,9 @@ namespace Id3.Frames
         {
         }
 
-        public static implicit operator EncodingSettingsFrame(string value) => new EncodingSettingsFrame(value);
+        public static implicit operator EncodingSettingsFrame(string value)
+        {
+            return new EncodingSettingsFrame(value);
+        }
     }
 }

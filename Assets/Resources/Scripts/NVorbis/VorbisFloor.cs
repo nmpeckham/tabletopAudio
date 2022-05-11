@@ -12,7 +12,7 @@ using System.Linq;
 
 namespace NVorbis
 {
-    abstract class VorbisFloor
+    internal abstract class VorbisFloor
     {
         internal static VorbisFloor Init(VorbisStreamDecoder vorbis, DataPacket packet)
         {
@@ -24,48 +24,47 @@ namespace NVorbis
                 case 0: floor = new Floor0(vorbis); break;
                 case 1: floor = new Floor1(vorbis); break;
             }
-            if (floor == null) throw new InvalidDataException();
+            if (floor == null)
+            {
+                throw new InvalidDataException();
+            }
 
             floor.Init(packet);
             return floor;
         }
 
-        VorbisStreamDecoder _vorbis;
+        private readonly VorbisStreamDecoder _vorbis;
 
         protected VorbisFloor(VorbisStreamDecoder vorbis)
         {
             _vorbis = vorbis;
         }
 
-        abstract protected void Init(DataPacket packet);
+        protected abstract void Init(DataPacket packet);
 
-        abstract internal PacketData UnpackPacket(DataPacket packet, int blockSize, int channel);
+        internal abstract PacketData UnpackPacket(DataPacket packet, int blockSize, int channel);
 
-        abstract internal void Apply(PacketData packetData, float[] residue);
+        internal abstract void Apply(PacketData packetData, float[] residue);
 
-        abstract internal class PacketData
+        internal abstract class PacketData
         {
             internal int BlockSize;
-            abstract protected bool HasEnergy { get; }
+            protected abstract bool HasEnergy { get; }
             internal bool ForceEnergy { get; set; }
             internal bool ForceNoEnergy { get; set; }
 
-            internal bool ExecuteChannel
-            {
-                // if we have energy or are forcing energy, return !ForceNoEnergy, else false
-                get { return (ForceEnergy | HasEnergy) & !ForceNoEnergy; }
-            }
+            internal bool ExecuteChannel => (ForceEnergy | HasEnergy) & !ForceNoEnergy;
         }
 
-        class Floor0 : VorbisFloor
+        private class Floor0 : VorbisFloor
         {
             internal Floor0(VorbisStreamDecoder vorbis) : base(vorbis) { }
 
-            int _order, _rate, _bark_map_size, _ampBits, _ampOfs, _ampDiv;
-            VorbisCodebook[] _books;
-            int _bookBits;
-            Dictionary<int, float[]> _wMap;
-            Dictionary<int, int[]> _barkMaps;
+            private int _order, _rate, _bark_map_size, _ampBits, _ampOfs, _ampDiv;
+            private VorbisCodebook[] _books;
+            private int _bookBits;
+            private Dictionary<int, float[]> _wMap;
+            private Dictionary<int, int[]> _barkMaps;
 
             protected override void Init(DataPacket packet)
             {
@@ -77,29 +76,43 @@ namespace NVorbis
                 _ampOfs = (int)packet.ReadBits(8);
                 _books = new VorbisCodebook[(int)packet.ReadBits(4) + 1];
 
-                if (_order < 1 || _rate < 1 || _bark_map_size < 1 || _books.Length == 0) throw new InvalidDataException();
+                if (_order < 1 || _rate < 1 || _bark_map_size < 1 || _books.Length == 0)
+                {
+                    throw new InvalidDataException();
+                }
 
                 _ampDiv = (1 << _ampBits) - 1;
 
                 for (int i = 0; i < _books.Length; i++)
                 {
                     var num = (int)packet.ReadBits(8);
-                    if (num < 0 || num >= _vorbis.Books.Length) throw new InvalidDataException();
+                    if (num < 0 || num >= _vorbis.Books.Length)
+                    {
+                        throw new InvalidDataException();
+                    }
+
                     var book = _vorbis.Books[num];
 
-                    if (book.MapType == 0 || book.Dimensions < 1) throw new InvalidDataException();
+                    if (book.MapType == 0 || book.Dimensions < 1)
+                    {
+                        throw new InvalidDataException();
+                    }
 
                     _books[i] = book;
                 }
                 _bookBits = Utils.ilog(_books.Length);
 
-                _barkMaps = new Dictionary<int, int[]>();
-                _barkMaps[_vorbis.Block0Size] = SynthesizeBarkCurve(_vorbis.Block0Size / 2);
-                _barkMaps[_vorbis.Block1Size] = SynthesizeBarkCurve(_vorbis.Block1Size / 2);
+                _barkMaps = new Dictionary<int, int[]>
+                {
+                    [_vorbis.Block0Size] = SynthesizeBarkCurve(_vorbis.Block0Size / 2),
+                    [_vorbis.Block1Size] = SynthesizeBarkCurve(_vorbis.Block1Size / 2)
+                };
 
-                _wMap = new Dictionary<int, float[]>();
-                _wMap[_vorbis.Block0Size] = SynthesizeWDelMap(_vorbis.Block0Size / 2);
-                _wMap[_vorbis.Block1Size] = SynthesizeWDelMap(_vorbis.Block1Size / 2);
+                _wMap = new Dictionary<int, float[]>
+                {
+                    [_vorbis.Block0Size] = SynthesizeWDelMap(_vorbis.Block0Size / 2),
+                    [_vorbis.Block1Size] = SynthesizeWDelMap(_vorbis.Block1Size / 2)
+                };
 
                 _reusablePacketData = new PacketData0[_vorbis._channels];
                 for (int i = 0; i < _reusablePacketData.Length; i++)
@@ -108,7 +121,7 @@ namespace NVorbis
                 }
             }
 
-            int[] SynthesizeBarkCurve(int n)
+            private int[] SynthesizeBarkCurve(int n)
             {
                 var scale = _bark_map_size / toBARK(_rate / 2);
 
@@ -122,12 +135,12 @@ namespace NVorbis
                 return map;
             }
 
-            static float toBARK(double lsp)
+            private static float toBARK(double lsp)
             {
                 return (float)(13.1 * Math.Atan(0.00074 * lsp) + 2.24 * Math.Atan(0.0000000185 * lsp * lsp) + .0001 * lsp);
             }
 
-            float[] SynthesizeWDelMap(int n)
+            private float[] SynthesizeWDelMap(int n)
             {
                 var wdel = (float)(Math.PI / _bark_map_size);
 
@@ -139,18 +152,15 @@ namespace NVorbis
                 return map;
             }
 
-            class PacketData0 : PacketData
+            private class PacketData0 : PacketData
             {
-                protected override bool HasEnergy
-                {
-                    get { return Amp > 0f; }
-                }
+                protected override bool HasEnergy => Amp > 0f;
 
                 internal float[] Coeff;
                 internal float Amp;
             }
 
-            PacketData0[] _reusablePacketData;
+            private PacketData0[] _reusablePacketData;
 
             internal override PacketData UnpackPacket(DataPacket packet, int blockSize, int channel)
             {
@@ -165,7 +175,7 @@ namespace NVorbis
                     // this is pretty well stolen directly from libvorbis...  BSD license
                     Array.Clear(data.Coeff, 0, data.Coeff.Length);
 
-                    data.Amp = (float)(data.Amp / _ampDiv * _ampOfs);
+                    data.Amp = data.Amp / _ampDiv * _ampOfs;
 
                     var bookNum = (uint)packet.ReadBits(_bookBits);
                     if (bookNum >= _books.Length)
@@ -209,7 +219,10 @@ namespace NVorbis
             internal override void Apply(PacketData packetData, float[] residue)
             {
                 var data = packetData as PacketData0;
-                if (data == null) throw new ArgumentException("Incorrect packet data!");
+                if (data == null)
+                {
+                    throw new ArgumentException("Incorrect packet data!");
+                }
 
                 var n = data.BlockSize / 2;
 
@@ -260,7 +273,10 @@ namespace NVorbis
 
                         residue[i] *= q;
 
-                        while (barkMap[++i] == k) residue[i] *= q;
+                        while (barkMap[++i] == k)
+                        {
+                            residue[i] *= q;
+                        }
                     }
                 }
                 else
@@ -270,18 +286,17 @@ namespace NVorbis
             }
         }
 
-        class Floor1 : VorbisFloor
+        private class Floor1 : VorbisFloor
         {
             internal Floor1(VorbisStreamDecoder vorbis) : base(vorbis) { }
 
-            int[] _partitionClass, _classDimensions, _classSubclasses, _xList, _classMasterBookIndex, _hNeigh, _lNeigh, _sortIdx;
-            int _multiplier, _range, _yBits;
-            VorbisCodebook[] _classMasterbooks;
-            VorbisCodebook[][] _subclassBooks;
-            int[][] _subclassBookIndex;
-
-            static int[] _rangeLookup = { 256, 128, 86, 64 };
-            static int[] _yBitsLookup = { 8, 7, 7, 6 };
+            private int[] _partitionClass, _classDimensions, _classSubclasses, _xList, _classMasterBookIndex, _hNeigh, _lNeigh, _sortIdx;
+            private int _multiplier, _range, _yBits;
+            private VorbisCodebook[] _classMasterbooks;
+            private VorbisCodebook[][] _subclassBooks;
+            private int[][] _subclassBookIndex;
+            private static readonly int[] _rangeLookup = { 256, 128, 86, 64 };
+            private static readonly int[] _yBitsLookup = { 8, 7, 7, 6 };
 
             protected override void Init(DataPacket packet)
             {
@@ -313,7 +328,11 @@ namespace NVorbis
                     for (int j = 0; j < _subclassBooks[i].Length; j++)
                     {
                         var bookNum = (int)packet.ReadBits(8) - 1;
-                        if (bookNum >= 0) _subclassBooks[i][j] = _vorbis.Books[bookNum];
+                        if (bookNum >= 0)
+                        {
+                            _subclassBooks[i][j] = _vorbis.Books[bookNum];
+                        }
+
                         _subclassBookIndex[i][j] = bookNum;
                     }
                 }
@@ -327,9 +346,11 @@ namespace NVorbis
 
                 var rangeBits = (int)packet.ReadBits(4);
 
-                var xList = new List<int>();
-                xList.Add(0);
-                xList.Add(1 << rangeBits);
+                var xList = new List<int>
+                {
+                    0,
+                    1 << rangeBits
+                };
 
                 for (int i = 0; i < _partitionClass.Length; i++)
                 {
@@ -357,11 +378,17 @@ namespace NVorbis
                         var temp = _xList[j];
                         if (temp < _xList[i])
                         {
-                            if (temp > _xList[_lNeigh[i]]) _lNeigh[i] = j;
+                            if (temp > _xList[_lNeigh[i]])
+                            {
+                                _lNeigh[i] = j;
+                            }
                         }
                         else
                         {
-                            if (temp < _xList[_hNeigh[i]]) _hNeigh[i] = j;
+                            if (temp < _xList[_hNeigh[i]])
+                            {
+                                _hNeigh[i] = j;
+                            }
                         }
                     }
                 }
@@ -371,7 +398,10 @@ namespace NVorbis
                 {
                     for (int j = i + 1; j < _sortIdx.Length; j++)
                     {
-                        if (_xList[i] == _xList[j]) throw new InvalidDataException();
+                        if (_xList[i] == _xList[j])
+                        {
+                            throw new InvalidDataException();
+                        }
 
                         if (_xList[_sortIdx[i]] > _xList[_sortIdx[j]])
                         {
@@ -391,18 +421,15 @@ namespace NVorbis
                 }
             }
 
-            class PacketData1 : PacketData
+            private class PacketData1 : PacketData
             {
-                protected override bool HasEnergy
-                {
-                    get { return PostCount > 0; }
-                }
+                protected override bool HasEnergy => PostCount > 0;
 
                 public int[] Posts = new int[64];
                 public int PostCount;
             }
 
-            PacketData1[] _reusablePacketData;
+            private PacketData1[] _reusablePacketData;
 
             internal override PacketData UnpackPacket(DataPacket packet, int blockSize, int channel)
             {
@@ -463,7 +490,10 @@ namespace NVorbis
             internal override void Apply(PacketData packetData, float[] residue)
             {
                 var data = packetData as PacketData1;
-                if (data == null) throw new ArgumentException("Incorrect packet data!", "packetData");
+                if (data == null)
+                {
+                    throw new ArgumentException("Incorrect packet data!", "packetData");
+                }
 
                 var n = data.BlockSize / 2;
 
@@ -481,11 +511,18 @@ namespace NVorbis
                         {
                             var hx = _xList[idx];
                             var hy = data.Posts[idx] * _multiplier;
-                            if (lx < n) RenderLineMulti(lx, ly, Math.Min(hx, n), hy, residue);
+                            if (lx < n)
+                            {
+                                RenderLineMulti(lx, ly, Math.Min(hx, n), hy, residue);
+                            }
+
                             lx = hx;
                             ly = hy;
                         }
-                        if (lx >= n) break;
+                        if (lx >= n)
+                        {
+                            break;
+                        }
                     }
 
                     if (lx < n)
@@ -499,10 +536,10 @@ namespace NVorbis
                 }
             }
 
-            bool[] _stepFlags = new bool[64];
-            int[] _finalY = new int[64];
+            private readonly bool[] _stepFlags = new bool[64];
+            private readonly int[] _finalY = new int[64];
 
-            bool[] UnwrapPosts(PacketData1 data)
+            private bool[] UnwrapPosts(PacketData1 data)
             {
                 Array.Clear(_stepFlags, 2, 62);
                 _stepFlags[0] = true;
@@ -577,7 +614,7 @@ namespace NVorbis
                 return _stepFlags;
             }
 
-            int RenderPoint(int x0, int y0, int x1, int y1, int X)
+            private int RenderPoint(int x0, int y0, int x1, int y1, int X)
             {
                 var dy = y1 - y0;
                 var adx = x1 - x0;
@@ -594,7 +631,7 @@ namespace NVorbis
                 }
             }
 
-            void RenderLineMulti(int x0, int y0, int x1, int y1, float[] v)
+            private void RenderLineMulti(int x0, int y0, int x1, int y1, float[] v)
             {
                 var dy = y1 - y0;
                 var adx = x1 - x0;
@@ -623,7 +660,7 @@ namespace NVorbis
 
             #region dB inversion table
 
-            static readonly float[] inverse_dB_table = {
+            private static readonly float[] inverse_dB_table = {
                                                         1.0649863e-07f, 1.1341951e-07f, 1.2079015e-07f, 1.2863978e-07f,
                                                         1.3699951e-07f, 1.4590251e-07f, 1.5538408e-07f, 1.6548181e-07f,
                                                         1.7623575e-07f, 1.8768855e-07f, 1.9988561e-07f, 2.1287530e-07f,

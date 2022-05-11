@@ -64,12 +64,12 @@ namespace TagLib.Ape
         /// <summary>
         ///    Contains the item value.
         /// </summary>
-        ReadOnlyByteVector data;
+        private ReadOnlyByteVector data;
 
         /// <summary>
         ///    Contains the item text.
         /// </summary>
-        string[] text;
+        private string[] text;
 
         #endregion
 
@@ -101,7 +101,9 @@ namespace TagLib.Ape
         public Item(ByteVector data, int offset)
         {
             if (data == null)
+            {
                 throw new ArgumentNullException(nameof(data));
+            }
 
             Parse(data, offset);
         }
@@ -125,10 +127,14 @@ namespace TagLib.Ape
         public Item(string key, string value)
         {
             if (key == null)
+            {
                 throw new ArgumentNullException(nameof(key));
+            }
 
             if (value == null)
+            {
                 throw new ArgumentNullException(nameof(value));
+            }
 
             Key = key;
             text = new[] { value };
@@ -154,10 +160,14 @@ namespace TagLib.Ape
         public Item(string key, params string[] value)
         {
             if (key == null)
+            {
                 throw new ArgumentNullException(nameof(key));
+            }
 
             if (value == null)
+            {
                 throw new ArgumentNullException(nameof(value));
+            }
 
             Key = key;
             text = (string[])value.Clone();
@@ -185,10 +195,14 @@ namespace TagLib.Ape
         public Item(string key, StringCollection value)
         {
             if (key == null)
+            {
                 throw new ArgumentNullException(nameof(key));
+            }
 
             if (value == null)
+            {
                 throw new ArgumentNullException(nameof(value));
+            }
 
             Key = key;
             text = value.ToArray();
@@ -222,19 +236,25 @@ namespace TagLib.Ape
 
             data = value as ReadOnlyByteVector;
             if (data == null)
+            {
                 data = new ReadOnlyByteVector(value);
+            }
         }
 
-        Item(Item item)
+        private Item(Item item)
         {
             Type = item.Type;
             Key = item.Key;
 
             if (item.data != null)
+            {
                 data = new ReadOnlyByteVector(item.data);
+            }
 
             if (item.text != null)
+            {
                 text = (string[])item.text.Clone();
+            }
 
             ReadOnly = item.ReadOnly;
             Size = item.Size;
@@ -269,10 +289,7 @@ namespace TagLib.Ape
         ///    value stored in the current instance, or <see
         ///    langword="null" /> if the item contains text.
         /// </value>
-        public ByteVector Value
-        {
-            get { return (Type == ItemType.Binary) ? data : null; }
-        }
+        public ByteVector Value => (Type == ItemType.Binary) ? data : null;
 
         /// <summary>
         ///    Gets the size of the current instance as it last appeared
@@ -316,9 +333,13 @@ namespace TagLib.Ape
             get
             {
                 if (Type != ItemType.Binary)
+                {
                     return text == null || text.Length == 0;
+                }
                 else
+                {
                     return data == null || data.IsEmpty;
+                }
             }
         }
 
@@ -343,7 +364,9 @@ namespace TagLib.Ape
         public override string ToString()
         {
             if (Type == ItemType.Binary || text == null)
+            {
                 return null;
+            }
 
             return string.Join(", ", text);
         }
@@ -360,7 +383,9 @@ namespace TagLib.Ape
         public string[] ToStringArray()
         {
             if (Type == ItemType.Binary || text == null)
+            {
                 return new string[0];
+            }
 
             return text;
         }
@@ -378,14 +403,18 @@ namespace TagLib.Ape
                 ((uint)Type << 1);
 
             if (IsEmpty)
+            {
                 return new ByteVector();
+            }
 
             ByteVector result = null;
 
             if (Type == ItemType.Binary)
             {
                 if (text == null && data != null)
+                {
                     result = data;
+                }
             }
 
             if (result == null && text != null)
@@ -395,7 +424,9 @@ namespace TagLib.Ape
                 for (int i = 0; i < text.Length; i++)
                 {
                     if (i != 0)
+                    {
                         result.Add(0);
+                    }
 
                     result.Add(ByteVector.FromString(text[i], StringType.UTF8));
                 }
@@ -403,7 +434,9 @@ namespace TagLib.Ape
 
             // If no data is stored, don't write the item.
             if (result == null || result.Count == 0)
+            {
                 return new ByteVector();
+            }
 
             var output = new ByteVector {
                 ByteVector.FromUInt ((uint)result.Count,
@@ -447,15 +480,21 @@ namespace TagLib.Ape
         protected void Parse(ByteVector data, int offset)
         {
             if (data == null)
+            {
                 throw new ArgumentNullException(nameof(data));
+            }
 
             if (offset < 0)
+            {
                 throw new ArgumentOutOfRangeException(nameof(offset));
+            }
 
 
             // 11 bytes is the minimum size for an APE item
             if (data.Count < offset + 11)
+            {
                 throw new CorruptFileException("Not enough data for APE Item");
+            }
 
             uint value_length = data.Mid(offset, 4).ToUInt(false);
             uint flags = data.Mid(offset + 4, 4).ToUInt(false);
@@ -468,14 +507,20 @@ namespace TagLib.Ape
             Key = data.ToString(StringType.UTF8, offset + 8, pos - offset - 8);
 
             if (value_length > data.Count - pos - 1)
+            {
                 throw new CorruptFileException("Invalid data length.");
+            }
 
             Size = pos + 1 + (int)value_length - offset;
 
             if (Type == ItemType.Binary)
+            {
                 this.data = new ReadOnlyByteVector(data.Mid(pos + 1, (int)value_length));
+            }
             else
+            {
                 text = data.Mid(pos + 1, (int)value_length).ToStrings(StringType.UTF8, 0);
+            }
         }
 
         #endregion

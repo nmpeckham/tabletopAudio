@@ -6,27 +6,27 @@ public class PlaylistRightClickController : MonoBehaviour
     private MainAppController mac;
     private MusicController mc;
     private PlaylistTabs pt;
-    internal int selectedSongId = -1;
+    internal MusicButton selectedButton = null;
 
     internal RightClickRootMenu activeRightClickMenu;
 
-    private float minX = -10f;
-    private float maxX = 90f;
-    private float minY = -10f;
-    private float maxY = 60f;
+    private readonly float minX = -10f;
+    private readonly float maxX = 90f;
+    private readonly float minY = -10f;
+    private readonly float maxY = 60f;
 
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
         mac = GetComponent<MainAppController>();
         mc = GetComponent<MusicController>();
         pt = GetComponent<PlaylistTabs>();
     }
 
-    internal void ShowRightClickMenu(int id)
+    internal void ShowRightClickMenu(MusicButton button)
     {
         mac.currentMenuState = MainAppController.MenuState.musicRightClickMenu;
-        selectedSongId = id;
+        selectedButton = button;
         if (activeRightClickMenu != null)
         {
             Destroy(activeRightClickMenu);
@@ -70,7 +70,7 @@ public class PlaylistRightClickController : MonoBehaviour
 
     internal void AddToPlayNext()
     {
-        mc.AddToPlayNext(new PlayNextItem(selectedSongId, PlaylistTabs.selectedTab.tabId));
+        mc.AddToPlayNext(new PlayNextItem(selectedButton, PlaylistTabs.selectedTab.tabId));
         CloseDeleteMusicItemTooltip();
     }
 
@@ -94,18 +94,18 @@ public class PlaylistRightClickController : MonoBehaviour
 
     internal void DuplicateItem()
     {
-        pt.AddSongToPlaylist(PlaylistTabs.selectedTab.tabId, PlaylistTabs.selectedTab.GetSongAtIndex(selectedSongId), selectedSongId);
+        pt.AddSongToPlaylist(PlaylistTabs.selectedTab.tabId, selectedButton.Song, selectedButton.buttonId);
     }
 
     internal void DeleteItem()
     {
-        mc.DeleteItem(selectedSongId);
+        mc.DeleteItem(selectedButton);
         CloseDeleteMusicItemTooltip();
     }
 
     internal void AddSongToPlaylist(int tabId)
     {
-        GetComponent<PlaylistTabs>().AddSongToPlaylist(tabId, PlaylistTabs.selectedTab.GetSongAtIndex(selectedSongId));
+        GetComponent<PlaylistTabs>().AddSongToPlaylist(tabId, selectedButton.Song);
         CloseDeleteMusicItemTooltip();
     }
 }

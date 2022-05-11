@@ -10,21 +10,19 @@ using UnityEngine.UI;
 
 public class GenerateMusicFFTBackgrounds : MonoBehaviour
 {
-    private MainAppController mac;
     public GameObject musicButtonParent;
 
     private Coroutine generatorCoroutine;
 
-    private List<GameObject> buttons = new List<GameObject>();
+    private readonly List<GameObject> buttons = new();
     // Start is called before the first frame update
     internal void Begin()
     {
-        mac = GetComponent<MainAppController>();
         GetSongs();
         generatorCoroutine = StartCoroutine(GenerateBackgrounds());
     }
 
-    void GetSongs()
+    private void GetSongs()
     {
         buttons.Clear();
         foreach (MusicButton mb in musicButtonParent.GetComponentsInChildren<MusicButton>())
@@ -47,15 +45,15 @@ public class GenerateMusicFFTBackgrounds : MonoBehaviour
         int minBufferSize = 4096;
         foreach (GameObject btn in buttons)
         {
-            string filePath = Path.Combine(mac.musicDirectory, LoadedFilesData.songs[btn.GetComponent<MusicButton>().buttonId].FileName);
+            string filePath = Path.Combine(MainAppController.workingDirectories["musicDirectory"], LoadedFilesData.songs[btn.GetComponent<MusicButton>().buttonId].FileName);
 
             string extension = Path.GetExtension(filePath);
             if (extension == ".mp3")
             {
-                MpegFile reader = new MpegFile(filePath);
+                MpegFile reader = new(filePath);
                 reader.StereoMode = StereoMode.DownmixToMono;   //Convert to mono
-                List<float> samples = new List<float>();
-                Texture2D tex = new Texture2D(512, 26);
+                List<float> samples = new();
+                Texture2D tex = new(512, 26);
                 float[] buf = new float[minBufferSize];
                 float rmsEnergy;
                 for (int i = 1; i < 512; i++)
@@ -99,7 +97,10 @@ public class GenerateMusicFFTBackgrounds : MonoBehaviour
                         print("unknown exception, be afraid");
                         break;
                     }
-                    if (samples.Count % 16 == 0) yield return null;
+                    if (samples.Count % 16 == 0)
+                    {
+                        yield return null;
+                    }
                 }
                 samples = Normalize(samples);
                 for (int x = 0; x < samples.Count; x++)
@@ -124,10 +125,10 @@ public class GenerateMusicFFTBackgrounds : MonoBehaviour
         yield return null;
     }
 
-    List<float> Normalize(List<float> samples)
+    private List<float> Normalize(List<float> samples)
     {
         float max = samples.Max();
-        List<float> normalizedSamples = new List<float>();
+        List<float> normalizedSamples = new();
         foreach (float sample in samples)
         {
             normalizedSamples.Add((sample) / max);
@@ -137,7 +138,8 @@ public class GenerateMusicFFTBackgrounds : MonoBehaviour
         print("\n");
         return normalizedSamples;
     }
-    float CalculateRMS(float[] samples)
+
+    private float CalculateRMS(float[] samples)
     {
         float sum = 0;
         foreach (float item in samples)

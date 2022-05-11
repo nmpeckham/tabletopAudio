@@ -8,32 +8,38 @@ using UnityEngine;
 //Holds data for colors and images
 internal static class ResourceManager
 {
+    internal static Sprite infoImage;
+    internal static Sprite warningImage;
+    internal static Sprite errorImage;
+
+    internal static Sprite upFolderImage;
+
     internal static Color red = Color.red;
-    internal static Color green = new Color(0.1f, 1f, 0.1f);
+    internal static Color green = new(0.1f, 1f, 0.1f);
     internal static Color black = Color.black;
-    internal static Color orange = new Color(1, 0.56f, 0, 1);
-    internal static Color grey = new Color(0.878f, 0.878f, 0.878f, 1f);
-    internal static Color musicButtonGrey = new Color(0.443f, 0.443f, 0.443f, 1f);
+    internal static Color orange = new(1, 0.56f, 0, 1);
+    internal static Color grey = new(0.878f, 0.878f, 0.878f, 1f);
+    internal static Color musicButtonGrey = new(0.294f, 0.294f, 0.294f, 1f);
 
-    internal static Color lightModeGrey = new Color(200 / 255f, 200 / 255f, 200 / 255f);
-    internal static Color darkModeGrey = new Color(38 / 255f, 38 / 255f, 38 / 255f);
-    internal static Color sfxButtonLight = new Color(224 / 255f, 224 / 255f, 224 / 255f);
-    internal static Color sfxButtonDark = new Color(100 / 255f, 100 / 255f, 100 / 255f);
-    internal static Color sfxPageBG = new Color(149 / 255f, 149 / 255f, 149 / 255f);
+    internal static Color lightModeGrey = new(200 / 255f, 200 / 255f, 200 / 255f);
+    internal static Color darkModeGrey = new(36 / 255f, 36 / 255f, 36 / 255f);
+    internal static Color sfxButtonLight = new(224 / 255f, 224 / 255f, 224 / 255f);
+    internal static Color sfxButtonDark = new(100 / 255f, 100 / 255f, 100 / 255f);
+    internal static Color sfxPageBG = new(149 / 255f, 149 / 255f, 149 / 255f);
 
-    internal static Color tabInactiveColor = new Color(120 / 255f, 120 / 255f, 120 / 255f);
-    internal static Color tabActiveColor = new Color(200 / 255f, 200 / 255f, 200 / 255f);
+    internal static Color tabInactiveColor = new(120 / 255f, 120 / 255f, 120 / 255f);
+    internal static Color tabActiveColor = new(200 / 255f, 200 / 255f, 200 / 255f);
 
-    internal static List<char> charTable = new List<char>();
+    internal static List<char> charTable = new();
 
 
     //internal static Color 
 
     internal static string[] dbFiles;
 
-    internal static Dictionary<string, Color> categoryColors = new Dictionary<string, Color>();
+    internal static Dictionary<string, Color> categoryColors = new();
 
-    internal static readonly List<uint> kellysMaxContrastSet = new List<uint>
+    internal static readonly List<uint> kellysMaxContrastSet = new()
     {
         0xFFFFB300, //Vivid Yellow
         0xFF803E75, //Strong Purple
@@ -65,7 +71,14 @@ internal static class ResourceManager
     {
         dbFiles = Directory.GetFiles(Application.streamingAssetsPath).Where(a => Path.GetExtension(a) == ".json").ToArray();
 
+        // For detecting unsupported characters in track names
         TMP_FontAsset englishAsset = Resources.Load<TMP_FontAsset>("TextMesh Pro/Fonts/Lato-Regular SDF");
         englishAsset.characterTable.ForEach(item => charTable.Add(Convert.ToChar(item.unicode)));
+
+        errorImage = Resources.Load<Sprite>("Button Icons/baseline_error_white_48dp");
+        infoImage = Resources.Load<Sprite>("Button Icons/baseline_info_white_48dp");
+        warningImage = Resources.Load<Sprite>("Button Icons/baseline_warning_white_48dp");
+
+        upFolderImage = Resources.Load<Sprite>("Button Icons/baseline_folder_upload_white_48dp");
     }
 }

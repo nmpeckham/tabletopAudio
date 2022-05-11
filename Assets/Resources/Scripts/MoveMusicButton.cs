@@ -11,9 +11,10 @@ public class MoveMusicButton : MonoBehaviour, IPointerDownHandler, IPointerExitH
     private RectTransform buttonRectTransform;
     public Transform buttonTransform;
     private static MusicController mc;
+
     //public int siblingIndex = -1;
     // Start is called before the first frame update
-    void Awake()
+    private void Awake()
     {
         musicButton = GetComponentInParent<MusicButton>().gameObject;
         buttonRectTransform = musicButton.GetComponent<RectTransform>();
@@ -22,7 +23,7 @@ public class MoveMusicButton : MonoBehaviour, IPointerDownHandler, IPointerExitH
     }
 
     // Update is called once per frame
-    void FixedUpdate()
+    private void FixedUpdate()
     {
         UpdateSongPosition();
     }
@@ -43,6 +44,29 @@ public class MoveMusicButton : MonoBehaviour, IPointerDownHandler, IPointerExitH
         }
         //siblingIndex = buttonTransform.GetSiblingIndex();
     }
+
+    //internal void MoveSongToPosition(int newIndex)
+    //{
+    //    int oldIndex = musicButton.GetComponent<MusicButton>().buttonId;
+    //    mc.RefreshSongOrder(oldIndex, newIndex);
+    //    buttonTransform.SetSiblingIndex(newIndex);
+    //}
+
+    //internal void MoveSongByPlaces(int numPlaces)
+    //{
+    //    if(numPlaces != 0)
+    //    {
+    //        if (numPlaces < 0)
+    //        {
+    //            MoveSongUp(Mathf.Abs(numPlaces));
+    //        }
+    //        else
+    //        {
+    //            MoveSongDown(numPlaces);
+    //        }
+    //    }
+
+    //}
 
     internal void MoveSongDown(int numPlaces = 1)
     {
@@ -86,7 +110,7 @@ public class MoveMusicButton : MonoBehaviour, IPointerDownHandler, IPointerExitH
         StartCoroutine(CheckMouse());
     }
 
-    IEnumerator CheckMouse()
+    private IEnumerator CheckMouse()
     {
         while (Input.GetMouseButton(0))
         {

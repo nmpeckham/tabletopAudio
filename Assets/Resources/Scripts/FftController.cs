@@ -21,9 +21,9 @@ public class FftController : MonoBehaviour
     private static Material[] fftBarMaterials;
 
     internal static float[] fadeTargets = new float[40];
-    private static float[] fftOneFrameAgo = new float[10]; // values one frame ago
-    private static float[] fftTwoFrameAgo = new float[10];    //values two frames ago
-    private static float[] fftThreeFrameAgo = new float[10];    //values two frames ago
+    private static readonly float[] fftOneFrameAgo = new float[10]; // values one frame ago
+    private static readonly float[] fftTwoFrameAgo = new float[10];    //values two frames ago
+    private static readonly float[] fftThreeFrameAgo = new float[10];    //values two frames ago
 
 
     public Image spectrumImage;
@@ -32,8 +32,9 @@ public class FftController : MonoBehaviour
     public Transform discoModeSum;
     public TMP_Text discoModeSumSliderText;
 
-    static private MainAppController mac;
-    enum FftTypes
+    private static MainAppController mac;
+
+    private enum FftTypes
     {
         bouncingBars,
         waterfall
@@ -62,24 +63,13 @@ public class FftController : MonoBehaviour
         discoModeController = GetComponent<DiscoMode>();
 
         StartCoroutine(AdjustScale());
-        if (PlayerPrefs.GetInt("fftType") == 1) ChangeFftType();
+        if (PlayerPrefs.GetInt("fftType") == 1)
+        {
+            ChangeFftType();
+        }
     }
 
-
-
-    void FrequencyValChanged(float val)
-    {
-        freqText.text = val.ToString("N1");
-        freqVal = val;
-    }
-
-    void AmpValChanged(float val)
-    {
-        ampText.text = val.ToString("N1");
-        ampVal = val;
-    }
-
-    IEnumerator AdjustScale()
+    private IEnumerator AdjustScale()
     {
         float totalSum = 0;
         float temp;
@@ -92,7 +82,10 @@ public class FftController : MonoBehaviour
 
         while (true)
         {
-            if (mac.currentFPS < 30) yield return null;
+            if (mac.currentFPS < 30)
+            {
+                yield return null;
+            }
 
             if (fftType == FftTypes.bouncingBars)
             {
@@ -112,9 +105,12 @@ public class FftController : MonoBehaviour
                     {
                         temp = (temp * 0.5f) + (fftOneFrameAgo[i] * 0.25f) + (fftTwoFrameAgo[i] * 0.15f) + (fftThreeFrameAgo[i] * 0.1f); // average over 4 frames
                     }
-
+                    temp = temp < 0.02f ? 0f : temp;
                     obj.localScale = new Vector3(1, temp, 1);
-                    if (i < discoModeNumFreq) totalSum += temp;
+                    if (i < discoModeNumFreq)
+                    {
+                        totalSum += temp;
+                    }
 
                     fftBarMaterials[i].SetFloat("Height", temp);
                     fftOneFrameAgo[i] = temp;
@@ -162,7 +158,7 @@ public class FftController : MonoBehaviour
                     discoModeController.ChangeColors();
                 }
             }
-            
+
             if (mac.currentMenuState == MainAppController.MenuState.advancedOptionsMenu)
             {
                 discoModeSum.localScale = new Vector3(Mathf.Min(sum / discoModeMinSum, 1f), 1, 1);

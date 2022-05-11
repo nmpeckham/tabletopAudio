@@ -98,12 +98,12 @@ namespace TagLib.Id3v2
         /// <summary>
         ///    Contains frame's ID.
         /// </summary>
-        ReadOnlyByteVector frame_id;
+        private ReadOnlyByteVector frame_id;
 
         /// <summary>
         ///    Contains frame's flags.
         /// </summary>
-        FrameFlags flags;
+        private FrameFlags flags;
 
         #endregion
 
@@ -141,16 +141,22 @@ namespace TagLib.Id3v2
         public FrameHeader(ByteVector data, byte version)
         {
             if (data == null)
+            {
                 throw new ArgumentNullException(nameof(data));
+            }
 
             flags = 0;
             FrameSize = 0;
 
             if (version < 2 || version > 4)
+            {
                 throw new CorruptFileException("Unsupported tag version.");
+            }
 
             if (data.Count < (version == 2 ? 3 : 4))
+            {
                 throw new CorruptFileException("Data must contain at least a frame ID.");
+            }
 
             switch (version)
             {
@@ -162,7 +168,9 @@ namespace TagLib.Id3v2
                     // in, do not continue to the steps to parse the
                     // frame size and flags.
                     if (data.Count < 6)
+                    {
                         return;
+                    }
 
                     FrameSize = data.Mid(3, 3).ToUInt();
                     return;
@@ -175,7 +183,9 @@ namespace TagLib.Id3v2
                     // in, do not continue to the steps to parse the
                     // frame size and flags.
                     if (data.Count < 10)
+                    {
                         return;
+                    }
 
                     // Store the flags internally as version 2.4.
                     FrameSize = data.Mid(4, 4).ToUInt();
@@ -194,7 +204,9 @@ namespace TagLib.Id3v2
                     // in, do not continue to the steps to parse the
                     // frame size and flags.
                     if (data.Count < 10)
+                    {
                         return;
+                    }
 
                     FrameSize = SynchData.ToUInt(data.Mid(4, 4));
                     flags = (FrameFlags)data.Mid(8, 2).ToUShort();
@@ -226,11 +238,13 @@ namespace TagLib.Id3v2
         /// </exception>
         public ReadOnlyByteVector FrameId
         {
-            get { return frame_id; }
+            get => frame_id;
             set
             {
                 if (value == null)
+                {
                     throw new ArgumentNullException(nameof(value));
+                }
 
                 frame_id = value.Count == 4 ? value : new ReadOnlyByteVector(value.Mid(0, 4));
             }
@@ -260,11 +274,13 @@ namespace TagLib.Id3v2
         /// </exception>
         public FrameFlags Flags
         {
-            get { return flags; }
+            get => flags;
             set
             {
                 if ((value & (FrameFlags.Compression | FrameFlags.Encryption)) != 0)
+                {
                     throw new ArgumentException("Encryption and compression are not supported.", nameof(value));
+                }
 
                 flags = value;
             }
@@ -296,7 +312,9 @@ namespace TagLib.Id3v2
             ByteVector id = ConvertId(frame_id, version, true);
 
             if (id == null)
+            {
                 throw new NotImplementedException();
+            }
 
             switch (version)
             {
@@ -348,7 +366,7 @@ namespace TagLib.Id3v2
 
         #region Private Methods
 
-        static ReadOnlyByteVector ConvertId(ByteVector id, byte version, bool toVersion)
+        private static ReadOnlyByteVector ConvertId(ByteVector id, byte version, bool toVersion)
         {
             if (version >= 4)
             {
@@ -358,38 +376,52 @@ namespace TagLib.Id3v2
             }
 
             if (id == null || version < 2)
+            {
                 return null;
+            }
 
             if (!toVersion && (id == FrameType.EQUA ||
                 id == FrameType.RVAD || id == FrameType.TRDA ||
                 id == FrameType.TSIZ))
+            {
                 return null;
+            }
 
             if (version == 2)
+            {
                 for (int i = 0; i < version2_frames.GetLength(0); i++)
                 {
                     if (!version2_frames[i, toVersion ? 1 : 0].Equals(id))
+                    {
                         continue;
+                    }
 
                     return version2_frames[i, toVersion ? 0 : 1];
                 }
+            }
 
             if (version == 3)
+            {
                 for (int i = 0; i < version3_frames.GetLength(0); i++)
                 {
                     if (!version3_frames[i, toVersion ? 1 : 0].Equals(id))
+                    {
                         continue;
+                    }
 
                     return version3_frames[i, toVersion ? 0 : 1];
                 }
+            }
 
             if ((id.Count != 4 && version > 2) || (id.Count != 3 && version == 2))
+            {
                 return null;
+            }
 
             return id is ReadOnlyByteVector ? id as ReadOnlyByteVector : new ReadOnlyByteVector(id);
         }
 
-        static readonly ReadOnlyByteVector[,] version2_frames =
+        private static readonly ReadOnlyByteVector[,] version2_frames =
             new ReadOnlyByteVector[59, 2] {
                 { "BUF", "RBUF" },
                 { "CNT", "PCNT" },
@@ -451,8 +483,7 @@ namespace TagLib.Id3v2
                 { "WXX", "WXXX" },
                 { "XRV", "RVA2" }
             };
-
-        static readonly ReadOnlyByteVector[,] version3_frames =
+        private static readonly ReadOnlyByteVector[,] version3_frames =
             new ReadOnlyByteVector[3, 2] {
                 { "TORY", "TDOR" },
                 { "TYER", "TDRC" },

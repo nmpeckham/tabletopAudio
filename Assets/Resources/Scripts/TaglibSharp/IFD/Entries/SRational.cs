@@ -38,7 +38,7 @@ namespace TagLib.IFD.Entries
         /// <summary>
         ///    The denominator of the rational value
         /// </summary>
-        int denominator;
+        private int denominator;
 
         #endregion
 
@@ -58,7 +58,9 @@ namespace TagLib.IFD.Entries
         public SRational(int numerator, int denominator)
         {
             if (denominator == 0)
+            {
                 throw new ArgumentException(nameof(denominator), "denominator can't be 0");
+            }
 
             Numerator = numerator;
             this.denominator = denominator;
@@ -138,11 +140,13 @@ namespace TagLib.IFD.Entries
         /// </remarks>
         public int Denominator
         {
-            get { return denominator; }
+            get => denominator;
             set
             {
                 if (value == 0)
+                {
                     throw new ArgumentException("denominator");
+                }
 
                 denominator = value;
             }

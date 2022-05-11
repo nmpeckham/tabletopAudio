@@ -25,7 +25,7 @@ using System.Xml;
 
 namespace TagLib.Xmp
 {
-    static class XmlNodeExtensions
+    internal static class XmlNodeExtensions
     {
         public static bool In(this XmlNode node, string ns)
         {

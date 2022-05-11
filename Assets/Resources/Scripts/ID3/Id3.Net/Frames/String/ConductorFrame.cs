@@ -29,6 +29,9 @@ namespace Id3.Frames
         {
         }
 
-        public static implicit operator ConductorFrame(string value) => new ConductorFrame(value);
+        public static implicit operator ConductorFrame(string value)
+        {
+            return new ConductorFrame(value);
+        }
     }
 }

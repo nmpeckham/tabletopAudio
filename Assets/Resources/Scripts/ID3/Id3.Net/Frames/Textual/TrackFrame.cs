@@ -63,23 +63,36 @@ namespace Id3.Frames
             get
             {
                 if (Value <= 0 && TrackCount <= 0)
+                {
                     return null;
+                }
 
                 string track = null, trackCount = null;
                 if (TrackCount > 0)
+                {
                     trackCount = TrackCount.ToString().PadLeft(Padding.GetValueOrDefault(), '0');
+                }
+
                 if (Value > 0)
                 {
                     track = Value.ToString();
                     if (Padding.HasValue)
+                    {
                         track = track.PadLeft(Padding.Value <= 0 ? (trackCount ?? "").Length : Padding.Value, '0');
+                    }
                 }
 
                 if (track == null)
+                {
                     return null;
+                }
+
                 string result = track;
                 if (trackCount != null)
+                {
                     result += $"/{trackCount}";
+                }
+
                 return result;
             }
             set
@@ -101,23 +114,32 @@ namespace Id3.Frames
 
                 string trackCount = match.Groups[2].Value;
                 if (string.IsNullOrEmpty(trackCount))
+                {
                     TrackCount = 0;
+                }
                 else
                 {
                     TrackCount = int.Parse(trackCount);
                     if (trackCount.StartsWith("0"))
+                    {
                         Padding = trackCount.Length;
+                    }
                 }
 
                 string track = match.Groups[1].Value;
                 Value = int.Parse(track);
                 if (track.StartsWith("0"))
+                {
                     Padding = Math.Max(track.Length, trackCount.Length);
+                }
             }
         }
 
         private static readonly Regex TrackPattern = new Regex(@"^(\d+)(?:/(\d+))?$");
 
-        public static implicit operator TrackFrame(int value) => new TrackFrame(value);
+        public static implicit operator TrackFrame(int value)
+        {
+            return new TrackFrame(value);
+        }
     }
 }

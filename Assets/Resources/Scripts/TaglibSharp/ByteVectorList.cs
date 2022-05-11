@@ -60,7 +60,9 @@ namespace TagLib
         public ByteVectorCollection(IEnumerable<ByteVector> list)
         {
             if (list != null)
+            {
                 Add(list);
+            }
         }
 
         /// <summary>
@@ -74,7 +76,9 @@ namespace TagLib
         public ByteVectorCollection(params ByteVector[] list)
         {
             if (list != null)
+            {
                 Add(list);
+            }
         }
 
         /// <summary>
@@ -97,7 +101,9 @@ namespace TagLib
         public override void SortedInsert(ByteVector item, bool unique)
         {
             if (item == null)
+            {
                 throw new ArgumentNullException(nameof(item));
+            }
 
             // FIXME: This is not used, but if it is a faster
             // method could be used.
@@ -105,10 +111,14 @@ namespace TagLib
             for (; i < Count; i++)
             {
                 if (item == this[i] && unique)
+                {
                     return;
+                }
 
                 if (item >= this[i])
+                {
                     break;
+                }
             }
 
             Insert(i + 1, item);
@@ -133,14 +143,18 @@ namespace TagLib
         public ByteVector ToByteVector(ByteVector separator)
         {
             if (separator == null)
+            {
                 throw new ArgumentNullException(nameof(separator));
+            }
 
             var vector = new ByteVector();
 
             for (int i = 0; i < Count; i++)
             {
                 if (i != 0 && separator.Count > 0)
+                {
                     vector.Add(separator);
+                }
 
                 vector.Add(this[i]);
             }
@@ -186,13 +200,19 @@ namespace TagLib
         public static ByteVectorCollection Split(ByteVector vector, ByteVector pattern, int byteAlign, int max)
         {
             if (vector == null)
+            {
                 throw new ArgumentNullException(nameof(vector));
+            }
 
             if (pattern == null)
+            {
                 throw new ArgumentNullException(nameof(pattern));
+            }
 
             if (byteAlign < 1)
+            {
                 throw new ArgumentOutOfRangeException(nameof(byteAlign), "byteAlign must be at least 1.");
+            }
 
             var list = new ByteVectorCollection();
             int previous_offset = 0;
@@ -209,8 +229,10 @@ namespace TagLib
             }
 
             if (previous_offset < vector.Count)
+            {
                 list.Add(vector.Mid(previous_offset,
                     vector.Count - previous_offset));
+            }
 
             return list;
         }

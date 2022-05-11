@@ -4,17 +4,21 @@ using UnityEngine.UI;
 
 public class MusicLoadingAnimation : MonoBehaviour
 {
-    static Sprite[] spinnerImages;
+    private static Sprite[] spinnerImages;
     private Image spinnerDisplay;
     // Start is called before the first frame update
     public void OnEnable()
     {
         spinnerDisplay = GetComponent<Image>();
-        if(spinnerImages == null) spinnerImages = Resources.LoadAll<Sprite>("Spinner");
+        if (spinnerImages == null)
+        {
+            spinnerImages = Resources.LoadAll<Sprite>("Spinner");
+        }
+
         StartCoroutine(AnimateSpinner());
     }
 
-    IEnumerator AnimateSpinner()
+    private IEnumerator AnimateSpinner()
     {
         while (true)
         {

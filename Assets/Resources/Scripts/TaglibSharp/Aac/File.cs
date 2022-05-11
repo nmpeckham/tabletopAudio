@@ -46,7 +46,7 @@ namespace TagLib.Aac
         /// <summary>
         ///    Contains the first audio header.
         /// </summary>
-        AudioHeader first_header;
+        private AudioHeader first_header;
 
         #endregion
 
@@ -169,7 +169,9 @@ namespace TagLib.Aac
             Tag t = (Tag as TagLib.NonContainer.Tag).GetTag(type);
 
             if (t != null || !create)
+            {
                 return t;
+            }
 
             switch (type)
             {
@@ -217,7 +219,9 @@ namespace TagLib.Aac
             // reading a bad file forever.
             if ((propertiesStyle & ReadStyle.Average) != 0 &&
                 !AudioHeader.Find(out first_header, this, start, 0x4000))
+            {
                 throw new CorruptFileException("ADTS audio header not found.");
+            }
         }
 
         /// <summary>

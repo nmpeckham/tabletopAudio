@@ -242,11 +242,15 @@ namespace TagLib.Id3v2
                 etco = frame as EventTimeCodesFrame;
 
                 if (etco != null)
+                {
                     return etco;
+                }
             }
 
             if (!create)
+            {
                 return null;
+            }
 
             etco = new EventTimeCodesFrame();
             tag.AddFrame(etco);

@@ -39,12 +39,12 @@ namespace TagLib.Ogg
         ///    Contains a mapping between stream serial numbers and
         ///    comments.
         /// </summary>
-        readonly Dictionary<uint, XiphComment> comment_hash;
+        private readonly Dictionary<uint, XiphComment> comment_hash;
 
         /// <summary>
         ///    Contains comments in the order they are added.
         /// </summary>
-        readonly List<XiphComment> tags;
+        private readonly List<XiphComment> tags;
 
         #endregion
 
@@ -70,10 +70,7 @@ namespace TagLib.Ogg
         ///    /> object enumerating through the <see cref="XiphComment"
         ///    /> objects contained in the current instance.
         /// </value>
-        public IEnumerable<XiphComment> Comments
-        {
-            get { return tags; }
-        }
+        public IEnumerable<XiphComment> Comments => tags;
 
         /// <summary>
         ///    Gets a comment in the current instance for a specified
@@ -150,8 +147,12 @@ namespace TagLib.Ogg
             {
                 TagTypes types = TagTypes.None;
                 foreach (XiphComment tag in tags)
+                {
                     if (tag != null)
+                    {
                         types |= tag.TagTypes;
+                    }
+                }
 
                 return types;
             }
@@ -183,12 +184,20 @@ namespace TagLib.Ogg
                     string value = tag?.Title;
 
                     if (!string.IsNullOrEmpty(value))
+                    {
                         return value;
+                    }
                 }
 
                 return null;
             }
-            set { if (tags.Count > 0) tags[0].Title = value; }
+            set
+            {
+                if (tags.Count > 0)
+                {
+                    tags[0].Title = value;
+                }
+            }
         }
 
         /// <summary>
@@ -215,17 +224,27 @@ namespace TagLib.Ogg
                 foreach (XiphComment tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     string value = tag.TitleSort;
 
                     if (!string.IsNullOrEmpty(value))
+                    {
                         return value;
+                    }
                 }
 
                 return null;
             }
-            set { if (tags.Count > 0) tags[0].TitleSort = value; }
+            set
+            {
+                if (tags.Count > 0)
+                {
+                    tags[0].TitleSort = value;
+                }
+            }
         }
 
         /// <summary>
@@ -254,12 +273,20 @@ namespace TagLib.Ogg
                     string value = tag?.Subtitle;
 
                     if (!string.IsNullOrEmpty(value))
+                    {
                         return value;
+                    }
                 }
 
                 return null;
             }
-            set { if (tags.Count > 0) tags[0].Subtitle = value; }
+            set
+            {
+                if (tags.Count > 0)
+                {
+                    tags[0].Subtitle = value;
+                }
+            }
         }
 
         /// <summary>
@@ -292,12 +319,20 @@ namespace TagLib.Ogg
                     string value = tag?.Description;
 
                     if (!string.IsNullOrEmpty(value))
+                    {
                         return value;
+                    }
                 }
 
                 return null;
             }
-            set { if (tags.Count > 0) tags[0].Description = value; }
+            set
+            {
+                if (tags.Count > 0)
+                {
+                    tags[0].Description = value;
+                }
+            }
         }
 
         /// <summary>
@@ -327,12 +362,20 @@ namespace TagLib.Ogg
                     string[] value = tag?.Performers;
 
                     if (value != null && value.Length > 0)
+                    {
                         return value;
+                    }
                 }
 
                 return new string[] { };
             }
-            set { if (tags.Count > 0) tags[0].Performers = value; }
+            set
+            {
+                if (tags.Count > 0)
+                {
+                    tags[0].Performers = value;
+                }
+            }
         }
 
         /// <summary>
@@ -362,12 +405,20 @@ namespace TagLib.Ogg
                     string[] value = tag?.PerformersSort;
 
                     if (value != null && value.Length > 0)
+                    {
                         return value;
+                    }
                 }
 
                 return new string[] { };
             }
-            set { if (tags.Count > 0) tags[0].PerformersSort = value; }
+            set
+            {
+                if (tags.Count > 0)
+                {
+                    tags[0].PerformersSort = value;
+                }
+            }
         }
 
         /// <summary>
@@ -395,12 +446,20 @@ namespace TagLib.Ogg
                     string[] value = tag?.PerformersRole;
 
                     if (value != null && value.Length > 0)
+                    {
                         return value;
+                    }
                 }
 
                 return new string[] { };
             }
-            set { if (tags.Count > 0) tags[0].PerformersRole = value; }
+            set
+            {
+                if (tags.Count > 0)
+                {
+                    tags[0].PerformersRole = value;
+                }
+            }
         }
 
         /// <summary>
@@ -431,12 +490,20 @@ namespace TagLib.Ogg
                     string[] value = tag?.AlbumArtists;
 
                     if (value != null && value.Length > 0)
+                    {
                         return value;
+                    }
                 }
 
                 return new string[] { };
             }
-            set { if (tags.Count > 0) tags[0].AlbumArtists = value; }
+            set
+            {
+                if (tags.Count > 0)
+                {
+                    tags[0].AlbumArtists = value;
+                }
+            }
         }
 
         /// <summary>
@@ -469,13 +536,21 @@ namespace TagLib.Ogg
                     string[] value = tag?.AlbumArtistsSort;
 
                     if (value != null && value.Length > 0)
+                    {
                         return value;
+                    }
                 }
 
                 return new string[] { };
             }
 
-            set { if (tags.Count > 0) tags[0].AlbumArtistsSort = value; }
+            set
+            {
+                if (tags.Count > 0)
+                {
+                    tags[0].AlbumArtistsSort = value;
+                }
+            }
         }
 
         /// <summary>
@@ -504,12 +579,20 @@ namespace TagLib.Ogg
                     string[] value = tag?.Composers;
 
                     if (value != null && value.Length > 0)
+                    {
                         return value;
+                    }
                 }
 
                 return new string[] { };
             }
-            set { if (tags.Count > 0) tags[0].Composers = value; }
+            set
+            {
+                if (tags.Count > 0)
+                {
+                    tags[0].Composers = value;
+                }
+            }
         }
 
         /// <summary>
@@ -538,12 +621,20 @@ namespace TagLib.Ogg
                     string[] value = tag?.ComposersSort;
 
                     if (value != null && value.Length > 0)
+                    {
                         return value;
+                    }
                 }
 
                 return new string[] { };
             }
-            set { if (tags.Count > 0) tags[0].ComposersSort = value; }
+            set
+            {
+                if (tags.Count > 0)
+                {
+                    tags[0].ComposersSort = value;
+                }
+            }
         }
 
         /// <summary>
@@ -572,12 +663,20 @@ namespace TagLib.Ogg
                     string value = tag?.Album;
 
                     if (!string.IsNullOrEmpty(value))
+                    {
                         return value;
+                    }
                 }
 
                 return null;
             }
-            set { if (tags.Count > 0) tags[0].Album = value; }
+            set
+            {
+                if (tags.Count > 0)
+                {
+                    tags[0].Album = value;
+                }
+            }
         }
 
         /// <summary>
@@ -606,12 +705,20 @@ namespace TagLib.Ogg
                     string value = tag?.AlbumSort;
 
                     if (!string.IsNullOrEmpty(value))
+                    {
                         return value;
+                    }
                 }
 
                 return null;
             }
-            set { if (tags.Count > 0) tags[0].AlbumSort = value; }
+            set
+            {
+                if (tags.Count > 0)
+                {
+                    tags[0].AlbumSort = value;
+                }
+            }
         }
 
         /// <summary>
@@ -640,12 +747,20 @@ namespace TagLib.Ogg
                     string value = tag?.Comment;
 
                     if (!string.IsNullOrEmpty(value))
+                    {
                         return value;
+                    }
                 }
 
                 return null;
             }
-            set { if (tags.Count > 0) tags[0].Comment = value; }
+            set
+            {
+                if (tags.Count > 0)
+                {
+                    tags[0].Comment = value;
+                }
+            }
         }
 
         /// <summary>
@@ -674,12 +789,20 @@ namespace TagLib.Ogg
                     string[] value = tag?.Genres;
 
                     if (value != null && value.Length > 0)
+                    {
                         return value;
+                    }
                 }
 
                 return new string[] { };
             }
-            set { if (tags.Count > 0) tags[0].Genres = value; }
+            set
+            {
+                if (tags.Count > 0)
+                {
+                    tags[0].Genres = value;
+                }
+            }
         }
 
         /// <summary>
@@ -704,12 +827,22 @@ namespace TagLib.Ogg
             get
             {
                 foreach (XiphComment tag in tags)
+                {
                     if (tag != null && tag.Year != 0)
+                    {
                         return tag.Year;
+                    }
+                }
 
                 return 0;
             }
-            set { if (tags.Count > 0) tags[0].Year = value; }
+            set
+            {
+                if (tags.Count > 0)
+                {
+                    tags[0].Year = value;
+                }
+            }
         }
 
         /// <summary>
@@ -734,12 +867,22 @@ namespace TagLib.Ogg
             get
             {
                 foreach (XiphComment tag in tags)
+                {
                     if (tag != null && tag.Track != 0)
+                    {
                         return tag.Track;
+                    }
+                }
 
                 return 0;
             }
-            set { if (tags.Count > 0) tags[0].Track = value; }
+            set
+            {
+                if (tags.Count > 0)
+                {
+                    tags[0].Track = value;
+                }
+            }
         }
 
         /// <summary>
@@ -764,12 +907,22 @@ namespace TagLib.Ogg
             get
             {
                 foreach (XiphComment tag in tags)
+                {
                     if (tag != null && tag.TrackCount != 0)
+                    {
                         return tag.TrackCount;
+                    }
+                }
 
                 return 0;
             }
-            set { if (tags.Count > 0) tags[0].TrackCount = value; }
+            set
+            {
+                if (tags.Count > 0)
+                {
+                    tags[0].TrackCount = value;
+                }
+            }
         }
 
         /// <summary>
@@ -794,12 +947,22 @@ namespace TagLib.Ogg
             get
             {
                 foreach (XiphComment tag in tags)
+                {
                     if (tag != null && tag.Disc != 0)
+                    {
                         return tag.Disc;
+                    }
+                }
 
                 return 0;
             }
-            set { if (tags.Count > 0) tags[0].Disc = value; }
+            set
+            {
+                if (tags.Count > 0)
+                {
+                    tags[0].Disc = value;
+                }
+            }
         }
 
         /// <summary>
@@ -824,12 +987,22 @@ namespace TagLib.Ogg
             get
             {
                 foreach (XiphComment tag in tags)
+                {
                     if (tag != null && tag.DiscCount != 0)
+                    {
                         return tag.DiscCount;
+                    }
+                }
 
                 return 0;
             }
-            set { if (tags.Count > 0) tags[0].DiscCount = value; }
+            set
+            {
+                if (tags.Count > 0)
+                {
+                    tags[0].DiscCount = value;
+                }
+            }
         }
 
         /// <summary>
@@ -858,12 +1031,20 @@ namespace TagLib.Ogg
                     string value = tag?.Lyrics;
 
                     if (!string.IsNullOrEmpty(value))
+                    {
                         return value;
+                    }
                 }
 
                 return null;
             }
-            set { if (tags.Count > 0) tags[0].Lyrics = value; }
+            set
+            {
+                if (tags.Count > 0)
+                {
+                    tags[0].Lyrics = value;
+                }
+            }
         }
 
         /// <summary>
@@ -890,17 +1071,27 @@ namespace TagLib.Ogg
                 foreach (XiphComment tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     string value = tag.Grouping;
 
                     if (!string.IsNullOrEmpty(value))
+                    {
                         return value;
+                    }
                 }
 
                 return null;
             }
-            set { if (tags.Count > 0) tags[0].Grouping = value; }
+            set
+            {
+                if (tags.Count > 0)
+                {
+                    tags[0].Grouping = value;
+                }
+            }
         }
 
         /// <summary>
@@ -925,13 +1116,23 @@ namespace TagLib.Ogg
             get
             {
                 foreach (XiphComment tag in tags)
+                {
                     if (tag != null && tag.BeatsPerMinute != 0)
+                    {
                         return tag.BeatsPerMinute;
+                    }
+                }
 
                 return 0;
             }
 
-            set { if (tags.Count > 0) tags[0].BeatsPerMinute = value; }
+            set
+            {
+                if (tags.Count > 0)
+                {
+                    tags[0].BeatsPerMinute = value;
+                }
+            }
         }
 
         /// <summary>
@@ -960,12 +1161,20 @@ namespace TagLib.Ogg
                     string value = tag?.Conductor;
 
                     if (!string.IsNullOrEmpty(value))
+                    {
                         return value;
+                    }
                 }
 
                 return null;
             }
-            set { if (tags.Count > 0) tags[0].Conductor = value; }
+            set
+            {
+                if (tags.Count > 0)
+                {
+                    tags[0].Conductor = value;
+                }
+            }
         }
 
         /// <summary>
@@ -994,12 +1203,20 @@ namespace TagLib.Ogg
                     string value = tag?.Copyright;
 
                     if (!string.IsNullOrEmpty(value))
+                    {
                         return value;
+                    }
                 }
 
                 return null;
             }
-            set { if (tags.Count > 0) tags[0].Copyright = value; }
+            set
+            {
+                if (tags.Count > 0)
+                {
+                    tags[0].Copyright = value;
+                }
+            }
         }
 
         /// <summary>
@@ -1027,12 +1244,20 @@ namespace TagLib.Ogg
                     DateTime? value = tag?.DateTagged;
 
                     if (value != null)
+                    {
                         return value;
+                    }
                 }
 
                 return null;
             }
-            set { if (tags.Count > 0) tags[0].DateTagged = value; }
+            set
+            {
+                if (tags.Count > 0)
+                {
+                    tags[0].DateTagged = value;
+                }
+            }
         }
 
         /// <summary>
@@ -1060,12 +1285,20 @@ namespace TagLib.Ogg
                     string value = tag?.MusicBrainzArtistId;
 
                     if (!string.IsNullOrEmpty(value))
+                    {
                         return value;
+                    }
                 }
 
                 return null;
             }
-            set { if (tags.Count > 0) tags[0].MusicBrainzArtistId = value; }
+            set
+            {
+                if (tags.Count > 0)
+                {
+                    tags[0].MusicBrainzArtistId = value;
+                }
+            }
         }
 
         /// <summary>
@@ -1093,12 +1326,20 @@ namespace TagLib.Ogg
                     string value = tag?.MusicBrainzReleaseGroupId;
 
                     if (!string.IsNullOrEmpty(value))
+                    {
                         return value;
+                    }
                 }
 
                 return null;
             }
-            set { if (tags.Count > 0) tags[0].MusicBrainzReleaseGroupId = value; }
+            set
+            {
+                if (tags.Count > 0)
+                {
+                    tags[0].MusicBrainzReleaseGroupId = value;
+                }
+            }
         }
 
         /// <summary>
@@ -1126,12 +1367,20 @@ namespace TagLib.Ogg
                     string value = tag?.MusicBrainzReleaseId;
 
                     if (!string.IsNullOrEmpty(value))
+                    {
                         return value;
+                    }
                 }
 
                 return null;
             }
-            set { if (tags.Count > 0) tags[0].MusicBrainzReleaseId = value; }
+            set
+            {
+                if (tags.Count > 0)
+                {
+                    tags[0].MusicBrainzReleaseId = value;
+                }
+            }
         }
 
         /// <summary>
@@ -1159,12 +1408,20 @@ namespace TagLib.Ogg
                     string value = tag?.MusicBrainzReleaseArtistId;
 
                     if (!string.IsNullOrEmpty(value))
+                    {
                         return value;
+                    }
                 }
 
                 return null;
             }
-            set { if (tags.Count > 0) tags[0].MusicBrainzReleaseArtistId = value; }
+            set
+            {
+                if (tags.Count > 0)
+                {
+                    tags[0].MusicBrainzReleaseArtistId = value;
+                }
+            }
         }
 
         /// <summary>
@@ -1192,12 +1449,20 @@ namespace TagLib.Ogg
                     string value = tag?.MusicBrainzTrackId;
 
                     if (!string.IsNullOrEmpty(value))
+                    {
                         return value;
+                    }
                 }
 
                 return null;
             }
-            set { if (tags.Count > 0) tags[0].MusicBrainzTrackId = value; }
+            set
+            {
+                if (tags.Count > 0)
+                {
+                    tags[0].MusicBrainzTrackId = value;
+                }
+            }
         }
 
         /// <summary>
@@ -1225,12 +1490,20 @@ namespace TagLib.Ogg
                     string value = tag?.MusicBrainzDiscId;
 
                     if (!string.IsNullOrEmpty(value))
+                    {
                         return value;
+                    }
                 }
 
                 return null;
             }
-            set { if (tags.Count > 0) tags[0].MusicBrainzDiscId = value; }
+            set
+            {
+                if (tags.Count > 0)
+                {
+                    tags[0].MusicBrainzDiscId = value;
+                }
+            }
         }
 
         /// <summary>
@@ -1258,12 +1531,20 @@ namespace TagLib.Ogg
                     string value = tag?.MusicIpId;
 
                     if (!string.IsNullOrEmpty(value))
+                    {
                         return value;
+                    }
                 }
 
                 return null;
             }
-            set { if (tags.Count > 0) tags[0].MusicIpId = value; }
+            set
+            {
+                if (tags.Count > 0)
+                {
+                    tags[0].MusicIpId = value;
+                }
+            }
         }
 
         /// <summary>
@@ -1291,12 +1572,20 @@ namespace TagLib.Ogg
                     string value = tag?.AmazonId;
 
                     if (!string.IsNullOrEmpty(value))
+                    {
                         return value;
+                    }
                 }
 
                 return null;
             }
-            set { if (tags.Count > 0) tags[0].AmazonId = value; }
+            set
+            {
+                if (tags.Count > 0)
+                {
+                    tags[0].AmazonId = value;
+                }
+            }
         }
 
         /// <summary>
@@ -1324,12 +1613,20 @@ namespace TagLib.Ogg
                     string value = tag?.MusicBrainzReleaseStatus;
 
                     if (!string.IsNullOrEmpty(value))
+                    {
                         return value;
+                    }
                 }
 
                 return null;
             }
-            set { if (tags.Count > 0) tags[0].MusicBrainzReleaseStatus = value; }
+            set
+            {
+                if (tags.Count > 0)
+                {
+                    tags[0].MusicBrainzReleaseStatus = value;
+                }
+            }
         }
 
         /// <summary>
@@ -1357,12 +1654,20 @@ namespace TagLib.Ogg
                     string value = tag?.MusicBrainzReleaseType;
 
                     if (!string.IsNullOrEmpty(value))
+                    {
                         return value;
+                    }
                 }
 
                 return null;
             }
-            set { if (tags.Count > 0) tags[0].MusicBrainzReleaseType = value; }
+            set
+            {
+                if (tags.Count > 0)
+                {
+                    tags[0].MusicBrainzReleaseType = value;
+                }
+            }
         }
 
         /// <summary>
@@ -1390,12 +1695,20 @@ namespace TagLib.Ogg
                     string value = tag?.MusicBrainzReleaseCountry;
 
                     if (!string.IsNullOrEmpty(value))
+                    {
                         return value;
+                    }
                 }
 
                 return null;
             }
-            set { if (tags.Count > 0) tags[0].MusicBrainzReleaseCountry = value; }
+            set
+            {
+                if (tags.Count > 0)
+                {
+                    tags[0].MusicBrainzReleaseCountry = value;
+                }
+            }
         }
 
         /// <summary>
@@ -1422,17 +1735,27 @@ namespace TagLib.Ogg
                 foreach (XiphComment tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     double value = tag.ReplayGainTrackGain;
 
                     if (!double.IsNaN(value))
+                    {
                         return value;
+                    }
                 }
 
                 return double.NaN;
             }
-            set { if (tags.Count > 0) tags[0].ReplayGainTrackGain = value; }
+            set
+            {
+                if (tags.Count > 0)
+                {
+                    tags[0].ReplayGainTrackGain = value;
+                }
+            }
         }
 
         /// <summary>
@@ -1459,17 +1782,27 @@ namespace TagLib.Ogg
                 foreach (XiphComment tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     double value = tag.ReplayGainTrackPeak;
 
                     if (!double.IsNaN(value))
+                    {
                         return value;
+                    }
                 }
 
                 return double.NaN;
             }
-            set { if (tags.Count > 0) tags[0].ReplayGainTrackPeak = value; }
+            set
+            {
+                if (tags.Count > 0)
+                {
+                    tags[0].ReplayGainTrackPeak = value;
+                }
+            }
         }
 
         /// <summary>
@@ -1496,17 +1829,27 @@ namespace TagLib.Ogg
                 foreach (XiphComment tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     double value = tag.ReplayGainAlbumGain;
 
                     if (!double.IsNaN(value))
+                    {
                         return value;
+                    }
                 }
 
                 return double.NaN;
             }
-            set { if (tags.Count > 0) tags[0].ReplayGainAlbumGain = value; }
+            set
+            {
+                if (tags.Count > 0)
+                {
+                    tags[0].ReplayGainAlbumGain = value;
+                }
+            }
         }
 
         /// <summary>
@@ -1533,17 +1876,27 @@ namespace TagLib.Ogg
                 foreach (XiphComment tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     double value = tag.ReplayGainAlbumPeak;
 
                     if (!double.IsNaN(value))
+                    {
                         return value;
+                    }
                 }
 
                 return double.NaN;
             }
-            set { if (tags.Count > 0) tags[0].ReplayGainAlbumPeak = value; }
+            set
+            {
+                if (tags.Count > 0)
+                {
+                    tags[0].ReplayGainAlbumPeak = value;
+                }
+            }
         }
 
         /// <summary>
@@ -1569,12 +1922,22 @@ namespace TagLib.Ogg
             {
                 IPicture[] output = new IPicture[0];
                 foreach (XiphComment tag in tags)
+                {
                     if (tag != null && output.Length == 0)
+                    {
                         output = tag.Pictures;
+                    }
+                }
 
                 return output;
             }
-            set { if (tags.Count > 0) tags[0].Pictures = value; }
+            set
+            {
+                if (tags.Count > 0)
+                {
+                    tags[0].Pictures = value;
+                }
+            }
         }
 
         /// <summary>
@@ -1590,8 +1953,12 @@ namespace TagLib.Ogg
             get
             {
                 foreach (XiphComment tag in tags)
+                {
                     if (!tag.IsEmpty)
+                    {
                         return false;
+                    }
+                }
 
                 return true;
             }
@@ -1603,7 +1970,9 @@ namespace TagLib.Ogg
         public override void Clear()
         {
             foreach (XiphComment tag in tags)
+            {
                 tag.Clear();
+            }
         }
 
         #endregion

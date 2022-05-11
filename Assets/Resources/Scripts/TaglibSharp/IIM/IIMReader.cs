@@ -30,10 +30,10 @@ namespace TagLib.IIM
         /// <summary>
         /// The magic bytes that start a new IPTC-IIM segment
         /// </summary>
-        static readonly byte[] IPTC_IIM_SEGMENT = { 0x1C, 0x02 };
+        private static readonly byte[] IPTC_IIM_SEGMENT = { 0x1C, 0x02 };
 
-        IIMTag Tag { get; set; }
-        ByteVector Data { get; set; }
+        private IIMTag Tag { get; set; }
+        private ByteVector Data { get; set; }
 
         /// <summary>
         /// Constructor
@@ -86,7 +86,10 @@ namespace TagLib.IIM
                 findOffset = i + 3 + len;
             }
             if (count == 0)
+            {
                 return null;
+            }
+
             return Tag;
         }
     }

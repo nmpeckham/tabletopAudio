@@ -3,10 +3,11 @@ using UnityEngine.UI;
 
 public class ImageTest : MonoBehaviour
 {
-    private Texture2D testTexture;
+    private readonly Texture2D testTexture;
     public Image testImage;
+
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
         Texture2D testing = new Texture2D(100, 100);
         for (int i = 0; i < 100; i++)

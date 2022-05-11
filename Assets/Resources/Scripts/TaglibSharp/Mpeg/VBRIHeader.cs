@@ -71,7 +71,7 @@ namespace TagLib.Mpeg
         ///    A <see cref="uint" /> value specifying the stream size of
         ///    the audio represented by the new instance.
         /// </param>
-        VBRIHeader(uint frame, uint size)
+        private VBRIHeader(uint frame, uint size)
         {
             TotalFrames = frame;
             TotalSize = size;
@@ -96,11 +96,15 @@ namespace TagLib.Mpeg
         public VBRIHeader(ByteVector data)
         {
             if (data == null)
+            {
                 throw new ArgumentNullException(nameof(data));
+            }
 
             // Check to see if a valid VBRI header is available.
             if (!data.StartsWith(FileIdentifier))
+            {
                 throw new CorruptFileException("Not a valid VBRI header");
+            }
 
             // Size starts at Position 10
             int position = 10;

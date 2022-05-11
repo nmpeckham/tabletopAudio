@@ -41,7 +41,9 @@ namespace Id3.Frames
         protected override void ValidateValue(string value)
         {
             if (!string.IsNullOrEmpty(value) && !CopyrightPrefixPattern.IsMatch(value))
+            {
                 throw new ArgumentException(FrameMessages.Copyright_InvalidFormat, nameof(value));
+            }
         }
 
         internal override string TextValue
@@ -52,6 +54,9 @@ namespace Id3.Frames
 
         private static readonly Regex CopyrightPrefixPattern = new Regex(@"^\d{4} ");
 
-        public static implicit operator CopyrightFrame(string value) => new CopyrightFrame(value);
+        public static implicit operator CopyrightFrame(string value)
+        {
+            return new CopyrightFrame(value);
+        }
     }
 }

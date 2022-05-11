@@ -37,22 +37,22 @@ namespace TagLib.Mpeg4
         /// <summary>
         ///    Contains the box size.
         /// </summary>
-        ulong box_size;
+        private ulong box_size;
 
         /// <summary>
         ///    Contains the header size.
         /// </summary>
-        uint header_size;
+        private uint header_size;
 
         /// <summary>
         ///    Contains the position of the header.
         /// </summary>
-        readonly long position;
+        private readonly long position;
 
         /// <summary>
         ///    Indicated that the header was read from a file.
         /// </summary>
-        readonly bool from_disk;
+        private readonly bool from_disk;
 
         #endregion
 
@@ -94,7 +94,9 @@ namespace TagLib.Mpeg4
         public BoxHeader(TagLib.File file, long position)
         {
             if (file == null)
+            {
                 throw new ArgumentNullException(nameof(file));
+            }
 
             Box = null;
             from_disk = true;
@@ -105,7 +107,9 @@ namespace TagLib.Mpeg4
             int offset = 0;
 
             if (data.Count < 8 + offset)
+            {
                 throw new CorruptFileException("Not enough data in box header.");
+            }
 
             header_size = 8;
             box_size = data.Mid(offset, 4).ToUInt();
@@ -117,7 +121,9 @@ namespace TagLib.Mpeg4
             if (box_size == 1)
             {
                 if (data.Count < 8 + offset)
+                {
                     throw new CorruptFileException("Not enough data in box header.");
+                }
 
                 header_size += 8;
                 offset += 8;
@@ -128,13 +134,17 @@ namespace TagLib.Mpeg4
             if (BoxType == Mpeg4.BoxType.Uuid)
             {
                 if (data.Count < 16 + offset)
+                {
                     throw new CorruptFileException("Not enough data in box header.");
+                }
 
                 header_size += 16;
                 ExtendedType = data.Mid(offset, 16);
             }
             else
+            {
                 ExtendedType = null;
+            }
 
             if (box_size > (ulong)(file.Length - position))
             {
@@ -201,29 +211,39 @@ namespace TagLib.Mpeg4
             BoxType = type;
 
             if (type == null)
+            {
                 throw new ArgumentNullException(nameof(type));
+            }
 
             if (type.Count != 4)
+            {
                 throw new ArgumentException("Box type must be 4 bytes in length.", nameof(type));
+            }
 
             box_size = header_size = 8;
 
             if (type != "uuid")
             {
                 if (extendedType != null)
+                {
                     throw new ArgumentException("Extended type only permitted for 'uuid'.", nameof(extendedType));
+                }
 
                 ExtendedType = extendedType;
                 return;
             }
 
             if (extendedType == null)
+            {
                 throw new ArgumentNullException(nameof(extendedType));
+            }
 
             if (extendedType.Count != 16)
+            {
                 throw new ArgumentException(
                     "Extended type must be 16 bytes in length.",
                     nameof(extendedType));
+            }
 
             box_size = header_size = 24;
             ExtendedType = extendedType;
@@ -263,10 +283,7 @@ namespace TagLib.Mpeg4
         ///    A <see cref="long" /> value containing the size of the
         ///    header represented by the current instance.
         /// </value>
-        public long HeaderSize
-        {
-            get { return header_size; }
-        }
+        public long HeaderSize => header_size;
 
         /// <summary>
         ///    Gets and sets the size of the data in the box described
@@ -278,8 +295,8 @@ namespace TagLib.Mpeg4
         /// </value>
         public long DataSize
         {
-            get { return (long)(box_size - header_size); }
-            set { box_size = (ulong)value + header_size; }
+            get => (long)(box_size - header_size);
+            set => box_size = (ulong)value + header_size;
         }
 
         /// <summary>
@@ -291,10 +308,7 @@ namespace TagLib.Mpeg4
         ///    box data from the position of the header.
         /// </value>
         [Obsolete("Use HeaderSize")]
-        public long DataOffset
-        {
-            get { return header_size; }
-        }
+        public long DataOffset => header_size;
 
         /// <summary>
         ///    Gets the total size of the box described by the current
@@ -304,10 +318,7 @@ namespace TagLib.Mpeg4
         ///    A <see cref="long" /> value containing the total size of
         ///    the box described by the current instance.
         /// </value>
-        public long TotalBoxSize
-        {
-            get { return (long)box_size; }
-        }
+        public long TotalBoxSize => (long)box_size;
 
         /// <summary>
         ///    Gets the position box represented by the current instance
@@ -318,10 +329,7 @@ namespace TagLib.Mpeg4
         ///    represented by the current instance in the file it comes
         ///    from.
         /// </value>
-        public long Position
-        {
-            get { return from_disk ? position : -1; }
-        }
+        public long Position => from_disk ? position : -1;
 
         #endregion
 
@@ -350,10 +358,14 @@ namespace TagLib.Mpeg4
         public long Overwrite(TagLib.File file, long sizeChange)
         {
             if (file == null)
+            {
                 throw new ArgumentNullException(nameof(file));
+            }
 
             if (!from_disk)
+            {
                 throw new InvalidOperationException("Cannot overwrite headers not on disk.");
+            }
 
             long old_header_size = HeaderSize;
             DataSize += sizeChange;
@@ -386,12 +398,16 @@ namespace TagLib.Mpeg4
             // If the box size is 16 or 32, we must have more a
             // large header to append.
             if (header_size == 16 || header_size == 32)
+            {
                 output.Add(ByteVector.FromULong(box_size));
+            }
 
             // The only reason for such a big size is an extended
             // type. Extend!!!
             if (header_size >= 24)
+            {
                 output.Add(ExtendedType);
+            }
 
             return output;
         }

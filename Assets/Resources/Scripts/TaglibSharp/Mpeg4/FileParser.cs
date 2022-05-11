@@ -38,54 +38,54 @@ namespace TagLib.Mpeg4
         /// <summary>
         ///    Contains the file to read from.
         /// </summary>
-        readonly TagLib.File file;
+        private readonly TagLib.File file;
 
         /// <summary>
         ///    Contains the first header found in the file.
         /// </summary>
-        readonly BoxHeader first_header;
+        private readonly BoxHeader first_header;
 
         /// <summary>
         ///    Contains the ISO movie header box.
         /// </summary>
-        IsoMovieHeaderBox mvhd_box;
+        private IsoMovieHeaderBox mvhd_box;
 
         /// <summary>
         ///    Contains the ISO user data boxes.
         /// </summary>
-        readonly List<IsoUserDataBox> udta_boxes = new List<IsoUserDataBox>();
+        private readonly List<IsoUserDataBox> udta_boxes = new List<IsoUserDataBox>();
 
         /// <summary>
         ///    Contains the box headers from the top of the file to the
         ///    "moov" box.
         /// </summary>
-        BoxHeader[] moov_tree;
+        private BoxHeader[] moov_tree;
 
         /// <summary>
         ///    Contains the box headers from the top of the file to the
         ///    "udta" box.
         /// </summary>
-        BoxHeader[] udta_tree;
+        private BoxHeader[] udta_tree;
 
         /// <summary>
         ///    Contains the "stco" boxes found in the file.
         /// </summary>
-        readonly List<Box> stco_boxes = new List<Box>();
+        private readonly List<Box> stco_boxes = new List<Box>();
 
         /// <summary>
         ///    Contains the "stsd" boxes found in the file.
         /// </summary>
-        readonly List<Box> stsd_boxes = new List<Box>();
+        private readonly List<Box> stsd_boxes = new List<Box>();
 
         /// <summary>
         ///    Contains the position at which the "mdat" box starts.
         /// </summary>
-        long mdat_start = -1;
+        private long mdat_start = -1;
 
         /// <summary>
         ///    Contains the position at which the "mdat" box ends.
         /// </summary>
-        long mdat_end = -1;
+        private long mdat_end = -1;
 
         #endregion
 
@@ -111,13 +111,17 @@ namespace TagLib.Mpeg4
         public FileParser(TagLib.File file)
         {
             if (file == null)
+            {
                 throw new ArgumentNullException(nameof(file));
+            }
 
             this.file = file;
             first_header = new BoxHeader(file, 0);
 
             if (first_header.BoxType != "ftyp")
+            {
                 throw new CorruptFileException("File does not start with 'ftyp' box.");
+            }
         }
 
         #endregion
@@ -137,10 +141,7 @@ namespace TagLib.Mpeg4
         ///    This value will only be set by calling <see
         ///    cref="ParseTagAndProperties()" />.
         /// </remarks>
-        public IsoMovieHeaderBox MovieHeaderBox
-        {
-            get { return mvhd_box; }
-        }
+        public IsoMovieHeaderBox MovieHeaderBox => mvhd_box;
 
         /// <summary>
         ///    Gets all user data boxes read by the current instance.
@@ -154,18 +155,12 @@ namespace TagLib.Mpeg4
         ///    cref="ParseTag()" /> and <see
         ///    cref="ParseTagAndProperties()" />.
         /// </remarks>
-        public IsoUserDataBox[] UserDataBoxes
-        {
-            get { return udta_boxes.ToArray(); }
-        }
+        public IsoUserDataBox[] UserDataBoxes => udta_boxes.ToArray();
 
         /// <summary>
         /// Get the User Data Box
         /// </summary>
-        public IsoUserDataBox UserDataBox
-        {
-            get { return UserDataBoxes.Length == 0 ? null : UserDataBoxes[0]; }
-        }
+        public IsoUserDataBox UserDataBox => UserDataBoxes.Length == 0 ? null : UserDataBoxes[0];
 
         /// <summary>
         ///    Gets the audio sample entry read by the current instance.
@@ -183,11 +178,16 @@ namespace TagLib.Mpeg4
             get
             {
                 foreach (IsoSampleDescriptionBox box in stsd_boxes)
+                {
                     foreach (Box sub in box.Children)
                     {
                         if (sub is IsoAudioSampleEntry entry)
+                        {
                             return entry;
+                        }
                     }
+                }
+
                 return null;
             }
         }
@@ -209,11 +209,16 @@ namespace TagLib.Mpeg4
             get
             {
                 foreach (IsoSampleDescriptionBox box in stsd_boxes)
+                {
                     foreach (Box sub in box.Children)
                     {
                         if (sub is IsoVisualSampleEntry entry)
+                        {
                             return entry;
+                        }
                     }
+                }
+
                 return null;
             }
         }
@@ -233,10 +238,7 @@ namespace TagLib.Mpeg4
         ///    This value is useful for overwriting box headers, and is
         ///    only be set by calling <see cref="ParseBoxHeaders()" />.
         /// </remarks>
-        public BoxHeader[] MoovTree
-        {
-            get { return moov_tree; }
-        }
+        public BoxHeader[] MoovTree => moov_tree;
 
         /// <summary>
         ///    Gets the box headers for the first "<c>udta</c>" box and
@@ -253,10 +255,7 @@ namespace TagLib.Mpeg4
         ///    This value is useful for overwriting box headers, and is
         ///    only be set by calling <see cref="ParseBoxHeaders()" />.
         /// </remarks>
-        public BoxHeader[] UdtaTree
-        {
-            get { return udta_tree; }
-        }
+        public BoxHeader[] UdtaTree => udta_tree;
 
         /// <summary>
         ///    Gets all chunk offset boxes read by the current instance.
@@ -272,10 +271,7 @@ namespace TagLib.Mpeg4
         ///    corrected. This value will only be set by calling <see
         ///    cref="ParseChunkOffsets()" />.
         /// </remarks>
-        public Box[] ChunkOffsetBoxes
-        {
-            get { return stco_boxes.ToArray(); }
-        }
+        public Box[] ChunkOffsetBoxes => stco_boxes.ToArray();
 
         /// <summary>
         ///    Gets the position at which the "<c>mdat</c>" box starts.
@@ -289,10 +285,7 @@ namespace TagLib.Mpeg4
         ///    file and is used for estimating the invariant data
         ///    portion of the file.
         /// </remarks>
-        public long MdatStartPosition
-        {
-            get { return mdat_start; }
-        }
+        public long MdatStartPosition => mdat_start;
 
         /// <summary>
         ///    Gets the position at which the "<c>mdat</c>" box ends.
@@ -306,10 +299,7 @@ namespace TagLib.Mpeg4
         ///    file and is used for estimating the invariant data
         ///    portion of the file.
         /// </remarks>
-        public long MdatEndPosition
-        {
-            get { return mdat_end; }
-        }
+        public long MdatEndPosition => mdat_end;
 
         #endregion
 
@@ -407,7 +397,7 @@ namespace TagLib.Mpeg4
         ///    A <see cref="T:System.Collections.Generic.List`1" /> object containing all the parent
         ///    handlers that apply to the range.
         /// </param>
-        void ParseBoxHeaders(long start, long end, List<BoxHeader> parents)
+        private void ParseBoxHeaders(long start, long end, List<BoxHeader> parents)
         {
             BoxHeader header;
 
@@ -443,7 +433,9 @@ namespace TagLib.Mpeg4
                 }
 
                 if (header.TotalBoxSize == 0)
+                {
                     break;
+                }
             }
         }
 
@@ -461,7 +453,7 @@ namespace TagLib.Mpeg4
         /// <param name="parents">
         ///    A <see cref="T:List" /> of <see cref="BoxHeader" /> parents.
         /// </param>
-        void ParseTag(long start, long end, List<BoxHeader> parents)
+        private void ParseTag(long start, long end, List<BoxHeader> parents)
         {
             BoxHeader header;
 
@@ -497,7 +489,9 @@ namespace TagLib.Mpeg4
                 }
 
                 if (header.TotalBoxSize == 0)
+                {
                     break;
+                }
             }
         }
 
@@ -520,7 +514,7 @@ namespace TagLib.Mpeg4
         /// <param name="parents">
         ///    A <see cref="T:List" /> of <see cref="BoxHeader" /> parents.
         /// </param>
-        void ParseTagAndProperties(long start, long end, IsoHandlerBox handler, List<BoxHeader> parents)
+        private void ParseTagAndProperties(long start, long end, IsoHandlerBox handler, List<BoxHeader> parents)
         {
             BoxHeader header;
 
@@ -570,7 +564,9 @@ namespace TagLib.Mpeg4
                 }
 
                 if (header.TotalBoxSize == 0)
+                {
                     break;
+                }
             }
         }
 
@@ -586,7 +582,7 @@ namespace TagLib.Mpeg4
         ///    A <see cref="long" /> value specifying the seek position
         ///    at which to stop reading.
         /// </param>
-        void ParseChunkOffsets(long start, long end)
+        private void ParseChunkOffsets(long start, long end)
         {
             BoxHeader header;
 
@@ -618,14 +614,16 @@ namespace TagLib.Mpeg4
                 }
 
                 if (header.TotalBoxSize == 0)
+                {
                     break;
+                }
             }
         }
 
         /// <summary>
         ///    Resets all internal fields.
         /// </summary>
-        void ResetFields()
+        private void ResetFields()
         {
             mvhd_box = null;
             udta_boxes.Clear();
@@ -655,12 +653,15 @@ namespace TagLib.Mpeg4
         ///    A new <see cref="T:System.Collections.Generic.List`1" /> object containing the list
         ///    of parents, including the added header.
         /// </returns>
-        static List<BoxHeader> AddParent(List<BoxHeader> parents,
+        private static List<BoxHeader> AddParent(List<BoxHeader> parents,
                                                   BoxHeader current)
         {
             var boxes = new List<BoxHeader>();
             if (parents != null)
+            {
                 boxes.AddRange(parents);
+            }
+
             boxes.Add(current);
             return boxes;
         }

@@ -29,6 +29,9 @@ namespace Id3.Frames
         {
         }
 
-        public static implicit operator YearFrame(int value) => new YearFrame(value);
+        public static implicit operator YearFrame(int value)
+        {
+            return new YearFrame(value);
+        }
     }
 }

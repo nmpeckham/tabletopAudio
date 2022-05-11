@@ -39,17 +39,17 @@ namespace TagLib.Xmp
         /// <value>
         ///    The children of the current node
         /// </value>
-        List<XmpNode> children;
+        private List<XmpNode> children;
 
         /// <value>
         ///    The qualifiers of the current node
         /// </value>
-        Dictionary<string, Dictionary<string, XmpNode>> qualifiers;
+        private Dictionary<string, Dictionary<string, XmpNode>> qualifiers;
 
         /// <value>
         ///    The name of the current node
         /// </value>
-        string name;
+        private string name;
 
         #endregion
 
@@ -65,14 +65,18 @@ namespace TagLib.Xmp
         /// </value>
         public string Name
         {
-            get { return name; }
+            get => name;
             internal set
             {
                 if (name != null)
+                {
                     throw new Exception("Cannot change named node");
+                }
 
                 if (value == null)
+                {
                     throw new ArgumentException("value");
+                }
 
                 name = value;
             }
@@ -97,7 +101,10 @@ namespace TagLib.Xmp
             get
             {
                 if (qualifiers == null)
+                {
                     return 0;
+                }
+
                 int count = 0;
                 foreach (var collection in qualifiers.Values)
                 {
@@ -110,11 +117,7 @@ namespace TagLib.Xmp
         /// <value>
         ///    The children of the current instance.
         /// </value>
-        public List<XmpNode> Children
-        {
-            // TODO: do not return a list, because it can be modified elsewhere
-            get { return children ?? new List<XmpNode>(); }
-        }
+        public List<XmpNode> Children => children ?? new List<XmpNode>();
 
         #endregion
 
@@ -135,7 +138,9 @@ namespace TagLib.Xmp
             // to be floating around (we have one with MicrosoftPhoto in our tree).
             // Correcting below.
             if (ns != string.Empty && ns != XmpTag.XML_NS && !ns.EndsWith("/") && !ns.EndsWith("#"))
+            {
                 ns = $"{ns}/";
+            }
 
             Namespace = ns;
             Name = name;
@@ -174,10 +179,14 @@ namespace TagLib.Xmp
         public void AddChild(XmpNode node)
         {
             if (node == null || node == this)
+            {
                 throw new ArgumentException("node");
+            }
 
             if (children == null)
+            {
                 children = new List<XmpNode>();
+            }
 
             children.Add(node);
         }
@@ -191,7 +200,9 @@ namespace TagLib.Xmp
         public void RemoveChild(XmpNode node)
         {
             if (children == null)
+            {
                 return;
+            }
 
             children.Remove(node);
         }
@@ -213,7 +224,9 @@ namespace TagLib.Xmp
             foreach (var node in children)
             {
                 if (node.Namespace.Equals(ns) && node.Name.Equals(name))
+                {
                     return node;
+                }
             }
             return null;
         }
@@ -227,13 +240,19 @@ namespace TagLib.Xmp
         public void AddQualifier(XmpNode node)
         {
             if (node == null || node == this)
+            {
                 throw new ArgumentException(nameof(node));
+            }
 
             if (qualifiers == null)
+            {
                 qualifiers = new Dictionary<string, Dictionary<string, XmpNode>>();
+            }
 
             if (!qualifiers.ContainsKey(node.Namespace))
+            {
                 qualifiers[node.Namespace] = new Dictionary<string, XmpNode>();
+            }
 
             qualifiers[node.Namespace][node.Name] = node;
         }
@@ -254,11 +273,20 @@ namespace TagLib.Xmp
         public XmpNode GetQualifier(string ns, string name)
         {
             if (qualifiers == null)
+            {
                 return null;
+            }
+
             if (!qualifiers.ContainsKey(ns))
+            {
                 return null;
+            }
+
             if (!qualifiers[ns].ContainsKey(name))
+            {
                 return null;
+            }
+
             return qualifiers[ns][name];
         }
 
@@ -338,10 +366,16 @@ namespace TagLib.Xmp
                 var node = XmpTag.CreateNode(parent.OwnerDocument, Name, Namespace);
                 // TODO: Add all qualifiers.
                 if (QualifierCount > 0)
+                {
                     throw new NotImplementedException();
+                }
+
                 var bag = XmpTag.CreateNode(parent.OwnerDocument, XmpTag.BAG_URI, XmpTag.RDF_NS);
                 foreach (var child in Children)
+                {
                     child.RenderInto(bag);
+                }
+
                 node.AppendChild(bag);
                 parent.AppendChild(node);
 
@@ -351,10 +385,16 @@ namespace TagLib.Xmp
                 var node = XmpTag.CreateNode(parent.OwnerDocument, Name, Namespace);
                 // TODO: Add all qualifiers.
                 if (QualifierCount > 0)
+                {
                     throw new NotImplementedException();
+                }
+
                 var bag = XmpTag.CreateNode(parent.OwnerDocument, XmpTag.ALT_URI, XmpTag.RDF_NS);
                 foreach (var child in Children)
+                {
                     child.RenderInto(bag);
+                }
+
                 node.AppendChild(bag);
                 parent.AppendChild(node);
 
@@ -364,10 +404,16 @@ namespace TagLib.Xmp
                 var node = XmpTag.CreateNode(parent.OwnerDocument, Name, Namespace);
                 // TODO: Add all qualifiers.
                 if (QualifierCount > 0)
+                {
                     throw new NotImplementedException();
+                }
+
                 var bag = XmpTag.CreateNode(parent.OwnerDocument, XmpTag.SEQ_URI, XmpTag.RDF_NS);
                 foreach (var child in Children)
+                {
                     child.RenderInto(bag);
+                }
+
                 node.AppendChild(bag);
                 parent.AppendChild(node);
 
@@ -420,27 +466,21 @@ namespace TagLib.Xmp
         ///    parent node? Yes if it has no qualifiers or children, nor is
         ///    it part of a list.
         /// </summary>
-        bool IsReallySimpleType
-        {
-            get
-            {
-                return Type == XmpNodeType.Simple && (children == null || children.Count == 0)
+        private bool IsReallySimpleType => Type == XmpNodeType.Simple && (children == null || children.Count == 0)
                     && QualifierCount == 0 && (Name != XmpTag.LI_URI || Namespace != XmpTag.RDF_NS);
-            }
-        }
 
         /// <summary>
         ///    Is this the root node of the tree?
         /// </summary>
-        bool IsRootNode
-        {
-            get { return Name == string.Empty && Namespace == string.Empty; }
-        }
+        private bool IsRootNode => Name == string.Empty && Namespace == string.Empty;
 
-        void AddAllQualifiersTo(XmlNode xml)
+        private void AddAllQualifiersTo(XmlNode xml)
         {
             if (qualifiers == null)
+            {
                 return;
+            }
+
             foreach (var collection in qualifiers.Values)
             {
                 foreach (XmpNode node in collection.Values)
@@ -452,12 +492,17 @@ namespace TagLib.Xmp
             }
         }
 
-        void AddAllChildrenTo(XmlNode parent)
+        private void AddAllChildrenTo(XmlNode parent)
         {
             if (children == null)
+            {
                 return;
+            }
+
             foreach (var child in children)
+            {
                 child.RenderInto(parent);
+            }
         }
         #endregion
 

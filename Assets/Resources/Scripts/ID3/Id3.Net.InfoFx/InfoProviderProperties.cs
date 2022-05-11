@@ -36,7 +36,10 @@ namespace Id3.InfoFx
         public InfoProviderProperties(string name, string url = null, string registrationUrl = null)
         {
             if (string.IsNullOrWhiteSpace(name))
+            {
                 throw new ArgumentException("Provider must have a name.", nameof(name));
+            }
+
             Name = name;
             Url = url;
             RegistrationUrl = registrationUrl;

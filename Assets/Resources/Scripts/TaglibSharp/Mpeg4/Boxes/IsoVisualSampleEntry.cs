@@ -40,12 +40,12 @@ namespace TagLib.Mpeg4
         /// <summary>
         ///    Contains the width of the visual.
         /// </summary>
-        readonly ushort width;
+        private readonly ushort width;
 
         /// <summary>
         ///    Contains the height of the visual.
         /// </summary>
-        readonly ushort height;
+        private readonly ushort height;
 
         /*
 		/// <summary>
@@ -108,10 +108,7 @@ namespace TagLib.Mpeg4
         ///    A <see cref="long" /> value containing the position of
         ///    the data contained in the current instance.
         /// </value>
-        protected override long DataPosition
-        {
-            get { return base.DataPosition + 62; }
-        }
+        protected override long DataPosition => base.DataPosition + 62;
 
         /*
 		/// <summary>
@@ -139,10 +136,7 @@ namespace TagLib.Mpeg4
         /// <value>
         ///    Always <see cref="TimeSpan.Zero" />.
         /// </value>
-        public TimeSpan Duration
-        {
-            get { return TimeSpan.Zero; }
-        }
+        public TimeSpan Duration => TimeSpan.Zero;
 
         /// <summary>
         ///    Gets the types of media represented by the current
@@ -151,10 +145,7 @@ namespace TagLib.Mpeg4
         /// <value>
         ///    Always <see cref="MediaTypes.Video" />.
         /// </value>
-        public MediaTypes MediaTypes
-        {
-            get { return MediaTypes.Video; }
-        }
+        public MediaTypes MediaTypes => MediaTypes.Video;
 
         /// <summary>
         ///    Gets a text description of the media represented by the
@@ -164,13 +155,7 @@ namespace TagLib.Mpeg4
         ///    A <see cref="string" /> object containing a description
         ///    of the media represented by the current instance.
         /// </value>
-        public string Description
-        {
-            get
-            {
-                return string.Format(CultureInfo.InvariantCulture, "MPEG-4 Video ({0})", BoxType);
-            }
-        }
+        public string Description => string.Format(CultureInfo.InvariantCulture, "MPEG-4 Video ({0})", BoxType);
 
         /// <summary>
         ///    Gets the width of the video represented by the current
@@ -180,10 +165,7 @@ namespace TagLib.Mpeg4
         ///    A <see cref="int" /> containing the width of the video
         ///    represented by the current instance.
         /// </value>
-        public int VideoWidth
-        {
-            get { return width; }
-        }
+        public int VideoWidth => width;
 
         /// <summary>
         ///    Gets the height of the video represented by the current
@@ -193,10 +175,7 @@ namespace TagLib.Mpeg4
         ///    A <see cref="int" /> containing the height of the video
         ///    represented by the current instance.
         /// </value>
-        public int VideoHeight
-        {
-            get { return height; }
-        }
+        public int VideoHeight => height;
 
         #endregion
     }

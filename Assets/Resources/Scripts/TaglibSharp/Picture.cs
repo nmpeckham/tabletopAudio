@@ -229,7 +229,7 @@ namespace TagLib
         ///    Look-Up-Table associating a file-extension to 
         ///    a Mime-Type 
         /// </summary>
-        static readonly string[] lutExtensionMime = new[] {
+        private static readonly string[] lutExtensionMime = new[] {
             "aac", "audio/aac", // AAC audio file
 			"abw", "application/x-abiword", // AbiWord document
 			"arc", "application/octet-stream", // Archive document (multiple files embedded)
@@ -334,7 +334,9 @@ namespace TagLib
         public Picture(string path)
         {
             if (path == null)
+            {
                 throw new ArgumentNullException(nameof(path));
+            }
 
             Data = ByteVector.FromPath(path);
             Filename = System.IO.Path.GetFileName(path);
@@ -359,7 +361,9 @@ namespace TagLib
         public Picture(File.IFileAbstraction abstraction)
         {
             if (abstraction == null)
+            {
                 throw new ArgumentNullException(nameof(abstraction));
+            }
 
             Data = ByteVector.FromFile(abstraction);
             Filename = abstraction.Name;
@@ -402,7 +406,9 @@ namespace TagLib
         public Picture(ByteVector data)
         {
             if (data == null)
+            {
                 throw new ArgumentNullException(nameof(data));
+            }
 
             Data = new ByteVector(data);
             string ext = GetExtensionFromData(data);
@@ -624,12 +630,20 @@ namespace TagLib
             string mime_type = "application/octet-stream";
 
             // Get extension from Filename
-            if (string.IsNullOrEmpty(name)) return mime_type;
+            if (string.IsNullOrEmpty(name))
+            {
+                return mime_type;
+            }
+
             var ext = System.IO.Path.GetExtension(name);
             if (string.IsNullOrEmpty(ext))
+            {
                 ext = name;
+            }
             else
+            {
                 ext = ext.Substring(1);
+            }
 
             ext = ext.ToLower();
 

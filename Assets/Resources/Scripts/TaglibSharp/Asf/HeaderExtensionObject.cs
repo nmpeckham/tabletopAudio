@@ -39,7 +39,7 @@ namespace TagLib.Asf
         /// <summary>
         ///    Contains the child objects.
         /// </summary>
-        readonly List<Object> children = new List<Object>();
+        private readonly List<Object> children = new List<Object>();
 
         #endregion
 
@@ -75,13 +75,19 @@ namespace TagLib.Asf
             : base(file, position)
         {
             if (!Guid.Equals(Asf.Guid.AsfHeaderExtensionObject))
+            {
                 throw new CorruptFileException("Object GUID incorrect.");
+            }
 
             if (file.ReadGuid() != Asf.Guid.AsfReserved1)
+            {
                 throw new CorruptFileException("Reserved1 GUID expected.");
+            }
 
             if (file.ReadWord() != 6)
+            {
                 throw new CorruptFileException("Invalid reserved WORD. Expected '6'.");
+            }
 
             uint size_remaining = file.ReadDWord();
             position += 0x170 / 8;
@@ -108,10 +114,7 @@ namespace TagLib.Asf
         ///    A <see cref="T:System.Collections.Generic.IEnumerable`1" /> object enumerating
         ///    through the children of the current instance.
         /// </value>
-        public IEnumerable<Object> Children
-        {
-            get { return children; }
-        }
+        public IEnumerable<Object> Children => children;
 
         #endregion
 
@@ -131,7 +134,9 @@ namespace TagLib.Asf
             ByteVector output = new ByteVector();
 
             foreach (var child in children)
+            {
                 output.Add(child.Render());
+            }
 
             output.Insert(0, RenderDWord((uint)output.Count));
             output.Insert(0, RenderWord(6));
@@ -163,11 +168,13 @@ namespace TagLib.Asf
         public void AddUniqueObject(Object obj)
         {
             for (int i = 0; i < children.Count; i++)
+            {
                 if (children[i].Guid == obj.Guid)
                 {
                     children[i] = obj;
                     return;
                 }
+            }
 
             children.Add(obj);
         }

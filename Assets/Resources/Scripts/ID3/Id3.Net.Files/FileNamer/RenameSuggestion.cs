@@ -99,7 +99,9 @@ namespace Id3.Files
         internal RenameSuggestions(IEnumerable<RenameSuggestion> items)
         {
             foreach (RenameSuggestion item in items)
+            {
                 Add(item);
+            }
         }
 
         public IEnumerable<RenameSuggestion> CorrectlyNamed => this.Where(action => action.Status == RenameStatus.CorrectlyNamed);

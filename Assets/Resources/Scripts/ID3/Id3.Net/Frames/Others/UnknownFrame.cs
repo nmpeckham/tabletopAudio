@@ -24,15 +24,27 @@ namespace Id3.Frames
         public override bool Equals(Id3Frame other)
         {
             if (base.Equals(other))
+            {
                 return true;
+            }
+
             if (!(other is UnknownFrame unknownFrame))
+            {
                 return false;
+            }
+
             if (Id != unknownFrame.Id)
+            {
                 return false;
+            }
+
             return ByteArrayHelper.AreEqual(Data, unknownFrame.Data);
         }
 
-        public override string ToString() => Id ?? base.ToString();
+        public override string ToString()
+        {
+            return Id ?? base.ToString();
+        }
 
         public string Id { get; set; }
 

@@ -45,12 +45,12 @@ namespace TagLib.Id3v2
         /// <summary>
         ///    Contains the frame's grouping ID.
         /// </summary>
-        byte group_id;
+        private byte group_id;
 
         /// <summary>
         ///    Contains the frame's encryption ID.
         /// </summary>
-        byte encryption_id;
+        private byte encryption_id;
 
         #endregion
 
@@ -81,11 +81,15 @@ namespace TagLib.Id3v2
         protected Frame(ByteVector data, byte version)
         {
             if (data == null)
+            {
                 throw new ArgumentNullException(nameof(data));
+            }
 
             if (data.Count < ((version < 3) ? 3 : 4))
+            {
                 throw new ArgumentException("Data contains an incomplete identifier.",
                     nameof(data));
+            }
 
             header = new FrameHeader(data, version);
         }
@@ -116,10 +120,7 @@ namespace TagLib.Id3v2
         ///    A <see cref="ReadOnlyByteVector" /> object containing the
         ///    four-byte ID3v2.4 frame header for the current instance.
         /// </value>
-        public ReadOnlyByteVector FrameId
-        {
-            get { return header.FrameId; }
-        }
+        public ReadOnlyByteVector FrameId => header.FrameId;
 
         /// <summary>
         ///    Gets the size of the current instance as it was last
@@ -129,10 +130,7 @@ namespace TagLib.Id3v2
         ///    A <see cref="uint" /> value containing the size of the
         ///    current instance as it was last stored on disk.
         /// </value>
-        public uint Size
-        {
-            get { return header.FrameSize; }
-        }
+        public uint Size => header.FrameSize;
 
         /// <summary>
         ///    Gets and sets the frame flags applied to the current
@@ -151,8 +149,8 @@ namespace TagLib.Id3v2
         /// </remarks>
         public FrameFlags Flags
         {
-            get { return header.Flags; }
-            set { header.Flags = value; }
+            get => header.Flags;
+            set => header.Flags = value;
         }
 
         /// <summary>
@@ -170,11 +168,8 @@ namespace TagLib.Id3v2
         /// </remarks>
         public short GroupId
         {
-            get
-            {
-                return (Flags & FrameFlags.GroupingIdentity)
+            get => (Flags & FrameFlags.GroupingIdentity)
                     != 0 ? group_id : (short)-1;
-            }
             set
             {
                 if (value >= 0x00 && value <= 0xFF)
@@ -206,11 +201,8 @@ namespace TagLib.Id3v2
         /// </remarks>
         public short EncryptionId
         {
-            get
-            {
-                return (Flags & FrameFlags.Encryption) != 0 ?
+            get => (Flags & FrameFlags.Encryption) != 0 ?
                     encryption_id : (short)-1;
-            }
             set
             {
                 if (value >= 0x00 && value <= 0xFF)
@@ -254,50 +246,70 @@ namespace TagLib.Id3v2
             // Remove flags that are not supported by older versions
             // of ID3v2.
             if (version < 4)
+            {
                 Flags &= ~(FrameFlags.DataLengthIndicator |
                     FrameFlags.Unsynchronisation);
+            }
 
             if (version < 3)
+            {
                 Flags &= ~(FrameFlags.Compression |
                     FrameFlags.Encryption |
                     FrameFlags.FileAlterPreservation |
                     FrameFlags.GroupingIdentity |
                     FrameFlags.ReadOnly |
                     FrameFlags.TagAlterPreservation);
+            }
 
             ByteVector field_data = RenderFields(version);
 
             // If we don't have any content, don't render anything.
             // This will cause the frame to not be rendered.
             if (field_data.Count == 0)
+            {
                 return new ByteVector();
+            }
 
             ByteVector front_data = new ByteVector();
 
             if ((Flags & (FrameFlags.Compression |
                 FrameFlags.DataLengthIndicator)) != 0)
+            {
                 front_data.Add(ByteVector.FromUInt((uint)
                     field_data.Count));
+            }
 
             if ((Flags & FrameFlags.GroupingIdentity) != 0)
+            {
                 front_data.Add(group_id);
+            }
 
             if ((Flags & FrameFlags.Encryption) != 0)
+            {
                 front_data.Add(encryption_id);
+            }
 
             // FIXME: Implement compression.
             if ((Flags & FrameFlags.Compression) != 0)
+            {
                 throw new NotImplementedException("Compression not yet supported");
+            }
 
             // FIXME: Implement encryption.
             if ((Flags & FrameFlags.Encryption) != 0)
+            {
                 throw new NotImplementedException("Encryption not yet supported");
+            }
 
             if ((Flags & FrameFlags.Unsynchronisation) != 0)
+            {
                 SynchData.UnsynchByteVector(field_data);
+            }
 
             if (front_data.Count > 0)
+            {
                 field_data.Insert(0, front_data);
+            }
 
             header.FrameSize = (uint)field_data.Count;
             ByteVector header_data = header.Render(version);
@@ -356,7 +368,9 @@ namespace TagLib.Id3v2
         protected static StringType CorrectEncoding(StringType type, byte version)
         {
             if (Tag.ForceDefaultEncoding)
+            {
                 type = Tag.DefaultEncoding;
+            }
 
             return (version < 4 && type == StringType.UTF8) ? StringType.UTF16 : type;
         }
@@ -384,7 +398,9 @@ namespace TagLib.Id3v2
         protected void SetData(ByteVector data, int offset, byte version, bool readHeader)
         {
             if (readHeader)
+            {
                 header = new FrameHeader(data, version);
+            }
 
             ParseFields(FieldData(data, offset, version), version);
         }
@@ -447,7 +463,9 @@ namespace TagLib.Id3v2
         protected ByteVector FieldData(ByteVector frameData, int offset, byte version)
         {
             if (frameData == null)
+            {
                 throw new ArgumentNullException(nameof(frameData));
+            }
 
             int data_offset = offset + (int)FrameHeader.Size(version);
             int data_length = (int)Size;
@@ -462,7 +480,10 @@ namespace TagLib.Id3v2
             if ((Flags & FrameFlags.GroupingIdentity) != 0)
             {
                 if (frameData.Count >= data_offset)
+                {
                     throw new CorruptFileException("Frame data incomplete.");
+                }
+
                 group_id = frameData[data_offset++];
                 data_length--;
             }
@@ -470,14 +491,19 @@ namespace TagLib.Id3v2
             if ((Flags & FrameFlags.Encryption) != 0)
             {
                 if (frameData.Count >= data_offset)
+                {
                     throw new CorruptFileException("Frame data incomplete.");
+                }
+
                 encryption_id = frameData[data_offset++];
                 data_length--;
             }
 
             data_length = Math.Min(data_length, frameData.Count - data_offset);
             if (data_length < 0)
+            {
                 throw new CorruptFileException("Frame size less than zero.");
+            }
 
             ByteVector data = frameData.Mid(data_offset, data_length);
 
@@ -490,22 +516,26 @@ namespace TagLib.Id3v2
 
             // FIXME: Implement encryption.
             if ((Flags & FrameFlags.Encryption) != 0)
+            {
                 throw new NotImplementedException();
+            }
 
             // FIXME: Implement compression.
             if ((Flags & FrameFlags.Compression) != 0)
+            {
                 throw new NotImplementedException();
+            }
             /*
-			if(d->header->compression()) {
-				ByteVector data(frameDataLength);
-				uLongf uLongTmp = frameDataLength;
-				::uncompress((Bytef *) data.data(),
-				(uLongf *) &uLongTmp,
-				(Bytef *) frameData.data() + frameDataOffset,
-				size());
-				return data;
-			}
-			*/
+if(d->header->compression()) {
+   ByteVector data(frameDataLength);
+   uLongf uLongTmp = frameDataLength;
+   ::uncompress((Bytef *) data.data(),
+   (uLongf *) &uLongTmp,
+   (Bytef *) frameData.data() + frameDataOffset,
+   size());
+   return data;
+}
+*/
 
             return data;
         }

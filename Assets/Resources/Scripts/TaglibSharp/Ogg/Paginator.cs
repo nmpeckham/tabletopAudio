@@ -42,23 +42,23 @@ namespace TagLib.Ogg
         /// <summary>
         ///    Contains the packets to paginate.
         /// </summary>
-        readonly ByteVectorCollection packets =
+        private readonly ByteVectorCollection packets =
             new ByteVectorCollection();
 
         /// <summary>
         ///    Contains the first page header.
         /// </summary>
-        PageHeader? first_page_header;
+        private PageHeader? first_page_header;
 
         /// <summary>
         ///    Contains the codec to use.
         /// </summary>
-        readonly Codec codec;
+        private readonly Codec codec;
 
         /// <summary>
         ///    contains the number of pages read.
         /// </summary>
-        int pages_read;
+        private int pages_read;
         #endregion
 
 
@@ -96,19 +96,27 @@ namespace TagLib.Ogg
             pages_read++;
 
             if (first_page_header == null)
+            {
                 first_page_header = page.Header;
+            }
 
             if (page.Packets.Length == 0)
+            {
                 return;
+            }
 
             ByteVector[] page_packets = page.Packets;
 
             for (int i = 0; i < page_packets.Length; i++)
             {
                 if ((page.Header.Flags & PageFlags.FirstPacketContinued) != 0 && i == 0 && packets.Count > 0)
+                {
                     packets[packets.Count - 1].Add(page_packets[0]);
+                }
                 else
+                {
                     packets.Add(page_packets[i]);
+                }
             }
         }
 
@@ -188,7 +196,9 @@ namespace TagLib.Ogg
                 int total_lacing_bytes = 0;
 
                 for (int i = 0; i < packets.Count; i++)
+                {
                     total_lacing_bytes += GetLacingValueLength(packets, i);
+                }
 
                 lacing_per_page = Math.Min(total_lacing_bytes / count + 1, lacing_per_page);
             }
@@ -267,7 +277,7 @@ namespace TagLib.Ogg
         ///    A <see cref="int" /> value containing the number of bytes
         ///    needed to store the length.
         /// </returns>
-        static int GetLacingValueLength(ByteVectorCollection packets, int index)
+        private static int GetLacingValueLength(ByteVectorCollection packets, int index)
         {
             int size = packets[index].Count;
             return size / 0xff + ((index + 1 < packets.Count ||

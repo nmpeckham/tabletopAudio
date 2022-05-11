@@ -68,7 +68,9 @@ namespace TagLib.Mpeg4
                 box_data.Mid(0, 4).ToUInt()];
 
             for (int i = 0; i < Offsets.Length; i++)
+            {
                 Offsets[i] = box_data.Mid(4 + i * 8, 8).ToULong();
+            }
         }
 
         #endregion
@@ -90,7 +92,9 @@ namespace TagLib.Mpeg4
             {
                 ByteVector output = ByteVector.FromUInt((uint)Offsets.Length);
                 for (int i = 0; i < Offsets.Length; i++)
+                {
                     output.Add(ByteVector.FromULong(Offsets[i]));
+                }
 
                 return output;
             }
@@ -135,7 +139,9 @@ namespace TagLib.Mpeg4
         public void Overwrite(File file, long sizeDifference, long after)
         {
             if (file == null)
+            {
                 throw new ArgumentNullException(nameof(file));
+            }
 
             file.Insert(Render(sizeDifference, after), Header.Position, Size);
         }
@@ -160,8 +166,12 @@ namespace TagLib.Mpeg4
         public ByteVector Render(long sizeDifference, long after)
         {
             for (int i = 0; i < Offsets.Length; i++)
+            {
                 if (Offsets[i] >= (ulong)after)
+                {
                     Offsets[i] = (ulong)((long)Offsets[i] + sizeDifference);
+                }
+            }
 
             return Render();
         }

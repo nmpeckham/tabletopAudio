@@ -38,7 +38,7 @@ namespace TagLib.Id3v2
         /// <summary>
         ///    Contains the size of the read header.
         /// </summary>
-        uint size;
+        private uint size;
 
         /// <summary>
         ///    Constructs and initializes a new instance of <see
@@ -72,10 +72,7 @@ namespace TagLib.Id3v2
         ///    A <see cref="uint" /> value containing the size of the
         ///    data on disk.
         /// </value>
-        public uint Size
-        {
-            get { return size; }
-        }
+        public uint Size => size;
 
         /// <summary>
         ///    Populates the current instance with the contents of the
@@ -91,7 +88,9 @@ namespace TagLib.Id3v2
         protected void Parse(ByteVector data, byte version)
         {
             if (data == null)
+            {
                 throw new ArgumentNullException(nameof(data));
+            }
 
             size = (version == 3 ? 4u : 0u) + SynchData.ToUInt(data.Mid(0, 4));
         }

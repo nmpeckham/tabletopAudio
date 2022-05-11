@@ -31,6 +31,9 @@ namespace Id3.Frames
         {
         }
 
-        public static implicit operator AudioFileUrlFrame(string url) => new AudioFileUrlFrame(url);
+        public static implicit operator AudioFileUrlFrame(string url)
+        {
+            return new AudioFileUrlFrame(url);
+        }
     }
 }

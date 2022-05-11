@@ -41,7 +41,7 @@ namespace TagLib.IFD
 
         #region Private Fields
 
-        static readonly string DATETIME_FORMAT = "yyyy:MM:dd HH:mm:ss";
+        private static readonly string DATETIME_FORMAT = "yyyy:MM:dd HH:mm:ss";
 
         /// <summary>
         ///    Contains the IFD directories in this tag.
@@ -58,10 +58,7 @@ namespace TagLib.IFD
         /// <value>
         ///    An array of <see cref="IFDDirectory"/> instances.
         /// </value>
-        public IFDDirectory[] Directories
-        {
-            get { return directories.ToArray(); }
-        }
+        public IFDDirectory[] Directories => directories.ToArray();
 
         #endregion
 
@@ -84,7 +81,10 @@ namespace TagLib.IFD
         public bool ContainsTag(int directory, ushort tag)
         {
             if (directory >= directories.Count)
+            {
                 return false;
+            }
+
             return directories[directory].ContainsKey(tag);
         }
 
@@ -135,7 +135,9 @@ namespace TagLib.IFD
         public void AddEntry(int directory, IFDEntry entry)
         {
             while (directory >= directories.Count)
+            {
                 directories.Add(new IFDDirectory());
+            }
 
             directories[directory].Add(entry.Tag, entry);
         }
@@ -154,7 +156,9 @@ namespace TagLib.IFD
         public void SetEntry(int directory, IFDEntry entry)
         {
             if (ContainsTag(directory, entry.Tag))
+            {
                 RemoveTag(directory, entry.Tag);
+            }
 
             AddEntry(directory, entry);
         }
@@ -176,7 +180,9 @@ namespace TagLib.IFD
         public IFDEntry GetEntry(int directory, ushort tag)
         {
             if (!ContainsTag(directory, tag))
+            {
                 return null;
+            }
 
             return directories[directory][tag];
         }
@@ -221,7 +227,9 @@ namespace TagLib.IFD
             var entry = GetEntry(directory, entry_tag);
 
             if (entry is StringIFDEntry)
+            {
                 return (entry as StringIFDEntry).Value;
+            }
 
             return null;
         }
@@ -249,7 +257,9 @@ namespace TagLib.IFD
             var entry = GetEntry(directory, entry_tag);
 
             if (entry != null && entry is ByteIFDEntry)
+            {
                 return (entry as ByteIFDEntry).Value;
+            }
 
             return null;
         }
@@ -277,10 +287,14 @@ namespace TagLib.IFD
             var entry = GetEntry(directory, entry_tag);
 
             if (entry is LongIFDEntry)
+            {
                 return (entry as LongIFDEntry).Value;
+            }
 
             if (entry is ShortIFDEntry)
+            {
                 return (entry as ShortIFDEntry).Value;
+            }
 
             return null;
         }
@@ -309,10 +323,14 @@ namespace TagLib.IFD
             var entry = GetEntry(directory, entry_tag);
 
             if (entry is RationalIFDEntry)
+            {
                 return (entry as RationalIFDEntry).Value;
+            }
 
             if (entry is SRationalIFDEntry)
+            {
                 return (entry as SRationalIFDEntry).Value;
+            }
 
             return null;
         }
@@ -435,7 +453,9 @@ namespace TagLib.IFD
         public void SetRationalValue(int directory, ushort entry_tag, double value)
         {
             if (value < 0.0d || value > uint.MaxValue)
+            {
                 throw new ArgumentException("value");
+            }
 
             uint scale = (value >= 1.0d) ? 1 : uint.MaxValue;
 

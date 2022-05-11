@@ -41,7 +41,7 @@ namespace TagLib.Dsf
         ///    This value is stored in bytes (12-15).
         ///    Currently only value of 1 is valid.
         /// </remarks>
-        readonly ushort version;
+        private readonly ushort version;
 
         /// <summary>
         ///    The Format Id.
@@ -50,7 +50,7 @@ namespace TagLib.Dsf
         ///    This value is stored in bytes (16-19).
         ///    0: DSD Raw
         /// </remarks>
-        readonly ushort format_id;
+        private readonly ushort format_id;
 
         /// <summary>
         ///    The Channel Type.
@@ -65,7 +65,7 @@ namespace TagLib.Dsf
         ///    6: 5 channels 
         ///    7: 5.1 channels 
         /// </remarks>
-        readonly ushort channel_type;
+        private readonly ushort channel_type;
 
         /// <summary>
         ///    Contains the number of channels.
@@ -75,7 +75,7 @@ namespace TagLib.Dsf
         ///    1 is monophonic, 2 is stereo, 4 means 4 channels, etc..
         ///    up to 6 channels may be represented
         /// </remarks>
-        readonly ushort channels;
+        private readonly ushort channels;
 
         /// <summary>
         ///    Contains the sample rate.
@@ -85,7 +85,7 @@ namespace TagLib.Dsf
         ///    the sample rate at which the sound is to be played back, 
         ///    in Hz: 2822400, 5644800
         /// </remarks>
-        readonly ulong sample_rate;
+        private readonly ulong sample_rate;
 
         /// <summary>
         ///    Contains the number of bits per sample.
@@ -94,7 +94,7 @@ namespace TagLib.Dsf
         ///    This value is stored in bytes (32-35).
         ///    It can be any number from 1 to 8.
         /// </remarks>
-        readonly ushort bits_per_sample;
+        private readonly ushort bits_per_sample;
 
         /// <summary>
         ///    Contains the number of sample frames per channel.
@@ -102,7 +102,7 @@ namespace TagLib.Dsf
         /// <remarks>
         ///    This value is stored in bytes (36-43).
         /// </remarks>
-        readonly ulong sample_count;
+        private readonly ulong sample_count;
 
         /// <summary>
         ///    Contains the Block size per channel.
@@ -111,7 +111,7 @@ namespace TagLib.Dsf
         ///    This value is stored in bytes (44-47).
         ///    Always: 4096
         /// </remarks>
-        readonly uint channel_blksize;
+        private readonly uint channel_blksize;
 
         /// <summary>
         ///    Contains the length of the audio stream.
@@ -119,7 +119,7 @@ namespace TagLib.Dsf
         /// <remarks>
         ///    This value is provided by the constructor.
         /// </remarks>
-        readonly long stream_length;
+        private readonly long stream_length;
 
         #endregion
 
@@ -167,11 +167,14 @@ namespace TagLib.Dsf
         public StreamHeader(ByteVector data, long streamLength)
         {
             if (data == null)
+            {
                 throw new ArgumentNullException(nameof(data));
-
+            }
 
             if (!data.StartsWith(FileIdentifier))
+            {
                 throw new CorruptFileException("Data does not begin with identifier.");
+            }
 
             stream_length = streamLength;
 
@@ -204,7 +207,9 @@ namespace TagLib.Dsf
             get
             {
                 if (sample_rate <= 0 || sample_count <= 0)
+                {
                     return TimeSpan.Zero;
+                }
 
                 return TimeSpan.FromSeconds(sample_count / (double)sample_rate);
             }
@@ -217,10 +222,7 @@ namespace TagLib.Dsf
         /// <value>
         ///    Always <see cref="MediaTypes.Audio" />.
         /// </value>
-        public MediaTypes MediaTypes
-        {
-            get { return MediaTypes.Audio; }
-        }
+        public MediaTypes MediaTypes => MediaTypes.Audio;
 
         /// <summary>
         ///    Gets a text description of the media represented by the
@@ -230,10 +232,7 @@ namespace TagLib.Dsf
         ///    A <see cref="string" /> object containing a description
         ///    of the media represented by the current instance.
         /// </value>
-        public string Description
-        {
-            get { return "DSF Audio"; }
-        }
+        public string Description => "DSF Audio";
 
         /// <summary>
         ///    Gets the bitrate of the audio represented by the current
@@ -249,7 +248,9 @@ namespace TagLib.Dsf
             {
                 TimeSpan d = Duration;
                 if (d <= TimeSpan.Zero)
+                {
                     return 0;
+                }
 
                 return (int)((stream_length * 8L) / d.TotalSeconds) / 1000;
             }
@@ -263,10 +264,7 @@ namespace TagLib.Dsf
         ///    A <see cref="int" /> value containing the sample rate of
         ///    the audio represented by the current instance.
         /// </value>
-        public int AudioSampleRate
-        {
-            get { return (int)sample_rate; }
-        }
+        public int AudioSampleRate => (int)sample_rate;
 
         /// <summary>
         ///    Gets the number of channels in the audio represented by
@@ -277,10 +275,7 @@ namespace TagLib.Dsf
         ///    channels in the audio represented by the current
         ///    instance.
         /// </value>
-        public int AudioChannels
-        {
-            get { return channels; }
-        }
+        public int AudioChannels => channels;
 
         /// <summary>
         ///    Gets the number of bits per sample in the audio
@@ -291,10 +286,7 @@ namespace TagLib.Dsf
         ///    per sample in the audio represented by the current
         ///    instance.
         /// </value>
-        public int BitsPerSample
-        {
-            get { return bits_per_sample; }
-        }
+        public int BitsPerSample => bits_per_sample;
 
         #endregion
     }

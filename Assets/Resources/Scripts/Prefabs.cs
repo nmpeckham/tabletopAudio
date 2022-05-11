@@ -3,23 +3,24 @@ using UnityEngine;
 public static class Prefabs
 {
     // Start is called before the first frame update
-    static internal GameObject rightClickMenuPrefab;
-    static internal GameObject rightClickItemPrefab;
-    static internal GameObject tooltipPrefab;
-    static internal GameObject musicButtonPrefab;
-    static internal GameObject pageButtonPrefab;
-    static internal GameObject pageParentPrefab;
-    static internal GameObject sfxButtonPrefab;
-    static internal GameObject errorPrefab;
-    static internal GameObject quickRefAttributePrefab;
-    static internal GameObject quickRefPrefab;
-    static internal GameObject loadGameItemPrefab;
-    static internal GameObject fileSelectItemPrefab;
-    static internal GameObject musicContentViewPrefab;
-    static internal GameObject addToMenuPrefab;
-    static internal GameObject addToMenuItemPrefab;
-    static internal GameObject playlistTabPrefab;
-    static internal void LoadAll()
+    internal static GameObject rightClickMenuPrefab;
+    internal static GameObject rightClickItemPrefab;
+    internal static GameObject tooltipPrefab;
+    internal static GameObject musicButtonPrefab;
+    internal static GameObject pageButtonPrefab;
+    internal static GameObject pageParentPrefab;
+    internal static GameObject sfxButtonPrefab;
+    internal static GameObject errorPrefab;
+    internal static GameObject quickRefAttributePrefab;
+    internal static GameObject quickRefPrefab;
+    internal static GameObject loadGameItemPrefab;
+    internal static GameObject fileSelectItemPrefab;
+    internal static GameObject musicContentViewPrefab;
+    internal static GameObject addToMenuPrefab;
+    internal static GameObject addToMenuItemPrefab;
+    internal static GameObject playlistTabPrefab;
+    internal static GameObject searchFolderListItemPrefab;
+    internal static void LoadAll()
     {
         rightClickMenuPrefab = Resources.Load<GameObject>("Prefabs/RightClickMenu");
         rightClickItemPrefab = Resources.Load<GameObject>("Prefabs/RightClickItem");
@@ -37,5 +38,6 @@ public static class Prefabs
         addToMenuPrefab = Resources.Load<GameObject>("Prefabs/AddToMenu");
         addToMenuItemPrefab = Resources.Load<GameObject>("Prefabs/AddToItemPrefab");
         playlistTabPrefab = Resources.Load<GameObject>("Prefabs/PlaylistTabPrefab");
+        searchFolderListItemPrefab = Resources.Load<GameObject>("Prefabs/SearchFolderListItem");
     }
 }

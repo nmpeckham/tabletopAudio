@@ -70,7 +70,7 @@ namespace TagLib.Ape
         /// <summary>
         ///    Contains the APE tag version.
         /// </summary>
-        readonly uint version;
+        private readonly uint version;
 
         #endregion
 
@@ -117,13 +117,19 @@ namespace TagLib.Ape
         public Footer(ByteVector data)
         {
             if (data == null)
+            {
                 throw new ArgumentNullException(nameof(data));
+            }
 
             if (data.Count < Size)
+            {
                 throw new CorruptFileException("Provided data is smaller than object size.");
+            }
 
             if (!data.StartsWith(FileIdentifier))
+            {
                 throw new CorruptFileException("Provided data does not start with File Identifier");
+            }
 
             version = data.Mid(8, 4).ToUInt(false);
             TagSize = data.Mid(12, 4).ToUInt(false);
@@ -145,10 +151,7 @@ namespace TagLib.Ape
         ///    A <see cref="uint" /> value containing the version of the
         ///    APE tag described by the current instance.
         /// </value>
-        public uint Version
-        {
-            get { return version == 0 ? 2000 : version; }
-        }
+        public uint Version => version == 0 ? 2000 : version;
 
         /// <summary>
         ///    Gets and sets the flags that apply to the current
@@ -189,15 +192,9 @@ namespace TagLib.Ape
         ///    A <see cref="uint" /> value containing the size of the
         ///    tag represented by the current instance.
         /// </value>
-        public uint CompleteTagSize
-        {
-            get
-            {
-                return TagSize + ((Flags &
+        public uint CompleteTagSize => TagSize + ((Flags &
                     FooterFlags.HeaderPresent) != 0 ?
                     Size : 0);
-            }
-        }
 
         #endregion
 
@@ -250,7 +247,7 @@ namespace TagLib.Ape
         ///    A <see cref="ByteVector" /> object containing the
         ///    rendered version of the current instance.
         /// </returns>
-        ByteVector Render(bool isHeader)
+        private ByteVector Render(bool isHeader)
         {
             var v = new ByteVector {
 
@@ -272,13 +269,19 @@ namespace TagLib.Ape
             uint flags = 0;
 
             if ((Flags & FooterFlags.HeaderPresent) != 0)
+            {
                 flags |= (uint)FooterFlags.HeaderPresent;
+            }
 
             // footer is always present
             if (isHeader)
+            {
                 flags |= (uint)FooterFlags.IsHeader;
+            }
             else
+            {
                 flags &= (uint)~FooterFlags.IsHeader;
+            }
 
             v.Add(ByteVector.FromUInt(flags, false));
 
@@ -325,7 +328,9 @@ namespace TagLib.Ape
         public override bool Equals(object other)
         {
             if (!(other is Footer))
+            {
                 return false;
+            }
 
             return Equals((Footer)other);
         }

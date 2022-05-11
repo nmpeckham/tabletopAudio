@@ -40,7 +40,7 @@ namespace TagLib.Asf
         /// <summary>
         ///    Contains the description records.
         /// </summary>
-        readonly List<DescriptionRecord> records = new List<DescriptionRecord>();
+        private readonly List<DescriptionRecord> records = new List<DescriptionRecord>();
 
         #endregion
 
@@ -76,10 +76,14 @@ namespace TagLib.Asf
             : base(file, position)
         {
             if (!Guid.Equals(Asf.Guid.AsfMetadataLibraryObject))
+            {
                 throw new CorruptFileException("Object GUID incorrect.");
+            }
 
             if (OriginalSize < 26)
+            {
                 throw new CorruptFileException("Object size too small.");
+            }
 
             ushort count = file.ReadWord();
 
@@ -113,10 +117,7 @@ namespace TagLib.Asf
         ///    contain any <see cref="DescriptionRecord" /> objects.
         ///    Otherwise <see langword="false" />.
         /// </value>
-        public bool IsEmpty
-        {
-            get { return records.Count == 0; }
-        }
+        public bool IsEmpty => records.Count == 0;
 
         #endregion
 
@@ -169,7 +170,9 @@ namespace TagLib.Asf
                 if (rec.LanguageListIndex == languageListIndex &&
                     rec.StreamNumber == streamNumber &&
                     rec.Name == name)
+                {
                     records.RemoveAt(i);
+                }
             }
         }
 
@@ -200,11 +203,17 @@ namespace TagLib.Asf
             {
                 if (rec.LanguageListIndex != languageListIndex ||
                     rec.StreamNumber != streamNumber)
+                {
                     continue;
+                }
 
                 foreach (string name in names)
+                {
                     if (rec.Name == name)
+                    {
                         yield return rec;
+                    }
+                }
             }
         }
 

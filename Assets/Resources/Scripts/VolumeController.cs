@@ -13,21 +13,21 @@ public class VolumeController : MonoBehaviour
     private float masterVolume = 1;
     public float MasterVolume
     {
-        get
-        {
-            return masterVolume;
-        }
+        get => masterVolume;
         set
         {
             masterVolume = value;
             AMG.audioMixer.SetFloat("MasterVolume", masterVolume.ToDB());
-            if (volumeSlider.value != masterVolume) volumeSlider.value = masterVolume;
+            if (volumeSlider.value != masterVolume)
+            {
+                volumeSlider.value = masterVolume;
+            }
             volumeLabel.text = (masterVolume * 100).ToString("N0") + "%";
         }
     }
 
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
         volumeSlider.onValueChanged.AddListener(VolumeChanged);
     }

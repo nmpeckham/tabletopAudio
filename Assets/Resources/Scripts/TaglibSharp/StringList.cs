@@ -89,7 +89,9 @@ namespace TagLib
         public StringCollection(ByteVectorCollection vectorList, StringType type)
         {
             foreach (ByteVector vector in vectorList)
+            {
                 Add(vector.ToString(type));
+            }
         }
 
         /// <summary>
@@ -129,10 +131,14 @@ namespace TagLib
         public static StringCollection Split(string value, string pattern)
         {
             if (value == null)
+            {
                 throw new ArgumentNullException(nameof(value));
+            }
 
             if (pattern == null)
+            {
                 throw new ArgumentNullException(nameof(pattern));
+            }
 
             var list = new StringCollection();
 

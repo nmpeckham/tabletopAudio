@@ -42,7 +42,7 @@ namespace TagLib.Image
         ///    A <see cref="TimeSpan" /> containing the duration of the
         ///    media represented by the current instance.
         /// </value>
-        public TimeSpan Duration { get { return TimeSpan.Zero; } }
+        public TimeSpan Duration => TimeSpan.Zero;
 
         /// <summary>
         ///    Gets the types of media represented by the current
@@ -52,7 +52,7 @@ namespace TagLib.Image
         ///    A bitwise combined <see cref="MediaTypes" /> containing
         ///    the types of media represented by the current instance.
         /// </value>
-        public MediaTypes MediaTypes { get { return MediaTypes.Photo; } }
+        public MediaTypes MediaTypes => MediaTypes.Photo;
 
         /// <summary>
         ///    Gets a text description of the media represented by the

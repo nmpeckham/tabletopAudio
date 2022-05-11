@@ -1,12 +1,13 @@
 public class PlayNextItem
 {
-    internal int id;
+    internal MusicButton mb;
     internal int playlistTabId;
     // Start is called before the first frame update
 
-    internal PlayNextItem(int _id, int _playlistId)
+    internal PlayNextItem(MusicButton _mb, int _playlistId)
     {
-        id = _id;
+        mb = _mb;
         playlistTabId = _playlistId;
+
     }
 }

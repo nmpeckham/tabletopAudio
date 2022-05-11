@@ -38,7 +38,7 @@ namespace TagLib.Gif
         ///    A <see cref="string" /> object containing a description
         ///    of the media represented by the current instance.
         /// </value>
-        public override string Description { get { return "GIF File"; } }
+        public override string Description => "GIF File";
 
 
         /// <summary>

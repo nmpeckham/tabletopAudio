@@ -33,7 +33,7 @@ namespace TagLib.Aac
         /// <summary>
         ///    Contains a sample rate table for ADTS AAC audio.
         /// </summary>
-        static readonly int[] sample_rates = new int[13] {
+        private static readonly int[] sample_rates = new int[13] {
             96000, 88200, 64000, 48000, 44100, 32000,
             24000, 22050, 16000, 12000, 11025, 8000, 7350
         };
@@ -41,7 +41,7 @@ namespace TagLib.Aac
         /// <summary>
         ///    Contains a channel table for ADTS AAC audio.
         /// </summary>
-        static readonly int[] channels = new int[8] {
+        private static readonly int[] channels = new int[8] {
             0, 1, 2, 3, 4, 5, 6, 8
         };
 
@@ -54,27 +54,27 @@ namespace TagLib.Aac
         /// <summary>
         ///    Contains the audio stream length.
         /// </summary>
-        long stream_length;
+        private long stream_length;
 
         /// <summary>
         ///    Contains the audio stream duration.
         /// </summary>
-        TimeSpan duration;
+        private TimeSpan duration;
 
         /// <summary>
         ///    Contains the number of channels in the audio
         /// </summary>
-        readonly int audiochannels;
+        private readonly int audiochannels;
 
         /// <summary>
         ///    Contains the bitrate of the audio stream
         /// </summary>
-        readonly int audiobitrate;
+        private readonly int audiobitrate;
 
         /// <summary>
         ///    Contains the samplerate of the audio stream
         /// </summary>
-        readonly int audiosamplerate;
+        private readonly int audiosamplerate;
 
         #endregion
 
@@ -97,7 +97,7 @@ namespace TagLib.Aac
         ///    Constructs and initializes a new empty instance of <see
         ///    cref="AudioHeader" />
         /// </summary>       
-        AudioHeader()
+        private AudioHeader()
         {
             stream_length = 0;
             duration = TimeSpan.Zero;
@@ -131,7 +131,7 @@ namespace TagLib.Aac
         ///    A <see cref="int" /> value indicating the number
         ///    of frames in the audio stream
         /// </param>
-        AudioHeader(int channels, int bitrate, int samplerate, int numberofsamples, int numberofframes)
+        private AudioHeader(int channels, int bitrate, int samplerate, int numberofsamples, int numberofframes)
         {
             duration = TimeSpan.Zero;
             stream_length = 0;
@@ -154,13 +154,7 @@ namespace TagLib.Aac
         ///    A <see cref="string" /> object containing a description
         ///    of the media represented by the current instance.
         /// </value>
-        public string Description
-        {
-            get
-            {
-                return "ADTS AAC";
-            }
-        }
+        public string Description => "ADTS AAC";
 
         /// <summary>
         ///    Gets the types of media represented by the current
@@ -169,10 +163,7 @@ namespace TagLib.Aac
         /// <value>
         ///    Always <see cref="MediaTypes.Audio" />.
         /// </value>
-        public MediaTypes MediaTypes
-        {
-            get { return MediaTypes.Audio; }
-        }
+        public MediaTypes MediaTypes => MediaTypes.Audio;
 
         /// <summary>
         ///    Gets the duration of the media represented by the current
@@ -186,13 +177,7 @@ namespace TagLib.Aac
         ///    If <see cref="SetStreamLength" /> has not been called, this 
         ///    value will not be correct.
         /// </remarks>
-        public TimeSpan Duration
-        {
-            get
-            {
-                return duration;
-            }
-        }
+        public TimeSpan Duration => duration;
 
         /// <summary>
         ///    Gets the bitrate of the audio represented by the current
@@ -202,13 +187,7 @@ namespace TagLib.Aac
         ///    A <see cref="int" /> value containing a bitrate of the
         ///    audio represented by the current instance.
         /// </value>
-        public int AudioBitrate
-        {
-            get
-            {
-                return audiobitrate;
-            }
-        }
+        public int AudioBitrate => audiobitrate;
 
         /// <summary>
         ///    Gets the sample rate of the audio represented by the
@@ -218,13 +197,7 @@ namespace TagLib.Aac
         ///    A <see cref="int" /> value containing the sample rate of
         ///    the audio represented by the current instance.
         /// </value>
-        public int AudioSampleRate
-        {
-            get
-            {
-                return audiosamplerate;
-            }
-        }
+        public int AudioSampleRate => audiosamplerate;
 
         /// <summary>
         ///    Gets the number of channels in the audio represented by
@@ -235,10 +208,7 @@ namespace TagLib.Aac
         ///    channels in the audio represented by the current
         ///    instance.
         /// </value>
-        public int AudioChannels
-        {
-            get { return audiochannels; }
-        }
+        public int AudioChannels => audiochannels;
 
         #endregion
 
@@ -301,7 +271,9 @@ namespace TagLib.Aac
         public static bool Find(out AudioHeader header, TagLib.File file, long position, int length)
         {
             if (file == null)
+            {
                 throw new ArgumentNullException(nameof(file));
+            }
 
             long end = position + length;
             header = Unknown;
@@ -311,7 +283,9 @@ namespace TagLib.Aac
             ByteVector buffer = file.ReadBlock(3);
 
             if (buffer.Count < 3)
+            {
                 return false;
+            }
 
             do
             {
@@ -322,8 +296,10 @@ namespace TagLib.Aac
 
                 for (int i = 0; i < buffer.Count - 3 &&
                     (length < 0 || position + i < end); i++)
+                {
                     if (buffer[i] == 0xFF
                         && buffer[i + 1] >= 0xF0) // 0xFFF
+                    {
                         try
                         {
                             BitStream bits = new BitStream(buffer.Mid(i, 7).Data);
@@ -346,7 +322,10 @@ namespace TagLib.Aac
                             // 4 bits sampling frequency index                            
                             int samplerateindex = bits.ReadInt32(4);
                             if (samplerateindex >= sample_rates.Length)
+                            {
                                 return false;
+                            }
+
                             long samplerate = sample_rates[samplerateindex];
 
                             // 1 bit private bit
@@ -355,7 +334,9 @@ namespace TagLib.Aac
                             // 3 bits channel configuration
                             int channelconfigindex = bits.ReadInt32(3);
                             if (channelconfigindex >= channels.Length)
+                            {
                                 return false;
+                            }
 
                             // 4 copyright bits
                             bits.ReadInt32(4);
@@ -363,7 +344,9 @@ namespace TagLib.Aac
                             // 13 bits frame length
                             long framelength = bits.ReadInt32(13); // double check framelength
                             if (framelength < 7)
+                            {
                                 return false;
+                            }
 
                             // 11 bits buffer fullness
                             bits.ReadInt32(11);
@@ -385,6 +368,8 @@ namespace TagLib.Aac
                         catch (CorruptFileException)
                         {
                         }
+                    }
+                }
 
                 position += TagLib.File.BufferSize;
             } while (buffer.Count > 3 && (length < 0 || position < end));

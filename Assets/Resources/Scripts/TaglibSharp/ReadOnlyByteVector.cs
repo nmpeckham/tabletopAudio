@@ -200,10 +200,7 @@ namespace TagLib
         /// <value>
         ///    Always <see langword="true" />.
         /// </value>
-        public override bool IsReadOnly
-        {
-            get { return true; }
-        }
+        public override bool IsReadOnly => true;
 
         /// <summary>
         ///    Gets whether or not the current instance is fixed size.
@@ -211,10 +208,7 @@ namespace TagLib
         /// <value>
         ///    Always <see langword="true" />.
         /// </value>
-        public override bool IsFixedSize
-        {
-            get { return true; }
-        }
+        public override bool IsFixedSize => true;
 
         #endregion
     }

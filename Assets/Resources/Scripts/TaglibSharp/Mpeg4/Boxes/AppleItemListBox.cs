@@ -58,7 +58,9 @@ namespace TagLib.Mpeg4
             : base(header, handler)
         {
             if (file == null)
+            {
                 throw new ArgumentNullException(nameof(file));
+            }
 
             Children = LoadChildren(file);
         }

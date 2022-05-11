@@ -95,10 +95,7 @@ namespace TagLib.NonContainer
         ///    containing the tag types contained in the current
         ///    instance.
         /// </value>
-        public override TagTypes TagTypes
-        {
-            get { return StartTag.TagTypes | EndTag.TagTypes; }
-        }
+        public override TagTypes TagTypes => StartTag.TagTypes | EndTag.TagTypes;
 
         /// <summary>
         ///    Gets the tags combined in the current instance.
@@ -146,13 +143,19 @@ namespace TagLib.NonContainer
             foreach (TagLib.Tag t in Tags)
             {
                 if (type == TagTypes.Id3v1 && t is Id3v1.Tag)
+                {
                     return t;
+                }
 
                 if (type == TagTypes.Id3v2 && t is Id3v2.Tag)
+                {
                     return t;
+                }
 
                 if (type == TagTypes.Ape && t is Ape.Tag)
+                {
                     return t;
+                }
             }
 
             return null;

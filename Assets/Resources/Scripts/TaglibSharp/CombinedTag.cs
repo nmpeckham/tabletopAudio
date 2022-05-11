@@ -37,7 +37,7 @@ namespace TagLib
         /// <summary>
         ///    Contains tags to be combined.
         /// </summary>
-        readonly List<Tag> tags;
+        private readonly List<Tag> tags;
 
         #endregion
 
@@ -85,10 +85,7 @@ namespace TagLib
         ///    A <see cref="T:Tag[]" /> containing the tags combined in
         ///    the current instance.
         /// </value>
-        public virtual Tag[] Tags
-        {
-            get { return tags.ToArray(); }
-        }
+        public virtual Tag[] Tags => tags.ToArray();
 
         #endregion
 
@@ -194,8 +191,12 @@ namespace TagLib
             {
                 TagTypes types = TagTypes.None;
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         types |= tag.TagTypes;
+                    }
+                }
 
                 return types;
             }
@@ -225,12 +226,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     string value = tag.Title;
 
                     if (value != null)
+                    {
                         return value;
+                    }
                 }
 
                 return null;
@@ -239,8 +244,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.Title = value;
+                    }
+                }
             }
         }
 
@@ -268,12 +277,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     string value = tag.Subtitle;
 
                     if (value != null)
+                    {
                         return value;
+                    }
                 }
 
                 return null;
@@ -282,8 +295,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.Subtitle = value;
+                    }
+                }
             }
         }
 
@@ -315,12 +332,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     string value = tag.Description;
 
                     if (value != null)
+                    {
                         return value;
+                    }
                 }
 
                 return null;
@@ -329,8 +350,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.Description = value;
+                    }
+                }
             }
         }
 
@@ -359,12 +384,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     string[] value = tag.Performers;
 
                     if (value != null && value.Length > 0)
+                    {
                         return value;
+                    }
                 }
 
                 return new string[] { };
@@ -373,8 +402,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.Performers = value;
+                    }
+                }
             }
         }
 
@@ -403,12 +436,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     string[] value = tag.PerformersSort;
 
                     if (value != null && value.Length > 0)
+                    {
                         return value;
+                    }
                 }
 
                 return new string[] { };
@@ -417,8 +454,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.PerformersSort = value;
+                    }
+                }
             }
         }
 
@@ -448,12 +489,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     string[] value = tag.PerformersRole;
 
                     if (value != null && value.Length > 0)
+                    {
                         return value;
+                    }
                 }
 
                 return new string[] { };
@@ -462,8 +507,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.PerformersRole = value;
+                    }
+                }
             }
         }
 
@@ -496,12 +545,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     string[] value = tag.AlbumArtistsSort;
 
                     if (value != null && value.Length > 0)
+                    {
                         return value;
+                    }
                 }
 
                 return new string[] { };
@@ -510,8 +563,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.AlbumArtistsSort = value;
+                    }
+                }
             }
         }
 
@@ -541,12 +598,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     string[] value = tag.AlbumArtists;
 
                     if (value != null && value.Length > 0)
+                    {
                         return value;
+                    }
                 }
 
                 return new string[] { };
@@ -555,8 +616,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.AlbumArtists = value;
+                    }
+                }
             }
         }
 
@@ -584,12 +649,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     string[] value = tag.Composers;
 
                     if (value != null && value.Length > 0)
+                    {
                         return value;
+                    }
                 }
 
                 return new string[] { };
@@ -598,8 +667,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.Composers = value;
+                    }
+                }
             }
         }
 
@@ -627,12 +700,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     string[] value = tag.ComposersSort;
 
                     if (value != null && value.Length > 0)
+                    {
                         return value;
+                    }
                 }
 
                 return new string[] { };
@@ -641,8 +718,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.ComposersSort = value;
+                    }
+                }
             }
         }
 
@@ -670,12 +751,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     string value = tag.TitleSort;
 
                     if (value != null && value.Length > 0)
+                    {
                         return value;
+                    }
                 }
 
                 return null;
@@ -684,8 +769,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.TitleSort = value;
+                    }
+                }
             }
         }
 
@@ -713,12 +802,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     string value = tag.AlbumSort;
 
                     if (value != null && value.Length > 0)
+                    {
                         return value;
+                    }
                 }
 
                 return null;
@@ -727,8 +820,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.AlbumSort = value;
+                    }
+                }
             }
         }
 
@@ -756,12 +853,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     string value = tag.Album;
 
                     if (value != null)
+                    {
                         return value;
+                    }
                 }
 
                 return null;
@@ -770,8 +871,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.Album = value;
+                    }
+                }
             }
         }
 
@@ -799,12 +904,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     string value = tag.Comment;
 
                     if (value != null)
+                    {
                         return value;
+                    }
                 }
 
                 return null;
@@ -813,8 +922,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.Comment = value;
+                    }
+                }
             }
         }
 
@@ -842,12 +955,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     string[] value = tag.Genres;
 
                     if (value != null && value.Length > 0)
+                    {
                         return value;
+                    }
                 }
 
                 return new string[] { };
@@ -856,8 +973,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.Genres = value;
+                    }
+                }
             }
         }
 
@@ -885,12 +1006,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     uint value = tag.Year;
 
                     if (value != 0)
+                    {
                         return value;
+                    }
                 }
 
                 return 0;
@@ -899,8 +1024,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.Year = value;
+                    }
+                }
             }
         }
 
@@ -928,12 +1057,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     uint value = tag.Track;
 
                     if (value != 0)
+                    {
                         return value;
+                    }
                 }
 
                 return 0;
@@ -942,8 +1075,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.Track = value;
+                    }
+                }
             }
         }
 
@@ -971,12 +1108,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     uint value = tag.TrackCount;
 
                     if (value != 0)
+                    {
                         return value;
+                    }
                 }
 
                 return 0;
@@ -985,8 +1126,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.TrackCount = value;
+                    }
+                }
             }
         }
 
@@ -1014,12 +1159,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     uint value = tag.Disc;
 
                     if (value != 0)
+                    {
                         return value;
+                    }
                 }
 
                 return 0;
@@ -1028,8 +1177,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.Disc = value;
+                    }
+                }
             }
         }
 
@@ -1057,12 +1210,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     uint value = tag.DiscCount;
 
                     if (value != 0)
+                    {
                         return value;
+                    }
                 }
 
                 return 0;
@@ -1071,8 +1228,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.DiscCount = value;
+                    }
+                }
             }
         }
 
@@ -1100,12 +1261,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     string value = tag.Lyrics;
 
                     if (value != null)
+                    {
                         return value;
+                    }
                 }
 
                 return null;
@@ -1114,8 +1279,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.Lyrics = value;
+                    }
+                }
             }
         }
 
@@ -1143,12 +1312,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     string value = tag.Grouping;
 
                     if (value != null)
+                    {
                         return value;
+                    }
                 }
 
                 return null;
@@ -1157,8 +1330,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.Grouping = value;
+                    }
+                }
             }
         }
 
@@ -1186,12 +1363,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     uint value = tag.BeatsPerMinute;
 
                     if (value != 0)
+                    {
                         return value;
+                    }
                 }
 
                 return 0;
@@ -1200,8 +1381,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.BeatsPerMinute = value;
+                    }
+                }
             }
         }
 
@@ -1229,12 +1414,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     string value = tag.Conductor;
 
                     if (value != null)
+                    {
                         return value;
+                    }
                 }
 
                 return null;
@@ -1243,8 +1432,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.Conductor = value;
+                    }
+                }
             }
         }
 
@@ -1272,12 +1465,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     string value = tag.Copyright;
 
                     if (value != null)
+                    {
                         return value;
+                    }
                 }
 
                 return null;
@@ -1286,8 +1483,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.Copyright = value;
+                    }
+                }
             }
         }
 
@@ -1306,12 +1507,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     DateTime? value = tag.DateTagged;
 
                     if (value != null)
+                    {
                         return value;
+                    }
                 }
 
                 return null;
@@ -1320,8 +1525,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.DateTagged = value;
+                    }
+                }
             }
         }
 
@@ -1349,12 +1558,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     string value = tag.MusicBrainzArtistId;
 
                     if (value != null)
+                    {
                         return value;
+                    }
                 }
 
                 return null;
@@ -1363,8 +1576,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.MusicBrainzArtistId = value;
+                    }
+                }
             }
         }
 
@@ -1391,12 +1608,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     string value = tag.MusicBrainzReleaseGroupId;
 
                     if (value != null)
+                    {
                         return value;
+                    }
                 }
 
                 return null;
@@ -1405,8 +1626,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.MusicBrainzReleaseGroupId = value;
+                    }
+                }
             }
         }
 
@@ -1433,12 +1658,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     string value = tag.MusicBrainzReleaseId;
 
                     if (value != null)
+                    {
                         return value;
+                    }
                 }
 
                 return null;
@@ -1447,8 +1676,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.MusicBrainzReleaseId = value;
+                    }
+                }
             }
         }
 
@@ -1475,12 +1708,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     string value = tag.MusicBrainzReleaseArtistId;
 
                     if (value != null)
+                    {
                         return value;
+                    }
                 }
 
                 return null;
@@ -1489,8 +1726,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.MusicBrainzReleaseArtistId = value;
+                    }
+                }
             }
         }
 
@@ -1517,12 +1758,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     string value = tag.MusicBrainzTrackId;
 
                     if (value != null)
+                    {
                         return value;
+                    }
                 }
 
                 return null;
@@ -1531,8 +1776,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.MusicBrainzTrackId = value;
+                    }
+                }
             }
         }
 
@@ -1559,12 +1808,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     string value = tag.MusicBrainzDiscId;
 
                     if (value != null)
+                    {
                         return value;
+                    }
                 }
 
                 return null;
@@ -1573,8 +1826,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.MusicBrainzDiscId = value;
+                    }
+                }
             }
         }
 
@@ -1601,12 +1858,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     string value = tag.MusicIpId;
 
                     if (value != null)
+                    {
                         return value;
+                    }
                 }
 
                 return null;
@@ -1615,8 +1876,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.MusicIpId = value;
+                    }
+                }
             }
         }
 
@@ -1643,12 +1908,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     string value = tag.AmazonId;
 
                     if (value != null)
+                    {
                         return value;
+                    }
                 }
 
                 return null;
@@ -1657,8 +1926,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.AmazonId = value;
+                    }
+                }
             }
         }
 
@@ -1685,12 +1958,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     string value = tag.MusicBrainzReleaseStatus;
 
                     if (value != null)
+                    {
                         return value;
+                    }
                 }
 
                 return null;
@@ -1699,8 +1976,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.MusicBrainzReleaseStatus = value;
+                    }
+                }
             }
         }
 
@@ -1727,12 +2008,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     string value = tag.MusicBrainzReleaseType;
 
                     if (value != null)
+                    {
                         return value;
+                    }
                 }
 
                 return null;
@@ -1741,8 +2026,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.MusicBrainzReleaseType = value;
+                    }
+                }
             }
         }
 
@@ -1769,12 +2058,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     string value = tag.MusicBrainzReleaseCountry;
 
                     if (value != null)
+                    {
                         return value;
+                    }
                 }
 
                 return null;
@@ -1783,8 +2076,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.MusicBrainzReleaseCountry = value;
+                    }
+                }
             }
         }
 
@@ -1812,12 +2109,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     IPicture[] value = tag.Pictures;
 
                     if (value != null && value.Length > 0)
+                    {
                         return value;
+                    }
                 }
 
                 return base.Pictures;
@@ -1826,8 +2127,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.Pictures = value;
+                    }
+                }
             }
         }
 
@@ -1853,12 +2158,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     double value = tag.ReplayGainTrackGain;
 
                     if (!double.IsNaN(value))
+                    {
                         return value;
+                    }
                 }
 
                 return double.NaN;
@@ -1867,8 +2176,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.ReplayGainTrackGain = value;
+                    }
+                }
             }
         }
 
@@ -1894,12 +2207,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     double value = tag.ReplayGainTrackPeak;
 
                     if (!double.IsNaN(value))
+                    {
                         return value;
+                    }
                 }
 
                 return double.NaN;
@@ -1908,8 +2225,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.ReplayGainTrackPeak = value;
+                    }
+                }
             }
         }
 
@@ -1935,12 +2256,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     double value = tag.ReplayGainAlbumGain;
 
                     if (!double.IsNaN(value))
+                    {
                         return value;
+                    }
                 }
 
                 return double.NaN;
@@ -1949,8 +2274,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.ReplayGainAlbumGain = value;
+                    }
+                }
             }
         }
 
@@ -1976,12 +2305,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     double value = tag.ReplayGainAlbumPeak;
 
                     if (!double.IsNaN(value))
+                    {
                         return value;
+                    }
                 }
 
                 return double.NaN;
@@ -1990,8 +2323,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.ReplayGainAlbumPeak = value;
+                    }
+                }
             }
         }
 
@@ -2019,12 +2356,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     string value = tag.InitialKey;
 
                     if (value != null)
+                    {
                         return value;
+                    }
                 }
 
                 return null;
@@ -2033,8 +2374,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.InitialKey = value;
+                    }
+                }
             }
         }
 
@@ -2062,12 +2407,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     string value = tag.RemixedBy;
 
                     if (value != null)
+                    {
                         return value;
+                    }
                 }
 
                 return null;
@@ -2076,8 +2425,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.RemixedBy = value;
+                    }
+                }
             }
         }
 
@@ -2105,12 +2458,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     string value = tag.Publisher;
 
                     if (value != null)
+                    {
                         return value;
+                    }
                 }
 
                 return null;
@@ -2119,8 +2476,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.Publisher = value;
+                    }
+                }
             }
         }
 
@@ -2148,12 +2509,16 @@ namespace TagLib
                 foreach (Tag tag in tags)
                 {
                     if (tag == null)
+                    {
                         continue;
+                    }
 
                     string value = tag.ISRC;
 
                     if (value != null)
+                    {
                         return value;
+                    }
                 }
 
                 return null;
@@ -2162,8 +2527,12 @@ namespace TagLib
             set
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag != null)
+                    {
                         tag.ISRC = value;
+                    }
+                }
             }
         }
 
@@ -2180,8 +2549,12 @@ namespace TagLib
             get
             {
                 foreach (Tag tag in tags)
+                {
                     if (tag.IsEmpty)
+                    {
                         return true;
+                    }
+                }
 
                 return false;
             }
@@ -2193,7 +2566,9 @@ namespace TagLib
         public override void Clear()
         {
             foreach (Tag tag in tags)
+            {
                 tag.Clear();
+            }
         }
 
         #endregion

@@ -37,12 +37,12 @@ namespace TagLib.Id3v2
         /// <summary>
         ///    Contains the ISO-639-2 language code.
         /// </summary>
-        string language;
+        private string language;
 
         /// <summary>
         ///    Contains the text.
         /// </summary>
-        SynchedText[] text = new SynchedText[0];
+        private SynchedText[] text = new SynchedText[0];
 
         #endregion
 
@@ -194,12 +194,9 @@ namespace TagLib.Id3v2
         /// </remarks>
         public string Language
         {
-            get
-            {
-                return (language != null && language.Length > 2)
+            get => (language != null && language.Length > 2)
                     ? language.Substring(0, 3) : "XXX";
-            }
-            set { language = value; }
+            set => language = value;
         }
 
         /// <summary>
@@ -246,8 +243,8 @@ namespace TagLib.Id3v2
         /// </value>
         public SynchedText[] Text
         {
-            get { return text; }
-            set { text = value ?? (new SynchedText[0]); }
+            get => text;
+            set => text = value ?? (new SynchedText[0]);
         }
 
         #endregion
@@ -290,17 +287,23 @@ namespace TagLib.Id3v2
             foreach (Frame f in tag)
             {
                 if (!(f is SynchronisedLyricsFrame lyr))
+                {
                     continue;
+                }
 
                 if (lyr.Description == description &&
                     (language == null ||
                         language == lyr.Language) &&
                     type == lyr.Type)
+                {
                     return lyr;
+                }
             }
 
             if (!create)
+            {
                 return null;
+            }
 
             var frame = new SynchronisedLyricsFrame(description, language, type);
             tag.AddFrame(frame);
@@ -368,21 +371,35 @@ namespace TagLib.Id3v2
             foreach (Frame f in tag)
             {
                 if (!(f is SynchronisedLyricsFrame cf))
+                {
                     continue;
+                }
 
                 int value = 0;
                 if (cf.Language == language)
+                {
                     value += 4;
+                }
+
                 if (cf.Description == description)
+                {
                     value += 2;
+                }
+
                 if (cf.Type == type)
+                {
                     value += 1;
+                }
 
                 if (value == 7)
+                {
                     return cf;
+                }
 
                 if (value <= best_value)
+                {
                     continue;
+                }
 
                 best_value = value;
                 best_frame = cf;
@@ -412,7 +429,9 @@ namespace TagLib.Id3v2
         protected override void ParseFields(ByteVector data, byte version)
         {
             if (data.Count < 6)
+            {
                 throw new CorruptFileException("Not enough bytes in field.");
+            }
 
             TextEncoding = (StringType)data[0];
             language = data.ToString(StringType.Latin1, 1, 3);
@@ -423,7 +442,9 @@ namespace TagLib.Id3v2
             int delim_index = data.Find(delim, 6, delim.Count);
 
             if (delim_index < 0)
+            {
                 throw new CorruptFileException("Text delimiter expected.");
+            }
 
             Description = data.ToString(TextEncoding, 6, delim_index - 6);
 
@@ -435,13 +456,17 @@ namespace TagLib.Id3v2
                 delim_index = data.Find(delim, offset, delim.Count);
 
                 if (delim_index < offset)
+                {
                     throw new CorruptFileException("Text delimiter expected.");
+                }
 
                 string text = data.ToString(TextEncoding, offset, delim_index - offset);
                 offset = delim_index + delim.Count;
 
                 if (offset + 4 > data.Count)
+                {
                     break;
+                }
 
                 l.Add(new SynchedText(data.Mid(offset, 4).ToUInt(), text));
                 offset += 4;

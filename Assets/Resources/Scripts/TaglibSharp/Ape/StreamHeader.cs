@@ -81,7 +81,7 @@ namespace TagLib.Ape
         ///    1000 times the actual version number, so 3810 indicates
         ///    version 3.81.
         /// </remarks>
-        readonly ushort version;
+        private readonly ushort version;
 
         /*
 		/// <summary>
@@ -99,7 +99,7 @@ namespace TagLib.Ape
         /// <remarks>
         ///    This value is stored in bytes (55-58).
         /// </remarks>
-        readonly uint blocks_per_frame;
+        private readonly uint blocks_per_frame;
 
         /// <summary>
         ///    Contains the number of audio blocks in the final frame.
@@ -107,7 +107,7 @@ namespace TagLib.Ape
         /// <remarks>
         ///    This value is stored in bytes (59-62).
         /// </remarks>
-        readonly uint final_frame_blocks;
+        private readonly uint final_frame_blocks;
 
         /// <summary>
         ///    Contains the total number of frames.
@@ -115,7 +115,7 @@ namespace TagLib.Ape
         /// <remarks>
         ///    This value is stored in bytes (63-66).
         /// </remarks>
-        readonly uint total_frames;
+        private readonly uint total_frames;
 
         /// <summary>
         ///    Contains the number of bits per sample.
@@ -124,7 +124,7 @@ namespace TagLib.Ape
         ///    This value is stored in bytes (67,68) and is typically
         ///    16.
         /// </remarks>
-        readonly ushort bits_per_sample;
+        private readonly ushort bits_per_sample;
 
         /// <summary>
         ///    Contains the number of channels.
@@ -133,7 +133,7 @@ namespace TagLib.Ape
         ///    This value is stored in bytes (69,70) and is typically
         ///    1 or 2.
         /// </remarks>
-        readonly ushort channels;
+        private readonly ushort channels;
 
         /// <summary>
         ///    Contains the sample rate.
@@ -142,7 +142,7 @@ namespace TagLib.Ape
         ///    This value is stored in bytes (71-74) and is typically
         ///    44100.
         /// </remarks>
-        readonly uint sample_rate;
+        private readonly uint sample_rate;
 
         /// <summary>
         ///    Contains the length of the audio stream.
@@ -150,7 +150,7 @@ namespace TagLib.Ape
         /// <remarks>
         ///    This value is provided by the constructor.
         /// </remarks>
-        readonly long stream_length;
+        private readonly long stream_length;
 
         #endregion
 
@@ -201,15 +201,21 @@ namespace TagLib.Ape
         public StreamHeader(ByteVector data, long streamLength)
         {
             if (data == null)
+            {
                 throw new ArgumentNullException(nameof(data));
+            }
 
             if (!data.StartsWith(FileIdentifier))
+            {
                 throw new CorruptFileException(
                     "Data does not begin with identifier.");
+            }
 
             if (data.Count < Size)
+            {
                 throw new CorruptFileException(
                     "Insufficient data in stream header");
+            }
 
             stream_length = streamLength;
             version = data.Mid(4, 2).ToUShort(false);
@@ -243,7 +249,9 @@ namespace TagLib.Ape
             get
             {
                 if (sample_rate <= 0 || total_frames <= 0)
+                {
                     return TimeSpan.Zero;
+                }
 
                 return TimeSpan.FromSeconds(
                     ((total_frames - 1) *
@@ -259,10 +267,7 @@ namespace TagLib.Ape
         /// <value>
         ///    Always <see cref="MediaTypes.Audio" />.
         /// </value>
-        public MediaTypes MediaTypes
-        {
-            get { return MediaTypes.Audio; }
-        }
+        public MediaTypes MediaTypes => MediaTypes.Audio;
 
         /// <summary>
         ///    Gets a text description of the media represented by the
@@ -272,14 +277,8 @@ namespace TagLib.Ape
         ///    A <see cref="string" /> object containing a description
         ///    of the media represented by the current instance.
         /// </value>
-        public string Description
-        {
-            get
-            {
-                return string.Format(
+        public string Description => string.Format(
                     CultureInfo.InvariantCulture, "Monkey's Audio APE Version {0:0.000}", Version);
-            }
-        }
 
         /// <summary>
         ///    Gets the bitrate of the audio represented by the current
@@ -295,7 +294,9 @@ namespace TagLib.Ape
             {
                 TimeSpan d = Duration;
                 if (d <= TimeSpan.Zero)
+                {
                     return 0;
+                }
 
                 return (int)((stream_length * 8L) / d.TotalSeconds) / 1000;
             }
@@ -309,10 +310,7 @@ namespace TagLib.Ape
         ///    A <see cref="int" /> value containing the sample rate of
         ///    the audio represented by the current instance.
         /// </value>
-        public int AudioSampleRate
-        {
-            get { return (int)sample_rate; }
-        }
+        public int AudioSampleRate => (int)sample_rate;
 
         /// <summary>
         ///    Gets the number of channels in the audio represented by
@@ -323,10 +321,7 @@ namespace TagLib.Ape
         ///    channels in the audio represented by the current
         ///    instance.
         /// </value>
-        public int AudioChannels
-        {
-            get { return channels; }
-        }
+        public int AudioChannels => channels;
 
         /// <summary>
         ///    Gets the APE version of the audio represented by the
@@ -336,10 +331,7 @@ namespace TagLib.Ape
         ///    A <see cref="double" /> value containing the APE version
         ///    of the audio represented by the current instance.
         /// </value>
-        public double Version
-        {
-            get { return version / (double)1000; }
-        }
+        public double Version => version / (double)1000;
 
         /// <summary>
         ///    Gets the number of bits per sample in the audio
@@ -350,10 +342,7 @@ namespace TagLib.Ape
         ///    per sample in the audio represented by the current
         ///    instance.
         /// </value>
-        public int BitsPerSample
-        {
-            get { return bits_per_sample; }
-        }
+        public int BitsPerSample => bits_per_sample;
 
         /// <summary>
         ///    Gets the level of compression used when encoding the

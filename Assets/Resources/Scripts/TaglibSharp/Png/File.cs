@@ -49,37 +49,37 @@ namespace TagLib.Png
         /// <summary>
         ///    The PNG Header every png file starts with.
         /// </summary>
-        readonly byte[] HEADER = new byte[] { 137, 80, 78, 71, 13, 10, 26, 10 };
+        private readonly byte[] HEADER = new byte[] { 137, 80, 78, 71, 13, 10, 26, 10 };
 
         /// <summary>
         ///    byte sequence to indicate a IHDR Chunk
         /// </summary>
-        readonly byte[] IHDR_CHUNK_TYPE = new byte[] { 73, 72, 68, 82 };
+        private readonly byte[] IHDR_CHUNK_TYPE = new byte[] { 73, 72, 68, 82 };
 
         /// <summary>
         ///    byte sequence to indicate a IEND Chunk
         /// </summary>
-        readonly byte[] IEND_CHUNK_TYPE = new byte[] { 73, 69, 78, 68 };
+        private readonly byte[] IEND_CHUNK_TYPE = new byte[] { 73, 69, 78, 68 };
 
         /// <summary>
         ///    byte sequence to indicate a iTXt Chunk
         /// </summary>
-        readonly byte[] iTXt_CHUNK_TYPE = new byte[] { 105, 84, 88, 116 };
+        private readonly byte[] iTXt_CHUNK_TYPE = new byte[] { 105, 84, 88, 116 };
 
         /// <summary>
         ///    byte sequence to indicate a tEXt Chunk
         /// </summary>
-        readonly byte[] tEXt_CHUNK_TYPE = new byte[] { 116, 69, 88, 116 };
+        private readonly byte[] tEXt_CHUNK_TYPE = new byte[] { 116, 69, 88, 116 };
 
         /// <summary>
         ///    byte sequence to indicate a zTXt Chunk
         /// </summary>
-        readonly byte[] zTXt_CHUNK_TYPE = new byte[] { 122, 84, 88, 116 };
+        private readonly byte[] zTXt_CHUNK_TYPE = new byte[] { 122, 84, 88, 116 };
 
         /// <summary>
         ///    header of a iTXt which contains XMP data.
         /// </summary>
-        readonly byte[] XMP_CHUNK_HEADER = new byte[] {
+        private readonly byte[] XMP_CHUNK_HEADER = new byte[] {
 			// Keyword ("XML:com.adobe.xmp")
 			0x58, 0x4D, 0x4C, 0x3A, 0x63, 0x6F, 0x6D, 0x2E, 0x61, 0x64, 0x6F, 0x62, 0x65, 0x2E, 0x78, 0x6D, 0x70,
 
@@ -106,17 +106,17 @@ namespace TagLib.Png
         /// <summary>
         ///    The height of the image
         /// </summary>
-        int height;
+        private int height;
 
         /// <summary>
         ///    The width of the image
         /// </summary>
-        int width;
+        private int width;
 
         /// <summary>
         ///    The Properties of the image
         /// </summary>
-        Properties properties;
+        private Properties properties;
 
         #endregion
 
@@ -150,10 +150,7 @@ namespace TagLib.Png
         ///    media properties of the file represented by the current
         ///    instance.
         /// </value>
-        public override Properties Properties
-        {
-            get { return properties; }
-        }
+        public override Properties Properties => properties;
 
         #endregion
 
@@ -276,7 +273,7 @@ namespace TagLib.Png
         ///    of accuracy to read the media properties, or <see
         ///    cref="ReadStyle.None" /> to ignore the properties.
         /// </param>
-        void Read(ReadStyle propertiesStyle)
+        private void Read(ReadStyle propertiesStyle)
         {
             Mode = AccessMode.Read;
             try
@@ -289,8 +286,9 @@ namespace TagLib.Png
                 TagTypesOnDisk = TagTypes;
 
                 if ((propertiesStyle & ReadStyle.Average) != 0)
+                {
                     properties = ExtractProperties();
-
+                }
             }
             finally
             {
@@ -303,15 +301,19 @@ namespace TagLib.Png
         ///    Validates the header of a PNG file. Therfore, the current position to
         ///    read must be the start of the file.
         /// </summary>
-        void ValidateHeader()
+        private void ValidateHeader()
         {
             ByteVector data = ReadBlock(8);
 
             if (data.Count != 8)
+            {
                 throw new CorruptFileException("Unexpected end of header");
+            }
 
             if (!data.Equals(new ByteVector(HEADER)))
+            {
                 throw new CorruptFileException("PNG Header was expected");
+            }
         }
 
 
@@ -328,17 +330,21 @@ namespace TagLib.Png
         ///    This prevents unsafe casts for using the length as parameter
         ///    for other methods.
         /// </remarks>
-        int ReadChunkLength()
+        private int ReadChunkLength()
         {
             ByteVector data = ReadBlock(4);
 
             if (data.Count != 4)
+            {
                 throw new CorruptFileException("Unexpected end of Chunk Length");
+            }
 
             uint length = data.ToUInt(true);
 
             if (length > int.MaxValue)
+            {
                 throw new CorruptFileException("PNG limits the Chunk Length to 2^31-1");
+            }
 
             return (int)length;
         }
@@ -351,12 +357,14 @@ namespace TagLib.Png
         ///    A <see cref="ByteVector"/> with 4 bytes containing the type of
         ///    the Chunk.
         /// </returns>
-        ByteVector ReadChunkType()
+        private ByteVector ReadChunkType()
         {
             ByteVector data = ReadBlock(4);
 
             if (data.Count != 4)
+            {
                 throw new CorruptFileException("Unexpected end of Chunk Type");
+            }
 
             return data;
         }
@@ -368,12 +376,14 @@ namespace TagLib.Png
         /// <returns>
         ///    A <see cref="ByteVector"/> with 4 bytes with the CRC value.
         /// </returns>
-        ByteVector ReadCRC()
+        private ByteVector ReadCRC()
         {
             ByteVector data = ReadBlock(4);
 
             if (data.Count != 4)
+            {
                 throw new CorruptFileException("Unexpected end of CRC");
+            }
 
             return data;
         }
@@ -388,12 +398,14 @@ namespace TagLib.Png
         /// <returns>
         ///    A <see cref="ByteVector"/> with the Chunk Data which is read.
         /// </returns>
-        ByteVector ReadChunkData(int data_length)
+        private ByteVector ReadChunkData(int data_length)
         {
             ByteVector data = ReadBlock(data_length);
 
             if (data.Count != data_length)
+            {
                 throw new CorruptFileException($"Chunk Data of Length {data_length} expected");
+            }
 
             return data;
         }
@@ -415,15 +427,19 @@ namespace TagLib.Png
         ///    A <see cref="System.String"/> with the read string. The null byte
         ///    is not included.
         /// </returns>
-        string ReadTerminatedString(ByteVector data, int start_index, out int terminator_index)
+        private string ReadTerminatedString(ByteVector data, int start_index, out int terminator_index)
         {
             if (start_index >= data.Count)
+            {
                 throw new CorruptFileException("Unexpected End of Data");
+            }
 
             terminator_index = data.Find("\0", start_index);
 
             if (terminator_index < 0)
+            {
                 throw new CorruptFileException("Cannot find string terminator");
+            }
 
             return data.Mid(start_index, terminator_index - start_index).ToString();
         }
@@ -445,12 +461,14 @@ namespace TagLib.Png
         ///    A <see cref="System.String"/> with the read keyword. The null byte
         ///    is not included.
         /// </returns>
-        string ReadKeyword(ByteVector data, int start_index, out int terminator_index)
+        private string ReadKeyword(ByteVector data, int start_index, out int terminator_index)
         {
             string keyword = ReadTerminatedString(data, start_index, out terminator_index);
 
             if (string.IsNullOrEmpty(keyword))
+            {
                 throw new CorruptFileException("Keyword cannot be empty");
+            }
 
             return keyword;
         }
@@ -464,12 +482,14 @@ namespace TagLib.Png
         ///    A <see cref="System.Int32"/> with the length of the chunk data read
         ///    before.
         /// </param>
-        void SkipChunkData(int data_size)
+        private void SkipChunkData(int data_size)
         {
             long position = Tell;
 
             if (position + data_size >= Length)
+            {
                 throw new CorruptFileException($"Chunk Data of Length {data_size} expected");
+            }
 
             Seek(Tell + data_size);
             ReadCRC();
@@ -480,14 +500,16 @@ namespace TagLib.Png
         ///    Reads the whole metadata from file. The current position must be set to
         ///    the first Chunk which is contained in the file.
         /// </summary>
-        void ReadMetadata()
+        private void ReadMetadata()
         {
             int data_length = ReadChunkLength();
             ByteVector type = ReadChunkType();
 
             // File should start with a header chunk
             if (!type.StartsWith(IHDR_CHUNK_TYPE))
+            {
                 throw new CorruptFileException($"IHDR Chunk was expected, but Chunk {type} was found");
+            }
 
             ReadIHDRChunk(data_length);
 
@@ -499,16 +521,25 @@ namespace TagLib.Png
                 type = ReadChunkType();
 
                 if (type.StartsWith(IEND_CHUNK_TYPE))
+                {
                     return;
+                }
                 else if (type.StartsWith(iTXt_CHUNK_TYPE))
+                {
                     ReadiTXtChunk(data_length);
+                }
                 else if (type.StartsWith(tEXt_CHUNK_TYPE))
+                {
                     ReadtEXtChunk(data_length);
+                }
                 else if (type.StartsWith(zTXt_CHUNK_TYPE))
+                {
                     ReadzTXtChunk(data_length);
+                }
                 else
+                {
                     SkipChunkData(data_length);
-
+                }
             }
         }
 
@@ -521,7 +552,7 @@ namespace TagLib.Png
         /// <param name="data_length">
         ///     A <see cref="System.Int32"/> with the length of the Chunk Data.
         /// </param>
-        void ReadIHDRChunk(int data_length)
+        private void ReadIHDRChunk(int data_length)
         {
             // IHDR Chunk
             //
@@ -536,7 +567,9 @@ namespace TagLib.Png
             // Followed by 4 Bytes CRC data
 
             if (data_length != 13)
+            {
                 throw new CorruptFileException("IHDR chunk data length must be 13");
+            }
 
             ByteVector data = ReadChunkData(data_length);
 
@@ -548,7 +581,9 @@ namespace TagLib.Png
             uint height = data.Mid(4, 4).ToUInt(true);
 
             if (width > int.MaxValue || height > int.MaxValue)
+            {
                 throw new CorruptFileException("PNG limits width and heigth to 2^31-1");
+            }
 
             this.width = (int)width;
             this.height = (int)height;
@@ -563,7 +598,7 @@ namespace TagLib.Png
         /// <param name="data_length">
         ///    A <see cref="System.Int32"/> with the length of the Chunk Data.
         /// </param>
-        void ReadiTXtChunk(int data_length)
+        private void ReadiTXtChunk(int data_length)
         {
             long position = Tell;
 
@@ -598,7 +633,9 @@ namespace TagLib.Png
             string keyword = ReadKeyword(data, 0, out var terminator_index);
 
             if (terminator_index + 2 >= data_length)
+            {
                 throw new CorruptFileException("Compression Flag and Compression Method byte expected");
+            }
 
             byte compression_flag = data[terminator_index + 1];
             byte compression_method = data[terminator_index + 2];
@@ -614,14 +651,18 @@ namespace TagLib.Png
 
                 // ignore unknown compression methods
                 if (txt_data == null)
+                {
                     return;
+                }
             }
 
             string value = txt_data.ToString();
             var png_tag = GetTag(TagTypes.Png, true) as PngTag;
 
             if (png_tag.GetKeyword(keyword) == null)
+            {
                 png_tag.SetKeyword(keyword, value);
+            }
 
             AddMetadataBlock(position - 8, data_length + 8 + 4);
         }
@@ -635,7 +676,7 @@ namespace TagLib.Png
         /// <param name="data_length">
         ///    A <see cref="System.Int32"/> with the length of the Chunk Data.
         /// </param>
-        void ReadtEXtChunk(int data_length)
+        private void ReadtEXtChunk(int data_length)
         {
             long position = Tell;
 
@@ -658,7 +699,9 @@ namespace TagLib.Png
             var png_tag = GetTag(TagTypes.Png, true) as PngTag;
 
             if (png_tag.GetKeyword(keyword) == null)
+            {
                 png_tag.SetKeyword(keyword, value);
+            }
 
             AddMetadataBlock(position - 8, data_length + 8 + 4);
         }
@@ -669,10 +712,15 @@ namespace TagLib.Png
             // '\n<name>\n<length>(%8lu)\n<hex payload>\n'.
             var parts = value.Split(new[] { '\n' });
             if (parts.Length < 4)
+            {
                 return null;
-            var profile = new RawProfile();
-            profile.Name = parts[1];
-            profile.LengthText = parts[2];
+            }
+
+            var profile = new RawProfile
+            {
+                Name = parts[1],
+                LengthText = parts[2]
+            };
 
             for (int i = 3; i < parts.Length; i++)
             {
@@ -703,7 +751,7 @@ namespace TagLib.Png
         ///    by other tools. But, since the PNG specification does not support
         ///    Exif data, we ignore it here.
         /// </remarks>
-        void ReadzTXtChunk(int data_length)
+        private void ReadzTXtChunk(int data_length)
         {
             long position = Tell;
 
@@ -723,7 +771,9 @@ namespace TagLib.Png
             string keyword = ReadKeyword(data, 0, out var terminator_index);
 
             if (terminator_index + 1 >= data_length)
+            {
                 throw new CorruptFileException("Compression Method byte expected");
+            }
 
             byte compression_method = data[terminator_index + 1];
 
@@ -731,7 +781,9 @@ namespace TagLib.Png
 
             // ignore unknown compression methods
             if (plain_data == null)
+            {
                 return;
+            }
 
             string value = plain_data.ToString();
             RawProfile rawProfile = null;
@@ -751,7 +803,9 @@ namespace TagLib.Png
                 var png_tag = GetTag(TagTypes.Png, true) as PngTag;
 
                 if (png_tag.GetKeyword(keyword) == null)
+                {
                     png_tag.SetKeyword(keyword, value);
+                }
             }
             AddMetadataBlock(position - 8, data_length + 8 + 4);
         }
@@ -760,7 +814,7 @@ namespace TagLib.Png
         /// <summary>
         ///    Save the metadata to file.
         /// </summary>
-        void SaveMetadata()
+        private void SaveMetadata()
         {
             var metadata_chunks = new ByteVector {
                 RenderXMPChunk (),
@@ -779,12 +833,14 @@ namespace TagLib.Png
         ///    A <see cref="ByteVector"/> with the XMP data chunk
         ///    or <see langword="null" /> if no XMP data is contained.
         /// </returns>
-        ByteVector RenderXMPChunk()
+        private ByteVector RenderXMPChunk()
         {
             // Check, if XmpTag is contained
             var xmp = ImageTag.Xmp;
             if (xmp == null)
+            {
                 return null;
+            }
 
             var chunk = new ByteVector();
 
@@ -809,11 +865,13 @@ namespace TagLib.Png
         ///    A <see cref="ByteVector"/> with the list of chunks, or
         ///    or <see langword="null" /> if no PNG Keywords are contained.
         /// </returns>
-        ByteVector RenderKeywordChunks()
+        private ByteVector RenderKeywordChunks()
         {
             // Check, if PngTag is contained
             if (!(GetTag(TagTypes.Png, true) is PngTag png_tag))
+            {
                 return null;
+            }
 
             var chunks = new ByteVector();
 
@@ -844,10 +902,12 @@ namespace TagLib.Png
         ///    at the right values. When no guess at all can be made,
         ///    <see langword="null" /> is returned.
         /// </returns>
-        Properties ExtractProperties()
+        private Properties ExtractProperties()
         {
             if (width > 0 && height > 0)
+            {
                 return new Properties(TimeSpan.Zero, new Codec(width, height));
+            }
 
             return null;
         }
@@ -869,13 +929,15 @@ namespace TagLib.Png
         /// <param name="crc_data">
         ///    A <see cref="ByteVector"/> with the read CRC data.
         /// </param>
-        static void CheckCRC(ByteVector chunk_type, ByteVector chunk_data, ByteVector crc_data)
+        private static void CheckCRC(ByteVector chunk_type, ByteVector chunk_data, ByteVector crc_data)
         {
             ByteVector computed_crc = ComputeCRC(chunk_type, chunk_data);
 
             if (computed_crc != crc_data)
+            {
                 throw new CorruptFileException(
                     $"CRC check failed for {chunk_type} Chunk (expected: 0x{computed_crc.ToUInt():X4}, read: 0x{crc_data.ToUInt():X4}");
+            }
         }
 
 
@@ -889,12 +951,14 @@ namespace TagLib.Png
         /// <returns>
         ///    A <see cref="ByteVector"/> with 4 bytes (32bit) containing the CRC.
         /// </returns>
-        static ByteVector ComputeCRC(params ByteVector[] datas)
+        private static ByteVector ComputeCRC(params ByteVector[] datas)
         {
             uint crc = 0xFFFFFFFF;
 
             if (crc_table == null)
+            {
                 BuildCRCTable();
+            }
 
             foreach (var data in datas)
             {
@@ -913,13 +977,13 @@ namespace TagLib.Png
         /// <summary>
         ///    Table for faster computation of CRC.
         /// </summary>
-        static uint[] crc_table;
+        private static uint[] crc_table;
 
 
         /// <summary>
         ///    Initializes the CRC Table.
         /// </summary>
-        static void BuildCRCTable()
+        private static void BuildCRCTable()
         {
             uint polynom = 0xEDB88320;
 
@@ -932,15 +996,19 @@ namespace TagLib.Png
                 for (int k = 0; k < 8; k++)
                 {
                     if ((c & 0x00000001) != 0x00)
+                    {
                         c = polynom ^ (c >> 1);
+                    }
                     else
+                    {
                         c = c >> 1;
+                    }
                 }
                 crc_table[i] = c;
             }
         }
 
-        static ByteVector Inflate(ByteVector data)
+        private static ByteVector Inflate(ByteVector data)
         {
             using (var out_stream = new MemoryStream())
             using (var input = new MemoryStream(data.Data))
@@ -953,15 +1021,16 @@ namespace TagLib.Png
                     int written_bytes;
 
                     while ((written_bytes = zipstream.Read(buffer, 0, 1024)) > 0)
+                    {
                         out_stream.Write(buffer, 0, written_bytes);
+                    }
 
                     return new ByteVector(out_stream.ToArray());
                 }
             }
         }
 
-
-        static ByteVector Decompress(byte compression_method, ByteVector compressed_data)
+        private static ByteVector Decompress(byte compression_method, ByteVector compressed_data)
         {
             // there is currently just one compression method specified
             // for PNG.

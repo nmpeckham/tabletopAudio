@@ -7,7 +7,8 @@ public class OptionsMenuSlider : MonoBehaviour
     public string id = "";
     private Slider thisSlider;
     private OptionsMenuController omc;
-    void Start()
+
+    private void Start()
     {
         omc = Camera.main.GetComponent<OptionsMenuController>();
         thisSlider = GetComponent<Slider>();

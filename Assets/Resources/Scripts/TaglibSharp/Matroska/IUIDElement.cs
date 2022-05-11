@@ -64,9 +64,13 @@ namespace TagLib.Matroska
                || type == MatroskaID.TagEditionUID
                || type == MatroskaID.TagChapterUID
                || type == MatroskaID.TagAttachmentUID)
+            {
                 UIDType = type;
+            }
             else
+            {
                 UIDType = 0;
+            }
         }
 
 
@@ -75,7 +79,7 @@ namespace TagLib.Matroska
 
         #region Statics
 
-        static readonly Random random = new Random();
+        private static readonly Random random = new Random();
 
         /// <summary>
         /// Generate a new random UID
@@ -103,11 +107,11 @@ namespace TagLib.Matroska
         /// </summary>
         public ulong UID
         {
-            get { return _UID; }
-            set { _UID = GenUID(value); }
+            get => _UID;
+            set => _UID = GenUID(value);
         }
 
-        ulong _UID = GenUID();
+        private ulong _UID = GenUID();
 
 
         /// <summary>

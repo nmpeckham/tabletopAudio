@@ -12,13 +12,21 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 {
     //Stores only clip path, without directory information. Ex: song.mp3
     private string fileName = null;
+    private static SFXPageController spc;
     public string FileName
     {
-        get { return fileName; }
+        get => fileName;
         set
         {
-            if (string.IsNullOrEmpty(value) && playbackBarRect.gameObject.activeSelf) playbackBarRect.gameObject.SetActive(false);
-            else if (!string.IsNullOrEmpty(value) && !playbackBarRect.gameObject.activeSelf) playbackBarRect.gameObject.SetActive(true);
+            if (string.IsNullOrEmpty(value) && playbackBarRect.gameObject.activeSelf)
+            {
+                playbackBarRect.gameObject.SetActive(false);
+            }
+            else if (!string.IsNullOrEmpty(value) && !playbackBarRect.gameObject.activeSelf)
+            {
+                playbackBarRect.gameObject.SetActive(true);
+            }
+
             if (FileName != value)
             {
                 Stop();
@@ -52,17 +60,14 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
         }
     }
-    public bool IsPlaying
-    {
-        get { return aSource.isPlaying; }
-    }
+    public bool IsPlaying => aSource.isPlaying;
     public int page;
     public int id;
-    static private ButtonEditorController bec;
-    static public FileSelectViewController vc;
-    static private MainAppController mac;
+    private static ButtonEditorController bec;
+    public static FileSelectViewController vc;
+    private static MainAppController mac;
     private Button thisButton;
-    static (int page, int id) hasPointer = (-1, -1);    //page, id
+    private static (int page, int id) hasPointer = (-1, -1);    //page, id
     public AudioSource aSource;
     private Image bgImage;
     private GameObject playBackBar;
@@ -73,7 +78,7 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     private Color buttonEdgeColor = Color.white;
     internal Color ButtonEdgeColor
     {
-        get { return buttonEdgeColor; }
+        get => buttonEdgeColor;
         set
         {
             buttonEdgeColor = value;
@@ -81,11 +86,11 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         }
     }
 
-    MpegFile stream;
-    NVorbis.VorbisReader vorbis;
+    private MpegFile stream;
+    private NVorbis.VorbisReader vorbis;
 
     private float localVolume = 1;
-    string label;
+    private string label;
 
     private Slider volumeSlider;
     private float rectWidth;
@@ -94,21 +99,18 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     internal float minimumFadeVolume = 0f;
     internal float maximumFadeVolume = 1f;
 
-    private bool isWaiting = false;
+    //private bool isWaiting = false;
     private bool ignorePlayAll = false;
 
     private float waitStartedTime;
     private float timeToWait;
-
-    RectTransform playbackBarRect;
+    private RectTransform playbackBarRect;
 
     public Button fadeInButton;
     public Button fadeOutButton;
-
-    Coroutine activeFadeInRoutine;
-    Coroutine activeFadeOutRoutine;
-
-    const float FADE_RATE = 0.004f;
+    private Coroutine activeFadeInRoutine;
+    private Coroutine activeFadeOutRoutine;
+    private const float FADE_RATE = 0.004f;
 
     public TMP_Text ignorePlayAllIndicator;
 
@@ -116,19 +118,15 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     internal static bool fadeToBlack = false;
 
     public TMP_Text progressText;
-
-    Color currentColor;
-    Coroutine discoCR;
+    private Color currentColor;
+    private Coroutine discoCR;
 
     private bool stopped = true;
-    bool loopDelayRoutineActive = false;
+    private bool loopDelayRoutineActive = false;
 
     internal bool IgnorePlayAll
     {
-        get
-        {
-            return ignorePlayAll;
-        }
+        get => ignorePlayAll;
         set
         {
             ignorePlayAll = value;
@@ -139,10 +137,7 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     internal string Label
     {
-        get
-        {
-            return label;
-        }
+        get => label;
         set
         {
             label = value;
@@ -152,10 +147,7 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     internal float LocalVolume
     {
-        get
-        {
-            return localVolume.ToLog();
-        }
+        get => localVolume.ToLog();
 
         set
         {
@@ -187,6 +179,7 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         mac = Camera.main.GetComponent<MainAppController>();
         volumeSlider.onValueChanged.AddListener(VolumeSliderAdjusted);
         currentColor = GetComponent<Image>().color;
+        spc = Camera.main.GetComponent<SFXPageController>();
     }
 
 
@@ -194,9 +187,13 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     {
         if (!active)
         {
-            if (discoCR != null) StopCoroutine(discoCR);
+            if (discoCR != null)
+            {
+                StopCoroutine(discoCR);
+            }
+
             discoCR = null;
-            GetComponent<Image>().color = mac.darkModeEnabled ? ResourceManager.sfxButtonDark : ResourceManager.sfxButtonLight;
+            GetComponent<Image>().color = MainAppController.darkModeEnabled ? ResourceManager.sfxButtonDark : ResourceManager.sfxButtonLight;
             currentColor = GetComponent<Image>().color;
         }
     }
@@ -207,7 +204,7 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         buttonHasTrackImage.color = newColor;
     }
 
-    IEnumerator DiscoModeUpdate()
+    private IEnumerator DiscoModeUpdate()
     {
         const int numSteps = 100;
         while (true)
@@ -218,6 +215,7 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
             {
                 newColor = GetNewColor();
             }
+            newColor *= 0.3f;
             currentColor = btnImage.color;
             for (int i = 0; i < numSteps; i++)
             {
@@ -236,22 +234,39 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
                 btnImage.color = new Color(newR, newG, newB);
 
                 yield return null;
-                if (UnityEngine.Random.Range(0, 2) == 1) yield return null;
-                if (UnityEngine.Random.Range(0, 2) == 1) yield return null;
+                if (UnityEngine.Random.Range(0, 2) == 1)
+                {
+                    yield return null;
+                }
+
+                if (UnityEngine.Random.Range(0, 2) == 1)
+                {
+                    yield return null;
+                }
             }
         }
     }
 
     internal void ChangeColor()
     {
-        if (discoCR != null) StopCoroutine(discoCR);
+        if (discoCR != null)
+        {
+            StopCoroutine(discoCR);
+        }
+
         Image btnImage = GetComponent<Image>();
-        Color newwColor = GetNewColor();
-        while (newwColor == btnImage.color)
+        Color newColor = GetNewColor();
+        int iter = 0;
+        while (newColor == btnImage.color)
         {
             GetNewColor();
+            iter++;
+            if (iter > 100)
+            {
+                break;
+            }
         }
-        btnImage.color = GetNewColor();
+        btnImage.color = newColor;
         discoCR = StartCoroutine(DiscoModeUpdate());
         framesSinceColorUpdate = 0;
     }
@@ -268,7 +283,10 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
                     StopCoroutine(activeFadeOutRoutine);
                     activeFadeOutRoutine = null;
                 }
-                if (activeFadeInRoutine == null) activeFadeInRoutine = StartCoroutine(FadeInRoutine());
+                if (activeFadeInRoutine == null)
+                {
+                    activeFadeInRoutine = StartCoroutine(FadeInRoutine());
+                }
                 else
                 {
                     StopCoroutine(activeFadeInRoutine);
@@ -282,7 +300,10 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
                     StopCoroutine(activeFadeInRoutine);
                     activeFadeInRoutine = null;
                 }
-                if (activeFadeOutRoutine == null) activeFadeOutRoutine = StartCoroutine(FadeOutRoutine());
+                if (activeFadeOutRoutine == null)
+                {
+                    activeFadeOutRoutine = StartCoroutine(FadeOutRoutine());
+                }
                 else
                 {
                     StopCoroutine(activeFadeOutRoutine);
@@ -292,13 +313,13 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         }
     }
 
-    Color GetNewColor()
+    private Color GetNewColor()
     {
         int colorIndex = UnityEngine.Random.Range(0, DiscoMode.colours.Count - 1);
         return DiscoMode.colours[colorIndex];
     }
 
-    IEnumerator FadeInRoutine()
+    private IEnumerator FadeInRoutine()
     {
         while (LocalVolume < maximumFadeVolume)
         {
@@ -309,7 +330,7 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         yield break;
     }
 
-    IEnumerator FadeOutRoutine()
+    private IEnumerator FadeOutRoutine()
     {
         while (LocalVolume > minimumFadeVolume)
         {
@@ -320,14 +341,13 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         yield break;
     }
 
-
-    void Clicked()
+    private void Clicked()
     {
-        if (!stopped || isWaiting)
+        if (!stopped)
         {
             Stop();
         }
-        else if (stopped)
+        else
         {
             Play();
         }
@@ -335,16 +355,31 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     private void ChangeLocalVolume(float newLocalVol)
     {
-        if (newLocalVol > 0 && LocalVolume <= 0 && !stopped && !isWaiting) mac.pageButtons[page].GetComponent<PageButton>().ActiveAudioSources++;
-        else if (newLocalVol <= 0 && LocalVolume > 0 && !stopped && !isWaiting) mac.pageButtons[page].GetComponent<PageButton>().ActiveAudioSources--;
+        if (newLocalVol > 0 && LocalVolume <= 0 && !stopped)
+        {
+            spc.pageButtons[page].GetComponent<PageButton>().ActiveAudioSources++;
+        }
+        else if (newLocalVol <= 0 && LocalVolume > 0 && !stopped)
+        {
+            spc.pageButtons[page].GetComponent<PageButton>().ActiveAudioSources--;
+        }
+
         LocalVolume = newLocalVol;
         aSource.volume = LocalVolume * masterVolume;
     }
 
     private void VolumeSliderAdjusted(float value)
     {
-        if (activeFadeInRoutine != null) StopCoroutine(activeFadeInRoutine);
-        if (activeFadeOutRoutine != null) StopCoroutine(activeFadeOutRoutine);
+        if (activeFadeInRoutine != null)
+        {
+            StopCoroutine(activeFadeInRoutine);
+        }
+
+        if (activeFadeOutRoutine != null)
+        {
+            StopCoroutine(activeFadeOutRoutine);
+        }
+
         activeFadeInRoutine = null;
         activeFadeOutRoutine = null;
         ChangeLocalVolume(value);
@@ -355,42 +390,55 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         if (fromStopAll && IgnorePlayAll) { }
         else
         {
-            print(":stop");
-            if (stream != null) stream.Position = 0L;
-            if (vorbis != null) vorbis.DecodedPosition = 0L;
-            if (LocalVolume > 0 && !stopped && !isWaiting) mac.pageButtons[page].GetComponent<PageButton>().ActiveAudioSources--;
+            if (stream != null)
+            {
+                stream.Position = 0L;
+            }
+
+            if (vorbis != null)
+            {
+                vorbis.DecodedPosition = 0L;
+            }
+
+            if (LocalVolume > 0 && !stopped)
+            {
+                spc.pageButtons[page].GetComponent<PageButton>().ActiveAudioSources--;
+            }
+
             buttonHasTrackImage.color = bgImage.color;
             aSource.Stop();
             stopped = true;
-            ChangeButtonColor(mac.darkModeEnabled ? ResourceManager.sfxButtonDark : ResourceManager.sfxButtonLight);
+            ChangeButtonColor(MainAppController.darkModeEnabled ? ResourceManager.sfxButtonDark : ResourceManager.sfxButtonLight);
         }
     }
 
     internal void Play(bool fromPlayAll = false)
     {
-        print("play");
         if (fromPlayAll && IgnorePlayAll) { }
         else
         {
             if (!string.IsNullOrEmpty(FileName))
             {
                 string extension = Path.GetExtension(FileName);
-                //file pre-loading is done when FileName is set
                 if (extension == ".mp3" || extension == ".ogg")
                 {
                     PlayValidFile();
                 }
                 else
                 {
-                    mac.ShowErrorMessage(extension + " file type not supported");
+                    mac.ShowErrorMessage(extension + " file type not supported", 1);
                 }
             }
         }
     }
-    void PlayValidFile()
+
+    private void PlayValidFile()
     {
-        if (LocalVolume > 0) mac.pageButtons[page].GetComponent<PageButton>().ActiveAudioSources++;
-        //isPlaying = true;
+        if (LocalVolume > 0)
+        {
+            spc.pageButtons[page].GetComponent<PageButton>().ActiveAudioSources++;
+        }
+
         bgImage.color = ResourceManager.green;
         buttonHasTrackImage.color = ResourceManager.green;
         Image rect = playBackBar.GetComponent<Image>();
@@ -399,32 +447,45 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         stopped = false;
     }
 
-    void StreamMP3File()
+    private void StreamMP3File()
     {
-        if (stream != null) stream.Dispose();
+        if (stream != null)
+        {
+            stream.Dispose();
+        }
+
         try
         {
-            string filePath = System.IO.Path.Combine(mac.sfxDirectory, FileName);
+            string filePath = FileName;
+            print(filePath);
             stream = new MpegFile(filePath);
 
             long clipSize = stream.Length / (stream.Channels * 4);
-            if (int.MaxValue < stream.Length) clipSize = int.MaxValue;
+            if (int.MaxValue < stream.Length)
+            {
+                clipSize = int.MaxValue;
+            }
+
             int sampleRate = stream.SampleRate;
             AudioClip newClip = AudioClip.Create(FileName, (int)clipSize, stream.Channels, sampleRate, true, Mp3Callback);
             aSource.clip = newClip;
         }
         catch (FileNotFoundException)
         {
-            mac.ShowErrorMessage("File " + FileName + " not found! Was it deleted?");
+            mac.ShowErrorMessage("File " + FileName + " not found! Was it deleted?", 1);
         }
     }
 
-    void StreamOggFile()
+    private void StreamOggFile()
     {
-        if (vorbis != null) vorbis.Dispose();
+        if (vorbis != null)
+        {
+            vorbis.Dispose();
+        }
+
         try
         {
-            vorbis = new NVorbis.VorbisReader(System.IO.Path.Combine(mac.sfxDirectory, FileName));
+            vorbis = new NVorbis.VorbisReader(FileName);
             long clipSize = vorbis.TotalSamples;
             int sampleRate = vorbis.SampleRate;
             AudioClip newClip = AudioClip.Create(FileName, (int)clipSize, 2, sampleRate, true, VorbisCallback);
@@ -432,12 +493,11 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         }
         catch (FileNotFoundException)
         {
-            mac.ShowErrorMessage("File " + FileName + " not found! Was it deleted?");
+            mac.ShowErrorMessage("File " + FileName + " not found! Was it deleted?", 1);
         }
-
     }
 
-    void VorbisCallback(float[] data)
+    private void VorbisCallback(float[] data)
     {
         vorbis.ReadSamples(data, 0, data.Length);
     }
@@ -461,7 +521,7 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         }
     }
 
-    void Update()
+    private void Update()
     {
         if (Input.GetMouseButtonDown(1) && hasPointer == (page, id))
         {
@@ -474,8 +534,7 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         }
         if (GetComponent<Image>().color == ResourceManager.green && !aSource.isPlaying && !loopDelayRoutineActive)
         {
-            //if (id == 0 && page == 0) print(aSource.isPlaying);
-            ChangeButtonColor(mac.darkModeEnabled ? ResourceManager.sfxButtonDark : ResourceManager.sfxButtonLight);
+            ChangeButtonColor(MainAppController.darkModeEnabled ? ResourceManager.sfxButtonDark : ResourceManager.sfxButtonLight);
             Stop();
         }
         if (!stopped && !loopDelayRoutineActive)
@@ -487,11 +546,14 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         framesSinceColorUpdate = Mathf.Max(framesSinceColorUpdate, framesSinceColorUpdate + 1);
     }
 
-    IEnumerator WaitForLoopDelay()
+    private IEnumerator WaitForLoopDelay()
     {
         loopDelayRoutineActive = true;
-        print("loop delay started");
-        if (LocalVolume > 0) mac.pageButtons[page].GetComponent<PageButton>().ActiveAudioSources--;
+        if (LocalVolume > 0)
+        {
+            spc.pageButtons[page].GetComponent<PageButton>().ActiveAudioSources--;
+        }
+
         waitStartedTime = Time.realtimeSinceStartup;
         Image rect = playBackBar.GetComponent<Image>();
         rect.color = Color.yellow;
@@ -499,12 +561,10 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         timeToWait = RandomizeLoopDelay ? UnityEngine.Random.Range(MinLoopDelay, MaxLoopDelay) : MinLoopDelay;
         while (timeToWait + waitStartedTime > Time.realtimeSinceStartup)
         {
-            //print(Time.realtimeSinceStartup - timeToWait + waitStartedTime + " seconds left");
             float percentWaited = ((Time.realtimeSinceStartup - waitStartedTime) / timeToWait);
             playbackBarRect.sizeDelta = new Vector2((percentWaited * rectWidth), playbackBarRect.rect.height);
             if (stopped)
             {
-                print("loop stopping");
                 loopDelayRoutineActive = false;
                 break;
             }
@@ -513,8 +573,15 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
         if (!stopped)
         {
-            if (stream != null) stream.Position = 0L;
-            if (vorbis != null) vorbis.DecodedPosition = 0L;
+            if (stream != null)
+            {
+                stream.Position = 0L;
+            }
+
+            if (vorbis != null)
+            {
+                vorbis.DecodedPosition = 0L;
+            }
 
             loopDelayRoutineActive = false;
             Play();
@@ -522,7 +589,6 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         }
         playbackBarRect.sizeDelta = new Vector2(0f, playbackBarRect.rect.height);
         loopDelayRoutineActive = false;
-        print("finished");
 
         yield return null;
     }
@@ -535,5 +601,18 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     public void OnPointerExit(PointerEventData eventData)
     {
         hasPointer = (-1, -1);
+    }
+
+    private void OnApplicationQuit()
+    {
+        if (stream != null)
+        {
+            stream.Dispose();
+        }
+
+        if (vorbis != null)
+        {
+            vorbis.Dispose();
+        }
     }
 }

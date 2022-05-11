@@ -30,7 +30,7 @@ namespace TagLib.Tiff.Rw2
     /// </summary>
     public class IFDTag : TagLib.IFD.IFDTag
     {
-        readonly File file;
+        private readonly File file;
 
         internal IFDTag(File file)
         {
@@ -50,14 +50,8 @@ namespace TagLib.Tiff.Rw2
         public override uint? ISOSpeedRatings
         {
             // TODO: The value in JPGFromRAW should probably be used as well.
-            get
-            {
-                return Structure.GetLongValue(0, (ushort)PanasonicMakerNoteEntryTag.ISO);
-            }
-            set
-            {
-                Structure.SetLongValue(0, (ushort)PanasonicMakerNoteEntryTag.ISO, value ?? 0);
-            }
+            get => Structure.GetLongValue(0, (ushort)PanasonicMakerNoteEntryTag.ISO);
+            set => Structure.SetLongValue(0, (ushort)PanasonicMakerNoteEntryTag.ISO, value ?? 0);
         }
 
         /// <summary>
@@ -76,17 +70,18 @@ namespace TagLib.Tiff.Rw2
             {
                 var jpg = file.JpgFromRaw;
                 if (jpg == null)
+                {
                     return base.FocalLengthIn35mmFilm;
+                }
 
                 if (!(jpg.GetTag(TagTypes.TiffIFD, true) is Image.ImageTag tag))
+                {
                     return base.FocalLengthIn35mmFilm;
+                }
 
                 return tag.FocalLengthIn35mmFilm ?? base.FocalLengthIn35mmFilm;
             }
-            set
-            {
-                (file.JpgFromRaw.GetTag(TagTypes.TiffIFD, true) as Image.ImageTag).FocalLengthIn35mmFilm = value;
-            }
+            set => (file.JpgFromRaw.GetTag(TagTypes.TiffIFD, true) as Image.ImageTag).FocalLengthIn35mmFilm = value;
         }
     }
 }

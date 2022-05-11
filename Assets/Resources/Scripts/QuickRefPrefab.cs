@@ -10,6 +10,7 @@ public class QuickRefPrefab : MonoBehaviour
     public Button thisButton;
     public Image categoryColor;
 
+    private string index;
     private string category;
     private string description;
     private string title;
@@ -17,7 +18,7 @@ public class QuickRefPrefab : MonoBehaviour
 
     public string Category
     {
-        get { return category; }
+        get => category;
         set
         {
             category = value;
@@ -31,9 +32,14 @@ public class QuickRefPrefab : MonoBehaviour
             categoryColor.color = ResourceManager.categoryColors[categoryFileName];
         }
     }
+    public string Index
+    {
+        get => index;
+        set => index = value;
+    }
     public string Description
     {
-        get { return description; }
+        get => description;
         set
         {
             description = value;
@@ -42,29 +48,25 @@ public class QuickRefPrefab : MonoBehaviour
     }
     public string Title
     {
-        get { return title; }
+        get => title;
         set
         {
             title = value;
             titleText.text = title;
         }
     }
+
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
         qrd = Camera.main.GetComponent<QuickRefDetailView>();
         thisButton.onClick.AddListener(Clicked);
     }
 
-    private void Clicked()
+    internal void Clicked()
     {
         string itemCategory = category.Replace(" ", "-");
-        string itemId = title.ToLower().Replace(" ", "-").Replace(",", "").Replace("/", "-").Replace("(", "").Replace(")", "").Replace(":", "").Replace("'", "");
-        if (itemCategory == "Monster")
-        {
-            itemId = title;
-        }
-
-        qrd.ItemSelected(itemCategory, itemId);
+        qrd.ItemSelected(itemCategory, index);
+        print("clicked!!");
     }
 }

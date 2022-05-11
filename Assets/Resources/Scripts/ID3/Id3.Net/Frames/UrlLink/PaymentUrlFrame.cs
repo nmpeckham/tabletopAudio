@@ -31,6 +31,9 @@ namespace Id3.Frames
         {
         }
 
-        public static implicit operator PaymentUrlFrame(string url) => new PaymentUrlFrame(url);
+        public static implicit operator PaymentUrlFrame(string url)
+        {
+            return new PaymentUrlFrame(url);
+        }
     }
 }

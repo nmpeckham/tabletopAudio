@@ -121,7 +121,9 @@ namespace TagLib.Tiff
             ByteVector header = ReadBlock(8);
 
             if (header.Count != 8)
+            {
                 throw new CorruptFileException("Unexpected end of header");
+            }
 
             string order = header.Mid(0, 2).ToString();
 
@@ -139,7 +141,9 @@ namespace TagLib.Tiff
             }
 
             if (header.Mid(2, 2).ToUShort(IsBigEndian) != Magic)
+            {
                 throw new CorruptFileException($"TIFF Magic ({Magic}) expected");
+            }
 
             uint first_ifd_offset = header.Mid(4, 4).ToUInt(IsBigEndian);
 
@@ -237,9 +241,13 @@ namespace TagLib.Tiff
             var data = new ByteVector();
 
             if (IsBigEndian)
+            {
                 data.Add("MM");
+            }
             else
+            {
                 data.Add("II");
+            }
 
             data.Add(ByteVector.FromUShort(Magic, IsBigEndian));
             data.Add(ByteVector.FromUInt(first_ifd_offset, IsBigEndian));

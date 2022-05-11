@@ -10,20 +10,25 @@ using System.IO;
 
 namespace NVorbis
 {
-    class VorbisMode
+    internal class VorbisMode
     {
-        const float M_PI = 3.1415926539f; //(float)Math.PI;
-        const float M_PI2 = M_PI / 2;
+        private const float M_PI = 3.1415926539f; //(float)Math.PI;
+        private const float M_PI2 = M_PI / 2;
 
         internal static VorbisMode Init(VorbisStreamDecoder vorbis, DataPacket packet)
         {
-            var mode = new VorbisMode(vorbis);
-            mode.BlockFlag = packet.ReadBit();
-            mode.WindowType = (int)packet.ReadBits(16);
-            mode.TransformType = (int)packet.ReadBits(16);
+            var mode = new VorbisMode(vorbis)
+            {
+                BlockFlag = packet.ReadBit(),
+                WindowType = (int)packet.ReadBits(16),
+                TransformType = (int)packet.ReadBits(16)
+            };
             var mapping = (int)packet.ReadBits(8);
 
-            if (mode.WindowType != 0 || mode.TransformType != 0 || mapping >= vorbis.Maps.Length) throw new InvalidDataException();
+            if (mode.WindowType != 0 || mode.TransformType != 0 || mapping >= vorbis.Maps.Length)
+            {
+                throw new InvalidDataException();
+            }
 
             mode.Mapping = vorbis.Maps[mapping];
             mode.BlockSize = mode.BlockFlag ? vorbis.Block1Size : vorbis.Block0Size;
@@ -49,16 +54,15 @@ namespace NVorbis
             return mode;
         }
 
-        VorbisStreamDecoder _vorbis;
-
-        float[][] _windows;
+        private readonly VorbisStreamDecoder _vorbis;
+        private float[][] _windows;
 
         private VorbisMode(VorbisStreamDecoder vorbis)
         {
             _vorbis = vorbis;
         }
 
-        void CalcWindows()
+        private void CalcWindows()
         {
             // 0: prev = s, next = s || BlockFlag = false
             // 1: prev = l, next = s
@@ -109,7 +113,11 @@ namespace NVorbis
             {
                 if (next)
                 {
-                    if (prev) return _windows[3];
+                    if (prev)
+                    {
+                        return _windows[3];
+                    }
+
                     return _windows[2];
                 }
                 else if (prev)

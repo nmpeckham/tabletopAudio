@@ -42,7 +42,7 @@ namespace TagLib.Aiff
         ///    1 is monophonic, 2 is stereo, 4 means 4 channels, etc..
         ///    any number of audio channels may be represented
         /// </remarks>
-        readonly ushort channels;
+        private readonly ushort channels;
 
         /// <summary>
         ///    Contains the number of sample frames in the Sound Data chunk.
@@ -50,7 +50,7 @@ namespace TagLib.Aiff
         /// <remarks>
         ///    This value is stored in bytes (11-14).
         /// </remarks>
-        readonly ulong total_frames;
+        private readonly ulong total_frames;
 
         /// <summary>
         ///    Contains the number of bits per sample.
@@ -59,7 +59,7 @@ namespace TagLib.Aiff
         ///    This value is stored in bytes (15,16).
         ///    It can be any number from 1 to 32.
         /// </remarks>
-        readonly ushort bits_per_sample;
+        private readonly ushort bits_per_sample;
 
         /// <summary>
         ///    Contains the sample rate.
@@ -69,7 +69,7 @@ namespace TagLib.Aiff
         ///    the sample rate at which the sound is to be played back, 
         ///    in sample frames per second
         /// </remarks>
-        readonly ulong sample_rate;
+        private readonly ulong sample_rate;
 
         /// <summary>
         ///    Contains the length of the audio stream.
@@ -77,7 +77,7 @@ namespace TagLib.Aiff
         /// <remarks>
         ///    This value is provided by the constructor.
         /// </remarks>
-        readonly long stream_length;
+        private readonly long stream_length;
 
         #endregion
 
@@ -125,11 +125,14 @@ namespace TagLib.Aiff
         public StreamHeader(ByteVector data, long streamLength)
         {
             if (data == null)
+            {
                 throw new ArgumentNullException(nameof(data));
-
+            }
 
             if (!data.StartsWith(FileIdentifier))
+            {
                 throw new CorruptFileException("Data does not begin with identifier.");
+            }
 
             stream_length = streamLength;
 
@@ -221,7 +224,9 @@ namespace TagLib.Aiff
             get
             {
                 if (sample_rate <= 0 || total_frames <= 0)
+                {
                     return TimeSpan.Zero;
+                }
 
                 return TimeSpan.FromSeconds(
                     total_frames /
@@ -236,10 +241,7 @@ namespace TagLib.Aiff
         /// <value>
         ///    Always <see cref="MediaTypes.Audio" />.
         /// </value>
-        public MediaTypes MediaTypes
-        {
-            get { return MediaTypes.Audio; }
-        }
+        public MediaTypes MediaTypes => MediaTypes.Audio;
 
         /// <summary>
         ///    Gets a text description of the media represented by the
@@ -249,10 +251,7 @@ namespace TagLib.Aiff
         ///    A <see cref="string" /> object containing a description
         ///    of the media represented by the current instance.
         /// </value>
-        public string Description
-        {
-            get { return "AIFF Audio"; }
-        }
+        public string Description => "AIFF Audio";
 
         /// <summary>
         ///    Gets the bitrate of the audio represented by the current
@@ -268,7 +267,9 @@ namespace TagLib.Aiff
             {
                 TimeSpan d = Duration;
                 if (d <= TimeSpan.Zero)
+                {
                     return 0;
+                }
 
                 return (int)((stream_length * 8L) / d.TotalSeconds) / 1000;
             }
@@ -282,10 +283,7 @@ namespace TagLib.Aiff
         ///    A <see cref="int" /> value containing the sample rate of
         ///    the audio represented by the current instance.
         /// </value>
-        public int AudioSampleRate
-        {
-            get { return (int)sample_rate; }
-        }
+        public int AudioSampleRate => (int)sample_rate;
 
         /// <summary>
         ///    Gets the number of channels in the audio represented by
@@ -296,10 +294,7 @@ namespace TagLib.Aiff
         ///    channels in the audio represented by the current
         ///    instance.
         /// </value>
-        public int AudioChannels
-        {
-            get { return channels; }
-        }
+        public int AudioChannels => channels;
 
         /// <summary>
         ///    Gets the number of bits per sample in the audio
@@ -310,10 +305,7 @@ namespace TagLib.Aiff
         ///    per sample in the audio represented by the current
         ///    instance.
         /// </value>
-        public int BitsPerSample
-        {
-            get { return bits_per_sample; }
-        }
+        public int BitsPerSample => bits_per_sample;
 
         #endregion
     }

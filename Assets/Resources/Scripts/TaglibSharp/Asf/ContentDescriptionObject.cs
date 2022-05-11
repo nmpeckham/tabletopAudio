@@ -38,27 +38,27 @@ namespace TagLib.Asf
         /// <summary>
         ///    Contains the media title.
         /// </summary>
-        string title = string.Empty;
+        private string title = string.Empty;
 
         /// <summary>
         ///    Contains the author/performer.
         /// </summary>
-        string author = string.Empty;
+        private string author = string.Empty;
 
         /// <summary>
         ///    Contains the copyright information.
         /// </summary>
-        string copyright = string.Empty;
+        private string copyright = string.Empty;
 
         /// <summary>
         ///    Contains the description of the media.
         /// </summary>
-        string description = string.Empty;
+        private string description = string.Empty;
 
         /// <summary>
         ///    Contains the rating of the media.
         /// </summary>
-        string rating = string.Empty;
+        private string rating = string.Empty;
 
         #endregion
 
@@ -92,10 +92,14 @@ namespace TagLib.Asf
             : base(file, position)
         {
             if (Guid != Asf.Guid.AsfContentDescriptionObject)
+            {
                 throw new CorruptFileException("Object GUID incorrect.");
+            }
 
             if (OriginalSize < 34)
+            {
                 throw new CorruptFileException("Object size too small.");
+            }
 
             ushort title_length = file.ReadWord();
             ushort author_length = file.ReadWord();
@@ -135,11 +139,8 @@ namespace TagLib.Asf
         /// </value>
         public string Title
         {
-            get { return title.Length == 0 ? null : title; }
-            set
-            {
-                title = string.IsNullOrEmpty(value) ? string.Empty : value;
-            }
+            get => title.Length == 0 ? null : title;
+            set => title = string.IsNullOrEmpty(value) ? string.Empty : value;
         }
 
         /// <summary>
@@ -152,11 +153,8 @@ namespace TagLib.Asf
         /// </value>
         public string Author
         {
-            get { return author.Length == 0 ? null : author; }
-            set
-            {
-                author = string.IsNullOrEmpty(value) ? string.Empty : value;
-            }
+            get => author.Length == 0 ? null : author;
+            set => author = string.IsNullOrEmpty(value) ? string.Empty : value;
         }
 
         /// <summary>
@@ -170,11 +168,8 @@ namespace TagLib.Asf
         /// </value>
         public string Copyright
         {
-            get { return copyright.Length == 0 ? null : copyright; }
-            set
-            {
-                copyright = string.IsNullOrEmpty(value) ? string.Empty : value;
-            }
+            get => copyright.Length == 0 ? null : copyright;
+            set => copyright = string.IsNullOrEmpty(value) ? string.Empty : value;
         }
 
         /// <summary>
@@ -187,14 +182,8 @@ namespace TagLib.Asf
         /// </value>
         public string Description
         {
-            get
-            {
-                return description.Length == 0 ? null : description;
-            }
-            set
-            {
-                description = string.IsNullOrEmpty(value) ? string.Empty : value;
-            }
+            get => description.Length == 0 ? null : description;
+            set => description = string.IsNullOrEmpty(value) ? string.Empty : value;
         }
 
         /// <summary>
@@ -207,11 +196,8 @@ namespace TagLib.Asf
         /// </value>
         public string Rating
         {
-            get { return rating.Length == 0 ? null : rating; }
-            set
-            {
-                rating = string.IsNullOrEmpty(value) ? string.Empty : value;
-            }
+            get => rating.Length == 0 ? null : rating;
+            set => rating = string.IsNullOrEmpty(value) ? string.Empty : value;
         }
 
         /// <summary>
@@ -221,17 +207,11 @@ namespace TagLib.Asf
         ///    <see langword="true" /> if all the values are cleared.
         ///    Otherwise <see langword="false" />.
         /// </value>
-        public bool IsEmpty
-        {
-            get
-            {
-                return title.Length == 0 &&
+        public bool IsEmpty => title.Length == 0 &&
                 author.Length == 0 &&
                 copyright.Length == 0 &&
                 description.Length == 0 &&
                 rating.Length == 0;
-            }
-        }
 
         #endregion
 

@@ -14,12 +14,12 @@ public class EditPageLabel : MonoBehaviour
 
     internal TMP_Text ButtonLabel
     {
-        get { return buttonLabel; }
-        set { buttonLabel = value; }
+        get => buttonLabel;
+        set => buttonLabel = value;
     }
 
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
         mac = Camera.main.GetComponent<MainAppController>();
         cancel.onClick.AddListener(Cancel);

@@ -58,7 +58,9 @@ namespace TagLib.Mpeg4
             : base(header, handler)
         {
             if (file == null)
+            {
                 throw new ArgumentNullException(nameof(file));
+            }
 
             file.Seek(base.DataPosition + 6);
             DataReferenceIndex = file.ReadBlock(2).ToUShort();
@@ -78,10 +80,7 @@ namespace TagLib.Mpeg4
         ///    A <see cref="long" /> value containing the position of
         ///    the data contained in the current instance.
         /// </value>
-        protected override long DataPosition
-        {
-            get { return base.DataPosition + 8; }
-        }
+        protected override long DataPosition => base.DataPosition + 8;
 
         /// <summary>
         ///    Gets the data reference index of the current instance.

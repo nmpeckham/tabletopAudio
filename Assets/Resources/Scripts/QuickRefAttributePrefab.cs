@@ -10,10 +10,7 @@ public class QuickRefAttributePrefab : MonoBehaviour
     private string detail;
     public string Title
     {
-        get
-        {
-            return title;
-        }
+        get => title;
         set
         {
             title = value;
@@ -23,10 +20,7 @@ public class QuickRefAttributePrefab : MonoBehaviour
 
     public string Detail
     {
-        get
-        {
-            return detail;
-        }
+        get => detail;
         set
         {
             detail = value;

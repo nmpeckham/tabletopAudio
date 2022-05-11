@@ -60,7 +60,9 @@ namespace Id3
         {
             //If the requested version is the same as this version, just return the same instance.
             if (Version == version)
+            {
                 return this;
+            }
 
             //Get the ID3 tag handlers for the destination and create a empty tag
             var destinationHandler = Id3Handler.GetHandler(version);
@@ -75,7 +77,9 @@ namespace Id3
                     destinationTag.AddUntypedFrame(destinationFrame);
                 }
                 else
+                {
                     destinationTag.AddUntypedFrame(sourceFrame);
+                }
             }
 
             return destinationTag;
@@ -108,10 +112,14 @@ namespace Id3
                 if (kvp.Value is IList list)
                 {
                     foreach (Id3Frame frame in list)
+                    {
                         yield return frame;
+                    }
                 }
                 else
+                {
                     yield return (Id3Frame)kvp.Value;
+                }
             }
         }
 
@@ -132,24 +140,32 @@ namespace Id3
                     {
                         var frame = (Id3Frame)frameList[i];
                         if (!frame.IsAssigned)
+                        {
                             frameList.RemoveAt(i);
+                        }
                     }
 
                     //If the list is empty, mark the item for removal
                     if (frameList.Count == 0)
+                    {
                         keysToDelete.Add(kvp.Key);
+                    }
                 }
                 else
                 {
                     //Get the item value as a frame and mark it for removal if it is unassigned
                     var frame = (Id3Frame)kvp.Value;
                     if (!frame.IsAssigned)
+                    {
                         keysToDelete.Add(kvp.Key);
+                    }
                 }
             });
 
             foreach (Type keyToDelete in keysToDelete)
+            {
                 Frames.Remove(keyToDelete);
+            }
         }
 
         /// <summary>
@@ -167,7 +183,9 @@ namespace Id3
             where TFrame : Id3Frame
         {
             if (frameProperty == null)
+            {
                 throw new ArgumentNullException(nameof(frameProperty));
+            }
 
             var lambda = (LambdaExpression)frameProperty;
             var memberExpression = (MemberExpression)lambda.Body;
@@ -186,9 +204,13 @@ namespace Id3
             foreach (KeyValuePair<Type, object> kvp in Frames)
             {
                 if (kvp.Value is IList list)
+                {
                     count += onlyAssignedFrames ? list.Cast<Id3Frame>().Count(frame => frame.IsAssigned) : list.Count;
+                }
                 else
+                {
                     count += onlyAssignedFrames ? (((Id3Frame)kvp.Value).IsAssigned ? 1 : 0) : 1;
+                }
             }
             return count;
         }
@@ -204,7 +226,9 @@ namespace Id3
             Type frameType = typeof(TFrame);
 
             if (!Frames.ContainsKey(frameType))
+            {
                 return false;
+            }
 
             Frames.Remove(frameType);
             return true;
@@ -223,7 +247,9 @@ namespace Id3
             Type frameType = typeof(TFrame);
 
             if (!Frames.ContainsKey(frameType))
+            {
                 return 0;
+            }
 
             object frameObj = Frames[frameType];
             int removalCount = 0;
@@ -239,7 +265,9 @@ namespace Id3
                 }
 
                 if (list.Count == 0)
+                {
                     Frames.Remove(frameType);
+                }
             }
             else
             {
@@ -460,7 +488,9 @@ namespace Id3
             {
                 IList list;
                 if (containsKey)
+                {
                     list = (IList)Frames[frameType];
+                }
                 else
                 {
                     list = MultiInstanceFrameTypes[frameType]();
@@ -473,9 +503,13 @@ namespace Id3
             {
                 //If the frame is a single-instance frame, simply add or update it in the Frames collection.
                 if (containsKey)
+                {
                     Frames[frameType] = frame;
+                }
                 else
+                {
                     Frames.Add(frameType, frame);
+                }
             }
         }
 
@@ -483,7 +517,10 @@ namespace Id3
             where TFrame : Id3Frame, new()
         {
             if (Frames.TryGetValue(typeof(TFrame), out object frameObj))
+            {
                 return (TFrame)frameObj;
+            }
+
             var frame = new TFrame();
             Frames.Add(typeof(TFrame), frame);
             return frame;
@@ -497,14 +534,20 @@ namespace Id3
             if (frame == null)
             {
                 if (containsKey)
+                {
                     Frames.Remove(frameType);
+                }
             }
             else
             {
                 if (containsKey)
+                {
                     Frames[frameType] = frame;
+                }
                 else
+                {
                     Frames.Add(frameType, frame);
+                }
             }
         }
 
@@ -513,7 +556,10 @@ namespace Id3
             where TFrameList : IList<TFrame>, new()
         {
             if (Frames.TryGetValue(typeof(TFrame), out object frameListObj))
+            {
                 return (TFrameList)frameListObj;
+            }
+
             var framesList = new TFrameList();
             Frames.Add(typeof(TFrame), framesList);
             return framesList;
@@ -529,14 +575,20 @@ namespace Id3
         public int CompareTo(Id3Tag other)
         {
             if (other == null)
+            {
                 return 1;
+            }
+
             return Version.CompareTo(other.Version);
         }
 
         public bool Equals(Id3Tag other)
         {
             if (other == null)
+            {
                 return false;
+            }
+
             return Version == other.Version;
         }
         #endregion

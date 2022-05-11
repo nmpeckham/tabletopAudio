@@ -34,7 +34,7 @@ namespace TagLib
         /// <summary>
         ///    Contains the box's data.
         /// </summary>
-        ByteVector data;
+        private ByteVector data;
 
         #endregion
 
@@ -66,7 +66,9 @@ namespace TagLib
             : base(header, handler)
         {
             if (file == null)
+            {
                 throw new ArgumentNullException(nameof(file));
+            }
 
             data = LoadData(file);
         }
@@ -87,8 +89,8 @@ namespace TagLib
         /// </value>
         public override ByteVector Data
         {
-            get { return data; }
-            set { data = value; }
+            get => data;
+            set => data = value;
         }
 
         #endregion

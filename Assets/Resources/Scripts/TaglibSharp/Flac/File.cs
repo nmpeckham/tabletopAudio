@@ -53,22 +53,22 @@ namespace TagLib.Flac
         /// <summary>
         ///    Contains the Flac metadata tag.
         /// </summary>
-        Metadata metadata;
+        private Metadata metadata;
 
         /// <summary>
         ///    Contains the combination of all file tags.
         /// </summary>
-        CombinedTag tag;
+        private CombinedTag tag;
 
         /// <summary>
         ///    Contains the Flac header block.
         /// </summary>
-        ByteVector header_block;
+        private ByteVector header_block;
 
         /// <summary>
         ///    Contains the stream start position.
         /// </summary>
-        long stream_start;
+        private long stream_start;
 
         #endregion
 
@@ -171,10 +171,7 @@ namespace TagLib.Flac
         ///    A <see cref="TagLib.Tag" /> object representing all tags
         ///    stored in the current instance.
         /// </value>
-        public override Tag Tag
-        {
-            get { return tag; }
-        }
+        public override Tag Tag => tag;
 
         #endregion
 
@@ -207,16 +204,22 @@ namespace TagLib.Flac
                 GetTag(TagTypes.Xiph, true);
 
                 // Create new blocks and add the basics.
-                var new_blocks = new List<Block>();
-                new_blocks.Add(old_blocks[0]);
+                var new_blocks = new List<Block>
+                {
+                    old_blocks[0]
+                };
 
                 // Add blocks we don't deal with from the file.
                 foreach (Block block in old_blocks)
+                {
                     if (block.Type != BlockType.StreamInfo &&
                         block.Type != BlockType.XiphComment &&
                         block.Type != BlockType.Picture &&
                         block.Type != BlockType.Padding)
+                    {
                         new_blocks.Add(block);
+                    }
+                }
 
                 new_blocks.Add(new Block(BlockType.XiphComment,
                     (GetTag(TagTypes.Xiph, true) as Ogg.XiphComment).Render(false)));
@@ -224,7 +227,9 @@ namespace TagLib.Flac
                 foreach (IPicture picture in metadata.Pictures)
                 {
                     if (picture == null)
+                    {
                         continue;
+                    }
 
                     new_blocks.Add(new Block(BlockType.Picture,
                         new Picture(picture).Render()));
@@ -233,25 +238,33 @@ namespace TagLib.Flac
                 // Get the length of the blocks.
                 long length = 0;
                 foreach (Block block in new_blocks)
+                {
                     length += block.TotalSize;
+                }
 
                 // Find the padding size to avoid trouble. If that fails
                 // make some.
                 long padding_size = metadata_end - metadata_start -
                     BlockHeader.Size - length;
                 if (padding_size < 0)
+                {
                     padding_size = 1024 * 4;
+                }
 
                 // Add a padding block.
                 if (padding_size != 0)
+                {
                     new_blocks.Add(new Block(BlockType.Padding,
                         new ByteVector((int)padding_size)));
+                }
 
                 // Render the blocks.
                 ByteVector block_data = new ByteVector();
                 for (int i = 0; i < new_blocks.Count; i++)
+                {
                     block_data.Add(new_blocks[i].Render(
                         i == new_blocks.Count - 1));
+                }
 
                 // Update the blocks.
                 Insert(block_data, metadata_start, metadata_end -
@@ -300,7 +313,9 @@ namespace TagLib.Flac
             Tag t = (base.Tag as TagLib.NonContainer.Tag).GetTag(type);
 
             if (t != null || !create)
+            {
                 return t;
+            }
 
             switch (type)
             {
@@ -332,10 +347,14 @@ namespace TagLib.Flac
         public override void RemoveTags(TagTypes types)
         {
             if ((types & TagTypes.Xiph) != 0)
+            {
                 metadata.RemoveComment();
+            }
 
             if ((types & TagTypes.FlacMetadata) != 0)
+            {
                 metadata.Clear();
+            }
 
             base.RemoveTags(types);
         }
@@ -371,7 +390,9 @@ namespace TagLib.Flac
                 // Check that the first block is a
                 // METADATA_BLOCK_STREAMINFO.
                 if (blocks.Count == 0 || blocks[0].Type != BlockType.StreamInfo)
+                {
                     throw new CorruptFileException("FLAC stream does not begin with StreamInfo.");
+                }
 
                 // The stream exists from the end of the last
                 // block to the end of the file.
@@ -438,7 +459,7 @@ namespace TagLib.Flac
         ///    <see cref="ReadBlocks" /> are to be white-listed or
         ///    black-listed.
         /// </summary>
-        enum BlockMode
+        private enum BlockMode
         {
             /// <summary>
             ///    All block types except those provided are to be
@@ -483,14 +504,16 @@ namespace TagLib.Flac
         /// <exception cref="CorruptFileException">
         ///    "<c>fLaC</c>" could not be found.
         /// </exception>
-        IList<Block> ReadBlocks(ref long start, out long end, BlockMode mode, params BlockType[] types)
+        private IList<Block> ReadBlocks(ref long start, out long end, BlockMode mode, params BlockType[] types)
         {
             List<Block> blocks = new List<Block>();
 
             long start_position = Find("fLaC", start);
 
             if (start_position < 0)
+            {
                 throw new CorruptFileException("FLAC stream not found at starting position.");
+            }
 
             end = start = start_position + 4;
 
@@ -504,17 +527,23 @@ namespace TagLib.Flac
 
                 bool found = false;
                 foreach (BlockType type in types)
+                {
                     if (header.BlockType == type)
                     {
                         found = true;
                         break;
                     }
+                }
 
                 if ((mode == BlockMode.Whitelist && found) ||
                     (mode == BlockMode.Blacklist && !found))
+                {
                     blocks.Add(new Block(header, ReadBlock((int)header.BlockSize)));
+                }
                 else
+                {
                     Seek(header.BlockSize, System.IO.SeekOrigin.Current);
+                }
 
                 end += header.BlockSize + BlockHeader.Size;
             } while (!header.IsLastBlock);
@@ -539,7 +568,7 @@ namespace TagLib.Flac
         /// <summary>
         ///    Contains the pictures.
         /// </summary>
-        readonly List<IPicture> pictures = new List<IPicture>();
+        private readonly List<IPicture> pictures = new List<IPicture>();
 
         /// <summary>
         ///    Constructs and initializes a new instance of <see
@@ -572,17 +601,25 @@ namespace TagLib.Flac
         public Metadata(IEnumerable<Block> blocks)
         {
             if (blocks == null)
+            {
                 throw new ArgumentNullException(nameof(blocks));
+            }
 
             foreach (Block block in blocks)
             {
                 if (block.Data.Count == 0)
+                {
                     continue;
+                }
 
                 if (block.Type == BlockType.XiphComment)
+                {
                     AddTag(new Ogg.XiphComment(block.Data));
+                }
                 else if (block.Type == BlockType.Picture)
+                {
                     pictures.Add(new Picture(block.Data));
+                }
             }
         }
 
@@ -608,16 +645,24 @@ namespace TagLib.Flac
         public Ogg.XiphComment GetComment(bool create, Tag copy)
         {
             foreach (Tag t in Tags)
+            {
                 if (t is Ogg.XiphComment)
+                {
                     return t as Ogg.XiphComment;
+                }
+            }
 
             if (!create)
+            {
                 return null;
+            }
 
             Ogg.XiphComment c = new Ogg.XiphComment();
 
             if (copy != null)
+            {
                 copy.CopyTo(c, true);
+            }
 
             AddTag(c);
 
@@ -633,7 +678,9 @@ namespace TagLib.Flac
             Ogg.XiphComment c;
 
             while ((c = GetComment(false, null)) != null)
+            {
                 RemoveTag(c);
+            }
         }
 
         /// <summary>
@@ -643,10 +690,7 @@ namespace TagLib.Flac
         ///    A bitwise combined <see cref="TagLib.TagTypes" /> value
         ///    containing the tag types stored in the current instance.
         /// </value>
-        public override TagTypes TagTypes
-        {
-            get { return TagTypes.FlacMetadata | base.TagTypes; }
-        }
+        public override TagTypes TagTypes => TagTypes.FlacMetadata | base.TagTypes;
 
         /// <summary>
         ///    Gets and sets a collection of pictures associated with
@@ -659,12 +703,14 @@ namespace TagLib.Flac
         /// </value>
         public override IPicture[] Pictures
         {
-            get { return pictures.ToArray(); }
+            get => pictures.ToArray();
             set
             {
                 pictures.Clear();
                 if (value != null)
+                {
                     pictures.AddRange(value);
+                }
             }
         }
 

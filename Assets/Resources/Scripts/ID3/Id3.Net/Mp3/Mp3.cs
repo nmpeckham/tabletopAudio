@@ -56,7 +56,9 @@ namespace Id3
         public Mp3(string filename, Mp3Permissions permissions = Mp3Permissions.Read)
         {
             if (filename == null)
+            {
                 throw new ArgumentNullException(nameof(filename));
+            }
 
             FileAccess fileAccess = PermissionsToFileAccessMapping[permissions];
             FileStream fileStream = File.Open(filename, FileMode.Open, fileAccess, FileShare.Read);
@@ -69,7 +71,9 @@ namespace Id3
         public Mp3(FileInfo fileInfo, Mp3Permissions permissions = Mp3Permissions.Read)
         {
             if (fileInfo == null)
+            {
                 throw new ArgumentNullException(nameof(fileInfo));
+            }
 
             FileAccess fileAccess = PermissionsToFileAccessMapping[permissions];
             FileStream fileStream = fileInfo.Open(FileMode.Open, fileAccess, FileShare.Read);
@@ -108,7 +112,9 @@ namespace Id3
         public Mp3(byte[] byteStream, Mp3Permissions permissions = Mp3Permissions.Read)
         {
             if (byteStream == null)
+            {
                 throw new ArgumentNullException(nameof(byteStream));
+            }
 
             //Note: For Write permissions, we cannot use the MemoryStream ctor that takes the byte
             //array as a parameter. Those streams cannot increase their capacity using the SetLength
@@ -122,14 +128,24 @@ namespace Id3
         private void SetupStream(Stream stream, Mp3Permissions permissions)
         {
             if (stream == null)
+            {
                 throw new ArgumentNullException(nameof(stream));
+            }
+
             if (permissions == Mp3Permissions.Write)
+            {
                 permissions = Mp3Permissions.ReadWrite;
+            }
 
             if (!stream.CanRead || !stream.CanSeek)
+            {
                 throw new Id3Exception(Mp3Messages.StreamNotReadableOrSeekable);
+            }
+
             if (permissions == Mp3Permissions.ReadWrite && !stream.CanWrite)
+            {
                 throw new Id3Exception(Mp3Messages.StreamNotWritable);
+            }
 
             Stream = stream;
             _permissions = permissions;
@@ -138,14 +154,18 @@ namespace Id3
         public void Dispose()
         {
             if (StreamOwned)
+            {
                 Stream?.Dispose();
+            }
         }
         #endregion
 
         private void EnsureWritePermissions(string errorMessage)
         {
             if (_permissions != Mp3Permissions.ReadWrite)
+            {
                 throw new NotSupportedException(string.Format(errorMessage, GetType().Name));
+            }
         }
 
         #region Tag deleting methods
@@ -186,7 +206,10 @@ namespace Id3
         {
             EnsureWritePermissions(Mp3Messages.NoWritePermissions_CannotDeleteTag);
             foreach (Id3Handler existingHandler in ExistingHandlers)
+            {
                 existingHandler.DeleteTag(Stream);
+            }
+
             InvalidateExistingHandlers();
         }
         #endregion
@@ -216,7 +239,10 @@ namespace Id3
         {
             Id3Handler familyHandler = ExistingHandlers.FirstOrDefault(handler => handler.Family == family);
             if (familyHandler != null)
+            {
                 return familyHandler.ReadTag(Stream, out additionalData);
+            }
+
             additionalData = null;
             return null;
         }
@@ -236,7 +262,10 @@ namespace Id3
         {
             Id3Handler handler = ExistingHandlers.FirstOrDefault(h => h.Version == version);
             if (handler != null)
+            {
                 return handler.ReadTag(Stream, out additionalData);
+            }
+
             additionalData = null;
             return null;
         }
@@ -257,11 +286,15 @@ namespace Id3
         #endregion
 
         #region Tag querying methods
-        public bool HasTagOfFamily(Id3TagFamily family) =>
-            ExistingHandlers.Any(handler => handler.Family == family);
+        public bool HasTagOfFamily(Id3TagFamily family)
+        {
+            return ExistingHandlers.Any(handler => handler.Family == family);
+        }
 
-        public bool HasTagOfVersion(Id3Version version) =>
-            ExistingHandlers.Any(h => h.Version == version);
+        public bool HasTagOfVersion(Id3Version version)
+        {
+            return ExistingHandlers.Any(h => h.Version == version);
+        }
 
         public IEnumerable<Id3Version> AvailableTagVersions => ExistingHandlers.Select(h => h.Version);
 
@@ -277,7 +310,9 @@ namespace Id3
         public bool WriteTag(Id3Tag tag, WriteConflictAction conflictAction = WriteConflictAction.NoAction)
         {
             if (tag == null)
+            {
                 throw new ArgumentNullException(nameof(tag));
+            }
 
             EnsureWritePermissions(Mp3Messages.NoWritePermissions_CannotWriteTag);
 
@@ -290,7 +325,10 @@ namespace Id3
                 if (handler.Version != tag.Version)
                 {
                     if (conflictAction == WriteConflictAction.NoAction)
+                    {
                         return false;
+                    }
+
                     if (conflictAction == WriteConflictAction.Replace)
                     {
                         Id3Handler handlerCopy = handler; //TODO: Why did we need a copy of the handler?
@@ -303,7 +341,10 @@ namespace Id3
             Id3Handler writeHandler = Id3Handler.GetHandler(tag.Version);
             bool writeSuccessful = writeHandler.WriteTag(Stream, tag);
             if (writeSuccessful)
+            {
                 InvalidateExistingHandlers();
+            }
+
             return writeSuccessful;
         }
 
@@ -322,9 +363,13 @@ namespace Id3
             foreach (Id3Handler handler in ExistingHandlers)
             {
                 if (handler.Family == Id3TagFamily.Version2X)
+                {
                     startBytes = handler.GetTagBytes(Stream);
+                }
                 else
+                {
                     endBytes = handler.GetTagBytes(Stream);
+                }
             }
 
             long audioStreamLength = Stream.Length - (startBytes?.Length ?? 0) - (endBytes?.Length ?? 0);
@@ -342,7 +387,10 @@ namespace Id3
                 {
                     byte[] audioStream = GetAudioStream();
                     if (audioStream == null || audioStream.Length == 0)
+                    {
                         throw new Id3Exception(Mp3Messages.AudioStreamMissing);
+                    }
+
                     _audioProperties = new AudioStream(audioStream).Calculate();
                 }
 
@@ -367,7 +415,9 @@ namespace Id3
             get
             {
                 if (_existingHandlers != null)
+                {
                     return _existingHandlers;
+                }
 
                 var v2HandlerFound = false;
                 _existingHandlers = new List<Id3Handler>(2);
@@ -375,7 +425,10 @@ namespace Id3
                 {
                     Id3Handler handler = handlerMetadata.Instance;
                     if (handler.Family == Id3TagFamily.Version2X && v2HandlerFound)
+                    {
                         continue;
+                    }
+
                     if (handler.HasTag(Stream))
                     {
                         _existingHandlers.Add(handler);

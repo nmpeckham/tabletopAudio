@@ -96,7 +96,7 @@ namespace TagLib.Png
         /// <summary>
         ///    Store the keywords with their values
         /// </summary>
-        readonly Dictionary<string, string> keyword_store = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> keyword_store = new Dictionary<string, string>();
 
         #endregion
 
@@ -132,7 +132,9 @@ namespace TagLib.Png
                 string description = GetKeyword(DESCRIPTION);
 
                 if (!string.IsNullOrEmpty(description))
+                {
                     return description;
+                }
 
                 return GetKeyword(COMMENT);
             }
@@ -154,8 +156,8 @@ namespace TagLib.Png
         /// </value>
         public override string Title
         {
-            get { return GetKeyword(TITLE); }
-            set { SetKeyword(TITLE, value); }
+            get => GetKeyword(TITLE);
+            set => SetKeyword(TITLE, value);
         }
 
         /// <summary>
@@ -166,8 +168,8 @@ namespace TagLib.Png
         /// </value>
         public override string Creator
         {
-            get { return GetKeyword(AUTHOR); }
-            set { SetKeyword(AUTHOR, value); }
+            get => GetKeyword(AUTHOR);
+            set => SetKeyword(AUTHOR, value);
         }
 
         /// <summary>
@@ -181,8 +183,8 @@ namespace TagLib.Png
         /// </value>
         public override string Copyright
         {
-            get { return GetKeyword(COPYRIGHT); }
-            set { SetKeyword(COPYRIGHT, value); }
+            get => GetKeyword(COPYRIGHT);
+            set => SetKeyword(COPYRIGHT, value);
         }
 
         /// <summary>
@@ -195,8 +197,8 @@ namespace TagLib.Png
         /// </value>
         public override string Software
         {
-            get { return GetKeyword(SOFTWARE); }
-            set { SetKeyword(SOFTWARE, value); }
+            get => GetKeyword(SOFTWARE);
+            set => SetKeyword(SOFTWARE, value);
         }
 
         /// <summary>
@@ -213,7 +215,9 @@ namespace TagLib.Png
                 string date = GetKeyword(CREATION_TIME);
 
                 if (System.DateTime.TryParse(date, out var ret))
+                {
                     return ret;
+                }
 
                 return null;
             }
@@ -247,7 +251,9 @@ namespace TagLib.Png
         public void SetKeyword(string keyword, string value)
         {
             if (string.IsNullOrEmpty(keyword))
+            {
                 throw new ArgumentException("keyword is null or empty");
+            }
 
             keyword_store.Remove(keyword);
 
@@ -283,10 +289,7 @@ namespace TagLib.Png
         /// <value>
         ///    Always <see cref="TagTypes.Png" />.
         /// </value>
-        public override TagTypes TagTypes
-        {
-            get { return TagTypes.Png; }
-        }
+        public override TagTypes TagTypes => TagTypes.Png;
 
 
         /// <summary>

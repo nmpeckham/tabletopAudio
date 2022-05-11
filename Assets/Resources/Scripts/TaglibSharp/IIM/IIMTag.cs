@@ -29,7 +29,7 @@ namespace TagLib.IIM
     /// </summary>
     public class IIMTag : Xmp.XmpTag
     {
-        List<string> m_Keywords;
+        private List<string> m_Keywords;
 
         /// <summary>
         /// Constructor
@@ -41,13 +41,7 @@ namespace TagLib.IIM
         /// <summary>
         /// Defines the supported TagType
         /// </summary>
-        public override TagTypes TagTypes
-        {
-            get
-            {
-                return TagTypes.IPTCIIM;
-            }
-        }
+        public override TagTypes TagTypes => TagTypes.IPTCIIM;
 
         /// <summary>
         /// Clear IIM content
@@ -87,18 +81,15 @@ namespace TagLib.IIM
         /// <summary>
         /// Get or Set the Keywords Tag
         /// </summary>
-        public override string[] Keywords
-        {
-            get
-            {
-                return m_Keywords?.ToArray();
-            }
-        }
+        public override string[] Keywords => m_Keywords?.ToArray();
 
         internal void AddKeyword(string keyword)
         {
             if (m_Keywords == null)
+            {
                 m_Keywords = new List<string>();
+            }
+
             m_Keywords.Add(keyword);
         }
     }

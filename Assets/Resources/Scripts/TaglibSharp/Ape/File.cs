@@ -50,7 +50,7 @@ namespace TagLib.Ape
         /// <summary>
         ///    Contains the block with the audio header.
         /// </summary>
-        ByteVector header_block;
+        private ByteVector header_block;
 
         #endregion
 
@@ -175,7 +175,9 @@ namespace TagLib.Ape
                 .GetTag(type);
 
             if (t != null || !create)
+            {
                 return t;
+            }
 
             switch (type)
             {
@@ -216,7 +218,9 @@ namespace TagLib.Ape
         {
             if (header_block != null &&
                 (propertiesStyle & ReadStyle.Average) == 0)
+            {
                 return;
+            }
 
             Seek(start);
             header_block = ReadBlock((int)StreamHeader.Size);

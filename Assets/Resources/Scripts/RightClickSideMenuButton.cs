@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 public class RightClickSideMenuButton : MonoBehaviour, IPointerClickHandler
 {
     public int playlistTabId;
-    static PlaylistRightClickController prcc;
+    private static PlaylistRightClickController prcc;
 
     public void OnPointerClick(PointerEventData eventData)
     {
@@ -15,7 +15,7 @@ public class RightClickSideMenuButton : MonoBehaviour, IPointerClickHandler
     }
 
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
         prcc = Camera.main.GetComponent<PlaylistRightClickController>();
     }

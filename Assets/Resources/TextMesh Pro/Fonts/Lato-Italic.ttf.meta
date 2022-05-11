@@ -10,7 +10,20 @@ TrueTypeFontImporter:
   includeFontData: 1
   fontNames:
   - Lato
-  fallbackFontReferences: []
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: a19081cb09ad4c64e897bd8458240052, type: 3}
+  - {fileID: 12800000, guid: d64d796f997b45c45a0671863e01f5ef, type: 3}
+  - {fileID: 12800000, guid: f5ee72cb259684a43a6c59fda9c5c319, type: 3}
+  - {fileID: 12800000, guid: 171ef16f4cbc9244098994211ecbe9b7, type: 3}
+  - {fileID: 12800000, guid: 003b82daf9d465e4a9fd86211887eaf6, type: 3}
+  - {fileID: 12800000, guid: c0c7d3b204c3542428fbf4962db3a714, type: 3}
+  - {fileID: 12800000, guid: 659c4a489297f164a85f890dd90227d4, type: 3}
+  - {fileID: 12800000, guid: b953ff05b3fb93f468cd5c60ba505012, type: 3}
+  - {fileID: 12800000, guid: 477a2135bbbefb4439f87073e02bfd6e, type: 3}
+  - {fileID: 12800000, guid: 053d767e80d9d5d41b7fe3ea699e0977, type: 3}
+  - {fileID: 12800000, guid: 598db3d4e734925469f8ebab1b3d978d, type: 3}
+  - {fileID: 12800000, guid: 856ac98ecb1f22d4985e5aea0efe2d18, type: 3}
+  - {fileID: 12800000, guid: 962c28e2d4c4b5a4ca5dec20466de2b0, type: 3}
   customCharacters: 
   fontRenderingMode: 0
   ascentCalculationMode: 1

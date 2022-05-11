@@ -79,7 +79,7 @@ namespace TagLib.Mpeg4
         /// <summary>
         ///    Contains the box data.
         /// </summary>
-        ByteVector data;
+        private ByteVector data;
 
         #endregion
 
@@ -145,10 +145,7 @@ namespace TagLib.Mpeg4
         ///    A <see cref="long" /> value containing the position of
         ///    the data contained in the current instance.
         /// </value>
-        protected override long DataPosition
-        {
-            get { return base.DataPosition + 4; }
-        }
+        protected override long DataPosition => base.DataPosition + 4;
 
         /// <summary>
         ///    Gets and sets the data contained in the current instance.
@@ -159,8 +156,8 @@ namespace TagLib.Mpeg4
         /// </value>
         public override ByteVector Data
         {
-            get { return data; }
-            set { data = value ?? new ByteVector(); }
+            get => data;
+            set => data = value ?? new ByteVector();
         }
 
         /// <summary>
@@ -174,10 +171,7 @@ namespace TagLib.Mpeg4
         /// </value>
         public string Text
         {
-            get
-            {
-                return ((Flags & (int)FlagType.ContainsText) != 0) ? Data.ToString(StringType.UTF8) : null;
-            }
+            get => ((Flags & (int)FlagType.ContainsText) != 0) ? Data.ToString(StringType.UTF8) : null;
             set
             {
                 Flags = (int)FlagType.ContainsText;

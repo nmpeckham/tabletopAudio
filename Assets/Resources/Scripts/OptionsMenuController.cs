@@ -31,6 +31,8 @@ public class OptionsMenuController : MonoBehaviour
 
     private static MainAppController mac;
     private static MusicController mc;
+    private static SearchFoldersController sfc;
+    private static SFXPageController spc;
 
     public TMP_Text saveErrorText;
 
@@ -40,7 +42,7 @@ public class OptionsMenuController : MonoBehaviour
 
     private string saveFileName;
 
-    private char[] bannedCharacters =
+    private readonly char[] bannedCharacters =
     {
         ':',
         '\\',
@@ -63,27 +65,69 @@ public class OptionsMenuController : MonoBehaviour
     public TMP_Text dmNumFreqText;
 
     private PlaylistTabs pt;
-    private string currentSaveName = "";
+    internal string currentSaveName = "";
+
+    public TMP_Dropdown fullscreenModeDropdown;
 
     // Start is called before the first frame update
-    void Start()
+
+    private void Start()
     {
-        if (!Application.isEditor) optionsPanel.SetActive(false);
+        if (!Application.isEditor)
+        {
+            optionsPanel.SetActive(false);
+        }
+
         saveErrorText.enabled = false;
         mc = GetComponent<MusicController>();
         mac = GetComponent<MainAppController>();
+        sfc = GetComponent<SearchFoldersController>();
+        spc = GetComponent<SFXPageController>();
         darkModeToggle.onValueChanged.AddListener(DarkModeChanged);
         autoUpdatePlaylistToggle.onValueChanged.AddListener(AutoUpdateChanged);
         crossfadeField.onValueChanged.AddListener(CrossfadeTimeChanged);
-        darkModeToggle.SetIsOnWithoutNotify(mac.darkModeEnabled);
+        darkModeToggle.SetIsOnWithoutNotify(MainAppController.darkModeEnabled);
+        fullscreenModeDropdown.onValueChanged.AddListener(FullScreenModeChanged);
         float val = PlayerPrefs.GetFloat("Crossfade");
-        if (val == 0) val = 4f; //default crossfade time
+        if (val == 0)
+        {
+            val = 4f; //default crossfade time
+        }
+
         mc.CrossfadeTime = val;
         crossfadeField.text = val.ToString();
 
         dm = GetComponent<DiscoMode>();
         gmfb = GetComponent<GenerateMusicFFTBackgrounds>();
         pt = GetComponent<PlaylistTabs>();
+    }
+
+    //0 = Windowed, 1 = Fullscreen Windowed, 2 = Fullscreen Exclusive
+    private void FullScreenModeChanged(int idSelected)
+    {
+        StartCoroutine(ChangeDisplayMode(idSelected));
+    }
+
+    IEnumerator ChangeDisplayMode(int idSelected)
+    {
+        switch (idSelected)
+        {
+            case 0:
+                Screen.fullScreenMode = FullScreenMode.Windowed;
+                break;
+            case 1:
+                //Janky hack to force all canvas layout elements to refresh :/
+                //Screen.fullScreenMode = FullScreenMode.ExclusiveFullScreen;
+                //yield return null;
+                Screen.SetResolution(Screen.mainWindowDisplayInfo.width, Screen.mainWindowDisplayInfo.height, FullScreenMode.FullScreenWindow);
+                //Screen.fullScreenMode = FullScreenMode.FullScreenWindow;
+                //Canvas.ForceUpdateCanvases();
+                break;
+            case 2:
+                Screen.fullScreenMode = FullScreenMode.ExclusiveFullScreen;
+                break;
+        }
+        yield return null;
     }
 
     internal void CloseAdvancedOptionsMenu()
@@ -117,16 +161,21 @@ public class OptionsMenuController : MonoBehaviour
         }
     }
 
-    void StartNewFile()
+    private void StartNewFile()
     {
         confirmNewFilePanel.SetActive(true);
         mac.currentMenuState = MainAppController.MenuState.startNewFile;
     }
 
-    void ConfirmNewFile()
+    private void ConfirmNewFile()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-        print("aaaaaa");
+        LoadedFilesData.songs.Clear();
+        LoadedFilesData.sfxClips.Clear();
+        LoadedFilesData.deletedMusicClips.Clear();
+        mc.Shuffle = false;
+        mc.Crossfade = false;
+        mc.AutoCheckForNewFiles = true;
     }
 
     internal void CancelNewFile()
@@ -135,7 +184,7 @@ public class OptionsMenuController : MonoBehaviour
         mac.currentMenuState = MainAppController.MenuState.optionsMenu;
     }
 
-    void ConfirmOverwriteSave()
+    private void ConfirmOverwriteSave()
     {
         Save(saveFileName, true);
         overwriteSavePanel.SetActive(false);
@@ -147,12 +196,12 @@ public class OptionsMenuController : MonoBehaviour
         mac.currentMenuState = MainAppController.MenuState.enterSaveFileName;
     }
 
-    void DarkModeChanged(bool value)
+    private void DarkModeChanged(bool value)
     {
         mac.SwapDarkLightMode(value);
     }
 
-    void CrossfadeTimeChanged(string value)
+    private void CrossfadeTimeChanged(string value)
     {
         try
         {
@@ -160,11 +209,19 @@ public class OptionsMenuController : MonoBehaviour
             if (hadFormatException)
             {
                 // will remove the default 1 that is inputed after an error, when the user types a new value. I think.
-                if (value[value.Length - 1] == '1') val = Convert.ToSingle(value.Remove(value.Length - 1, 1));
+                if (value[^1] == '1')
+                {
+                    val = Convert.ToSingle(value.Remove(value.Length - 1, 1));
+                }
+
                 hadFormatException = false;
             }
 
-            else val = Mathf.Max(1, Math.Min(30, Convert.ToSingle(value)));
+            else
+            {
+                val = Mathf.Max(1, Math.Min(30, Convert.ToSingle(value)));
+            }
+
             mc.CrossfadeTime = val;
             crossfadeField.text = val.ToString();
             PlayerPrefs.SetFloat("Crossfade", val);
@@ -177,7 +234,7 @@ public class OptionsMenuController : MonoBehaviour
         }
     }
 
-    void OpenSaveNamePanel()
+    internal void OpenSaveNamePanel()
     {
         saveNamePanel.SetActive(true);
         saveNameField.ActivateInputField();
@@ -185,7 +242,7 @@ public class OptionsMenuController : MonoBehaviour
         mac.currentMenuState = MainAppController.MenuState.enterSaveFileName;
     }
 
-    internal void AcceptSaveName()
+    internal void AcceptSaveName(bool overwrite = false)
     {
         bool errorFound = false;
         string text = saveNameField.text;
@@ -202,7 +259,7 @@ public class OptionsMenuController : MonoBehaviour
         if (!errorFound)
         {
             saveErrorText.enabled = false;
-            Save(saveNameField.text);
+            Save(saveNameField.text, overwrite);
         }
     }
 
@@ -214,8 +271,15 @@ public class OptionsMenuController : MonoBehaviour
 
     internal void AutoUpdateChanged(bool val)
     {
-        if (autoUpdatePlaylistToggle.isOn != val) autoUpdatePlaylistToggle.isOn = val;
-        if (mc.AutoCheckForNewFiles != val) mc.AutoCheckForNewFiles = val;
+        if (autoUpdatePlaylistToggle.isOn != val)
+        {
+            autoUpdatePlaylistToggle.isOn = val;
+        }
+
+        if (mc.AutoCheckForNewFiles != val)
+        {
+            mc.AutoCheckForNewFiles = val;
+        }
     }
 
     internal void CloseLoadSelection()
@@ -224,9 +288,9 @@ public class OptionsMenuController : MonoBehaviour
         loadGameSelectionView.SetActive(false);
     }
 
-    void OpenAboutMenu()
+    private void OpenAboutMenu()
     {
-        versionText.text = "TableTopManger v" + mac.VERSION;
+        versionText.text = "<b>TableTopManger v" + mac.VERSION + "</b>";
         aboutMenu.SetActive(true);
         mac.currentMenuState = MainAppController.MenuState.aboutMenu;
     }
@@ -243,26 +307,37 @@ public class OptionsMenuController : MonoBehaviour
         mac.currentMenuState = MainAppController.MenuState.mainAppView;
     }
 
-    void Load()
+    private void Load()
     {
         mac.currentMenuState = MainAppController.MenuState.selectFileToLoad;
         foreach (Transform t in loadGameScrollView.GetComponentsInChildren<Transform>())
         {
-            if (t.gameObject.name != "loadGameScrollView") Destroy(t.gameObject);
+            if (t.gameObject.name != "loadGameScrollView")
+            {
+                Destroy(t.gameObject);
+            }
         }
 
         loadGameSelectionView.SetActive(true);
 
-        foreach (string saveName in Directory.GetFiles(mac.saveDirectory))
+        try
         {
-            if (Path.GetExtension(saveName) == ".xml" || Path.GetExtension(saveName) == ".txt")
+            foreach (string saveName in Directory.GetFiles(MainAppController.workingDirectories["saveDirectory"]))
             {
-                string trimmedSaveName = saveName.Replace(mac.saveDirectory, "").Replace(Path.GetExtension(saveName), ""); ;
-                GameObject scrollItem = Instantiate(Prefabs.loadGameItemPrefab, loadGameScrollView.transform);
-                scrollItem.GetComponent<LoadGameSelectItem>().fileLocation = saveName;
-                scrollItem.GetComponentInChildren<TMP_Text>().SetText(trimmedSaveName);
+                if (Path.GetExtension(saveName) == ".xml" || Path.GetExtension(saveName) == ".txt")
+                {
+                    string trimmedSaveName = saveName.Replace(MainAppController.workingDirectories["saveDirectory"], "").Replace(Path.GetExtension(saveName), "").Replace(Path.DirectorySeparatorChar.ToString(), "");
+                    GameObject scrollItem = Instantiate(Prefabs.loadGameItemPrefab, loadGameScrollView.transform);
+                    scrollItem.GetComponent<LoadGameSelectItem>().fileLocation = saveName;
+                    scrollItem.GetComponentInChildren<TMP_Text>().SetText(trimmedSaveName);
+                }
             }
         }
+        catch(DirectoryNotFoundException)
+        {
+            mac.SetupFolderStructure();
+        }
+
     }
 
     public void LoadItemSelected(string fileLocation)
@@ -274,18 +349,19 @@ public class OptionsMenuController : MonoBehaviour
         mc.Stop();
         mac.ControlButtonClicked("STOP-SFX");
         DestroyItems();
-        mac.MakeSFXButtons();
+        spc.MakeSFXButtons();
         pt.TabClicked(0);
         pt.DeleteAllTabs();
+        MusicController.fileType = MusicController.FileTypes.none;
+        mc.ChangePlaybackScrubberActive(false);
+        sfc.searchFolders.Clear();
 
-
-        XmlDocument file = new XmlDocument();
+        XmlDocument file = new();
         try
         {
             file.Load(fileLocation);
 
-            string appLocation = file.DocumentElement.Name;
-            print(appLocation);
+            string appLocation = "/" + file.DocumentElement.Name;
 
             //string version = Convert.ToString(file.SelectSingleNode("/" + appLocation + "-Save-File/version").InnerText);
             if (true)//version == MainAppController.VERSION) //No version checking yet
@@ -294,19 +370,26 @@ public class OptionsMenuController : MonoBehaviour
                 LoadedFilesData.sfxClips.Clear();
                 LoadedFilesData.deletedMusicClips.Clear();
 
-                float masterVolume = Convert.ToSingle(file.SelectSingleNode("/" + appLocation + "/masterVolume").InnerText);
-                float musicVolume = Convert.ToSingle(file.SelectSingleNode("/" + appLocation + "/musicVolume").InnerText);
-                bool shuffle = Convert.ToBoolean(file.SelectSingleNode("/" + appLocation + "/shuffle").InnerText);
+                float masterVolume = Convert.ToSingle(file.SelectSingleNode(appLocation + "/masterVolume").InnerText);
+                float musicVolume = Convert.ToSingle(file.SelectSingleNode(appLocation + "/musicVolume").InnerText);
+                bool shuffle = Convert.ToBoolean(file.SelectSingleNode(appLocation + "/shuffle").InnerText);
                 bool crossfade = false;
                 try
                 {
-                    crossfade = Convert.ToBoolean(file.SelectSingleNode("/" + appLocation + "/crossfade").InnerText);
+                    crossfade = Convert.ToBoolean(file.SelectSingleNode(appLocation + "/crossfade").InnerText);
                 }
                 catch (NullReferenceException) { }
                 Camera.main.GetComponent<VolumeController>().MasterVolume = masterVolume;
                 mc.MusicVolume = musicVolume;
 
-                XmlNodeList pages = file.SelectNodes("/" + appLocation + "/SFX-Buttons/page");
+                XmlNodeList watchFolders = file.SelectNodes(appLocation + "/watchFolders/path");
+                print(watchFolders.Count);
+                foreach(XmlNode p in watchFolders)
+                {
+                    sfc.searchFolders.Add(p.InnerText);
+                }
+
+                XmlNodeList pages = file.SelectNodes(appLocation + "/SFX-Buttons/page");
 
                 foreach (XmlNode p in pages)
                 {
@@ -318,7 +401,7 @@ public class OptionsMenuController : MonoBehaviour
                     }
                     catch (NullReferenceException) { }
 
-                    mac.pageButtons[page].GetComponent<PageButton>().Label = pageLabel;
+                    spc.pageButtons[page].GetComponent<PageButton>().Label = pageLabel;
                     foreach (XmlNode b in p.SelectNodes("button"))
                     {
                         string label = b.SelectSingleNode("label").InnerText;
@@ -336,7 +419,7 @@ public class OptionsMenuController : MonoBehaviour
                             }
                             catch (Exception)
                             {
-                                mac.ShowErrorMessage("Could not load save file. Error finding clip path");
+                                mac.ShowErrorMessage("Could not load save file. Error finding clip path", 0);
                             }
                         }
                         float localVolume = Convert.ToSingle(b.SelectSingleNode("localVolume").InnerText);
@@ -379,7 +462,7 @@ public class OptionsMenuController : MonoBehaviour
                         }
                         catch (NullReferenceException) { }
 
-                        SFXButton sfxBtn = mac.pageParents[page].buttons[id].GetComponent<SFXButton>();
+                        SFXButton sfxBtn = spc.pageParents[page].buttons[id].GetComponent<SFXButton>();
                         sfxBtn.Label = label;
                         sfxBtn.id = id;
                         sfxBtn.FileName = clipPath;
@@ -396,9 +479,9 @@ public class OptionsMenuController : MonoBehaviour
 
                     }
                 }
-
+                LoadedFilesData.deletedMusicClips.Clear();
                 int tabId = 0;
-                foreach (XmlNode n in file.SelectNodes("/" + appLocation + "/playlist/tab"))
+                foreach (XmlNode n in file.SelectNodes(appLocation + "/playlist/tab"))
                 {
                     string label = n.SelectSingleNode("label").InnerText.ToString();
                     if (label != "*")
@@ -406,35 +489,45 @@ public class OptionsMenuController : MonoBehaviour
                         pt.TabClicked(-1);
                         PlaylistTabs.tabs.Last().LabelText = label;
                     }
-                    List<string> files = new List<string>();
+                    List<string> files = new();
                     foreach (XmlNode s in n)
-                    {   
-                        if (s.Name == "song") files.Add(s.InnerText.Replace(Path.Combine("TableTopAudio", "music"), Path.Combine(mac.appDirectoryName, "music")));  //support for saves made on previous versions
+                    {
+                        if (s.Name == "song")
+                        {
+                            files.Add(s.InnerText.Replace(Path.Combine("TableTopAudio", "music"), Path.Combine(MainAppController.appDirectoryName, "music")));  //support for saves made on previous versions
+                        }
                     }
-                    files.ForEach(file => mc.AddNewSong(file, tabId));
+                    files.ForEach(file => mc.AddNewSong(file, tabId, true));
                     tabId++;
                 }
                 loadGameSelectionView.SetActive(false);
-                mac.pageParents[0].gameObject.transform.SetSiblingIndex(MainAppController.NUMPAGES);
+                mc.AutoCheckForNewFiles = true;
+                autoUpdatePlaylistToggle.isOn = true;
+                spc.pageParents[0].gameObject.transform.SetSiblingIndex(MainAppController.NUMPAGES);
                 mac.currentMenuState = MainAppController.MenuState.optionsMenu;
             }
         }
         catch (XmlException)
         {
-            mac.ShowErrorMessage("Loading failed: Malformed save file format");
+            mac.ShowErrorMessage("Loading failed: Malformed save file format", 0);
         }
-        if (mac.darkModeEnabled) mac.SwapDarkLightMode(true);
+        if (MainAppController.darkModeEnabled)
+        {
+            mac.SwapDarkLightMode(true);
+        }
+
         StartCoroutine(RebuildLayout());
+        Close();
     }
 
-    IEnumerator RebuildLayout()
+    private IEnumerator RebuildLayout()
     {
         yield return null;
         pt.TabClicked(0);
-        mac.ChangeSFXPage(0);
+        spc.ChangeSFXPage(0);
     }
 
-    bool DestroyItems()
+    private bool DestroyItems()
     {
         foreach (MusicButton mb in pt.mainTab.MusicButtons)
         {
@@ -447,24 +540,40 @@ public class OptionsMenuController : MonoBehaviour
         return true;
     }
 
-    void Save(string fileName, bool overwrite = false)
+    private void Save(string fileName, bool overwrite = false)
     {
         saveFileName = fileName;
-        List<string> presentSaves = Directory.GetFiles(mac.saveDirectory).ToList();
-        presentSaves = presentSaves.Select(save => save.ToLower()).ToList();    //check for files with same name but different capitalizations
-        presentSaves.ForEach(save => print(save));    //check for files with same name but different capitalizations
-        if (((!presentSaves.Contains(Path.Combine(mac.saveDirectory, fileName + ".xml").ToLower())) && !(Application.platform == RuntimePlatform.LinuxPlayer)) || overwrite)
+        List<string> presentSaves = new();
+        try
         {
-            using (XmlWriter writer = XmlWriter.Create(Path.Combine(mac.saveDirectory, fileName + ".xml")))
+            presentSaves = Directory.GetFiles(MainAppController.workingDirectories["saveDirectory"]).ToList();
+        }
+        catch (DirectoryNotFoundException)
+        {
+            mac.SetupFolderStructure();
+        }
+        presentSaves = presentSaves.Select(save => save.ToLower()).ToList();    //check for files with same name but different capitalizations
+        if (((!presentSaves.Contains(Path.Combine(MainAppController.workingDirectories["saveDirectory"], fileName + ".xml").ToLower())) && !(Application.platform == RuntimePlatform.LinuxPlayer)) || overwrite)    //linux is case sensitive
+        {
+            using (XmlWriter writer = XmlWriter.Create(Path.Combine(MainAppController.workingDirectories["saveDirectory"], fileName + ".xml")))
             {
                 writer.WriteStartDocument();
-                writer.WriteStartElement(mac.appDirectoryName + "-Save-File");
+                writer.WriteStartElement(MainAppController.appDirectoryName + "-Save-File");
                 {
                     writer.WriteElementString("version", mac.VERSION);
                     writer.WriteElementString("masterVolume", Camera.main.GetComponent<VolumeController>().MasterVolume.ToString("N1"));
-                    writer.WriteElementString("musicVolume", mc.MusicVolume.ToString("N1"));
+                    writer.WriteElementString("musicVolume", mc.MusicVolume.ToString("N3"));
                     writer.WriteElementString("shuffle", mc.Shuffle.ToString());
                     writer.WriteElementString("crossfade", mc.Crossfade.ToString());
+
+                    writer.WriteStartElement("watchFolders");
+                    {
+                        foreach(string s in sfc.searchFolders)
+                        {
+                            writer.WriteElementString("path", s);
+                        }
+                    }
+                    writer.WriteEndElement();
 
                     writer.WriteStartElement("SFX-Buttons");
                     {
@@ -472,18 +581,18 @@ public class OptionsMenuController : MonoBehaviour
                         {
                             writer.WriteStartElement("page");
                             writer.WriteElementString("id", i.ToString());
-                            writer.WriteElementString("label", mac.pageButtons[i].GetComponent<PageButton>().Label);
+                            writer.WriteElementString("label", spc.pageButtons[i].GetComponent<PageButton>().Label);
                             {
                                 for (int j = 0; j < MainAppController.NUMBUTTONS; j++)
                                 {
-                                    SFXButton button = mac.pageParents[i].buttons[j].GetComponent<SFXButton>();
+                                    SFXButton button = spc.pageParents[i].buttons[j].GetComponent<SFXButton>();
                                     if (!string.IsNullOrEmpty(button.FileName))
                                     {
                                         writer.WriteStartElement("button");
                                         {
                                             writer.WriteElementString("id", button.id.ToString());
                                             writer.WriteElementString("label", button.Label);
-                                            writer.WriteElementString("clipPath", button.FileName.Replace(mac.sfxDirectory, ""));
+                                            writer.WriteElementString("clipPath", button.FileName);
                                             writer.WriteElementString("localVolume", button.LocalVolume.ToString("N2"));
                                             writer.WriteElementString("loop", button.LoopEnabled.ToString());
                                             writer.WriteElementString("minLoopDelay", button.MinLoopDelay.ToString("N0"));
@@ -530,6 +639,7 @@ public class OptionsMenuController : MonoBehaviour
             saveNamePanel.SetActive(false);
             optionsPanel.SetActive(false);
             mac.currentMenuState = MainAppController.MenuState.mainAppView;
+            currentSaveName = fileName;
         }
         else
         {
@@ -542,6 +652,9 @@ public class OptionsMenuController : MonoBehaviour
     {
         switch (id)
         {
+            case "shortcuts":
+                GetComponent<ShortcutViewController>().ShowShortcuts();
+                break;
             case "close":
                 Close();
                 break;
@@ -585,8 +698,15 @@ public class OptionsMenuController : MonoBehaviour
                 mac.ToggleDiscoMode();
                 break;
             case "EnableDynamicPlaylistBackgrounds":
-                if (state) gmfb.Begin();
-                else gmfb.StopGeneration();
+                if (state)
+                {
+                    gmfb.Begin();
+                }
+                else
+                {
+                    gmfb.StopGeneration();
+                }
+
                 break;
             case "show advanced options":
                 OpenAdvancedOptionsMenu();
@@ -594,9 +714,19 @@ public class OptionsMenuController : MonoBehaviour
             case "close advanced options":
                 CloseAdvancedOptionsMenu();
                 break;
+            case "show search folders":
+                ShowSearchFolders();
+                break;
+
             default:
                 print("No action for button " + id);
                 break;
         }
+    }
+
+    private void ShowSearchFolders()
+    {
+        GetComponent<ShortcutViewController>().CloseShortcuts();
+        GetComponent<SearchFoldersController>().ShowSearchFolderMenu();
     }
 }

@@ -39,7 +39,7 @@ namespace TagLib
         /// <summary>
         ///    Contains a list of ID3v1 audio generes.
         /// </summary>
-        static readonly string[] audio = {
+        private static readonly string[] audio = {
             "Blues",
             "Classic Rock",
             "Country",
@@ -193,7 +193,7 @@ namespace TagLib
         /// <summary>
         ///    Contains a list of DivX audio generes.
         /// </summary>
-        static readonly string[] video = new[] {
+        private static readonly string[] video = new[] {
             "Action",
             "Action/Adventure",
             "Adult",
@@ -247,10 +247,7 @@ namespace TagLib
         ///    The genres are stored in the same order and with the same
         ///    values as in the ID3v1 format.
         /// </remarks>
-        public static string[] Audio
-        {
-            get { return (string[])audio.Clone(); }
-        }
+        public static string[] Audio => (string[])audio.Clone();
 
         /// <summary>
         ///    Gets a list of standard video generes.
@@ -263,10 +260,7 @@ namespace TagLib
         ///    The genres are stored in the same order and with the same
         ///    values as in the DivX format.
         /// </remarks>
-        public static string[] Video
-        {
-            get { return (string[])video.Clone(); }
-        }
+        public static string[] Video => (string[])video.Clone();
 
         /// <summary>
         ///    Gets the genre index for a specified audio genre.
@@ -282,8 +276,13 @@ namespace TagLib
         public static byte AudioToIndex(string name)
         {
             for (byte i = 0; i < audio.Length; i++)
+            {
                 if (name == audio[i])
+                {
                     return i;
+                }
+            }
+
             return 255;
         }
 
@@ -301,8 +300,13 @@ namespace TagLib
         public static byte VideoToIndex(string name)
         {
             for (byte i = 0; i < video.Length; i++)
+            {
                 if (name == video[i])
+                {
                     return i;
+                }
+            }
+
             return 255;
         }
 
@@ -387,16 +391,20 @@ namespace TagLib
         ///    of <paramref name="text" /> or 255 if no numeric value
         ///    could be extracted.
         /// </returns>
-        static byte StringToByte(string text)
+        private static byte StringToByte(string text)
         {
             int last_pos;
             if (text != null && text.Length > 2 && text[0] == '('
                 && (last_pos = text.IndexOf(')')) != -1
                 && byte.TryParse(text.Substring(1, last_pos - 1), out var value))
+            {
                 return value;
+            }
 
             if (text != null && byte.TryParse(text, out value))
+            {
                 return value;
+            }
 
             return 255;
         }

@@ -45,7 +45,7 @@ namespace TagLib.Image
         /// <summary>
         ///    This class represents a metadata block to overwrite.
         /// </summary>
-        class MetadataBlock
+        private class MetadataBlock
         {
 
             /// <summary>
@@ -71,10 +71,14 @@ namespace TagLib.Image
             public MetadataBlock(long start, long length)
             {
                 if (start < 0)
+                {
                     throw new ArgumentOutOfRangeException(nameof(start));
+                }
 
                 if (length < 0)
+                {
                     throw new ArgumentOutOfRangeException(nameof(length));
+                }
 
                 Start = start;
                 Length = length;
@@ -103,10 +107,14 @@ namespace TagLib.Image
             public bool OverlapsWith(MetadataBlock block)
             {
                 if (block.Start >= Start && block.Start <= Start + Length)
+                {
                     return true;
+                }
 
                 if (Start >= block.Start && Start <= block.Start + block.Length)
+                {
                     return true;
+                }
 
                 return false;
             }
@@ -170,7 +178,7 @@ namespace TagLib.Image
         /// <summary>
         ///    An odered list of the metadata blocks. The blocks do not overlap.
         /// </summary>
-        readonly List<MetadataBlock> metadata_blocks = new List<MetadataBlock>();
+        private readonly List<MetadataBlock> metadata_blocks = new List<MetadataBlock>();
 
 
         /// <summary>
@@ -281,8 +289,9 @@ namespace TagLib.Image
                     // before, i.e. we have removed a block which is before the saved
                     // metadata
                     if (block.Start < start)
+                    {
                         new_start -= block.Length;
-
+                    }
                 }
             }
 

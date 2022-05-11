@@ -43,7 +43,7 @@ namespace TagLib.Mpeg4
         /// <summary>
         /// Descriptor Tags
         /// </summary>
-        enum DescriptorTag
+        private enum DescriptorTag
         {
             Forbidden_00 = 0,
             ObjectDescrTag = 1,
@@ -99,52 +99,52 @@ namespace TagLib.Mpeg4
         /// <summary>
         /// the ES_ID of another elementary stream on which this elementary stream depends
         /// </summary>
-        ushort dependsOn_ES_ID;
+        private readonly ushort dependsOn_ES_ID;
 
         /// <summary>
         /// Indicates that a dependsOn_ES_ID will follow
         /// </summary>
-        readonly bool stream_dependence_flag;
+        private readonly bool stream_dependence_flag;
 
         /// <summary>
         /// OCR Stream Flag
         /// </summary>
-        readonly bool ocr_stream_flag;
+        private readonly bool ocr_stream_flag;
 
         /// <summary>
         /// OCR ES_ID
         /// </summary>
-        ushort OCR_ES_Id;
+        private readonly ushort OCR_ES_Id;
 
         /// <summary>
         /// Indicates that a URLstring will follow
         /// </summary>
-        readonly bool URL_flag;
+        private readonly bool URL_flag;
 
         /// <summary>
         /// Length of URL String
         /// </summary>
-        readonly byte URLlength;
+        private readonly byte URLlength;
 
         /// <summary>
         /// URL String of URLlength, contains a URL that shall point to the location of an SL-packetized stream by name
         /// </summary>
-        string URLstring;
+        private readonly string URLstring;
 
         /// <summary>
         /// Indicates that this stream is used for upstream information
         /// </summary>
-        bool upStream;
+        private readonly bool upStream;
 
         /// <summary>
         ///    Contains the maximum bitrate.
         /// </summary>
-        readonly uint max_bitrate;
+        private readonly uint max_bitrate;
 
         /// <summary>
         ///    Contains the average bitrate.
         /// </summary>
-        readonly uint average_bitrate;
+        private readonly uint average_bitrate;
 
         #endregion
 
@@ -189,13 +189,17 @@ namespace TagLib.Mpeg4
 
             // Elementary Stream Descriptor Tag
             if ((DescriptorTag)box_data[offset++] != DescriptorTag.ES_DescrTag)
+            {
                 throw new CorruptFileException("Invalid Elementary Stream Descriptor, missing tag.");
+            }
 
             // We have a descriptor tag. Check that the remainder of the tag is at least [Base (3 bytes) + DecoderConfigDescriptor (15 bytes) + SLConfigDescriptor (3 bytes) + OtherDescriptors] bytes long
             uint es_length = ReadLength(box_data, ref offset);
             uint min_es_length = 3 + 15 + 3; // Base minimum length
             if (es_length < min_es_length)
+            {
                 throw new CorruptFileException("Insufficient data present.");
+            }
 
             StreamId = box_data.Mid(offset, 2).ToUShort();
             offset += 2; // Done with ES_ID
@@ -209,7 +213,9 @@ namespace TagLib.Mpeg4
             {
                 min_es_length += 2; // We need 2 more bytes
                 if (es_length < min_es_length)
+                {
                     throw new CorruptFileException("Insufficient data present.");
+                }
 
                 dependsOn_ES_ID = box_data.Mid(offset, 2).ToUShort();
                 offset += 2; // Done with stream dependence
@@ -219,12 +225,16 @@ namespace TagLib.Mpeg4
             {
                 min_es_length += 2; // We need 1 more byte
                 if (es_length < min_es_length)
+                {
                     throw new CorruptFileException("Insufficient data present.");
+                }
 
                 URLlength = box_data[offset++]; // URL Length
                 min_es_length += URLlength; // We need URLength more bytes
                 if (es_length < min_es_length)
+                {
                     throw new CorruptFileException("Insufficient data present.");
+                }
 
                 URLstring = box_data.Mid(offset, URLlength).ToString(); // URL name
                 offset += URLlength; // Done with URL name
@@ -234,7 +244,9 @@ namespace TagLib.Mpeg4
             {
                 min_es_length += 2; // We need 2 more bytes
                 if (es_length < min_es_length)
+                {
                     throw new CorruptFileException("Insufficient data present.");
+                }
 
                 OCR_ES_Id = box_data.Mid(offset, 2).ToUShort();
                 offset += 2; // Done with OCR
@@ -249,7 +261,9 @@ namespace TagLib.Mpeg4
                         {
                             // Check that the remainder of the tag is at least 13 bytes long (13 + DecoderSpecificInfo[] + profileLevelIndicationIndexDescriptor[])
                             if (ReadLength(box_data, ref offset) < 13)
+                            {
                                 throw new CorruptFileException("Could not read data. Too small.");
+                            }
 
                             // Read a lot of good info.
                             ObjectTypeId = box_data[offset++];
@@ -376,7 +390,7 @@ namespace TagLib.Mpeg4
         ///    A <see cref="uint" /> value containing the maximum
         ///    bitrate the stream described by the current instance.
         /// </value>
-        public uint MaximumBitrate { get { return max_bitrate / 1000; } }
+        public uint MaximumBitrate => max_bitrate / 1000;
 
         /// <summary>
         ///    Gets the maximum average the stream described by the
@@ -386,7 +400,7 @@ namespace TagLib.Mpeg4
         ///    A <see cref="uint" /> value containing the average
         ///    bitrate the stream described by the current instance.
         /// </value>
-        public uint AverageBitrate { get { return average_bitrate / 1000; } }
+        public uint AverageBitrate => average_bitrate / 1000;
 
         /// <summary>
         ///    Gets the decoder config data of stream described by the
@@ -421,7 +435,7 @@ namespace TagLib.Mpeg4
         ///    A <see cref="uint" /> value containing the length that
         ///    was read.
         /// </returns>
-        static uint ReadLength(ByteVector data, ref int offset)
+        private static uint ReadLength(ByteVector data, ref int offset)
         {
             byte b;
             int end = offset + 4;
@@ -430,7 +444,7 @@ namespace TagLib.Mpeg4
             do
             {
                 b = data[offset++];
-                length = (uint)(length << 7) | (uint)(b & 0x7f);
+                length = length << 7 | (uint)(b & 0x7f);
             } while ((b & 0x80) != 0 && offset <= end); // The Length could be between 1 and 4 bytes for each descriptor
 
             return length;

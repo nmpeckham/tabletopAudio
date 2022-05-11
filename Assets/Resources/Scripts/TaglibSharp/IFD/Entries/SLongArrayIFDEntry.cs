@@ -78,7 +78,9 @@ namespace TagLib.IFD.Entries
 
             ByteVector data = new ByteVector();
             foreach (int value in Values)
+            {
                 data.Add(ByteVector.FromInt(value, is_bigendian));
+            }
 
             return data;
         }

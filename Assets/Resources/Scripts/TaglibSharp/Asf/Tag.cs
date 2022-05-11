@@ -61,20 +61,30 @@ namespace TagLib.Asf
         public Tag(HeaderObject header)
         {
             if (header == null)
+            {
                 throw new ArgumentNullException(nameof(header));
+            }
 
             foreach (Object child in header.Children)
             {
                 if (child is ContentDescriptionObject)
+                {
                     ContentDescriptionObject = child as ContentDescriptionObject;
+                }
 
                 if (child is ExtendedContentDescriptionObject)
+                {
                     ExtendedContentDescriptionObject = child as ExtendedContentDescriptionObject;
+                }
             }
 
             foreach (Object child in header.Extension.Children)
+            {
                 if (child is MetadataLibraryObject)
+                {
                     MetadataLibraryObject = child as MetadataLibraryObject;
+                }
+            }
         }
 
         #endregion
@@ -142,16 +152,22 @@ namespace TagLib.Asf
         public string GetDescriptorString(params string[] names)
         {
             if (names == null)
+            {
                 throw new ArgumentNullException(nameof(names));
+            }
 
             foreach (var desc in GetDescriptors(names))
             {
                 if (desc == null || desc.Type != DataType.Unicode)
+                {
                     continue;
+                }
 
                 string value = desc.ToString();
                 if (value != null)
+                {
                     return value;
+                }
             }
 
             return null;
@@ -176,7 +192,9 @@ namespace TagLib.Asf
         public string[] GetDescriptorStrings(params string[] names)
         {
             if (names == null)
+            {
                 throw new ArgumentNullException(nameof(names));
+            }
 
             return SplitAndClean(GetDescriptorString(names));
         }
@@ -205,7 +223,9 @@ namespace TagLib.Asf
                                          params string[] names)
         {
             if (names == null)
+            {
                 throw new ArgumentNullException(nameof(names));
+            }
 
             int index = 0;
 
@@ -217,7 +237,9 @@ namespace TagLib.Asf
             }
 
             for (; index < names.Length; index++)
+            {
                 RemoveDescriptors(names[index]);
+            }
         }
 
         /// <summary>
@@ -243,7 +265,9 @@ namespace TagLib.Asf
         public void SetDescriptorStrings(string[] value, params string[] names)
         {
             if (names == null)
+            {
                 throw new ArgumentNullException(nameof(names));
+            }
 
             SetDescriptorString(string.Join("; ", value), names);
         }
@@ -262,7 +286,9 @@ namespace TagLib.Asf
         public void RemoveDescriptors(string name)
         {
             if (name == null)
+            {
                 throw new ArgumentNullException(nameof(name));
+            }
 
             ExtendedContentDescriptionObject.RemoveDescriptors(name);
         }
@@ -286,7 +312,9 @@ namespace TagLib.Asf
         public IEnumerable<ContentDescriptor> GetDescriptors(params string[] names)
         {
             if (names == null)
+            {
                 throw new ArgumentNullException(nameof(names));
+            }
 
             return ExtendedContentDescriptionObject.GetDescriptors(names);
         }
@@ -317,7 +345,9 @@ namespace TagLib.Asf
         public void SetDescriptors(string name, params ContentDescriptor[] descriptors)
         {
             if (name == null)
+            {
                 throw new ArgumentNullException(nameof(name));
+            }
 
             ExtendedContentDescriptionObject.SetDescriptors(name, descriptors);
         }
@@ -336,7 +366,9 @@ namespace TagLib.Asf
         public void AddDescriptor(ContentDescriptor descriptor)
         {
             if (descriptor == null)
+            {
                 throw new ArgumentNullException(nameof(descriptor));
+            }
 
             ExtendedContentDescriptionObject.AddDescriptor(descriptor);
         }
@@ -359,10 +391,12 @@ namespace TagLib.Asf
         ///    A <see cref="IPicture" /> object to read from the raw
         ///    data.
         /// </returns>
-        static IPicture PictureFromData(ByteVector data)
+        private static IPicture PictureFromData(ByteVector data)
         {
             if (data.Count < 9)
+            {
                 return null;
+            }
 
             int offset = 0;
             Picture p = new Picture
@@ -381,7 +415,9 @@ namespace TagLib.Asf
 
             int found = data.Find(ByteVector.TextDelimiter(StringType.UTF16LE), offset, 2);
             if (found < 0)
+            {
                 return null;
+            }
 
             p.MimeType = data.ToString(StringType.UTF16LE, offset, found - offset);
             offset = found + 2;
@@ -390,7 +426,9 @@ namespace TagLib.Asf
 
             found = data.Find(ByteVector.TextDelimiter(StringType.UTF16LE), offset, 2);
             if (found < 0)
+            {
                 return null;
+            }
 
             p.Description = data.ToString(StringType.UTF16LE, offset, found - offset);
             offset = found + 2;
@@ -411,7 +449,7 @@ namespace TagLib.Asf
         ///    A <see cref="ByteVector" /> object containing raw ASF
         ///    picture data.
         /// </returns>
-        static ByteVector PictureToData(IPicture picture)
+        private static ByteVector PictureToData(IPicture picture)
         {
             var v = new ByteVector((byte)picture.Type) {
                 Object.RenderDWord ((uint)picture.Data.Count),
@@ -432,15 +470,19 @@ namespace TagLib.Asf
         /// <returns>
         ///    A <see cref="T:string[]" /> containing the split text.
         /// </returns>
-        static string[] SplitAndClean(string s)
+        private static string[] SplitAndClean(string s)
         {
             if (s == null || s.Trim().Length == 0)
+            {
                 return new string[0];
+            }
 
             string[] result = s.Split(';');
 
             for (int i = 0; i < result.Length; i++)
+            {
                 result[i] = result[i].Trim();
+            }
 
             return result;
         }
@@ -481,10 +523,7 @@ namespace TagLib.Asf
         /// <value>
         ///    Always <see cref="TagTypes.Asf" />.
         /// </value>
-        public override TagTypes TagTypes
-        {
-            get { return TagTypes.Asf; }
-        }
+        public override TagTypes TagTypes => TagTypes.Asf;
 
         /// <summary>
         ///    Gets and sets the title for the media described by the
@@ -501,8 +540,8 @@ namespace TagLib.Asf
         /// </remarks>
         public override string Title
         {
-            get { return ContentDescriptionObject.Title; }
-            set { ContentDescriptionObject.Title = value; }
+            get => ContentDescriptionObject.Title;
+            set => ContentDescriptionObject.Title = value;
         }
 
 
@@ -530,14 +569,8 @@ namespace TagLib.Asf
         /// </remarks>
         public override string Subtitle
         {
-            get
-            {
-                return GetDescriptorString("WM/SubTitle");
-            }
-            set
-            {
-                SetDescriptorString(value, "WM/SubTitle");
-            }
+            get => GetDescriptorString("WM/SubTitle");
+            set => SetDescriptorString(value, "WM/SubTitle");
         }
 
 
@@ -558,14 +591,8 @@ namespace TagLib.Asf
         /// </remarks>
         public override string TitleSort
         {
-            get
-            {
-                return GetDescriptorString("WM/TitleSortOrder");
-            }
-            set
-            {
-                SetDescriptorString(value, "WM/TitleSortOrder");
-            }
+            get => GetDescriptorString("WM/TitleSortOrder");
+            set => SetDescriptorString(value, "WM/TitleSortOrder");
         }
 
         /// <summary>
@@ -587,8 +614,8 @@ namespace TagLib.Asf
         /// </remarks>
         public override string Description
         {
-            get { return ContentDescriptionObject.Description; }
-            set { ContentDescriptionObject.Description = value; }
+            get => ContentDescriptionObject.Description;
+            set => ContentDescriptionObject.Description = value;
         }
 
 
@@ -608,8 +635,8 @@ namespace TagLib.Asf
         /// </remarks>
         public override string[] Performers
         {
-            get { return SplitAndClean(ContentDescriptionObject.Author); }
-            set { ContentDescriptionObject.Author = string.Join("; ", value); }
+            get => SplitAndClean(ContentDescriptionObject.Author);
+            set => ContentDescriptionObject.Author = string.Join("; ", value);
         }
 
         /// <summary>
@@ -628,14 +655,8 @@ namespace TagLib.Asf
         /// </remarks>
         public override string[] PerformersSort
         {
-            get
-            {
-                return GetDescriptorStrings("WM/ArtistSortOrder");
-            }
-            set
-            {
-                SetDescriptorStrings(value, "WM/ArtistSortOrder");
-            }
+            get => GetDescriptorStrings("WM/ArtistSortOrder");
+            set => SetDescriptorStrings(value, "WM/ArtistSortOrder");
         }
 
         /// <summary>
@@ -655,14 +676,8 @@ namespace TagLib.Asf
         /// </remarks>
         public override string[] AlbumArtists
         {
-            get
-            {
-                return GetDescriptorStrings("WM/AlbumArtist", "AlbumArtist");
-            }
-            set
-            {
-                SetDescriptorStrings(value, "WM/AlbumArtist", "AlbumArtist");
-            }
+            get => GetDescriptorStrings("WM/AlbumArtist", "AlbumArtist");
+            set => SetDescriptorStrings(value, "WM/AlbumArtist", "AlbumArtist");
         }
 
         /// <summary>
@@ -685,14 +700,8 @@ namespace TagLib.Asf
         /// </remarks>
         public override string[] AlbumArtistsSort
         {
-            get
-            {
-                return GetDescriptorStrings("WM/AlbumArtistSortOrder");
-            }
-            set
-            {
-                SetDescriptorStrings(value, "WM/AlbumArtistSortOrder");
-            }
+            get => GetDescriptorStrings("WM/AlbumArtistSortOrder");
+            set => SetDescriptorStrings(value, "WM/AlbumArtistSortOrder");
         }
 
         /// <summary>
@@ -710,14 +719,8 @@ namespace TagLib.Asf
         /// </remarks>
         public override string[] Composers
         {
-            get
-            {
-                return GetDescriptorStrings("WM/Composer", "Composer");
-            }
-            set
-            {
-                SetDescriptorStrings(value, "WM/Composer", "Composer");
-            }
+            get => GetDescriptorStrings("WM/Composer", "Composer");
+            set => SetDescriptorStrings(value, "WM/Composer", "Composer");
         }
 
         /// <summary>
@@ -735,14 +738,8 @@ namespace TagLib.Asf
         /// </remarks>
         public override string Album
         {
-            get
-            {
-                return GetDescriptorString("WM/AlbumTitle", "Album");
-            }
-            set
-            {
-                SetDescriptorString(value, "WM/AlbumTitle", "Album");
-            }
+            get => GetDescriptorString("WM/AlbumTitle", "Album");
+            set => SetDescriptorString(value, "WM/AlbumTitle", "Album");
         }
 
         /// <summary>
@@ -761,14 +758,8 @@ namespace TagLib.Asf
         /// </remarks>
         public override string AlbumSort
         {
-            get
-            {
-                return GetDescriptorString("WM/AlbumSortOrder");
-            }
-            set
-            {
-                SetDescriptorString(value, "WM/AlbumSortOrder");
-            }
+            get => GetDescriptorString("WM/AlbumSortOrder");
+            set => SetDescriptorString(value, "WM/AlbumSortOrder");
         }
 
         /// <summary>
@@ -785,14 +776,8 @@ namespace TagLib.Asf
         /// </remarks>
         public override string Comment
         {
-            get
-            {
-                return GetDescriptorString("WM/Text");
-            }
-            set
-            {
-                SetDescriptorString(value, "WM/Text");
-            }
+            get => GetDescriptorString("WM/Text");
+            set => SetDescriptorString(value, "WM/Text");
         }
 
         /// <summary>
@@ -815,7 +800,9 @@ namespace TagLib.Asf
                 string value = GetDescriptorString("WM/Genre", "WM/GenreID", "Genre");
 
                 if (value == null || value.Trim().Length == 0)
+                {
                     return new string[] { };
+                }
 
                 string[] result = value.Split(';');
 
@@ -825,17 +812,16 @@ namespace TagLib.Asf
 
                     int closing = genre.IndexOf(')');
                     if (closing > 0 && genre[0] == '(' && byte.TryParse(genre.Substring(1, closing - 1), out var genre_id))
+                    {
                         genre = TagLib.Genres.IndexToAudio(genre_id);
+                    }
 
                     result[i] = genre;
                 }
 
                 return result;
             }
-            set
-            {
-                SetDescriptorString(string.Join("; ", value), "WM/Genre", "Genre", "WM/GenreID");
-            }
+            set => SetDescriptorString(string.Join("; ", value), "WM/Genre", "Genre", "WM/GenreID");
         }
 
         /// <summary>
@@ -858,10 +844,14 @@ namespace TagLib.Asf
                 string text = GetDescriptorString("WM/Year");
 
                 if (text == null || text.Length < 4)
+                {
                     return 0;
+                }
 
                 if (uint.TryParse(text.Substring(0, 4), NumberStyles.Integer, CultureInfo.InvariantCulture, out var value))
+                {
                     return value;
+                }
 
                 return 0;
             }
@@ -898,7 +888,9 @@ namespace TagLib.Asf
                 {
                     uint value = desc.ToDWord();
                     if (value != 0)
+                    {
                         return value;
+                    }
                 }
 
                 return 0;
@@ -906,9 +898,13 @@ namespace TagLib.Asf
             set
             {
                 if (value == 0)
+                {
                     RemoveDescriptors("WM/TrackNumber");
+                }
                 else
+                {
                     SetDescriptors("WM/TrackNumber", new ContentDescriptor("WM/TrackNumber", value));
+                }
             }
         }
 
@@ -933,7 +929,9 @@ namespace TagLib.Asf
                 {
                     uint value = desc.ToDWord();
                     if (value != 0)
+                    {
                         return value;
+                    }
                 }
 
                 return 0;
@@ -941,9 +939,13 @@ namespace TagLib.Asf
             set
             {
                 if (value == 0)
+                {
                     RemoveDescriptors("TrackTotal");
+                }
                 else
+                {
                     SetDescriptors("TrackTotal", new ContentDescriptor("TrackTotal", value));
+                }
             }
         }
 
@@ -967,12 +969,16 @@ namespace TagLib.Asf
                 string text = GetDescriptorString("WM/PartOfSet");
 
                 if (text == null)
+                {
                     return 0;
+                }
 
                 string[] texts = text.Split('/');
 
                 if (texts.Length < 1)
+                {
                     return 0;
+                }
 
                 return uint.TryParse(texts[0], NumberStyles.Integer, CultureInfo.InvariantCulture, out var value) ? value : 0;
             }
@@ -1015,12 +1021,16 @@ namespace TagLib.Asf
                 string text = GetDescriptorString("WM/PartOfSet");
 
                 if (text == null)
+                {
                     return 0;
+                }
 
                 string[] texts = text.Split('/');
 
                 if (texts.Length < 2)
+                {
                     return 0;
+                }
 
                 return uint.TryParse(texts[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out var value) ? value : 0;
             }
@@ -1058,8 +1068,8 @@ namespace TagLib.Asf
         /// </remarks>
         public override string Lyrics
         {
-            get { return GetDescriptorString("WM/Lyrics"); }
-            set { SetDescriptorString(value, "WM/Lyrics"); }
+            get => GetDescriptorString("WM/Lyrics");
+            set => SetDescriptorString(value, "WM/Lyrics");
         }
 
         /// <summary>
@@ -1077,14 +1087,8 @@ namespace TagLib.Asf
         /// </remarks>
         public override string Grouping
         {
-            get
-            {
-                return GetDescriptorString("WM/ContentGroupDescription");
-            }
-            set
-            {
-                SetDescriptorString(value, "WM/ContentGroupDescription");
-            }
+            get => GetDescriptorString("WM/ContentGroupDescription");
+            set => SetDescriptorString(value, "WM/ContentGroupDescription");
         }
 
         /// <summary>
@@ -1108,7 +1112,9 @@ namespace TagLib.Asf
                 {
                     uint value = desc.ToDWord();
                     if (value != 0)
+                    {
                         return value;
+                    }
                 }
 
                 return 0;
@@ -1140,8 +1146,8 @@ namespace TagLib.Asf
         /// </remarks>
         public override string Conductor
         {
-            get { return GetDescriptorString("WM/Conductor"); }
-            set { SetDescriptorString(value, "WM/Conductor"); }
+            get => GetDescriptorString("WM/Conductor");
+            set => SetDescriptorString(value, "WM/Conductor");
         }
 
         /// <summary>
@@ -1159,8 +1165,8 @@ namespace TagLib.Asf
         /// </remarks>
         public override string Copyright
         {
-            get { return ContentDescriptionObject.Copyright; }
-            set { ContentDescriptionObject.Copyright = value; }
+            get => ContentDescriptionObject.Copyright;
+            set => ContentDescriptionObject.Copyright = value;
         }
 
         /// <summary>
@@ -1179,8 +1185,8 @@ namespace TagLib.Asf
         /// </remarks>
         public override string MusicBrainzArtistId
         {
-            get { return GetDescriptorString("MusicBrainz/Artist Id"); }
-            set { SetDescriptorString(value, "MusicBrainz/Artist Id"); }
+            get => GetDescriptorString("MusicBrainz/Artist Id");
+            set => SetDescriptorString(value, "MusicBrainz/Artist Id");
         }
 
         /// <summary>
@@ -1199,8 +1205,8 @@ namespace TagLib.Asf
         /// </remarks>
         public override string MusicBrainzReleaseGroupId
         {
-            get { return GetDescriptorString("MusicBrainz/Release Group Id"); }
-            set { SetDescriptorString(value, "MusicBrainz/Release Group Id"); }
+            get => GetDescriptorString("MusicBrainz/Release Group Id");
+            set => SetDescriptorString(value, "MusicBrainz/Release Group Id");
         }
 
         /// <summary>
@@ -1219,8 +1225,8 @@ namespace TagLib.Asf
         /// </remarks>
         public override string MusicBrainzReleaseId
         {
-            get { return GetDescriptorString("MusicBrainz/Album Id"); }
-            set { SetDescriptorString(value, "MusicBrainz/Album Id"); }
+            get => GetDescriptorString("MusicBrainz/Album Id");
+            set => SetDescriptorString(value, "MusicBrainz/Album Id");
         }
 
         /// <summary>
@@ -1239,8 +1245,8 @@ namespace TagLib.Asf
         /// </remarks>
         public override string MusicBrainzReleaseArtistId
         {
-            get { return GetDescriptorString("MusicBrainz/Album Artist Id"); }
-            set { SetDescriptorString(value, "MusicBrainz/Album Artist Id"); }
+            get => GetDescriptorString("MusicBrainz/Album Artist Id");
+            set => SetDescriptorString(value, "MusicBrainz/Album Artist Id");
         }
 
         /// <summary>
@@ -1259,8 +1265,8 @@ namespace TagLib.Asf
         /// </remarks>
         public override string MusicBrainzTrackId
         {
-            get { return GetDescriptorString("MusicBrainz/Track Id"); }
-            set { SetDescriptorString(value, "MusicBrainz/Track Id"); }
+            get => GetDescriptorString("MusicBrainz/Track Id");
+            set => SetDescriptorString(value, "MusicBrainz/Track Id");
         }
 
         /// <summary>
@@ -1279,8 +1285,8 @@ namespace TagLib.Asf
         /// </remarks>
         public override string MusicBrainzDiscId
         {
-            get { return GetDescriptorString("MusicBrainz/Disc Id"); }
-            set { SetDescriptorString(value, "MusicBrainz/Disc Id"); }
+            get => GetDescriptorString("MusicBrainz/Disc Id");
+            set => SetDescriptorString(value, "MusicBrainz/Disc Id");
         }
 
         /// <summary>
@@ -1299,8 +1305,8 @@ namespace TagLib.Asf
         /// </remarks>
         public override string MusicIpId
         {
-            get { return GetDescriptorString("MusicIP/PUID"); }
-            set { SetDescriptorString(value, "MusicIP/PUID"); }
+            get => GetDescriptorString("MusicIP/PUID");
+            set => SetDescriptorString(value, "MusicIP/PUID");
         }
 
         // <summary>
@@ -1337,8 +1343,8 @@ namespace TagLib.Asf
         /// </remarks>
         public override string MusicBrainzReleaseStatus
         {
-            get { return GetDescriptorString("MusicBrainz/Album Status"); }
-            set { SetDescriptorString(value, "MusicBrainz/Album Status"); }
+            get => GetDescriptorString("MusicBrainz/Album Status");
+            set => SetDescriptorString(value, "MusicBrainz/Album Status");
         }
 
         /// <summary>
@@ -1357,8 +1363,8 @@ namespace TagLib.Asf
         /// </remarks>
         public override string MusicBrainzReleaseType
         {
-            get { return GetDescriptorString("MusicBrainz/Album Type"); }
-            set { SetDescriptorString(value, "MusicBrainz/Album Type"); }
+            get => GetDescriptorString("MusicBrainz/Album Type");
+            set => SetDescriptorString(value, "MusicBrainz/Album Type");
         }
 
         /// <summary>
@@ -1377,8 +1383,8 @@ namespace TagLib.Asf
         /// </remarks>
         public override string MusicBrainzReleaseCountry
         {
-            get { return GetDescriptorString("MusicBrainz/Album Release Country"); }
-            set { SetDescriptorString(value, "MusicBrainz/Album Release Country"); }
+            get => GetDescriptorString("MusicBrainz/Album Release Country");
+            set => SetDescriptorString(value, "MusicBrainz/Album Release Country");
         }
 
         /// <summary>
@@ -1580,14 +1586,18 @@ namespace TagLib.Asf
                 {
                     IPicture p = PictureFromData(descriptor.ToByteVector());
                     if (p != null)
+                    {
                         l.Add(p);
+                    }
                 }
 
                 foreach (DescriptionRecord record in MetadataLibraryObject.GetRecords(0, 0, "WM/Picture"))
                 {
                     IPicture p = PictureFromData(record.ToByteVector());
                     if (p != null)
+                    {
                         l.Add(p);
+                    }
                 }
 
                 return l.ToArray();
@@ -1610,14 +1620,19 @@ namespace TagLib.Asf
                     ByteVector data = PictureToData(pic);
                     pics.Add(data);
                     if (data.Count > 0xFFFF)
+                    {
                         big_pics = true;
+                    }
                 }
 
                 if (big_pics)
                 {
                     DescriptionRecord[] records = new DescriptionRecord[pics.Count];
                     for (int i = 0; i < pics.Count; i++)
+                    {
                         records[i] = new DescriptionRecord(0, 0, "WM/Picture", pics[i]);
+                    }
+
                     RemoveDescriptors("WM/Picture");
                     MetadataLibraryObject.SetRecords(0, 0, "WM/Picture", records);
                 }
@@ -1625,7 +1640,10 @@ namespace TagLib.Asf
                 {
                     ContentDescriptor[] descs = new ContentDescriptor[pics.Count];
                     for (int i = 0; i < pics.Count; i++)
+                    {
                         descs[i] = new ContentDescriptor("WM/Picture", pics[i]);
+                    }
+
                     MetadataLibraryObject.RemoveRecords(0, 0, "WM/Picture");
                     SetDescriptors("WM/Picture", descs);
                 }
@@ -1639,14 +1657,8 @@ namespace TagLib.Asf
         ///    <see langword="true" /> if the current instance does not
         ///    any values. Otherwise <see langword="false" />.
         /// </value>
-        public override bool IsEmpty
-        {
-            get
-            {
-                return ContentDescriptionObject.IsEmpty &&
+        public override bool IsEmpty => ContentDescriptionObject.IsEmpty &&
                     ExtendedContentDescriptionObject.IsEmpty;
-            }
-        }
 
         /// <summary>
         ///    Clears the values stored in the current instance.

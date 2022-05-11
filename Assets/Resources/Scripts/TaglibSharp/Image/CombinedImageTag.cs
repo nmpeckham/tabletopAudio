@@ -73,9 +73,15 @@ namespace TagLib.Image
                 {
                     all_tags = new List<ImageTag>();
                     if (Xmp != null)
+                    {
                         all_tags.Add(Xmp);
+                    }
+
                     if (Exif != null)
+                    {
                         all_tags.Add(Exif);
+                    }
+
                     all_tags.AddRange(OtherTags);
                 }
 
@@ -83,7 +89,7 @@ namespace TagLib.Image
             }
         }
 
-        List<ImageTag> all_tags;
+        private List<ImageTag> all_tags;
 
         #endregion
 
@@ -112,10 +118,14 @@ namespace TagLib.Image
         internal void AddTag(ImageTag tag)
         {
             if ((tag.TagTypes & AllowedTypes) != tag.TagTypes)
+            {
                 throw new Exception($"Attempted to add {tag.TagTypes} to an image, but the only allowed types are {AllowedTypes}");
+            }
 
             if (tag is IFDTag)
+            {
                 Exif = tag as IFDTag;
+            }
             else if (tag is XmpTag)
             {
                 // we treat a IPTC-IIM tag as a XMP tag. However, we prefer the real XMP tag.
@@ -129,15 +139,29 @@ namespace TagLib.Image
                     }
 
                     if (string.IsNullOrEmpty(Xmp.Title))
+                    {
                         Xmp.Title = iimTag.Title;
+                    }
+
                     if (string.IsNullOrEmpty(Xmp.Creator))
+                    {
                         Xmp.Creator = iimTag.Creator;
+                    }
+
                     if (string.IsNullOrEmpty(Xmp.Copyright))
+                    {
                         Xmp.Copyright = iimTag.Copyright;
+                    }
+
                     if (string.IsNullOrEmpty(Xmp.Comment))
+                    {
                         Xmp.Comment = iimTag.Comment;
+                    }
+
                     if (Xmp.Keywords == null)
+                    {
                         Xmp.Keywords = iimTag.Keywords;
+                    }
                 }
                 else
                 {
@@ -145,7 +169,9 @@ namespace TagLib.Image
                 }
             }
             else
+            {
                 OtherTags.Add(tag);
+            }
 
             all_tags = null;
         }
@@ -153,11 +179,17 @@ namespace TagLib.Image
         internal void RemoveTag(ImageTag tag)
         {
             if (tag is IFDTag)
+            {
                 Exif = null;
+            }
             else if (tag is XmpTag)
+            {
                 Xmp = null;
+            }
             else
+            {
                 OtherTags.Remove(tag);
+            }
 
             all_tags = null;
         }
@@ -181,7 +213,9 @@ namespace TagLib.Image
                 TagTypes types = TagTypes.None;
 
                 foreach (ImageTag tag in AllTags)
+                {
                     types |= tag.TagTypes;
+                }
 
                 return types;
             }
@@ -193,7 +227,9 @@ namespace TagLib.Image
         public override void Clear()
         {
             foreach (ImageTag tag in AllTags)
+            {
                 tag.Clear();
+            }
         }
 
         #endregion
@@ -216,7 +252,9 @@ namespace TagLib.Image
                 {
                     string[] value = tag.Keywords;
                     if (value != null && value.Length > 0)
+                    {
                         return value;
+                    }
                 }
 
                 return new string[] { };
@@ -224,7 +262,9 @@ namespace TagLib.Image
             set
             {
                 foreach (ImageTag tag in AllTags)
+                {
                     tag.Keywords = value;
+                }
             }
         }
 
@@ -245,7 +285,9 @@ namespace TagLib.Image
                     uint? value = tag.Rating;
 
                     if (value != null)
+                    {
                         return value;
+                    }
                 }
 
                 return null;
@@ -253,7 +295,9 @@ namespace TagLib.Image
             set
             {
                 foreach (ImageTag tag in AllTags)
+                {
                     tag.Rating = value;
+                }
             }
         }
 
@@ -273,7 +317,9 @@ namespace TagLib.Image
                     DateTime? value = tag.DateTime;
 
                     if (value != null)
+                    {
                         return value;
+                    }
                 }
 
                 return null;
@@ -281,7 +327,9 @@ namespace TagLib.Image
             set
             {
                 foreach (ImageTag tag in AllTags)
+                {
                     tag.DateTime = value;
+                }
             }
         }
 
@@ -302,7 +350,9 @@ namespace TagLib.Image
                     ImageOrientation value = tag.Orientation;
 
                     if ((uint)value >= 1U && (uint)value <= 8U)
+                    {
                         return value;
+                    }
                 }
 
                 return ImageOrientation.None;
@@ -310,7 +360,9 @@ namespace TagLib.Image
             set
             {
                 foreach (ImageTag tag in AllTags)
+                {
                     tag.Orientation = value;
+                }
             }
         }
 
@@ -331,7 +383,9 @@ namespace TagLib.Image
                     string value = tag.Software;
 
                     if (!string.IsNullOrEmpty(value))
+                    {
                         return value;
+                    }
                 }
 
                 return null;
@@ -339,7 +393,9 @@ namespace TagLib.Image
             set
             {
                 foreach (ImageTag tag in AllTags)
+                {
                     tag.Software = value;
+                }
             }
         }
 
@@ -360,7 +416,9 @@ namespace TagLib.Image
                     double? value = tag.Latitude;
 
                     if (value != null)
+                    {
                         return value;
+                    }
                 }
 
                 return null;
@@ -368,7 +426,9 @@ namespace TagLib.Image
             set
             {
                 foreach (ImageTag tag in AllTags)
+                {
                     tag.Latitude = value;
+                }
             }
         }
 
@@ -389,7 +449,9 @@ namespace TagLib.Image
                     double? value = tag.Longitude;
 
                     if (value != null)
+                    {
                         return value;
+                    }
                 }
 
                 return null;
@@ -397,7 +459,9 @@ namespace TagLib.Image
             set
             {
                 foreach (ImageTag tag in AllTags)
+                {
                     tag.Longitude = value;
+                }
             }
         }
 
@@ -418,7 +482,9 @@ namespace TagLib.Image
                     double? value = tag.Altitude;
 
                     if (value != null)
+                    {
                         return value;
+                    }
                 }
 
                 return null;
@@ -426,7 +492,9 @@ namespace TagLib.Image
             set
             {
                 foreach (ImageTag tag in AllTags)
+                {
                     tag.Altitude = value;
+                }
             }
         }
 
@@ -446,7 +514,9 @@ namespace TagLib.Image
                     double? value = tag.ExposureTime;
 
                     if (value != null)
+                    {
                         return value;
+                    }
                 }
 
                 return null;
@@ -454,7 +524,9 @@ namespace TagLib.Image
             set
             {
                 foreach (ImageTag tag in AllTags)
+                {
                     tag.ExposureTime = value;
+                }
             }
         }
 
@@ -474,7 +546,9 @@ namespace TagLib.Image
                     double? value = tag.FNumber;
 
                     if (value != null)
+                    {
                         return value;
+                    }
                 }
 
                 return null;
@@ -482,7 +556,9 @@ namespace TagLib.Image
             set
             {
                 foreach (ImageTag tag in AllTags)
+                {
                     tag.FNumber = value;
+                }
             }
         }
 
@@ -502,7 +578,9 @@ namespace TagLib.Image
                     uint? value = tag.ISOSpeedRatings;
 
                     if (value != null)
+                    {
                         return value;
+                    }
                 }
 
                 return null;
@@ -510,7 +588,9 @@ namespace TagLib.Image
             set
             {
                 foreach (ImageTag tag in AllTags)
+                {
                     tag.ISOSpeedRatings = value;
+                }
             }
         }
 
@@ -530,7 +610,9 @@ namespace TagLib.Image
                     double? value = tag.FocalLength;
 
                     if (value != null)
+                    {
                         return value;
+                    }
                 }
 
                 return null;
@@ -538,7 +620,9 @@ namespace TagLib.Image
             set
             {
                 foreach (ImageTag tag in AllTags)
+                {
                     tag.FocalLength = value;
+                }
             }
         }
 
@@ -558,7 +642,9 @@ namespace TagLib.Image
                     uint? value = tag.FocalLengthIn35mmFilm;
 
                     if (value != null)
+                    {
                         return value;
+                    }
                 }
 
                 return null;
@@ -566,7 +652,9 @@ namespace TagLib.Image
             set
             {
                 foreach (ImageTag tag in AllTags)
+                {
                     tag.FocalLengthIn35mmFilm = value;
+                }
             }
         }
 
@@ -586,7 +674,9 @@ namespace TagLib.Image
                     string value = tag.Make;
 
                     if (!string.IsNullOrEmpty(value))
+                    {
                         return value;
+                    }
                 }
 
                 return null;
@@ -594,7 +684,9 @@ namespace TagLib.Image
             set
             {
                 foreach (ImageTag tag in AllTags)
+                {
                     tag.Make = value;
+                }
             }
         }
 
@@ -614,7 +706,9 @@ namespace TagLib.Image
                     string value = tag.Model;
 
                     if (!string.IsNullOrEmpty(value))
+                    {
                         return value;
+                    }
                 }
 
                 return null;
@@ -622,7 +716,9 @@ namespace TagLib.Image
             set
             {
                 foreach (ImageTag tag in AllTags)
+                {
                     tag.Model = value;
+                }
             }
         }
 
@@ -641,7 +737,9 @@ namespace TagLib.Image
                     string value = tag.Creator;
 
                     if (!string.IsNullOrEmpty(value))
+                    {
                         return value;
+                    }
                 }
 
                 return null;
@@ -649,7 +747,9 @@ namespace TagLib.Image
             set
             {
                 foreach (ImageTag tag in AllTags)
+                {
                     tag.Creator = value;
+                }
             }
         }
 
@@ -676,7 +776,9 @@ namespace TagLib.Image
                     string value = tag.Title;
 
                     if (!string.IsNullOrEmpty(value))
+                    {
                         return value;
+                    }
                 }
 
                 return null;
@@ -684,7 +786,9 @@ namespace TagLib.Image
             set
             {
                 foreach (ImageTag tag in AllTags)
+                {
                     tag.Title = value;
+                }
             }
         }
 
@@ -706,7 +810,9 @@ namespace TagLib.Image
                     string value = tag.Comment;
 
                     if (!string.IsNullOrEmpty(value))
+                    {
                         return value;
+                    }
                 }
 
                 return string.Empty;
@@ -714,7 +820,9 @@ namespace TagLib.Image
             set
             {
                 foreach (ImageTag tag in AllTags)
+                {
                     tag.Comment = value;
+                }
             }
         }
 
@@ -736,7 +844,9 @@ namespace TagLib.Image
                     string value = tag.Copyright;
 
                     if (!string.IsNullOrEmpty(value))
+                    {
                         return value;
+                    }
                 }
 
                 return null;
@@ -744,7 +854,9 @@ namespace TagLib.Image
             set
             {
                 foreach (ImageTag tag in AllTags)
+                {
                     tag.Copyright = value;
+                }
             }
         }
 

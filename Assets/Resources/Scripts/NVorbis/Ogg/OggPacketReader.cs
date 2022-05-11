@@ -12,33 +12,41 @@ using System.IO;
 namespace NVorbis.Ogg
 {
     [System.Diagnostics.DebuggerTypeProxy(typeof(PacketReader.DebugView))]
-    class PacketReader : IPacketProvider
+    internal class PacketReader : IPacketProvider
     {
-        class DebugView
+        private class DebugView
         {
-            PacketReader _reader;
+            private readonly PacketReader _reader;
 
             public DebugView(PacketReader reader)
             {
-                if (reader == null) throw new ArgumentNullException("reader");
+                if (reader == null)
+                {
+                    throw new ArgumentNullException("reader");
+                }
+
                 _reader = reader;
             }
 
-            public ContainerReader Container { get { return _reader._container; } }
-            public int StreamSerial { get { return _reader._streamSerial; } }
-            public bool EndOfStreamFound { get { return _reader._eosFound; } }
+            public ContainerReader Container => _reader._container;
+            public int StreamSerial => _reader._streamSerial;
+            public bool EndOfStreamFound => _reader._eosFound;
 
             public int CurrentPacketIndex
             {
                 get
                 {
-                    if (_reader._current == null) return -1;
+                    if (_reader._current == null)
+                    {
+                        return -1;
+                    }
+
                     return Array.IndexOf(Packets, _reader._current);
                 }
             }
 
-            Packet _last, _first;
-            Packet[] _packetList = new Packet[0];
+            private Packet _last, _first;
+            private Packet[] _packetList = new Packet[0];
             public Packet[] Packets
             {
                 get
@@ -69,13 +77,11 @@ namespace NVorbis.Ogg
         public event EventHandler<ParameterChangeEventArgs> ParameterChange;
 #pragma warning restore 67
 
-        ContainerReader _container;
-        int _streamSerial;
-        bool _eosFound;
-
-        Packet _first, _current, _last;
-
-        object _packetLock = new object();
+        private ContainerReader _container;
+        private readonly int _streamSerial;
+        private bool _eosFound;
+        private Packet _first, _current, _last;
+        private readonly object _packetLock = new object();
 
         internal PacketReader(ContainerReader container, int streamSerial)
         {
@@ -88,7 +94,10 @@ namespace NVorbis.Ogg
             _eosFound = true;
 
             if (_container != null)
+            {
                 _container.DisposePacketReader(this);
+            }
+
             _container = null;
 
             _current = null;
@@ -115,30 +124,45 @@ namespace NVorbis.Ogg
             lock (_packetLock)
             {
                 // if we've already found the end of the stream, don't accept any more packets
-                if (_eosFound) return;
+                if (_eosFound)
+                {
+                    return;
+                }
 
                 // if the packet is a resync, it cannot be a continuation...
                 if (packet.IsResync)
                 {
                     packet.IsContinuation = false;
-                    if (_last != null) _last.IsContinued = false;
+                    if (_last != null)
+                    {
+                        _last.IsContinued = false;
+                    }
                 }
 
                 if (packet.IsContinuation)
                 {
                     // if we get here, the stream is invalid if there isn't a previous packet
-                    if (_last == null) throw new InvalidDataException();
+                    if (_last == null)
+                    {
+                        throw new InvalidDataException();
+                    }
 
                     // if the last packet isn't continued, something is wrong
-                    if (!_last.IsContinued) throw new InvalidDataException();
+                    if (!_last.IsContinued)
+                    {
+                        throw new InvalidDataException();
+                    }
 
                     _last.MergeWith(packet);
                     _last.IsContinued = packet.IsContinued;
                 }
                 else
                 {
-                    var p = packet as Packet;
-                    if (p == null) throw new ArgumentException("Wrong packet datatype", "packet");
+                    var p = packet;
+                    if (p == null)
+                    {
+                        throw new ArgumentException("Wrong packet datatype", "packet");
+                    }
 
                     if (_first == null)
                     {
@@ -160,10 +184,7 @@ namespace NVorbis.Ogg
             }
         }
 
-        internal bool HasEndOfStream
-        {
-            get { return _eosFound; }
-        }
+        internal bool HasEndOfStream => _eosFound;
 
         internal void SetEndOfStream()
         {
@@ -183,10 +204,7 @@ namespace NVorbis.Ogg
             }
         }
 
-        public int StreamSerial
-        {
-            get { return _streamSerial; }
-        }
+        public int StreamSerial => _streamSerial;
 
         public long ContainerBits
         {
@@ -194,10 +212,7 @@ namespace NVorbis.Ogg
             set;
         }
 
-        public bool CanSeek
-        {
-            get { return _container.CanSeek; }
-        }
+        public bool CanSeek => _container.CanSeek;
 
         // This is fast path... don't make the caller wait if we can help it...
         public DataPacket GetNextPacket()
@@ -210,7 +225,7 @@ namespace NVorbis.Ogg
             return PeekNextPacketInternal();
         }
 
-        Packet PeekNextPacketInternal()
+        private Packet PeekNextPacketInternal()
         {
             // try to get the next packet in the sequence
             Packet curPacket;
@@ -227,7 +242,10 @@ namespace NVorbis.Ogg
                         curPacket = _current.Next;
 
                         // if we have a valid packet or we can't get any more, bail out of the loop
-                        if ((curPacket != null && !curPacket.IsContinued) || _eosFound) break;
+                        if ((curPacket != null && !curPacket.IsContinued) || _eosFound)
+                        {
+                            break;
+                        }
                     }
 
                     // we need another packet and we've not found the end of the stream...
@@ -238,7 +256,11 @@ namespace NVorbis.Ogg
             // if we're returning a packet, prep is for use
             if (curPacket != null)
             {
-                if (curPacket.IsContinued) throw new InvalidDataException("Packet is incomplete!");
+                if (curPacket.IsContinued)
+                {
+                    throw new InvalidDataException("Packet is incomplete!");
+                }
+
                 curPacket.Reset();
             }
 
@@ -247,7 +269,10 @@ namespace NVorbis.Ogg
 
         internal void ReadAllPages()
         {
-            if (!CanSeek) throw new InvalidOperationException();
+            if (!CanSeek)
+            {
+                throw new InvalidOperationException();
+            }
 
             // don't hold the lock any longer than we have to
             while (!_eosFound)
@@ -285,11 +310,21 @@ namespace NVorbis.Ogg
 
         public DataPacket GetPacket(int packetIndex)
         {
-            if (!CanSeek) throw new InvalidOperationException();
-            if (packetIndex < 0) throw new ArgumentOutOfRangeException("index");
+            if (!CanSeek)
+            {
+                throw new InvalidOperationException();
+            }
+
+            if (packetIndex < 0)
+            {
+                throw new ArgumentOutOfRangeException("index");
+            }
 
             // if _first is null, something is borked
-            if (_first == null) throw new InvalidOperationException("Packet reader has no packets!");
+            if (_first == null)
+            {
+                throw new InvalidOperationException("Packet reader has no packets!");
+            }
 
             // starting from the beginning, count packets until we have the one we want...
             var packet = _first;
@@ -311,7 +346,7 @@ namespace NVorbis.Ogg
             return packet;
         }
 
-        Packet GetLastPacketInPage(Packet packet)
+        private Packet GetLastPacketInPage(Packet packet)
         {
             if (packet != null)
             {
@@ -330,7 +365,7 @@ namespace NVorbis.Ogg
             return packet;
         }
 
-        Packet FindPacketInPage(Packet pagePacket, long targetGranulePos, Func<DataPacket, DataPacket, int> packetGranuleCountCallback)
+        private Packet FindPacketInPage(Packet pagePacket, long targetGranulePos, Func<DataPacket, DataPacket, int> packetGranuleCountCallback)
         {
             var lastPacketInPage = GetLastPacketInPage(pagePacket);
             if (lastPacketInPage == null)
@@ -409,7 +444,10 @@ namespace NVorbis.Ogg
             // Please note, the spec actually calls for a bisection search, but the result here should be the same.
 
             // don't look for any position before 0!
-            if (granulePos < 0) throw new ArgumentOutOfRangeException("granulePos");
+            if (granulePos < 0)
+            {
+                throw new ArgumentOutOfRangeException("granulePos");
+            }
 
             Packet foundPacket = null;
 
@@ -452,16 +490,29 @@ namespace NVorbis.Ogg
 
         public void SeekToPacket(DataPacket packet, int preRoll)
         {
-            if (preRoll < 0) throw new ArgumentOutOfRangeException("preRoll");
-            if (packet == null) throw new ArgumentNullException("granulePos");
+            if (preRoll < 0)
+            {
+                throw new ArgumentOutOfRangeException("preRoll");
+            }
+
+            if (packet == null)
+            {
+                throw new ArgumentNullException("granulePos");
+            }
 
             var op = packet as Packet;
-            if (op == null) throw new ArgumentException("Incorrect packet type!", "packet");
+            if (op == null)
+            {
+                throw new ArgumentException("Incorrect packet type!", "packet");
+            }
 
             while (--preRoll >= 0)
             {
                 op = op.Prev;
-                if (op == null) throw new ArgumentOutOfRangeException("preRoll");
+                if (op == null)
+                {
+                    throw new ArgumentOutOfRangeException("preRoll");
+                }
             }
 
             // _current always points to the last packet returned by PeekNextPacketInternal

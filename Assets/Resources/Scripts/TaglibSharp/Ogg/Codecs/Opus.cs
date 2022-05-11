@@ -38,11 +38,10 @@ namespace TagLib.Ogg.Codecs
         /// <summary>
         ///    Contains the file identifier.
         /// </summary>
-        static readonly ByteVector magic_signature_base = "Opus";
-
-        static readonly ByteVector magic_signature_header = "OpusHead";
-        static readonly ByteVector magic_signature_comment = "OpusTags";
-        static readonly int magic_signature_length = 8;
+        private static readonly ByteVector magic_signature_base = "Opus";
+        private static readonly ByteVector magic_signature_header = "OpusHead";
+        private static readonly ByteVector magic_signature_comment = "OpusTags";
+        private static readonly int magic_signature_length = 8;
 
         #endregion
 
@@ -53,12 +52,12 @@ namespace TagLib.Ogg.Codecs
         /// <summary>
         ///    Contains the header packet.
         /// </summary>
-        HeaderPacket header;
+        private HeaderPacket header;
 
         /// <summary>
         ///    Contains the comment data.
         /// </summary>
-        ByteVector comment_data;
+        private ByteVector comment_data;
 
         #endregion
 
@@ -70,7 +69,7 @@ namespace TagLib.Ogg.Codecs
         ///    Constructs and initializes a new instance of <see
         ///    cref="Opus" />.
         /// </summary>
-        Opus()
+        private Opus()
         {
         }
 
@@ -111,23 +110,35 @@ namespace TagLib.Ogg.Codecs
         public override bool ReadPacket(ByteVector packet, int index)
         {
             if (packet == null)
+            {
                 throw new ArgumentNullException(nameof(packet));
+            }
 
             if (index < 0)
+            {
                 throw new ArgumentOutOfRangeException(nameof(index), "index must be at least zero.");
+            }
 
             ByteVector signature = MagicSignature(packet);
             if (signature != magic_signature_header && index == 0)
+            {
                 throw new CorruptFileException("Stream does not begin with opus header.");
+            }
 
             if (comment_data == null)
             {
                 if (signature == magic_signature_header)
+                {
                     header = new HeaderPacket(packet);
+                }
                 else if (signature == magic_signature_comment)
+                {
                     comment_data = packet.Mid(magic_signature_length);
+                }
                 else
+                {
                     return true;
+                }
             }
 
             return comment_data != null;
@@ -174,18 +185,28 @@ namespace TagLib.Ogg.Codecs
         public override void SetCommentPacket(ByteVectorCollection packets, XiphComment comment)
         {
             if (packets == null)
+            {
                 throw new ArgumentNullException(nameof(packets));
+            }
 
             if (comment == null)
+            {
                 throw new ArgumentNullException(nameof(comment));
+            }
 
-            ByteVector data = new ByteVector();
-            data.Add(magic_signature_comment);
-            data.Add(comment.Render(true));
+            ByteVector data = new ByteVector
+            {
+                magic_signature_comment,
+                comment.Render(true)
+            };
             if (packets.Count > 1 && MagicSignature(packets[1]) == magic_signature_comment)
+            {
                 packets[1] = data;
+            }
             else
+            {
                 packets.Insert(1, data);
+            }
         }
 
         #endregion
@@ -206,10 +227,7 @@ namespace TagLib.Ogg.Codecs
         ///    Always returns zero, since bitrate is variable and no
         ///    information is stored in the Ogg header (unlike e.g. Vorbis).
         /// </remarks>
-        public int AudioBitrate
-        {
-            get { return 0; }
-        }
+        public int AudioBitrate => 0;
 
         /// <summary>
         ///    Gets the sample rate of the audio represented by the
@@ -219,10 +237,7 @@ namespace TagLib.Ogg.Codecs
         ///    A <see cref="int" /> value containing the original
         ///    sample rate of the audio represented by the current instance.
         /// </value>
-        public int AudioSampleRate
-        {
-            get { return (int)header.input_sample_rate; }
-        }
+        public int AudioSampleRate => (int)header.input_sample_rate;
 
         /// <summary>
         ///    Gets the number of channels in the audio represented by
@@ -233,10 +248,7 @@ namespace TagLib.Ogg.Codecs
         ///    channels in the audio represented by the current
         ///    instance.
         /// </value>
-        public int AudioChannels
-        {
-            get { return (int)header.channel_count; }
-        }
+        public int AudioChannels => (int)header.channel_count;
 
         /// <summary>
         ///    Gets the types of media represented by the current
@@ -245,10 +257,7 @@ namespace TagLib.Ogg.Codecs
         /// <value>
         ///    Always <see cref="MediaTypes.Audio" />.
         /// </value>
-        public override MediaTypes MediaTypes
-        {
-            get { return MediaTypes.Audio; }
-        }
+        public override MediaTypes MediaTypes => MediaTypes.Audio;
 
         /// <summary>
         ///    Gets the raw Xiph comment data contained in the codec.
@@ -257,10 +266,7 @@ namespace TagLib.Ogg.Codecs
         ///    A <see cref="ByteVector" /> object containing a raw Xiph
         ///    comment or <see langword="null"/> if none was found.
         /// </value>
-        public override ByteVector CommentData
-        {
-            get { return comment_data; }
-        }
+        public override ByteVector CommentData => comment_data;
 
         /// <summary>
         ///    Gets a text description of the media represented by the
@@ -270,13 +276,7 @@ namespace TagLib.Ogg.Codecs
         ///    A <see cref="string" /> object containing a description
         ///    of the media represented by the current instance.
         /// </value>
-        public override string Description
-        {
-            get
-            {
-                return $"Opus Version {header.opus_version} Audio";
-            }
-        }
+        public override string Description => $"Opus Version {header.opus_version} Audio";
 
         #endregion
 
@@ -320,14 +320,20 @@ namespace TagLib.Ogg.Codecs
         ///    A <see cref="ByteVector" /> value containing the magic
         ///    signature or null if the packet is invalid.
         /// </returns>
-        static ByteVector MagicSignature(ByteVector packet)
+        private static ByteVector MagicSignature(ByteVector packet)
         {
             if (packet.Count < magic_signature_length)
+            {
                 return null;
+            }
 
             for (int i = 0; i < magic_signature_base.Count; i++)
+            {
                 if (packet[i] != magic_signature_base[i])
+                {
                     return null;
+                }
+            }
 
             return packet.Mid(0, magic_signature_length);
         }
@@ -337,7 +343,7 @@ namespace TagLib.Ogg.Codecs
         /// <summary>
         ///    This structure represents a Opus header packet.
         /// </summary>
-        struct HeaderPacket
+        private struct HeaderPacket
         {
             public uint opus_version;
             public uint channel_count;

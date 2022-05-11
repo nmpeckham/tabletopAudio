@@ -41,6 +41,9 @@ namespace Id3.Frames
 
         public Id3TextEncoding EncodingType { get; set; }
 
-        public static implicit operator CustomUrlLinkFrame(string url) => new CustomUrlLinkFrame(url);
+        public static implicit operator CustomUrlLinkFrame(string url)
+        {
+            return new CustomUrlLinkFrame(url);
+        }
     }
 }

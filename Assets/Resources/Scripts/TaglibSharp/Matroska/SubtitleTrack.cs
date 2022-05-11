@@ -77,13 +77,7 @@ namespace TagLib.Matroska
         /// <summary>
         /// This type of track only has text media type.
         /// </summary>
-        public override MediaTypes MediaTypes
-        {
-            get
-            {
-                return MediaTypes.Text;
-            }
-        }
+        public override MediaTypes MediaTypes => MediaTypes.Text;
 
         #endregion
     }

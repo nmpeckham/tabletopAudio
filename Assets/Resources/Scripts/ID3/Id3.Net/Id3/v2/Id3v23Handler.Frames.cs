@@ -40,7 +40,9 @@ namespace Id3.v2
                 value = encoding.GetString(data, 1, data.Length - 1);
                 if (value.Length > 0 && frame.EncodingType == Id3TextEncoding.Unicode &&
                     (value[0] == '\xFFFE' || value[0] == '\xFEFF'))
+                {
                     value = value.Remove(0, 1);
+                }
             }
             else
             {
@@ -88,9 +90,13 @@ namespace Id3.v2
 
             string language = TextEncodingHelper.GetDefaultEncoding().GetString(data, 1, 3).ToLowerInvariant();
             if (!Enum.IsDefined(typeof(Id3Language), language))
+            {
                 frame.Language = Id3Language.eng;
+            }
             else
+            {
                 frame.Language = (Id3Language)Enum.Parse(typeof(Id3Language), language, true);
+            }
 
             string[] splitStrings = TextEncodingHelper.GetSplitStrings(data, 4, data.Length - 4, frame.EncodingType);
             if (splitStrings.Length > 1)
@@ -99,7 +105,9 @@ namespace Id3.v2
                 frame.Comment = splitStrings[1];
             }
             else if (splitStrings.Length == 1)
+            {
                 frame.Comment = splitStrings[0];
+            }
 
             return frame;
         }
@@ -117,11 +125,16 @@ namespace Id3.v2
             Encoding encoding = TextEncodingHelper.GetEncoding(frame.EncodingType);
             bytes.AddRange(encoding.GetPreamble());
             if (!string.IsNullOrEmpty(frame.Description))
+            {
                 bytes.AddRange(encoding.GetBytes(frame.Description));
+            }
+
             bytes.AddRange(TextEncodingHelper.GetSplitterBytes(frame.EncodingType));
             bytes.AddRange(encoding.GetPreamble());
             if (!string.IsNullOrEmpty(frame.Comment))
+            {
                 bytes.AddRange(encoding.GetBytes(frame.Comment));
+            }
 
             return bytes.ToArray();
         }
@@ -140,7 +153,9 @@ namespace Id3.v2
                 url = TextEncodingHelper.GetDefaultString(splitBytes[1], 0, splitBytes[1].Length);
             }
             else if (splitBytes.Length == 1)
+            {
                 url = TextEncodingHelper.GetDefaultString(splitBytes[0], 0, splitBytes[0].Length);
+            }
 
             frame.Url = url;
 
@@ -158,10 +173,15 @@ namespace Id3.v2
             Encoding encoding = TextEncodingHelper.GetEncoding(frame.EncodingType);
             bytes.AddRange(encoding.GetPreamble());
             if (!string.IsNullOrEmpty(frame.Description))
+            {
                 bytes.AddRange(encoding.GetBytes(frame.Description));
+            }
+
             bytes.AddRange(TextEncodingHelper.GetSplitterBytes(frame.EncodingType));
             if (frame.Url != null)
+            {
                 bytes.AddRange(TextEncodingHelper.GetDefaultEncoding().GetBytes(frame.Url));
+            }
 
             return bytes.ToArray();
         }
@@ -172,9 +192,13 @@ namespace Id3.v2
 
             string language = TextEncodingHelper.GetDefaultEncoding().GetString(data, 1, 3).ToLowerInvariant();
             if (!Enum.IsDefined(typeof(Id3Language), language))
+            {
                 frame.Language = Id3Language.eng;
+            }
             else
+            {
                 frame.Language = (Id3Language)Enum.Parse(typeof(Id3Language), language, true);
+            }
 
             string[] splitStrings = TextEncodingHelper.GetSplitStrings(data, 4, data.Length - 4, frame.EncodingType);
             if (splitStrings.Length > 1)
@@ -183,7 +207,9 @@ namespace Id3.v2
                 frame.Lyrics = splitStrings[1];
             }
             else if (splitStrings.Length == 1)
+            {
                 frame.Lyrics = splitStrings[0];
+            }
 
             return frame;
         }
@@ -213,7 +239,10 @@ namespace Id3.v2
             byte[] description = ByteArrayHelper.GetBytesUptoSequence(data, currentPos,
                 TextEncodingHelper.GetSplitterBytes(frame.EncodingType));
             if (description == null)
+            {
                 return frame;
+            }
+
             frame.Description = TextEncodingHelper.GetString(description, 0, description.Length, frame.EncodingType);
 
             currentPos += description.Length + TextEncodingHelper.GetSplitterBytes(frame.EncodingType).Length;
@@ -242,11 +271,16 @@ namespace Id3.v2
             Encoding descriptionEncoding = TextEncodingHelper.GetEncoding(frame.EncodingType);
             bytes.AddRange(descriptionEncoding.GetPreamble());
             if (!string.IsNullOrEmpty(frame.Description))
+            {
                 bytes.AddRange(descriptionEncoding.GetBytes(frame.Description));
+            }
+
             bytes.AddRange(TextEncodingHelper.GetSplitterBytes(frame.EncodingType));
 
             if (frame.PictureData != null && frame.PictureData.Length > 0)
+            {
                 bytes.AddRange(frame.PictureData);
+            }
 
             return bytes.ToArray();
         }

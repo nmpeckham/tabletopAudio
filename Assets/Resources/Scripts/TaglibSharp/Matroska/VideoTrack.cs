@@ -52,17 +52,17 @@ namespace TagLib.Matroska
         #region Private fields
 
 #pragma warning disable 414 // Assigned, never used
-        readonly ulong width;
-        readonly ulong height;
-        readonly ulong disp_width;
-        readonly ulong disp_height;
-        readonly double framerate;
-        readonly bool interlaced;
-        readonly VideoAspectRatioType ratio_type;
-        readonly ByteVector fourcc;
+        private readonly ulong width;
+        private readonly ulong height;
+        private readonly ulong disp_width;
+        private readonly ulong disp_height;
+        private readonly double framerate;
+        private readonly bool interlaced;
+        private readonly VideoAspectRatioType ratio_type;
+        private readonly ByteVector fourcc;
 #pragma warning restore 414
 
-        readonly List<EBMLreader> unknown_elems = new List<EBMLreader>();
+        private readonly List<EBMLreader> unknown_elems = new List<EBMLreader>();
 
         #endregion
 
@@ -152,10 +152,7 @@ namespace TagLib.Matroska
         /// <summary>
         /// List of unknown elements encountered while parsing.
         /// </summary>
-        public new List<EBMLreader> UnknownElements
-        {
-            get { return unknown_elems; }
-        }
+        public new List<EBMLreader> UnknownElements => unknown_elems;
 
         #endregion
 
@@ -168,10 +165,7 @@ namespace TagLib.Matroska
         /// <summary>
         /// This type of track only has video media type.
         /// </summary>
-        public override MediaTypes MediaTypes
-        {
-            get { return MediaTypes.Video; }
-        }
+        public override MediaTypes MediaTypes => MediaTypes.Video;
 
         #endregion
 
@@ -180,18 +174,12 @@ namespace TagLib.Matroska
         /// <summary>
         /// Describes video track width in pixels.
         /// </summary>
-        public int VideoWidth
-        {
-            get { return (int)width; }
-        }
+        public int VideoWidth => (int)width;
 
         /// <summary>
         /// Describes video track height in pixels.
         /// </summary>
-        public int VideoHeight
-        {
-            get { return (int)height; }
-        }
+        public int VideoHeight => (int)height;
 
         #endregion
     }

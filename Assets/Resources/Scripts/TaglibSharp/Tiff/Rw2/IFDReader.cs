@@ -110,20 +110,17 @@ namespace TagLib.Tiff.Rw2
             return base.ParseIFDEntry(tag, type, count, base_offset, offset);
         }
 
-        bool seen_jpgfromraw;
+        private bool seen_jpgfromraw;
     }
 
-    class StreamJPGAbstraction : TagLib.File.IFileAbstraction
+    internal class StreamJPGAbstraction : TagLib.File.IFileAbstraction
     {
         public StreamJPGAbstraction(Stream stream)
         {
             ReadStream = stream;
         }
 
-        public string Name
-        {
-            get { return "JpgFromRaw.jpg"; }
-        }
+        public string Name => "JpgFromRaw.jpg";
 
         public void CloseStream(Stream stream)
         {
@@ -132,9 +129,6 @@ namespace TagLib.Tiff.Rw2
 
         public Stream ReadStream { get; private set; }
 
-        public Stream WriteStream
-        {
-            get { return ReadStream; }
-        }
+        public Stream WriteStream => ReadStream;
     }
 }

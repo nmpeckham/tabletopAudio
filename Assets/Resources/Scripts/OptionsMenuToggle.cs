@@ -7,7 +7,8 @@ public class OptionsMenuToggle : MonoBehaviour
     public string id = "";
     private Toggle thisToggle;
     private OptionsMenuController omc;
-    void Start()
+
+    private void Start()
     {
         omc = Camera.main.GetComponent<OptionsMenuController>();
         thisToggle = GetComponent<Toggle>();

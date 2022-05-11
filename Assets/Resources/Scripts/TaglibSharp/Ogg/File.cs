@@ -59,12 +59,12 @@ namespace TagLib.Ogg
         /// <summary>
         ///   Contains the tags for the file.
         /// </summary>
-        readonly GroupedComment tag;
+        private readonly GroupedComment tag;
 
         /// <summary>
         ///    Contains the media properties.
         /// </summary>
-        Properties properties;
+        private Properties properties;
 
         #endregion
 
@@ -191,7 +191,9 @@ namespace TagLib.Ogg
                 {
                     uint id = page.Header.StreamSerialNumber;
                     if (!paginators.ContainsKey(id))
+                    {
                         paginators.Add(id, new Paginator(streams[id].Codec));
+                    }
 
                     paginators[id].AddPage(page);
                 }
@@ -211,13 +213,17 @@ namespace TagLib.Ogg
                     foreach (var stream_pages in new_pages)
                     {
                         if (stream_pages.Count == 0)
+                        {
                             continue;
+                        }
 
                         output.Add(stream_pages[0].Render());
                         stream_pages.RemoveAt(0);
 
                         if (stream_pages.Count != 0)
+                        {
                             empty = false;
+                        }
                     }
                 } while (!empty);
 
@@ -249,7 +255,9 @@ namespace TagLib.Ogg
         public override void RemoveTags(TagTypes types)
         {
             if ((types & TagTypes.Xiph) != TagTypes.None)
+            {
                 tag.Clear();
+            }
         }
 
         /// <summary>
@@ -273,8 +281,12 @@ namespace TagLib.Ogg
         public override Tag GetTag(TagTypes type, bool create)
         {
             if (type == TagTypes.Xiph)
+            {
                 foreach (var comment in tag.Comments)
+                {
                     return comment;
+                }
+            }
 
             return null;
         }
@@ -293,10 +305,7 @@ namespace TagLib.Ogg
         ///    A <see cref="TagLib.Tag" /> object representing all tags
         ///    stored in the current instance.
         /// </value>
-        public override Tag Tag
-        {
-            get { return tag; }
-        }
+        public override Tag Tag => tag;
 
         /// <summary>
         ///    Gets the media properties of the file represented by the
@@ -307,10 +316,7 @@ namespace TagLib.Ogg
         ///    media properties of the file represented by the current
         ///    instance.
         /// </value>
-        public override Properties Properties
-        {
-            get { return properties; }
-        }
+        public override Properties Properties => properties;
 
         #endregion
 
@@ -326,7 +332,7 @@ namespace TagLib.Ogg
         ///    of accuracy to read the media properties, or <see
         ///    cref="ReadStyle.None" /> to ignore the properties.
         /// </param>
-        void Read(ReadStyle propertiesStyle)
+        private void Read(ReadStyle propertiesStyle)
         {
             var streams = ReadStreams(null, out var end);
             var codecs = new List<ICodec>();
@@ -340,7 +346,9 @@ namespace TagLib.Ogg
             }
 
             if ((propertiesStyle & ReadStyle.Average) == 0)
+            {
                 return;
+            }
 
             var last_header = LastPageHeader;
 
@@ -368,7 +376,7 @@ namespace TagLib.Ogg
         ///    /> object containing stream serial numbers as the keys
         ///    <see cref="Bitstream" /> objects as the values.
         /// </returns>
-        Dictionary<uint, Bitstream> ReadStreams(List<Page> pages, out long end)
+        private Dictionary<uint, Bitstream> ReadStreams(List<Page> pages, out long end)
         {
             var streams = new Dictionary<uint, Bitstream>();
             var active_streams = new List<Bitstream>();
@@ -388,10 +396,14 @@ namespace TagLib.Ogg
                 }
 
                 if (stream == null)
+                {
                     stream = streams[page.Header.StreamSerialNumber];
+                }
 
                 if (active_streams.Contains(stream) && stream.ReadPage(page))
+                {
                     active_streams.Remove(stream);
+                }
 
                 pages?.Add(page);
 
@@ -421,14 +433,16 @@ namespace TagLib.Ogg
         ///    absolute granular position of a stream so the duration
         ///    can be calculated.
         /// </remarks>
-        PageHeader LastPageHeader
+        private PageHeader LastPageHeader
         {
             get
             {
                 long last_page_header_offset = RFind("OggS");
 
                 if (last_page_header_offset < 0)
+                {
                     throw new CorruptFileException("Could not find last header.");
+                }
 
                 return new PageHeader(this, last_page_header_offset);
             }

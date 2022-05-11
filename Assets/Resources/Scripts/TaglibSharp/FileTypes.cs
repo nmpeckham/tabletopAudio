@@ -45,7 +45,7 @@ namespace TagLib
         ///    Contains a mapping between mime-types and the <see
         ///    cref="File" /> subclasses that support them.
         /// </summary>
-        static Dictionary<string, Type> file_types;
+        private static Dictionary<string, Type> file_types;
 
         /// <summary>
         ///    Contains a static array of file types contained in the
@@ -58,7 +58,7 @@ namespace TagLib
         ///    Mono. Not reflecting taglib-sharp.dll saves about 120KB
         ///    of heap.
         /// </remarks>
-        static readonly Type[] static_file_types = new[] {
+        private static readonly Type[] static_file_types = new[] {
             typeof(Aac.File),
             typeof(Aiff.File),
             typeof(Ape.File),
@@ -102,12 +102,16 @@ namespace TagLib
         internal static void Init()
         {
             if (file_types != null)
+            {
                 return;
+            }
 
             file_types = new Dictionary<string, Type>();
 
             foreach (Type type in static_file_types)
+            {
                 Register(type);
+            }
         }
 
         /// <summary>
@@ -127,10 +131,14 @@ namespace TagLib
             Attribute[] attrs = Attribute.GetCustomAttributes(type, typeof(SupportedMimeType), false);
 
             if (attrs.Length == 0)
+            {
                 return;
+            }
 
             foreach (SupportedMimeType attr in attrs)
+            {
                 file_types.Add(attr.MimeType, type);
+            }
         }
 
         /// <summary>
@@ -142,10 +150,7 @@ namespace TagLib
         ///    A <see cref="T:System.Collections.Generic.IDictionary`2" /> object containing the
         ///    supported mime-types.
         /// </value>
-        public static IDictionary<string, Type> AvailableTypes
-        {
-            get { return file_types; }
-        }
+        public static IDictionary<string, Type> AvailableTypes => file_types;
     }
 }
 

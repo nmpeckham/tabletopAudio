@@ -36,9 +36,8 @@ namespace TagLib.Matroska
         #region Private fields/Properties
 
         // Store the Attachments
-        Attachment[] attachments = new Attachment[0];
-
-        readonly List<Track> _Tracks;
+        private Attachment[] attachments = new Attachment[0];
+        private readonly List<Track> _Tracks;
 
         #endregion
 
@@ -69,7 +68,9 @@ namespace TagLib.Matroska
         protected override void InsertItem(int index, Tag tag)
         {
             if (tag == null)
+            {
                 throw new ArgumentNullException(nameof(tag), "Can't add a null Matroska.Tag to a Matroska.Tags object");
+            }
 
             // Remove duplicate
             for (int j = 0; j < Count; j++)
@@ -86,9 +87,14 @@ namespace TagLib.Matroska
                 for (index = Count - 1; index >= 0; index--)
                 {
                     if (this[index].TargetTypeValue > tag.TargetTypeValue)
+                    {
                         break;
+                    }
+
                     if (this[index].TargetTypeValue == tag.TargetTypeValue && (this[index].Elements == null || tag.Elements != null))
+                    {
                         break;
+                    }
                 }
 
                 index++;
@@ -125,7 +131,10 @@ namespace TagLib.Matroska
             base.ClearItems();
 
             // Keep Medium Tag reference unchanged (if any)
-            if (medium != null) Add(medium);
+            if (medium != null)
+            {
+                Add(medium);
+            }
         }
 
 
@@ -164,7 +173,10 @@ namespace TagLib.Matroska
                     if (medium != null)
                     {
                         bool isMedium = (ret.Elements == null);
-                        if (medium == isMedium) break;
+                        if (medium == isMedium)
+                        {
+                            break;
+                        }
                     }
                     else
                     {
@@ -197,7 +209,10 @@ namespace TagLib.Matroska
                     {
                         foreach (var uid in ret.Elements)
                         {
-                            if (uid.UID == UID) return ret; // found
+                            if (uid.UID == UID)
+                            {
+                                return ret; // found
+                            }
                         }
                     }
                 }
@@ -243,7 +258,10 @@ namespace TagLib.Matroska
                     ret = this[i];
                     if (ret.TargetType == TargetType.DEFAULT) // Avoid CD/DVD
                     {
-                        if (ret.Elements == null) return ret;
+                        if (ret.Elements == null)
+                        {
+                            return ret;
+                        }
                     }
                 }
 
@@ -254,7 +272,10 @@ namespace TagLib.Matroska
                     ret = this[i];
                     if (ret.TargetTypeValue != 40 || !vid) // Avoid CD/DVD
                     {
-                        if (ret.Elements == null) break;
+                        if (ret.Elements == null)
+                        {
+                            break;
+                        }
                     }
                 }
 
@@ -289,15 +310,15 @@ namespace TagLib.Matroska
         /// </value>
         public Attachment[] Attachments
         {
-            get
-            {
-                return attachments;
-            }
+            get => attachments;
             set
             {
                 if (value == null)
                 {
-                    if (attachments.Length > 0) attachments = new Attachment[0];
+                    if (attachments.Length > 0)
+                    {
+                        attachments = new Attachment[0];
+                    }
                 }
                 else
                 {
@@ -309,10 +330,7 @@ namespace TagLib.Matroska
         /// <summary>
         /// Get direct access to the Matroska Tracks. 
         /// </summary>
-        public ReadOnlyCollection<Track> Tracks
-        {
-            get { return _Tracks.AsReadOnly(); }
-        }
+        public ReadOnlyCollection<Track> Tracks => _Tracks.AsReadOnly();
 
         #endregion
     }

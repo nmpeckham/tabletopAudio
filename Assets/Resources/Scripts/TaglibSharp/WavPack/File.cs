@@ -49,7 +49,7 @@ namespace TagLib.WavPack
         /// <summary>
         ///    Contains the block with the audio header.
         /// </summary>
-        ByteVector header_block;
+        private ByteVector header_block;
 
         #endregion
 
@@ -173,7 +173,9 @@ namespace TagLib.WavPack
             Tag t = (Tag as TagLib.NonContainer.Tag).GetTag(type);
 
             if (t != null || !create)
+            {
                 return t;
+            }
 
             switch (type)
             {
@@ -214,7 +216,9 @@ namespace TagLib.WavPack
         {
             if (header_block != null &&
                 (propertiesStyle & ReadStyle.Average) == 0)
+            {
                 return;
+            }
 
             Seek(start);
             header_block = ReadBlock((int)StreamHeader.Size);

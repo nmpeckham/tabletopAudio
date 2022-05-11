@@ -40,7 +40,7 @@ namespace TagLib.Asf
         /// <summary>
         ///    Contains the content descriptors.
         /// </summary>
-        readonly List<ContentDescriptor> descriptors = new List<ContentDescriptor>();
+        private readonly List<ContentDescriptor> descriptors = new List<ContentDescriptor>();
 
         #endregion
 
@@ -76,15 +76,21 @@ namespace TagLib.Asf
             : base(file, position)
         {
             if (!Guid.Equals(Asf.Guid.AsfExtendedContentDescriptionObject))
+            {
                 throw new CorruptFileException("Object GUID incorrect.");
+            }
 
             if (OriginalSize < 26)
+            {
                 throw new CorruptFileException("Object size too small.");
+            }
 
             ushort count = file.ReadWord();
 
             for (ushort i = 0; i < count; i++)
+            {
                 AddDescriptor(new ContentDescriptor(file));
+            }
         }
 
         /// <summary>
@@ -111,10 +117,7 @@ namespace TagLib.Asf
         ///    contain any <see cref="ContentDescriptor" /> objects.
         ///    Otherwise <see langword="false" />.
         /// </value>
-        public bool IsEmpty
-        {
-            get { return descriptors.Count == 0; }
-        }
+        public bool IsEmpty => descriptors.Count == 0;
 
         #endregion
 
@@ -154,8 +157,12 @@ namespace TagLib.Asf
         public void RemoveDescriptors(string name)
         {
             for (int i = descriptors.Count - 1; i >= 0; i--)
+            {
                 if (name == descriptors[i].Name)
+                {
                     descriptors.RemoveAt(i);
+                }
+            }
         }
 
         /// <summary>
@@ -177,12 +184,20 @@ namespace TagLib.Asf
         public IEnumerable<ContentDescriptor> GetDescriptors(params string[] names)
         {
             if (names == null)
+            {
                 throw new ArgumentNullException(nameof(names));
+            }
 
             foreach (string name in names)
+            {
                 foreach (ContentDescriptor desc in descriptors)
+                {
                     if (desc.Name == name)
+                    {
                         yield return desc;
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -199,7 +214,9 @@ namespace TagLib.Asf
         public void AddDescriptor(ContentDescriptor descriptor)
         {
             if (descriptor == null)
+            {
                 throw new ArgumentNullException(nameof(descriptor));
+            }
 
             descriptors.Add(descriptor);
         }
@@ -230,7 +247,9 @@ namespace TagLib.Asf
         public void SetDescriptors(string name, params ContentDescriptor[] descriptors)
         {
             if (name == null)
+            {
                 throw new ArgumentNullException(nameof(name));
+            }
 
             int position = this.descriptors.Count;
             for (int i = this.descriptors.Count - 1; i >= 0; i--)

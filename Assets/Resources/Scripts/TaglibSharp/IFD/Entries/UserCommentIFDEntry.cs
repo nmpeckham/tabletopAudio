@@ -130,7 +130,7 @@ namespace TagLib.IFD.Entries
 
             // Some programs like e.g. CanonZoomBrowser inserts just the first 0x00-byte
             // followed by 7-bytes of trash.
-            if (data.StartsWith((byte)0x00) && data.Count >= 8)
+            if (data.StartsWith(0x00) && data.Count >= 8)
             {
 
                 // And CanonZoomBrowser fills some trailing bytes of the comment field
@@ -168,11 +168,14 @@ namespace TagLib.IFD.Entries
             Value = TrimNull(data.ToString(StringType.UTF8, offset, length));
         }
 
-        string TrimNull(string value)
+        private string TrimNull(string value)
         {
             int term = value.IndexOf('\0');
             if (term > -1)
+            {
                 value = value.Substring(0, term);
+            }
+
             return value;
         }
 

@@ -1,8 +1,9 @@
 {
-"contents":
+"Contents":
 [
   {
     "index": "barbarian",
+    "name": "Barbarian",
     "class": {
       "index": "barbarian",
       "name": "Barbarian",
@@ -86,6 +87,7 @@
   },
   {
     "index": "bard",
+    "name": "Bard",
     "class": {
       "index": "bard",
       "name": "Bard",
@@ -198,6 +200,7 @@
   },
   {
     "index": "cleric",
+    "name": "Cleric",
     "class": {
       "index": "cleric",
       "name": "Cleric",
@@ -361,6 +364,7 @@
   },
   {
     "index": "druid",
+    "name": "Druid",
     "class": {
       "index": "druid",
       "name": "Druid",
@@ -455,6 +459,7 @@
   },
   {
     "index": "fighter",
+    "name": "Fighter",
     "class": {
       "index": "fighter",
       "name": "Fighter",
@@ -603,6 +608,7 @@
   },
   {
     "index": "monk",
+    "name": "Monk",
     "class": {
       "index": "monk",
       "name": "Monk",
@@ -673,6 +679,7 @@
   },
   {
     "index": "paladin",
+    "name": "Paladin",
     "class": {
       "index": "paladin",
       "name": "Paladin",
@@ -794,6 +801,7 @@
   },
   {
     "index": "ranger",
+    "name": "Ranger",
     "class": {
       "index": "ranger",
       "name": "Ranger",
@@ -894,6 +902,7 @@
   },
   {
     "index": "rogue",
+    "name": "Rogue",
     "class": {
       "index": "rogue",
       "name": "Rogue",
@@ -1015,6 +1024,7 @@
   },
   {
     "index": "sorcerer",
+    "name": "Sorcerer",
     "class": {
       "index": "sorcerer",
       "name": "Sorcerer",
@@ -1122,6 +1132,7 @@
   },
   {
     "index": "warlock",
+    "name": "Warlock",
     "class": {
       "index": "warlock",
       "name": "Warlock",
@@ -1248,6 +1259,7 @@
   },
   {
     "index": "wizard",
+    "name": "Wizard",
     "class": {
       "index": "wizard",
       "name": "Wizard",

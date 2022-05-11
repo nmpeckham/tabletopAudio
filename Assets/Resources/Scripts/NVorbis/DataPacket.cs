@@ -15,16 +15,16 @@ namespace NVorbis
     /// </summary>
     public abstract class DataPacket
     {
-        ulong _bitBucket;           // 8
-        int _bitCount;              // 4
-        int _readBits;              // 4
-        byte _overflowBits;         // 1
-        PacketFlags _packetFlags;   // 1
-        long _granulePosition;      // 8
-        long _pageGranulePosition;  // 8
-        int _length;                // 4
-        int _granuleCount;          // 4
-        int _pageSequenceNumber;    // 4
+        private ulong _bitBucket;           // 8
+        private int _bitCount;              // 4
+        private int _readBits;              // 4
+        private byte _overflowBits;         // 1
+        private PacketFlags _packetFlags;   // 1
+        private long _granulePosition;      // 8
+        private long _pageGranulePosition;  // 8
+        private int _length;                // 4
+        private int _granuleCount;          // 4
+        private int _pageSequenceNumber;    // 4
 
         /// <summary>
         /// Defines flags to apply to the current packet
@@ -104,12 +104,12 @@ namespace NVorbis
         /// Reads the next byte of the packet.
         /// </summary>
         /// <returns>The next byte if available, otherwise -1.</returns>
-        abstract protected int ReadNextByte();
+        protected abstract int ReadNextByte();
 
         /// <summary>
         /// Indicates that the packet has been read and its data is no longer needed.
         /// </summary>
-        virtual public void Done()
+        public virtual void Done()
         {
         }
 
@@ -124,7 +124,11 @@ namespace NVorbis
         {
             ulong value = 0;
 
-            if (count < 0 || count > 64) throw new ArgumentOutOfRangeException("count");
+            if (count < 0 || count > 64)
+            {
+                throw new ArgumentOutOfRangeException("count");
+            }
+
             if (count == 0)
             {
                 bitsRead = 0;
@@ -261,8 +265,8 @@ namespace NVorbis
         /// </summary>
         public bool IsResync
         {
-            get { return GetFlag(PacketFlags.IsResync); }
-            internal set { SetFlag(PacketFlags.IsResync, value); }
+            get => GetFlag(PacketFlags.IsResync);
+            internal set => SetFlag(PacketFlags.IsResync, value);
         }
 
         /// <summary>
@@ -270,8 +274,8 @@ namespace NVorbis
         /// </summary>
         public long GranulePosition
         {
-            get { return _granulePosition; }
-            set { _granulePosition = value; }
+            get => _granulePosition;
+            set => _granulePosition = value;
         }
 
         /// <summary>
@@ -279,8 +283,8 @@ namespace NVorbis
         /// </summary>
         public long PageGranulePosition
         {
-            get { return _pageGranulePosition; }
-            internal set { _pageGranulePosition = value; }
+            get => _pageGranulePosition;
+            internal set => _pageGranulePosition = value;
         }
 
         /// <summary>
@@ -288,8 +292,8 @@ namespace NVorbis
         /// </summary>
         public int Length
         {
-            get { return _length; }
-            protected set { _length = value; }
+            get => _length;
+            protected set => _length = value;
         }
 
         /// <summary>
@@ -297,17 +301,14 @@ namespace NVorbis
         /// </summary>
         public bool IsEndOfStream
         {
-            get { return GetFlag(PacketFlags.IsEndOfStream); }
-            internal set { SetFlag(PacketFlags.IsEndOfStream, value); }
+            get => GetFlag(PacketFlags.IsEndOfStream);
+            internal set => SetFlag(PacketFlags.IsEndOfStream, value);
         }
 
         /// <summary>
         /// Gets the number of bits read from the packet.
         /// </summary>
-        public long BitsRead
-        {
-            get { return _readBits; }
-        }
+        public long BitsRead => _readBits;
 
         /// <summary>
         /// Gets the number of granules in the packet.  If <c>null</c>, the packet has not been decoded yet.
@@ -338,14 +339,14 @@ namespace NVorbis
 
         internal int PageSequenceNumber
         {
-            get { return _pageSequenceNumber; }
-            set { _pageSequenceNumber = value; }
+            get => _pageSequenceNumber;
+            set => _pageSequenceNumber = value;
         }
 
         internal bool IsShort
         {
-            get { return GetFlag(PacketFlags.IsShort); }
-            private set { SetFlag(PacketFlags.IsShort, value); }
+            get => GetFlag(PacketFlags.IsShort);
+            private set => SetFlag(PacketFlags.IsShort, value);
         }
 
         /// <summary>
@@ -357,7 +358,10 @@ namespace NVorbis
         public ulong ReadBits(int count)
         {
             // short-circuit 0
-            if (count == 0) return 0UL;
+            if (count == 0)
+            {
+                return 0UL;
+            }
 
             int temp;
             var value = TryPeekBits(count, out temp);
@@ -413,7 +417,11 @@ namespace NVorbis
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is less than 0 or <paramref name="index"/> + <paramref name="count"/> is past the end of <paramref name="buffer"/>.</exception>
         public int Read(byte[] buffer, int index, int count)
         {
-            if (index < 0 || index + count > buffer.Length) throw new ArgumentOutOfRangeException("index");
+            if (index < 0 || index + count > buffer.Length)
+            {
+                throw new ArgumentOutOfRangeException("index");
+            }
+
             for (int i = 0; i < count; i++)
             {
                 int cnt;
@@ -488,7 +496,7 @@ namespace NVorbis
         /// <returns>The value of the next 64 bits.</returns>
         public ulong ReadUInt64()
         {
-            return (ulong)ReadBits(64);
+            return ReadBits(64);
         }
 
         /// <summary>

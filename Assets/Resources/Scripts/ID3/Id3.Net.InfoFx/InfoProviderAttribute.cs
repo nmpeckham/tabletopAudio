@@ -32,9 +32,15 @@ namespace Id3.InfoFx
         public InfoProviderAttribute(Type providerType)
         {
             if (providerType == null)
+            {
                 throw new ArgumentNullException(nameof(providerType));
+            }
+
             if (!providerType.IsSubclassOf(typeof(InfoProvider)))
+            {
                 throw new ArgumentException($"Specified type does not derive from {typeof(InfoProvider)}.", nameof(providerType));
+            }
+
             ProviderType = providerType;
         }
 

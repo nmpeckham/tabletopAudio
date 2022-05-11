@@ -63,7 +63,10 @@ namespace TagLib.IFD.Entries
             {
                 int sum = 0;
                 foreach (var directory in Structure.Directories)
+                {
                     sum += directory.Count;
+                }
+
                 return sum;
             }
         }

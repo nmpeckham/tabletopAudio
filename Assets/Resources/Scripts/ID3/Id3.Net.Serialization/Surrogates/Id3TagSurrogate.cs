@@ -58,9 +58,14 @@ namespace Id3.Serialization.Surrogates
                 string frameTypeName = info.GetString($"Frame{i}Type");
                 Type frameType = Type.GetType(frameTypeName, true, false);
                 if (frameType == null)
+                {
                     continue;
+                }
+
                 if (info.GetValue($"Frame{i}", frameType) is Id3Frame frame)
+                {
                     tag.AddUntypedFrame(frame);
+                }
             }
 
             return tag;

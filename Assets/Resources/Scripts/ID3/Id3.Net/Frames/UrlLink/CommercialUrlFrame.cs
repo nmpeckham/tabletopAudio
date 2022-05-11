@@ -32,7 +32,10 @@ namespace Id3.Frames
         {
         }
 
-        public static implicit operator CommercialUrlFrame(string url) => new CommercialUrlFrame(url);
+        public static implicit operator CommercialUrlFrame(string url)
+        {
+            return new CommercialUrlFrame(url);
+        }
     }
 
     public sealed class CommercialUrlFrameList : Collection<CommercialUrlFrame>

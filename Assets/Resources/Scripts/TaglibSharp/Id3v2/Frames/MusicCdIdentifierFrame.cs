@@ -232,11 +232,15 @@ namespace TagLib.Id3v2
                 mcdi = frame as MusicCdIdentifierFrame;
 
                 if (mcdi != null)
+                {
                     return mcdi;
+                }
             }
 
             if (!create)
+            {
                 return null;
+            }
 
             mcdi = new MusicCdIdentifierFrame();
             tag.AddFrame(mcdi);
@@ -300,7 +304,10 @@ namespace TagLib.Id3v2
         {
             MusicCdIdentifierFrame frame = new MusicCdIdentifierFrame();
             if (Data != null)
+            {
                 frame.Data = new ByteVector(Data);
+            }
+
             return frame;
         }
 

@@ -38,12 +38,12 @@ namespace TagLib.Asf
         /// <summary>
         ///    Contains the time offset of the stream.
         /// </summary>
-        readonly ulong time_offset;
+        private readonly ulong time_offset;
 
         /// <summary>
         ///    Contains the reserved data.
         /// </summary>
-        readonly uint reserved;
+        private readonly uint reserved;
 
         #endregion
 
@@ -79,10 +79,14 @@ namespace TagLib.Asf
             : base(file, position)
         {
             if (!Guid.Equals(Asf.Guid.AsfStreamPropertiesObject))
+            {
                 throw new CorruptFileException("Object GUID incorrect.");
+            }
 
             if (OriginalSize < 78)
+            {
                 throw new CorruptFileException("Object size too small.");
+            }
 
             StreamType = file.ReadGuid();
             ErrorCorrectionType = file.ReadGuid();
@@ -117,10 +121,14 @@ namespace TagLib.Asf
             get
             {
                 if (StreamType == Asf.Guid.AsfAudioMedia)
+                {
                     return new Riff.WaveFormatEx(TypeSpecificData, 0);
+                }
 
                 if (StreamType == Asf.Guid.AsfVideoMedia)
+                {
                     return new Riff.BitmapInfoHeader(TypeSpecificData, 11);
+                }
 
                 return null;
             }
@@ -154,10 +162,7 @@ namespace TagLib.Asf
         ///    offset at which the stream described by the current
         ///    instance begins.
         /// </value>
-        public TimeSpan TimeOffset
-        {
-            get { return new TimeSpan((long)time_offset); }
-        }
+        public TimeSpan TimeOffset => new TimeSpan((long)time_offset);
 
         /// <summary>
         ///    Gets the flags that apply to the current instance.

@@ -177,7 +177,10 @@ namespace TagLib.Matroska
                 SetTypeFromFilename();
 
                 // Filename already matches the type, so do not change it
-                if (type == Type) return false;
+                if (type == Type)
+                {
+                    return false;
+                }
 
                 // restore the type
                 Type = type;
@@ -185,9 +188,20 @@ namespace TagLib.Matroska
 
             // Derive extension from file or MimeType
             string ext = null;
-            if (Filename != null) ext = Path.GetExtension(Filename);
-            if (ext == null && MimeType != null && MimeType.StartsWith("image/")) ext = "." + MimeType.Substring(6);
-            if (ext == null || ext.Length < 2) ext = "";
+            if (Filename != null)
+            {
+                ext = Path.GetExtension(Filename);
+            }
+
+            if (ext == null && MimeType != null && MimeType.StartsWith("image/"))
+            {
+                ext = "." + MimeType.Substring(6);
+            }
+
+            if (ext == null || ext.Length < 2)
+            {
+                ext = "";
+            }
 
             // Change the filename
             Filename = type + ext;
@@ -204,17 +218,17 @@ namespace TagLib.Matroska
         /// </summary>
         public ulong UID
         {
-            get { return _UID; }
-            set { _UID = UIDElement.GenUID(value); }
+            get => _UID;
+            set => _UID = UIDElement.GenUID(value);
         }
 
-        ulong _UID = UIDElement.GenUID();
+        private ulong _UID = UIDElement.GenUID();
 
 
         /// <summary>
         /// Get the Tag type the UID should be represented by, or 0 if undefined
         /// </summary>
-        public MatroskaID UIDType { get { return MatroskaID.TagAttachmentUID; } }
+        public MatroskaID UIDType => MatroskaID.TagAttachmentUID;
 
         #endregion
 

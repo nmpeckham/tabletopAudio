@@ -43,7 +43,7 @@ namespace TagLib.Tiff.Cr2
         /// <summary>
         ///    The Properties of the image
         /// </summary>
-        Properties properties;
+        private Properties properties;
 
         #endregion
 
@@ -58,10 +58,7 @@ namespace TagLib.Tiff.Cr2
         ///    media properties of the file represented by the current
         ///    instance.
         /// </value>
-        public override Properties Properties
-        {
-            get { return properties; }
-        }
+        public override Properties Properties => properties;
 
         /// <summary>
         ///    Indicates if tags can be written back to the current file or not
@@ -70,10 +67,7 @@ namespace TagLib.Tiff.Cr2
         ///    A <see cref="bool" /> which is true if tags can be written to the
         ///    current file, otherwise false.
         /// </value>
-        public override bool Writeable
-        {
-            get { return false; }
-        }
+        public override bool Writeable => false;
 
 
         #endregion
@@ -185,7 +179,7 @@ namespace TagLib.Tiff.Cr2
         ///    of accuracy to read the media properties, or <see
         ///    cref="ReadStyle.None" /> to ignore the properties.
         /// </param>
-        void Read(ReadStyle propertiesStyle)
+        private void Read(ReadStyle propertiesStyle)
         {
             Mode = AccessMode.Read;
             try
@@ -197,8 +191,9 @@ namespace TagLib.Tiff.Cr2
                 TagTypesOnDisk = TagTypes;
 
                 if ((propertiesStyle & ReadStyle.Average) != 0)
+                {
                     properties = ExtractProperties();
-
+                }
             }
             finally
             {
@@ -209,7 +204,7 @@ namespace TagLib.Tiff.Cr2
         /// <summary>
         ///    Parses the CR2 file
         /// </summary>
-        void ReadFile()
+        private void ReadFile()
         {
             // A CR2 file starts with a Tiff header followed by a CR2 header
             uint first_ifd_offset = ReadHeader();
@@ -225,7 +220,7 @@ namespace TagLib.Tiff.Cr2
         /// <returns>
         ///    A <see cref="System.UInt32"/> with the offset to the IFD with the RAW data.
         /// </returns>
-        uint ReadAdditionalCR2Header()
+        private uint ReadAdditionalCR2Header()
         {
             // CR2 Header
             //
@@ -240,16 +235,22 @@ namespace TagLib.Tiff.Cr2
             ByteVector header = ReadBlock(8);
 
             if (header.Count != 8)
+            {
                 throw new CorruptFileException("Unexpected end of CR2 header");
+            }
 
             if (header.Mid(0, 2).ToString() != "CR")
+            {
                 throw new CorruptFileException("CR2 Magic (CR) expected");
+            }
 
             byte major_version = header[2];
             byte minor_version = header[3];
 
             if (major_version != 2 || minor_version != 0)
+            {
                 throw new UnsupportedFormatException("Only major version 2 and minor version 0 are supported");
+            }
 
             uint raw_ifd_offset = header.Mid(4, 4).ToUInt(IsBigEndian);
 
@@ -265,7 +266,7 @@ namespace TagLib.Tiff.Cr2
         ///    at the right values. When no guess at all can be made,
         ///    <see langword="null" /> is returned.
         /// </returns>
-        Properties ExtractProperties()
+        private Properties ExtractProperties()
         {
             int width = 0, height = 0;
 

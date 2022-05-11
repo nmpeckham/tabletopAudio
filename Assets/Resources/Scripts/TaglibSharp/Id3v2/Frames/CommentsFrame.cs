@@ -53,17 +53,17 @@ namespace TagLib.Id3v2
         ///    Contains the ISO-639-2 language code of the current
         ///    instance.
         /// </summary>
-        string language;
+        private string language;
 
         /// <summary>
         ///    Contains the description of the current instance.
         /// </summary>
-        string description;
+        private string description;
 
         /// <summary>
         ///    Contains the comment text of the current instance.
         /// </summary>
-        string text;
+        private string text;
 
         #endregion
 
@@ -227,11 +227,13 @@ namespace TagLib.Id3v2
             get
             {
                 if (language != null && language.Length > 2)
+                {
                     return language.Substring(0, 3);
+                }
 
                 return "XXX";
             }
-            set { language = value; }
+            set => language = value;
         }
 
         /// <summary>
@@ -251,11 +253,13 @@ namespace TagLib.Id3v2
             get
             {
                 if (description != null)
+                {
                     return description;
+                }
 
                 return string.Empty;
             }
-            set { description = value; }
+            set => description = value;
         }
 
         /// <summary>
@@ -271,11 +275,13 @@ namespace TagLib.Id3v2
             get
             {
                 if (text != null)
+                {
                     return text;
+                }
 
                 return string.Empty;
             }
-            set { text = value; }
+            set => text = value;
         }
 
         #endregion
@@ -334,19 +340,27 @@ namespace TagLib.Id3v2
                 comm = frame as CommentsFrame;
 
                 if (comm == null)
+                {
                     continue;
+                }
 
                 if (comm.Description != description)
+                {
                     continue;
+                }
 
                 if (language != null && language != comm.Language)
+                {
                     continue;
+                }
 
                 return comm;
             }
 
             if (!create)
+            {
                 return null;
+            }
 
             comm = new CommentsFrame(description, language);
             tag.AddFrame(comm);
@@ -408,22 +422,30 @@ namespace TagLib.Id3v2
             foreach (Frame frame in tag.GetFrames(FrameType.COMM))
             {
                 if (!(frame is CommentsFrame comm))
+                {
                     continue;
+                }
 
                 if (skip_itunes &&
                     comm.Description.StartsWith("iTun"))
+                {
                     continue;
+                }
 
                 bool same_name = comm.Description == description;
                 bool same_lang = comm.Language == language;
 
                 if (same_name && same_lang)
+                {
                     return comm;
+                }
 
                 int value = same_lang ? 2 : same_name ? 1 : 0;
 
                 if (value <= best_value)
+                {
                     continue;
+                }
 
                 best_value = value;
                 best_frame = comm;
@@ -453,7 +475,9 @@ namespace TagLib.Id3v2
         protected override void ParseFields(ByteVector data, byte version)
         {
             if (data.Count < 4)
+            {
                 throw new CorruptFileException("Not enough bytes in field.");
+            }
 
             TextEncoding = (StringType)data[0];
             language = data.ToString(StringType.Latin1, 1, 3);

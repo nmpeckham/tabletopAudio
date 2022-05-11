@@ -30,8 +30,8 @@ namespace TagLib.Aac
     /// </summary>
     public class BitStream
     {
-        readonly BitArray bits;
-        int bitindex;
+        private readonly BitArray bits;
+        private int bitindex;
 
 
         #region Constructors
@@ -47,7 +47,9 @@ namespace TagLib.Aac
             Debug.Assert(buffer.Length == 7, "buffer.Length == 7", "buffer size invalid");
 
             if (buffer.Length != 7)
+            {
                 throw new ArgumentException("Buffer size must be 7 bytes");
+            }
 
             // Reverse bits            
             bits = new BitArray(buffer.Length * 8);
@@ -81,10 +83,14 @@ namespace TagLib.Aac
             Debug.Assert(numberOfBits <= 32, "numberOfBits <= 32");
 
             if (numberOfBits <= 0)
+            {
                 throw new ArgumentException("Number of bits to read must be >= 1");
+            }
 
             if (numberOfBits > 32)
+            {
                 throw new ArgumentException("Number of bits to read must be <= 32");
+            }
 
             int value = 0;
             int start = bitindex + numberOfBits - 1;

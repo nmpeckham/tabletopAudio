@@ -26,7 +26,7 @@ using System.Collections.Generic;
 
 namespace TagLib
 {
-    static class Debugger
+    internal static class Debugger
     {
         public delegate void DebugMessageSentHandler(string message);
 
@@ -52,9 +52,13 @@ namespace TagLib
                 for (int col = 0; col < cols; col++)
                 {
                     if (row == rows - 1 && data.Length % cols != 0 && col >= data.Length % cols)
+                    {
                         Console.Write("   ");
+                    }
                     else
+                    {
                         Console.Write(" {0:x2}", data[row * cols + col]);
+                    }
                 }
 
                 Console.Write(" | ");
@@ -62,9 +66,13 @@ namespace TagLib
                 for (int col = 0; col < cols; col++)
                 {
                     if (row == rows - 1 && data.Length % cols != 0 && col >= data.Length % cols)
+                    {
                         Console.Write(" ");
+                    }
                     else
+                    {
                         WriteByte2(data[row * cols + col]);
+                    }
                 }
 
                 Console.WriteLine();
@@ -72,24 +80,24 @@ namespace TagLib
             Console.WriteLine();
         }
 
-        static void WriteByte2(byte data)
+        private static void WriteByte2(byte data)
         {
             foreach (char c in allowed)
+            {
                 if (c == data)
                 {
                     Console.Write(c);
                     return;
                 }
+            }
 
             Console.Write(".");
         }
 
-        static readonly string allowed = "0123456789abcdefghijklmnopqr" +
+        private static readonly string allowed = "0123456789abcdefghijklmnopqr" +
             "stuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ`~!@#$%^&*()_+-={}" +
             "[];:'\",.<>?/\\|";
-
-
-        static readonly Dictionary<object, Dictionary<object, DebugTimeData>>
+        private static readonly Dictionary<object, Dictionary<object, DebugTimeData>>
             debug_times = new Dictionary<object, Dictionary<object, DebugTimeData>>();
 
         public static void AddDebugTime(object o1, object o2, DateTime start)
@@ -102,19 +110,27 @@ namespace TagLib
             }
 
             if (!debug_times.ContainsKey(o1))
+            {
                 debug_times.Add(o1, new Dictionary<object, DebugTimeData>());
+            }
 
             if (!debug_times[o1].ContainsKey(o2))
+            {
                 debug_times[o1].Add(o2, data);
+            }
             else
+            {
                 debug_times[o1][o2] = data;
+            }
         }
 
         public static void DumpDebugTime(object o1)
         {
             Console.WriteLine(o1.ToString());
             if (!debug_times.ContainsKey(o1))
+            {
                 return;
+            }
 
             foreach (var pair in debug_times[o1])
             {
@@ -128,7 +144,7 @@ namespace TagLib
             debug_times.Remove(o1);
         }
 
-        struct DebugTimeData
+        private struct DebugTimeData
         {
             public TimeSpan time;
             public long occurances;

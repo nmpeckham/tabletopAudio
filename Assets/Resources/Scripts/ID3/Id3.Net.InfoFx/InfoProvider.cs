@@ -45,7 +45,9 @@ namespace Id3.InfoFx
             {
                 Inputs = inputs ?? new InfoProviderInputs();
                 if (!MeetsInputCriteria())
+                {
                     throw new InfoProviderException("Required inputs do not meet the criteria of the info provider.");
+                }
 
                 Id3Tag[] result = GetTagInfo();
                 return result;
@@ -104,21 +106,29 @@ namespace Id3.InfoFx
             // If the tag is required, but is not specified.
             bool requiresTag = (Properties.Requirements & InfoProviderRequirements.Tag) == InfoProviderRequirements.Tag;
             if (requiresTag && Inputs.Tag == null)
+            {
                 return false;
+            }
 
             // If a file name is required, but not specified.
             bool requiresFileName = (Properties.Requirements & InfoProviderRequirements.MediaFileName) == InfoProviderRequirements.MediaFileName;
             if (requiresFileName && string.IsNullOrWhiteSpace(Inputs.FileName))
+            {
                 return false;
+            }
 
             // If a MP3 stream is required, but not specified.
             bool requiresStream = (Properties.Requirements & InfoProviderRequirements.MediaStream) == InfoProviderRequirements.MediaStream;
             if (requiresStream && Inputs.Mp3Stream == null)
+            {
                 return false;
+            }
 
             // If the tag is required, but does not contain the required frames.
             if (requiresTag && !FramesMeetCriteria(Inputs.Tag, Properties.RequiredInputs))
+            {
                 return false;
+            }
 
             return true;
         }
@@ -137,7 +147,9 @@ namespace Id3.InfoFx
                 // Frame must be assigned in order to be considered.
                 bool frameExists = tag.Any(frame => frame.GetType() == frameTypeCopy && frame.IsAssigned);
                 if (!frameExists)
+                {
                     return false;
+                }
             }
             return true;
         }

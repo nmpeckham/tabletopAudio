@@ -13,17 +13,17 @@ namespace NVorbis
     /// <summary>
     /// A thread-safe, read-only, buffering stream wrapper.
     /// </summary>
-    partial class BufferedReadStream : Stream
+    internal partial class BufferedReadStream : Stream
     {
-        const int DEFAULT_INITIAL_SIZE = 32768; // 32KB  (1/2 full page)
-        const int DEFAULT_MAX_SIZE = 262144;    // 256KB (4 full pages)
+        private const int DEFAULT_INITIAL_SIZE = 32768; // 32KB  (1/2 full page)
+        private const int DEFAULT_MAX_SIZE = 262144;    // 256KB (4 full pages)
 
-        Stream _baseStream;
-        StreamReadBuffer _buffer;
-        long _readPosition;
-        object _localLock = new object();
-        System.Threading.Thread _owningThread;
-        int _lockCount;
+        private readonly Stream _baseStream;
+        private StreamReadBuffer _buffer;
+        private long _readPosition;
+        private readonly object _localLock = new object();
+        private System.Threading.Thread _owningThread;
+        private int _lockCount;
 
         public BufferedReadStream(Stream baseStream)
             : this(baseStream, DEFAULT_INITIAL_SIZE, DEFAULT_MAX_SIZE, false)
@@ -42,17 +42,37 @@ namespace NVorbis
 
         public BufferedReadStream(Stream baseStream, int initialSize, int maxBufferSize, bool minimalRead)
         {
-            if (baseStream == null) throw new ArgumentNullException("baseStream");
-            if (!baseStream.CanRead) throw new ArgumentException("baseStream");
+            if (baseStream == null)
+            {
+                throw new ArgumentNullException("baseStream");
+            }
 
-            if (maxBufferSize < 1) maxBufferSize = 1;
-            if (initialSize < 1) initialSize = 1;
-            if (initialSize > maxBufferSize) initialSize = maxBufferSize;
+            if (!baseStream.CanRead)
+            {
+                throw new ArgumentException("baseStream");
+            }
+
+            if (maxBufferSize < 1)
+            {
+                maxBufferSize = 1;
+            }
+
+            if (initialSize < 1)
+            {
+                initialSize = 1;
+            }
+
+            if (initialSize > maxBufferSize)
+            {
+                initialSize = maxBufferSize;
+            }
 
             _baseStream = baseStream;
-            _buffer = new StreamReadBuffer(baseStream, initialSize, maxBufferSize, minimalRead);
-            _buffer.MaxSize = maxBufferSize;
-            _buffer.MinimalRead = minimalRead;
+            _buffer = new StreamReadBuffer(baseStream, initialSize, maxBufferSize, minimalRead)
+            {
+                MaxSize = maxBufferSize,
+                MinimalRead = minimalRead
+            };
         }
 
         protected override void Dispose(bool disposing)
@@ -83,7 +103,7 @@ namespace NVorbis
             }
         }
 
-        void CheckLock()
+        private void CheckLock()
         {
             if (_owningThread != System.Threading.Thread.CurrentThread)
             {
@@ -109,13 +129,13 @@ namespace NVorbis
 
         public bool MinimalRead
         {
-            get { return _buffer.MinimalRead; }
-            set { _buffer.MinimalRead = value; }
+            get => _buffer.MinimalRead;
+            set => _buffer.MinimalRead = value;
         }
 
         public int MaxBufferSize
         {
-            get { return _buffer.MaxSize; }
+            get => _buffer.MaxSize;
             set
             {
                 CheckLock();
@@ -123,15 +143,9 @@ namespace NVorbis
             }
         }
 
-        public long BufferBaseOffset
-        {
-            get { return _buffer.BaseOffset; }
-        }
+        public long BufferBaseOffset => _buffer.BaseOffset;
 
-        public int BufferBytesFilled
-        {
-            get { return _buffer.BytesFilled; }
-        }
+        public int BufferBytesFilled => _buffer.BytesFilled;
 
         public void Discard(int bytes)
         {
@@ -145,35 +159,23 @@ namespace NVorbis
             _buffer.DiscardThrough(offset);
         }
 
-        public override bool CanRead
-        {
-            get { return true; }
-        }
+        public override bool CanRead => true;
 
-        public override bool CanSeek
-        {
-            get { return true; }
-        }
+        public override bool CanSeek => true;
 
-        public override bool CanWrite
-        {
-            get { return false; }
-        }
+        public override bool CanWrite => false;
 
         public override void Flush()
         {
             // no-op
         }
 
-        public override long Length
-        {
-            get { return _baseStream.Length; }
-        }
+        public override long Length => _baseStream.Length;
 
         public override long Position
         {
-            get { return _readPosition; }
-            set { Seek(value, SeekOrigin.Begin); }
+            get => _readPosition;
+            set => Seek(value, SeekOrigin.Begin);
         }
 
         public override int ReadByte()
@@ -213,8 +215,15 @@ namespace NVorbis
 
             if (!_baseStream.CanSeek)
             {
-                if (offset < _buffer.BaseOffset) throw new InvalidOperationException("Cannot seek to before the start of the buffer!");
-                if (offset >= _buffer.BufferEndOffset) throw new InvalidOperationException("Cannot seek to beyond the end of the buffer!  Discard some bytes.");
+                if (offset < _buffer.BaseOffset)
+                {
+                    throw new InvalidOperationException("Cannot seek to before the start of the buffer!");
+                }
+
+                if (offset >= _buffer.BufferEndOffset)
+                {
+                    throw new InvalidOperationException("Cannot seek to beyond the end of the buffer!  Discard some bytes.");
+                }
             }
 
             return (_readPosition = offset);

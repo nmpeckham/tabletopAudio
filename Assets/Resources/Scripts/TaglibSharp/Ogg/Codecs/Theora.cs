@@ -37,7 +37,7 @@ namespace TagLib.Ogg.Codecs
         /// <summary>
         ///    Contains the file identifier.
         /// </summary>
-        static readonly ByteVector id = "theora";
+        private static readonly ByteVector id = "theora";
 
         #endregion
 
@@ -48,12 +48,12 @@ namespace TagLib.Ogg.Codecs
         /// <summary>
         ///    Contains the header packet.
         /// </summary>
-        HeaderPacket header;
+        private HeaderPacket header;
 
         /// <summary>
         ///    Contains the comment data.
         /// </summary>
-        ByteVector comment_data;
+        private ByteVector comment_data;
 
         #endregion
 
@@ -65,7 +65,7 @@ namespace TagLib.Ogg.Codecs
         ///    Constructs and initializes a new instance of <see
         ///    cref="Theora" />.
         /// </summary>
-        Theora()
+        private Theora()
         {
         }
 
@@ -106,23 +106,35 @@ namespace TagLib.Ogg.Codecs
         public override bool ReadPacket(ByteVector packet, int index)
         {
             if (packet == null)
+            {
                 throw new ArgumentNullException(nameof(packet));
+            }
 
             if (index < 0)
+            {
                 throw new ArgumentOutOfRangeException(nameof(index), "index must be at least zero.");
+            }
 
             int type = PacketType(packet);
             if (type != 0x80 && index == 0)
+            {
                 throw new CorruptFileException("Stream does not begin with theora header.");
+            }
 
             if (comment_data == null)
             {
                 if (type == 0x80)
+                {
                     header = new HeaderPacket(packet);
+                }
                 else if (type == 0x81)
+                {
                     comment_data = packet.Mid(7);
+                }
                 else
+                {
                     return true;
+                }
             }
 
             return comment_data != null;
@@ -171,19 +183,29 @@ namespace TagLib.Ogg.Codecs
         public override void SetCommentPacket(ByteVectorCollection packets, XiphComment comment)
         {
             if (packets == null)
+            {
                 throw new ArgumentNullException(nameof(packets));
+            }
 
             if (comment == null)
+            {
                 throw new ArgumentNullException(nameof(comment));
+            }
 
-            ByteVector data = new ByteVector((byte)0x81);
-            data.Add(id);
-            data.Add(comment.Render(true));
+            ByteVector data = new ByteVector((byte)0x81)
+            {
+                id,
+                comment.Render(true)
+            };
 
             if (packets.Count > 1 && PacketType(packets[1]) == 0x81)
+            {
                 packets[1] = data;
+            }
             else
+            {
                 packets.Insert(1, data);
+            }
         }
 
         #endregion
@@ -200,10 +222,7 @@ namespace TagLib.Ogg.Codecs
         ///    A <see cref="int" /> value containing the width of the
         ///    video represented by the current instance.
         /// </value>
-        public int VideoWidth
-        {
-            get { return header.width; }
-        }
+        public int VideoWidth => header.width;
 
         /// <summary>
         ///    Gets the height of the video represented by the current
@@ -213,10 +232,7 @@ namespace TagLib.Ogg.Codecs
         ///    A <see cref="int" /> value containing the height of the
         ///    video represented by the current instance.
         /// </value>
-        public int VideoHeight
-        {
-            get { return header.height; }
-        }
+        public int VideoHeight => header.height;
 
         /// <summary>
         ///    Gets the types of media represented by the current
@@ -225,10 +241,7 @@ namespace TagLib.Ogg.Codecs
         /// <value>
         ///    Always <see cref="MediaTypes.Video" />.
         /// </value>
-        public override MediaTypes MediaTypes
-        {
-            get { return MediaTypes.Video; }
-        }
+        public override MediaTypes MediaTypes => MediaTypes.Video;
 
         /// <summary>
         ///    Gets the raw Xiph comment data contained in the codec.
@@ -237,10 +250,7 @@ namespace TagLib.Ogg.Codecs
         ///    A <see cref="ByteVector" /> object containing a raw Xiph
         ///    comment or <see langword="null"/> if none was found.
         /// </value>
-        public override ByteVector CommentData
-        {
-            get { return comment_data; }
-        }
+        public override ByteVector CommentData => comment_data;
 
         /// <summary>
         ///    Gets a text description of the media represented by the
@@ -250,13 +260,7 @@ namespace TagLib.Ogg.Codecs
         ///    A <see cref="string" /> object containing a description
         ///    of the media represented by the current instance.
         /// </value>
-        public override string Description
-        {
-            get
-            {
-                return $"Theora Version {header.major_version}.{header.minor_version} Video";
-            }
-        }
+        public override string Description => $"Theora Version {header.major_version}.{header.minor_version} Video";
 
         #endregion
 
@@ -300,14 +304,20 @@ namespace TagLib.Ogg.Codecs
         ///    A <see cref="int" /> value containing the packet type or
         ///    -1 if the packet is invalid.
         /// </returns>
-        static int PacketType(ByteVector packet)
+        private static int PacketType(ByteVector packet)
         {
             if (packet.Count <= id.Count || packet[0] < 0x80)
+            {
                 return -1;
+            }
 
             for (int i = 0; i < id.Count; i++)
+            {
                 if (packet[i + 1] != id[i])
+                {
                     return -1;
+                }
+            }
 
             return packet[0];
         }
@@ -317,7 +327,7 @@ namespace TagLib.Ogg.Codecs
         /// <summary>
         ///    This structure represents a Theora header packet.
         /// </summary>
-        struct HeaderPacket
+        private struct HeaderPacket
         {
             public byte major_version;
             public byte minor_version;

@@ -11,7 +11,7 @@ using System.Linq;
 
 namespace NVorbis
 {
-    abstract class VorbisResidue
+    internal abstract class VorbisResidue
     {
         internal static VorbisResidue Init(VorbisStreamDecoder vorbis, DataPacket packet)
         {
@@ -24,13 +24,16 @@ namespace NVorbis
                 case 1: residue = new Residue1(vorbis); break;
                 case 2: residue = new Residue2(vorbis); break;
             }
-            if (residue == null) throw new InvalidDataException();
+            if (residue == null)
+            {
+                throw new InvalidDataException();
+            }
 
             residue.Init(packet);
             return residue;
         }
 
-        static int icount(int v)
+        private static int icount(int v)
         {
             var ret = 0;
             while (v != 0)
@@ -41,8 +44,8 @@ namespace NVorbis
             return ret;
         }
 
-        VorbisStreamDecoder _vorbis;
-        float[][] _residue;
+        private readonly VorbisStreamDecoder _vorbis;
+        private readonly float[][] _residue;
 
         protected VorbisResidue(VorbisStreamDecoder vorbis)
         {
@@ -70,25 +73,23 @@ namespace NVorbis
             return temp;
         }
 
-        abstract internal float[][] Decode(DataPacket packet, bool[] doNotDecode, int channels, int blockSize);
+        internal abstract float[][] Decode(DataPacket packet, bool[] doNotDecode, int channels, int blockSize);
 
-        abstract protected void Init(DataPacket packet);
+        protected abstract void Init(DataPacket packet);
 
         // residue type 0... samples are grouped by channel, then stored with non-interleaved dimensions (d0, d0, d0, d0, ..., d1, d1, d1, d1, ..., d2, d2, d2, d2, etc...)
-        class Residue0 : VorbisResidue
+        private class Residue0 : VorbisResidue
         {
-            int _begin;
-            int _end;
-            int _partitionSize;
-            int _classifications;
-            int _maxStages;
-
-            VorbisCodebook[][] _books;
-            VorbisCodebook _classBook;
-
-            int[] _cascade, _entryCache;
-            int[][] _decodeMap;
-            int[][][] _partWordCache;
+            private int _begin;
+            private int _end;
+            private int _partitionSize;
+            private int _classifications;
+            private int _maxStages;
+            private VorbisCodebook[][] _books;
+            private VorbisCodebook _classBook;
+            private int[] _cascade, _entryCache;
+            private int[][] _decodeMap;
+            private int[][][] _partWordCache;
 
             internal Residue0(VorbisStreamDecoder vorbis) : base(vorbis) { }
 
@@ -121,7 +122,10 @@ namespace NVorbis
                 for (var i = 0; i < acc; i++)
                 {
                     bookNums[i] = (int)packet.ReadBits(8);
-                    if (_vorbis.Books[bookNums[i]].MapType == 0) throw new InvalidDataException();
+                    if (_vorbis.Books[bookNums[i]].MapType == 0)
+                    {
+                        throw new InvalidDataException();
+                    }
                 }
 
                 var entries = _classBook.Entries;
@@ -130,7 +134,11 @@ namespace NVorbis
                 while (dim > 0)
                 {
                     partvals *= _classifications;
-                    if (partvals > entries) throw new InvalidDataException();
+                    if (partvals > entries)
+                    {
+                        throw new InvalidDataException();
+                    }
+
                     --dim;
                 }
 
@@ -253,7 +261,7 @@ namespace NVorbis
                 return residue;
             }
 
-            virtual protected bool WriteVectors(VorbisCodebook codebook, DataPacket packet, float[][] residue, int channel, int offset, int partitionSize)
+            protected virtual bool WriteVectors(VorbisCodebook codebook, DataPacket packet, float[][] residue, int channel, int offset, int partitionSize)
             {
                 var res = residue[channel];
                 var step = partitionSize / codebook.Dimensions;
@@ -277,7 +285,7 @@ namespace NVorbis
         }
 
         // residue type 1... samples are grouped by channel, then stored with interleaved dimensions (d0, d1, d2, d0, d1, d2, etc...)
-        class Residue1 : Residue0
+        private class Residue1 : Residue0
         {
             internal Residue1(VorbisStreamDecoder vorbis) : base(vorbis) { }
 
@@ -303,9 +311,9 @@ namespace NVorbis
         }
 
         // residue type 2... basically type 0, but samples are interleaved between channels (ch0, ch1, ch0, ch1, etc...)
-        class Residue2 : Residue0
+        private class Residue2 : Residue0
         {
-            int _channels;
+            private int _channels;
 
             internal Residue2(VorbisStreamDecoder vorbis) : base(vorbis) { }
 

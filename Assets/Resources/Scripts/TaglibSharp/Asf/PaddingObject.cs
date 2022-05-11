@@ -64,10 +64,14 @@ namespace TagLib.Asf
             : base(file, position)
         {
             if (!Guid.Equals(Asf.Guid.AsfPaddingObject))
+            {
                 throw new CorruptFileException("Object GUID incorrect.");
+            }
 
             if (OriginalSize < 24)
+            {
                 throw new CorruptFileException("Object size too small.");
+            }
 
             Size = OriginalSize;
         }

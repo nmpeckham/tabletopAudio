@@ -37,12 +37,12 @@ namespace TagLib.Mpeg4
         /// <summary>
         ///    Contains the box header.
         /// </summary>
-        BoxHeader header;
+        private BoxHeader header;
 
         /// <summary>
         ///    Contains the position of the box data.
         /// </summary>
-        readonly long data_position;
+        private readonly long data_position;
 
         #endregion
 
@@ -109,10 +109,7 @@ namespace TagLib.Mpeg4
         ///    A <see cref="ByteVector" /> object containing the four
         ///    byte box type of the current instance.
         /// </value>
-        public virtual ByteVector BoxType
-        {
-            get { return header.BoxType; }
-        }
+        public virtual ByteVector BoxType => header.BoxType;
 
         /// <summary>
         ///    Gets the total size of the current instance as it last
@@ -122,10 +119,7 @@ namespace TagLib.Mpeg4
         ///    A <see cref="int" /> value containing the total size of
         ///    the current instance as it last appeared on disk.
         /// </value>
-        public virtual int Size
-        {
-            get { return (int)header.TotalBoxSize; }
-        }
+        public virtual int Size => (int)header.TotalBoxSize;
 
         /// <summary>
         ///    Gets and sets the data contained in the current instance.
@@ -136,7 +130,7 @@ namespace TagLib.Mpeg4
         /// </value>
         public virtual ByteVector Data
         {
-            get { return null; }
+            get => null;
             set { }
         }
 
@@ -147,10 +141,7 @@ namespace TagLib.Mpeg4
         ///    A <see cref="T:System.Collections.Generic.IEnumerable`1" /> object enumerating the
         ///    children of the current instance.
         /// </value>
-        public virtual IEnumerable<Box> Children
-        {
-            get { return null; }
-        }
+        public virtual IEnumerable<Box> Children => null;
 
         /// <summary>
         ///    Gets the handler box that applies to the current
@@ -197,11 +188,17 @@ namespace TagLib.Mpeg4
         public Box GetChild(ByteVector type)
         {
             if (Children == null)
+            {
                 return null;
+            }
 
             foreach (Box box in Children)
+            {
                 if (box.BoxType == type)
+                {
                     return box;
+                }
+            }
 
             return null;
         }
@@ -247,17 +244,25 @@ namespace TagLib.Mpeg4
         public Box GetChildRecursively(ByteVector type)
         {
             if (Children == null)
+            {
                 return null;
+            }
 
             foreach (Box box in Children)
+            {
                 if (box.BoxType == type)
+                {
                     return box;
+                }
+            }
 
             foreach (Box box in Children)
             {
                 Box child_box = box.GetChildRecursively(type);
                 if (child_box != null)
+                {
                     return child_box;
+                }
             }
 
             return null;
@@ -306,11 +311,17 @@ namespace TagLib.Mpeg4
         public void RemoveChild(ByteVector type)
         {
             if (!(Children is ICollection<Box> children))
+            {
                 return;
+            }
 
             foreach (Box b in new List<Box>(children))
+            {
                 if (b.BoxType == type)
+                {
                     children.Remove(b);
+                }
+            }
         }
 
         /*
@@ -345,7 +356,9 @@ namespace TagLib.Mpeg4
         public void RemoveChild(Box box)
         {
             if (Children is ICollection<Box> children)
+            {
                 children.Remove(box);
+            }
         }
 
         /// <summary>
@@ -358,7 +371,9 @@ namespace TagLib.Mpeg4
         public void AddChild(Box box)
         {
             if (Children is ICollection<Box> children)
+            {
                 children.Add(box);
+            }
         }
 
         /// <summary>
@@ -367,7 +382,9 @@ namespace TagLib.Mpeg4
         public void ClearChildren()
         {
             if (Children is ICollection<Box> children)
+            {
                 children.Clear();
+            }
         }
 
         /// <summary>
@@ -377,13 +394,7 @@ namespace TagLib.Mpeg4
         ///    A <see cref="bool" /> value indicating whether or not the
         ///    current instance has any children.
         /// </value>
-        public bool HasChildren
-        {
-            get
-            {
-                return Children is ICollection<Box> children && children.Count > 0;
-            }
-        }
+        public bool HasChildren => Children is ICollection<Box> children && children.Count > 0;
 
         #endregion
 
@@ -399,14 +410,8 @@ namespace TagLib.Mpeg4
         ///    A <see cref="long" /> value containing the size of
         ///    the data contained in the current instance.
         /// </value>
-        protected int DataSize
-        {
-            get
-            {
-                return (int)(header.DataSize + data_position -
+        protected int DataSize => (int)(header.DataSize + data_position -
                DataPosition);
-            }
-        }
 
         /// <summary>
         ///    Gets the position of the data contained in the current
@@ -416,10 +421,7 @@ namespace TagLib.Mpeg4
         ///    A <see cref="long" /> value containing the position of
         ///    the data contained in the current instance.
         /// </value>
-        protected virtual long DataPosition
-        {
-            get { return data_position; }
-        }
+        protected virtual long DataPosition => data_position;
 
         /// <summary>
         ///    Gets the header of the current instance.
@@ -428,10 +430,7 @@ namespace TagLib.Mpeg4
         ///    A <see cref="BoxHeader" /> object containing the header
         ///    of the current instance.
         /// </value>
-        protected BoxHeader Header
-        {
-            get { return header; }
-        }
+        protected BoxHeader Header => header;
 
         #endregion
 
@@ -457,7 +456,9 @@ namespace TagLib.Mpeg4
         protected IEnumerable<Box> LoadChildren(TagLib.File file)
         {
             if (file == null)
+            {
                 throw new ArgumentNullException(nameof(file));
+            }
 
             var children = new List<Box>();
 
@@ -469,7 +470,9 @@ namespace TagLib.Mpeg4
             {
                 Box child = BoxFactory.CreateBox(file, position, header, Handler, children.Count);
                 if (child.Size == 0)
+                {
                     break;
+                }
 
                 children.Add(child);
                 position += child.Size;
@@ -497,7 +500,9 @@ namespace TagLib.Mpeg4
         protected ByteVector LoadData(TagLib.File file)
         {
             if (file == null)
+            {
                 throw new ArgumentNullException(nameof(file));
+            }
 
             file.Seek(DataPosition);
             return file.ReadBlock(DataSize);
@@ -522,14 +527,24 @@ namespace TagLib.Mpeg4
             var output = new ByteVector();
 
             if (Children != null)
+            {
                 foreach (Box box in Children)
+                {
                     if (box.GetType() == typeof(
                         IsoFreeSpaceBox))
+                    {
                         free_found = true;
+                    }
                     else
+                    {
                         output.Add(box.Render());
+                    }
+                }
+            }
             else if (Data != null)
+            {
                 output.Add(Data);
+            }
 
             // If there was a free, don't take it away, and let meta
             // be a special case.
@@ -540,12 +555,16 @@ namespace TagLib.Mpeg4
                 // If we have room for free space, add it so we
                 // don't have to resize the file.
                 if (header.DataSize != 0 && size_difference >= 8)
+                {
                     output.Add((new IsoFreeSpaceBox(size_difference)).Render());
+                }
 
                 // If we're getting bigger, get a lot bigger so
                 // we might not have to again.
                 else
+                {
                     output.Add((new IsoFreeSpaceBox(2048)).Render());
+                }
             }
 
             // Adjust the header's data size to match the content.

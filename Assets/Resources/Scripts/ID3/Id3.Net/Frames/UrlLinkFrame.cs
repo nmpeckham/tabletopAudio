@@ -49,6 +49,9 @@ namespace Id3.Frames
 
         public string Url { get; set; }
 
-        public static implicit operator string(UrlLinkFrame frame) => frame.Url;
+        public static implicit operator string(UrlLinkFrame frame)
+        {
+            return frame.Url;
+        }
     }
 }

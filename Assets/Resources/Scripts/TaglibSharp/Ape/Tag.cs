@@ -47,7 +47,7 @@ namespace TagLib.Ape
         ///    Contains names of picture fields, indexed to correspond
         ///    to their picture item names.
         /// </summary>
-        static readonly string[] picture_item_names = new[] {
+        private static readonly string[] picture_item_names = new[] {
             "Cover Art (other)",
             "Cover Art (icon)",
             "Cover Art (other icon)",
@@ -81,12 +81,12 @@ namespace TagLib.Ape
         /// <summary>
         ///    Contains the tag footer.
         /// </summary>
-        Footer footer;
+        private Footer footer;
 
         /// <summary>
         ///    Contains the items in the tag.
         /// </summary>
-        readonly List<Item> items = new List<Item>();
+        private readonly List<Item> items = new List<Item>();
 
         #endregion
 
@@ -142,10 +142,14 @@ namespace TagLib.Ape
         public Tag(TagLib.File file, long position)
         {
             if (file == null)
+            {
                 throw new ArgumentNullException(nameof(file));
+            }
 
             if (position < 0 || position > file.Length - Footer.Size)
+            {
                 throw new ArgumentOutOfRangeException(nameof(position));
+            }
 
             Read(file, position);
         }
@@ -170,23 +174,33 @@ namespace TagLib.Ape
         public Tag(ByteVector data)
         {
             if (data == null)
+            {
                 throw new ArgumentNullException(nameof(data));
+            }
 
             if (data.Count < Footer.Size)
+            {
                 throw new CorruptFileException("Does not contain enough footer data.");
+            }
 
             footer = new Footer(data.Mid((int)(data.Count - Footer.Size)));
 
             if (footer.TagSize == 0)
+            {
                 throw new CorruptFileException("Tag size out of bounds.");
+            }
 
             // If we've read a header at the end of the block, the
             // block is invalid.
             if ((footer.Flags & FooterFlags.IsHeader) != 0)
+            {
                 throw new CorruptFileException("Footer was actually header.");
+            }
 
             if (data.Count < footer.TagSize)
+            {
                 throw new CorruptFileException("Does not contain enough tag data.");
+            }
 
             Parse(data.Mid((int)(data.Count - footer.TagSize), (int)(footer.TagSize - Footer.Size)));
         }
@@ -207,17 +221,18 @@ namespace TagLib.Ape
         /// </value>
         public bool HeaderPresent
         {
-            get
-            {
-                return (footer.Flags &
+            get => (footer.Flags &
                     FooterFlags.HeaderPresent) != 0;
-            }
             set
             {
                 if (value)
+                {
                     footer.Flags |= FooterFlags.HeaderPresent;
+                }
                 else
+                {
                     footer.Flags &= ~FooterFlags.HeaderPresent;
+                }
             }
         }
 
@@ -257,15 +272,23 @@ namespace TagLib.Ape
         public void AddValue(string key, uint number, uint count)
         {
             if (key == null)
+            {
                 throw new ArgumentNullException(nameof(key));
+            }
 
             if (number == 0 && count == 0)
+            {
                 return;
+            }
 
             if (count != 0)
+            {
                 AddValue(key, string.Format(CultureInfo.InvariantCulture, "{0}/{1}", number, count));
+            }
             else
+            {
                 AddValue(key, number.ToString(CultureInfo.InvariantCulture));
+            }
         }
 
         /// <summary>
@@ -298,14 +321,22 @@ namespace TagLib.Ape
         public void SetValue(string key, uint number, uint count)
         {
             if (key == null)
+            {
                 throw new ArgumentNullException(nameof(key));
+            }
 
             if (number == 0 && count == 0)
+            {
                 RemoveItem(key);
+            }
             else if (count != 0)
+            {
                 SetValue(key, string.Format(CultureInfo.InvariantCulture, "{0}/{1}", number, count));
+            }
             else
+            {
                 SetValue(key, number.ToString(CultureInfo.InvariantCulture));
+            }
         }
 
         /// <summary>
@@ -330,10 +361,14 @@ namespace TagLib.Ape
         public void AddValue(string key, string value)
         {
             if (key == null)
+            {
                 throw new ArgumentNullException(nameof(key));
+            }
 
             if (string.IsNullOrEmpty(value))
+            {
                 return;
+            }
 
             AddValue(key, new[] { value });
         }
@@ -360,12 +395,18 @@ namespace TagLib.Ape
         public void SetValue(string key, string value)
         {
             if (key == null)
+            {
                 throw new ArgumentNullException(nameof(key));
+            }
 
             if (string.IsNullOrEmpty(value))
+            {
                 RemoveItem(key);
+            }
             else
+            {
                 SetValue(key, new[] { value });
+            }
         }
 
         /// <summary>
@@ -389,26 +430,36 @@ namespace TagLib.Ape
         public void AddValue(string key, string[] value)
         {
             if (key == null)
+            {
                 throw new ArgumentNullException(nameof(key));
+            }
 
             if (value == null || value.Length == 0)
+            {
                 return;
+            }
 
             int index = GetItemIndex(key);
 
             var values = new List<string>();
 
             if (index >= 0)
+            {
                 values.AddRange(items[index].ToStringArray());
+            }
 
             values.AddRange(value);
 
             var item = new Item(key, values.ToArray());
 
             if (index >= 0)
+            {
                 items[index] = item;
+            }
             else
+            {
                 items.Add(item);
+            }
         }
 
         /// <summary>
@@ -432,7 +483,9 @@ namespace TagLib.Ape
         public void SetValue(string key, string[] value)
         {
             if (key == null)
+            {
                 throw new ArgumentNullException(nameof(key));
+            }
 
             if (value == null || value.Length == 0)
             {
@@ -444,10 +497,13 @@ namespace TagLib.Ape
 
             int index = GetItemIndex(key);
             if (index >= 0)
+            {
                 items[index] = item;
+            }
             else
+            {
                 items.Add(item);
-
+            }
         }
 
         /// <summary>
@@ -465,13 +521,19 @@ namespace TagLib.Ape
         public Item GetItem(string key)
         {
             if (key == null)
+            {
                 throw new ArgumentNullException(nameof(key));
+            }
 
             var comparison = StringComparison.InvariantCultureIgnoreCase;
 
             foreach (Item item in items)
+            {
                 if (key.Equals(item.Key, comparison))
+                {
                     return item;
+                }
+            }
 
             return null;
         }
@@ -487,13 +549,19 @@ namespace TagLib.Ape
         public void SetItem(Item item)
         {
             if (item == null)
+            {
                 throw new ArgumentNullException(nameof(item));
+            }
 
             int index = GetItemIndex(item.Key);
             if (index >= 0)
+            {
                 items[index] = item;
+            }
             else
+            {
                 items.Add(item);
+            }
         }
 
         /// <summary>
@@ -507,13 +575,19 @@ namespace TagLib.Ape
         public void RemoveItem(string key)
         {
             if (key == null)
+            {
                 throw new ArgumentNullException(nameof(key));
+            }
 
             var comparison = StringComparison.InvariantCultureIgnoreCase;
 
             for (int i = items.Count - 1; i >= 0; i--)
+            {
                 if (key.Equals(items[i].Key, comparison))
+                {
                     items.RemoveAt(i);
+                }
+            }
         }
 
         /// <summary>
@@ -533,7 +607,9 @@ namespace TagLib.Ape
         public bool HasItem(string key)
         {
             if (key == null)
+            {
                 throw new ArgumentNullException(nameof(key));
+            }
 
             return GetItemIndex(key) >= 0;
         }
@@ -592,24 +668,32 @@ namespace TagLib.Ape
         protected void Read(TagLib.File file, long position)
         {
             if (file == null)
+            {
                 throw new ArgumentNullException(nameof(file));
+            }
 
             file.Mode = TagLib.File.AccessMode.Read;
 
             if (position < 0 || position > file.Length - Footer.Size)
+            {
                 throw new ArgumentOutOfRangeException(nameof(position));
+            }
 
             file.Seek(position);
             footer = new Footer(file.ReadBlock((int)Footer.Size));
 
             if (footer.TagSize == 0)
+            {
                 throw new CorruptFileException("Tag size out of bounds.");
+            }
 
             // If we've read a header, we don't have to seek to read
             // the content. If we've read a footer, we need to move
             // back to the start of the tag.
             if ((footer.Flags & FooterFlags.IsHeader) == 0)
+            {
                 file.Seek(position + Footer.Size - footer.TagSize);
+            }
 
             Parse(file.ReadBlock((int)(footer.TagSize - Footer.Size)));
         }
@@ -630,7 +714,9 @@ namespace TagLib.Ape
         protected void Parse(ByteVector data)
         {
             if (data == null)
+            {
                 throw new ArgumentNullException(nameof(data));
+            }
 
             int pos = 0;
 
@@ -672,13 +758,17 @@ namespace TagLib.Ape
         /// <remarks>
         ///    Keys are compared in a case insensitive manner.
         /// </remarks>
-        int GetItemIndex(string key)
+        private int GetItemIndex(string key)
         {
             var comparison = StringComparison.InvariantCultureIgnoreCase;
 
             for (int i = 0; i < items.Count; i++)
+            {
                 if (key.Equals(items[i].Key, comparison))
+                {
                     return i;
+                }
+            }
 
             return -1;
         }
@@ -695,7 +785,7 @@ namespace TagLib.Ape
         ///    specified frame, or <see langword="null" /> if no value
         ///    was found.
         /// </returns>
-        string GetItemAsString(string key)
+        private string GetItemAsString(string key)
         {
             Item item = GetItem(key);
             return item?.ToString();
@@ -713,7 +803,7 @@ namespace TagLib.Ape
         ///    specified frame, or an empty array if no values were
         ///    found.
         /// </returns>
-        string[] GetItemAsStrings(string key)
+        private string[] GetItemAsStrings(string key)
         {
             Item item = GetItem(key);
             return item != null ? item.ToStringArray() : new string[0];
@@ -735,20 +825,26 @@ namespace TagLib.Ape
         ///    A <see cref="uint" /> value read from the list in the
         ///    frame, or 0 if the value wasn't found.
         /// </returns>
-        uint GetItemAsUInt32(string key, int index)
+        private uint GetItemAsUInt32(string key, int index)
         {
             string text = GetItemAsString(key);
 
             if (text == null)
+            {
                 return 0;
+            }
 
             string[] values = text.Split(new[] { '/' }, index + 2);
 
             if (values.Length < index + 1)
+            {
                 return 0;
+            }
 
             if (uint.TryParse(values[index], out var result))
+            {
                 return result;
+            }
 
             return 0;
         }
@@ -769,7 +865,9 @@ namespace TagLib.Ape
         public IEnumerator<string> GetEnumerator()
         {
             foreach (Item item in items)
+            {
                 yield return item.Key;
+            }
         }
 
         /// <summary>
@@ -796,10 +894,7 @@ namespace TagLib.Ape
         /// <value>
         ///    Always <see cref="TagTypes.Ape" />.
         /// </value>
-        public override TagTypes TagTypes
-        {
-            get { return TagTypes.Ape; }
-        }
+        public override TagTypes TagTypes => TagTypes.Ape;
 
         /// <summary>
         ///    Gets and sets the title for the media described by the
@@ -815,8 +910,8 @@ namespace TagLib.Ape
         /// </remarks>
         public override string Title
         {
-            get { return GetItemAsString("Title"); }
-            set { SetValue("Title", value); }
+            get => GetItemAsString("Title");
+            set => SetValue("Title", value);
         }
 
         /// <summary>
@@ -833,8 +928,8 @@ namespace TagLib.Ape
         /// </remarks>
         public override string TitleSort
         {
-            get { return GetItemAsString("TitleSort"); }
-            set { SetValue("TitleSort", value); }
+            get => GetItemAsString("TitleSort");
+            set => SetValue("TitleSort", value);
         }
 
 
@@ -860,8 +955,8 @@ namespace TagLib.Ape
         /// </remarks>
         public override string Subtitle
         {
-            get { return GetItemAsString("Subtitle"); }
-            set { SetValue("Subtitle", value); }
+            get => GetItemAsString("Subtitle");
+            set => SetValue("Subtitle", value);
         }
 
         /// <summary>
@@ -890,8 +985,8 @@ namespace TagLib.Ape
         /// </remarks>
         public override string Description
         {
-            get { return GetItemAsString("Description"); }
-            set { SetValue("Description", value); }
+            get => GetItemAsString("Description");
+            set => SetValue("Description", value);
         }
 
         /// <summary>
@@ -909,8 +1004,8 @@ namespace TagLib.Ape
         /// </remarks>
         public override string[] Performers
         {
-            get { return GetItemAsStrings("Artist"); }
-            set { SetValue("Artist", value); }
+            get => GetItemAsStrings("Artist");
+            set => SetValue("Artist", value);
         }
 
         /// <summary>
@@ -929,8 +1024,8 @@ namespace TagLib.Ape
         /// </remarks>
         public override string[] PerformersSort
         {
-            get { return GetItemAsStrings("ArtistSort"); }
-            set { SetValue("ArtistSort", value); }
+            get => GetItemAsStrings("ArtistSort");
+            set => SetValue("ArtistSort", value);
         }
 
 
@@ -966,8 +1061,8 @@ namespace TagLib.Ape
         /// </remarks>
         public override string[] PerformersRole
         {
-            get { return GetItemAsStrings("PerformersRole"); }
-            set { SetValue("PerformersRole", value); }
+            get => GetItemAsStrings("PerformersRole");
+            set => SetValue("PerformersRole", value);
         }
 
 
@@ -992,7 +1087,10 @@ namespace TagLib.Ape
             {
                 string[] list = GetItemAsStrings("Album Artist");
                 if (list.Length == 0)
+                {
                     list = GetItemAsStrings("AlbumArtist");
+                }
+
                 return list;
             }
             set
@@ -1000,7 +1098,9 @@ namespace TagLib.Ape
                 SetValue("Album Artist", value);
                 // compatibility
                 if (HasItem("AlbumArtist"))
+                {
                     SetValue("AlbumArtist", value);
+                }
             }
         }
 
@@ -1024,8 +1124,8 @@ namespace TagLib.Ape
         /// </remarks>
         public override string[] AlbumArtistsSort
         {
-            get { return GetItemAsStrings("AlbumArtistSort"); }
-            set { SetValue("AlbumArtistSort", value); }
+            get => GetItemAsStrings("AlbumArtistSort");
+            set => SetValue("AlbumArtistSort", value);
         }
 
         /// <summary>
@@ -1042,8 +1142,8 @@ namespace TagLib.Ape
         /// </remarks>
         public override string[] Composers
         {
-            get { return GetItemAsStrings("Composer"); }
-            set { SetValue("Composer", value); }
+            get => GetItemAsStrings("Composer");
+            set => SetValue("Composer", value);
         }
 
         /// <summary>
@@ -1062,8 +1162,8 @@ namespace TagLib.Ape
         /// </remarks>
         public override string[] ComposersSort
         {
-            get { return GetItemAsStrings("ComposerSort"); }
-            set { SetValue("ComposerSort", value); }
+            get => GetItemAsStrings("ComposerSort");
+            set => SetValue("ComposerSort", value);
         }
 
         /// <summary>
@@ -1080,8 +1180,8 @@ namespace TagLib.Ape
         /// </remarks>
         public override string Album
         {
-            get { return GetItemAsString("Album"); }
-            set { SetValue("Album", value); }
+            get => GetItemAsString("Album");
+            set => SetValue("Album", value);
         }
 
         /// <summary>
@@ -1100,8 +1200,8 @@ namespace TagLib.Ape
         /// </remarks>
         public override string AlbumSort
         {
-            get { return GetItemAsString("AlbumSort"); }
-            set { SetValue("AlbumSort", value); }
+            get => GetItemAsString("AlbumSort");
+            set => SetValue("AlbumSort", value);
         }
 
         /// <summary>
@@ -1118,8 +1218,8 @@ namespace TagLib.Ape
         /// </remarks>
         public override string Comment
         {
-            get { return GetItemAsString("Comment"); }
-            set { SetValue("Comment", value); }
+            get => GetItemAsString("Comment");
+            set => SetValue("Comment", value);
         }
 
         /// <summary>
@@ -1136,8 +1236,8 @@ namespace TagLib.Ape
         /// </remarks>
         public override string[] Genres
         {
-            get { return GetItemAsStrings("Genre"); }
-            set { SetValue("Genre", value); }
+            get => GetItemAsStrings("Genre");
+            set => SetValue("Genre", value);
         }
 
         /// <summary>
@@ -1159,17 +1259,21 @@ namespace TagLib.Ape
                 string text = GetItemAsString("Year");
 
                 if (text == null || text.Length == 0)
+                {
                     return 0;
+                }
 
                 if (uint.TryParse(text, out var value) ||
                     (text.Length >= 4 && uint.TryParse(
                         text.Substring(0, 4),
                         out value)))
+                {
                     return value;
+                }
 
                 return 0;
             }
-            set { SetValue("Year", value, 0); }
+            set => SetValue("Year", value, 0);
         }
 
         /// <summary>
@@ -1186,8 +1290,8 @@ namespace TagLib.Ape
         /// </remarks>
         public override uint Track
         {
-            get { return GetItemAsUInt32("Track", 0); }
-            set { SetValue("Track", value, TrackCount); }
+            get => GetItemAsUInt32("Track", 0);
+            set => SetValue("Track", value, TrackCount);
         }
 
         /// <summary>
@@ -1204,8 +1308,8 @@ namespace TagLib.Ape
         /// </remarks>
         public override uint TrackCount
         {
-            get { return GetItemAsUInt32("Track", 1); }
-            set { SetValue("Track", Track, value); }
+            get => GetItemAsUInt32("Track", 1);
+            set => SetValue("Track", Track, value);
         }
 
         /// <summary>
@@ -1222,8 +1326,8 @@ namespace TagLib.Ape
         /// </remarks>
         public override uint Disc
         {
-            get { return GetItemAsUInt32("Disc", 0); }
-            set { SetValue("Disc", value, DiscCount); }
+            get => GetItemAsUInt32("Disc", 0);
+            set => SetValue("Disc", value, DiscCount);
         }
 
         /// <summary>
@@ -1240,8 +1344,8 @@ namespace TagLib.Ape
         /// </remarks>
         public override uint DiscCount
         {
-            get { return GetItemAsUInt32("Disc", 1); }
-            set { SetValue("Disc", Disc, value); }
+            get => GetItemAsUInt32("Disc", 1);
+            set => SetValue("Disc", Disc, value);
         }
 
         /// <summary>
@@ -1258,8 +1362,8 @@ namespace TagLib.Ape
         /// </remarks>
         public override string Lyrics
         {
-            get { return GetItemAsString("Lyrics"); }
-            set { SetValue("Lyrics", value); }
+            get => GetItemAsString("Lyrics");
+            set => SetValue("Lyrics", value);
         }
 
         /// <summary>
@@ -1276,8 +1380,8 @@ namespace TagLib.Ape
         /// </remarks>
         public override string Grouping
         {
-            get { return GetItemAsString("Grouping"); }
-            set { SetValue("Grouping", value); }
+            get => GetItemAsString("Grouping");
+            set => SetValue("Grouping", value);
         }
 
         /// <summary>
@@ -1299,15 +1403,18 @@ namespace TagLib.Ape
                 string text = GetItemAsString("BPM");
 
                 if (text == null)
+                {
                     return 0;
-
+                }
 
                 if (double.TryParse(text, out var value))
+                {
                     return (uint)Math.Round(value);
+                }
 
                 return 0;
             }
-            set { SetValue("BPM", value, 0); }
+            set => SetValue("BPM", value, 0);
         }
 
         /// <summary>
@@ -1324,8 +1431,8 @@ namespace TagLib.Ape
         /// </remarks>
         public override string Conductor
         {
-            get { return GetItemAsString("Conductor"); }
-            set { SetValue("Conductor", value); }
+            get => GetItemAsString("Conductor");
+            set => SetValue("Conductor", value);
         }
 
         /// <summary>
@@ -1342,8 +1449,8 @@ namespace TagLib.Ape
         /// </remarks>
         public override string Copyright
         {
-            get { return GetItemAsString("Copyright"); }
-            set { SetValue("Copyright", value); }
+            get => GetItemAsString("Copyright");
+            set => SetValue("Copyright", value);
         }
 
         /// <summary>
@@ -1398,8 +1505,8 @@ namespace TagLib.Ape
         /// </remarks>
         public override string MusicBrainzArtistId
         {
-            get { return GetItemAsString("MUSICBRAINZ_ARTISTID"); }
-            set { SetValue("MUSICBRAINZ_ARTISTID", value); }
+            get => GetItemAsString("MUSICBRAINZ_ARTISTID");
+            set => SetValue("MUSICBRAINZ_ARTISTID", value);
         }
 
         /// <summary>
@@ -1417,8 +1524,8 @@ namespace TagLib.Ape
         /// </remarks>
         public override string MusicBrainzReleaseGroupId
         {
-            get { return GetItemAsString("MUSICBRAINZ_RELEASEGROUPID"); }
-            set { SetValue("MUSICBRAINZ_RELEASEGROUPID", value); }
+            get => GetItemAsString("MUSICBRAINZ_RELEASEGROUPID");
+            set => SetValue("MUSICBRAINZ_RELEASEGROUPID", value);
         }
 
         /// <summary>
@@ -1436,8 +1543,8 @@ namespace TagLib.Ape
         /// </remarks>
         public override string MusicBrainzReleaseId
         {
-            get { return GetItemAsString("MUSICBRAINZ_ALBUMID"); }
-            set { SetValue("MUSICBRAINZ_ALBUMID", value); }
+            get => GetItemAsString("MUSICBRAINZ_ALBUMID");
+            set => SetValue("MUSICBRAINZ_ALBUMID", value);
         }
 
         /// <summary>
@@ -1455,8 +1562,8 @@ namespace TagLib.Ape
         /// </remarks>
         public override string MusicBrainzReleaseArtistId
         {
-            get { return GetItemAsString("MUSICBRAINZ_ALBUMARTISTID"); }
-            set { SetValue("MUSICBRAINZ_ALBUMARTISTID", value); }
+            get => GetItemAsString("MUSICBRAINZ_ALBUMARTISTID");
+            set => SetValue("MUSICBRAINZ_ALBUMARTISTID", value);
         }
 
         /// <summary>
@@ -1474,8 +1581,8 @@ namespace TagLib.Ape
         /// </remarks>
         public override string MusicBrainzTrackId
         {
-            get { return GetItemAsString("MUSICBRAINZ_TRACKID"); }
-            set { SetValue("MUSICBRAINZ_TRACKID", value); }
+            get => GetItemAsString("MUSICBRAINZ_TRACKID");
+            set => SetValue("MUSICBRAINZ_TRACKID", value);
         }
 
         /// <summary>
@@ -1493,8 +1600,8 @@ namespace TagLib.Ape
         /// </remarks>
         public override string MusicBrainzDiscId
         {
-            get { return GetItemAsString("MUSICBRAINZ_DISCID"); }
-            set { SetValue("MUSICBRAINZ_DISCID", value); }
+            get => GetItemAsString("MUSICBRAINZ_DISCID");
+            set => SetValue("MUSICBRAINZ_DISCID", value);
         }
 
         /// <summary>
@@ -1512,8 +1619,8 @@ namespace TagLib.Ape
         /// </remarks>
         public override string MusicIpId
         {
-            get { return GetItemAsString("MUSICIP_PUID"); }
-            set { SetValue("MUSICIP_PUID", value); }
+            get => GetItemAsString("MUSICIP_PUID");
+            set => SetValue("MUSICIP_PUID", value);
         }
 
         /// <summary>
@@ -1531,8 +1638,8 @@ namespace TagLib.Ape
         /// </remarks>
         public override string AmazonId
         {
-            get { return GetItemAsString("ASIN"); }
-            set { SetValue("ASIN", value); }
+            get => GetItemAsString("ASIN");
+            set => SetValue("ASIN", value);
         }
 
         /// <summary>
@@ -1550,8 +1657,8 @@ namespace TagLib.Ape
         /// </remarks>
         public override string MusicBrainzReleaseStatus
         {
-            get { return GetItemAsString("MUSICBRAINZ_ALBUMSTATUS"); }
-            set { SetValue("MUSICBRAINZ_ALBUMSTATUS", value); }
+            get => GetItemAsString("MUSICBRAINZ_ALBUMSTATUS");
+            set => SetValue("MUSICBRAINZ_ALBUMSTATUS", value);
         }
 
         /// <summary>
@@ -1569,8 +1676,8 @@ namespace TagLib.Ape
         /// </remarks>
         public override string MusicBrainzReleaseType
         {
-            get { return GetItemAsString("MUSICBRAINZ_ALBUMTYPE"); }
-            set { SetValue("MUSICBRAINZ_ALBUMTYPE", value); }
+            get => GetItemAsString("MUSICBRAINZ_ALBUMTYPE");
+            set => SetValue("MUSICBRAINZ_ALBUMTYPE", value);
         }
 
         /// <summary>
@@ -1588,8 +1695,8 @@ namespace TagLib.Ape
         /// </remarks>
         public override string MusicBrainzReleaseCountry
         {
-            get { return GetItemAsString("RELEASECOUNTRY"); }
-            set { SetValue("RELEASECOUNTRY", value); }
+            get => GetItemAsString("RELEASECOUNTRY");
+            set => SetValue("RELEASECOUNTRY", value);
         }
 
         /// <summary>
@@ -1792,25 +1899,33 @@ namespace TagLib.Ape
 
                     if (item == null ||
                         item.Type != ItemType.Binary)
+                    {
                         continue;
+                    }
 
                     int i;
                     for (i = 0; i < picture_item_names.Length; i++)
                     {
                         if (picture_item_names[i].Equals(item.Key, comparison))
+                        {
                             break;
+                        }
                     }
 
 
                     if (i >= picture_item_names.Length)
+                    {
                         continue;
+                    }
 
                     int index = item.Value.Find(
                         ByteVector.TextDelimiter(
                             StringType.UTF8));
 
                     if (index < 0)
+                    {
                         continue;
+                    }
 
                     var pic = new Picture(item.Value.Mid(index + 1))
                     {
@@ -1828,22 +1943,30 @@ namespace TagLib.Ape
             set
             {
                 foreach (string item_name in picture_item_names)
+                {
                     RemoveItem(item_name);
+                }
 
                 if (value == null || value.Length == 0)
+                {
                     return;
+                }
 
                 foreach (IPicture pic in value)
                 {
                     int type = (int)pic.Type;
 
                     if (type >= picture_item_names.Length)
+                    {
                         type = picture_item_names.Length - 1;
+                    }
 
                     string name = picture_item_names[type];
 
                     if (GetItem(name) != null)
+                    {
                         continue;
+                    }
 
                     var data = ByteVector.FromString(pic.Description, StringType.UTF8);
                     data.Add(ByteVector.TextDelimiter(StringType.UTF8));
@@ -1861,10 +1984,7 @@ namespace TagLib.Ape
         ///    <see langword="true" /> if the current instance does not
         ///    any values. Otherwise <see langword="false" />.
         /// </value>
-        public override bool IsEmpty
-        {
-            get { return items.Count == 0; }
-        }
+        public override bool IsEmpty => items.Count == 0;
 
         /// <summary>
         ///    Clears the values stored in the current instance.
@@ -1899,8 +2019,9 @@ namespace TagLib.Ape
         public override void CopyTo(TagLib.Tag target, bool overwrite)
         {
             if (target == null)
+            {
                 throw new ArgumentNullException(nameof(target));
-
+            }
 
             if (!(target is Tag match))
             {
@@ -1911,7 +2032,9 @@ namespace TagLib.Ape
             foreach (Item item in items)
             {
                 if (!overwrite && match.GetItem(item.Key) != null)
+                {
                     continue;
+                }
 
                 match.items.Add(item.Clone());
             }

@@ -6,13 +6,14 @@ public class LoadGameSelectItem : MonoBehaviour
 {
     public string fileLocation;
     private static OptionsMenuController omc;
-    void Start()
+
+    private void Start()
     {
         omc = Camera.main.GetComponent<OptionsMenuController>();
         GetComponent<Button>().onClick.AddListener(Clicked);
     }
 
-    void Clicked()
+    private void Clicked()
     {
         omc.LoadItemSelected(fileLocation);
     }

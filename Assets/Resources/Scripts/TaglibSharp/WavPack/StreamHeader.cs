@@ -39,16 +39,15 @@ namespace TagLib.WavPack
     {
         #region Constants
 
-        static readonly uint[] sample_rates = new uint[] {
+        private static readonly uint[] sample_rates = new uint[] {
             6000, 8000, 9600, 11025, 12000, 16000, 22050, 24000,
             32000, 44100, 48000, 64000, 88200, 96000, 192000};
-
-        const int BYTES_STORED = 3;
-        const int MONO_FLAG = 4;
-        const int SHIFT_LSB = 13;
-        const long SHIFT_MASK = (0x1fL << SHIFT_LSB);
-        const int SRATE_LSB = 23;
-        const long SRATE_MASK = (0xfL << SRATE_LSB);
+        private const int BYTES_STORED = 3;
+        private const int MONO_FLAG = 4;
+        private const int SHIFT_LSB = 13;
+        private const long SHIFT_MASK = (0x1fL << SHIFT_LSB);
+        private const int SRATE_LSB = 23;
+        private const long SRATE_MASK = (0xfL << SRATE_LSB);
 
         #endregion
 
@@ -59,22 +58,22 @@ namespace TagLib.WavPack
         /// <summary>
         ///    Contains the number of bytes in the stream.
         /// </summary>
-        readonly long stream_length;
+        private readonly long stream_length;
 
         /// <summary>
         ///    Contains the WavPack version.
         /// </summary>
-        readonly ushort version;
+        private readonly ushort version;
 
         /// <summary>
         ///    Contains the flags.
         /// </summary>
-        readonly uint flags;
+        private readonly uint flags;
 
         /// <summary>
         ///    Contains the sample count.
         /// </summary>
-        readonly uint samples;
+        private readonly uint samples;
 
         #endregion
 
@@ -124,13 +123,19 @@ namespace TagLib.WavPack
         public StreamHeader(ByteVector data, long streamLength)
         {
             if (data == null)
+            {
                 throw new ArgumentNullException(nameof(data));
+            }
 
             if (!data.StartsWith(FileIdentifier))
+            {
                 throw new CorruptFileException("Data does not begin with identifier.");
+            }
 
             if (data.Count < Size)
+            {
                 throw new CorruptFileException("Insufficient data in stream header");
+            }
 
             stream_length = streamLength;
             version = data.Mid(8, 2).ToUShort(false);
@@ -152,14 +157,8 @@ namespace TagLib.WavPack
         ///    A <see cref="TimeSpan" /> containing the duration of the
         ///    media represented by the current instance.
         /// </value>
-        public TimeSpan Duration
-        {
-            get
-            {
-                return AudioSampleRate > 0 ?
+        public TimeSpan Duration => AudioSampleRate > 0 ?
                     TimeSpan.FromSeconds(samples / (double)AudioSampleRate + 0.5) : TimeSpan.Zero;
-            }
-        }
 
         /// <summary>
         ///    Gets the types of media represented by the current
@@ -168,10 +167,7 @@ namespace TagLib.WavPack
         /// <value>
         ///    Always <see cref="MediaTypes.Audio" />.
         /// </value>
-        public MediaTypes MediaTypes
-        {
-            get { return MediaTypes.Audio; }
-        }
+        public MediaTypes MediaTypes => MediaTypes.Audio;
 
         /// <summary>
         ///    Gets a text description of the media represented by the
@@ -181,13 +177,7 @@ namespace TagLib.WavPack
         ///    A <see cref="string" /> object containing a description
         ///    of the media represented by the current instance.
         /// </value>
-        public string Description
-        {
-            get
-            {
-                return string.Format(CultureInfo.InvariantCulture, "WavPack Version {0} Audio", Version);
-            }
-        }
+        public string Description => string.Format(CultureInfo.InvariantCulture, "WavPack Version {0} Audio", Version);
 
         /// <summary>
         ///    Gets the bitrate of the audio represented by the current
@@ -197,13 +187,7 @@ namespace TagLib.WavPack
         ///    A <see cref="int" /> value containing a bitrate of the
         ///    audio represented by the current instance.
         /// </value>
-        public int AudioBitrate
-        {
-            get
-            {
-                return (int)(Duration > TimeSpan.Zero ? ((stream_length * 8L) / Duration.TotalSeconds) / 1000 : 0);
-            }
-        }
+        public int AudioBitrate => (int)(Duration > TimeSpan.Zero ? ((stream_length * 8L) / Duration.TotalSeconds) / 1000 : 0);
 
         /// <summary>
         ///    Gets the sample rate of the audio represented by the
@@ -213,13 +197,7 @@ namespace TagLib.WavPack
         ///    A <see cref="int" /> value containing the sample rate of
         ///    the audio represented by the current instance.
         /// </value>
-        public int AudioSampleRate
-        {
-            get
-            {
-                return (int)(sample_rates[(flags & SRATE_MASK) >> SRATE_LSB]);
-            }
-        }
+        public int AudioSampleRate => (int)(sample_rates[(flags & SRATE_MASK) >> SRATE_LSB]);
 
         /// <summary>
         ///    Gets the number of channels in the audio represented by
@@ -230,10 +208,7 @@ namespace TagLib.WavPack
         ///    channels in the audio represented by the current
         ///    instance.
         /// </value>
-        public int AudioChannels
-        {
-            get { return ((flags & MONO_FLAG) != 0) ? 1 : 2; }
-        }
+        public int AudioChannels => ((flags & MONO_FLAG) != 0) ? 1 : 2;
 
         /// <summary>
         ///    Gets the WavPack version of the audio represented by the
@@ -243,10 +218,7 @@ namespace TagLib.WavPack
         ///    A <see cref="int" /> value containing the WavPack version
         ///    of the audio represented by the current instance.
         /// </value>
-        public int Version
-        {
-            get { return version; }
-        }
+        public int Version => version;
 
         /// <summary>
         ///    Gets the number of bits per sample in the audio
@@ -257,13 +229,7 @@ namespace TagLib.WavPack
         ///    per sample in the audio represented by the current
         ///    instance.
         /// </value>
-        public int BitsPerSample
-        {
-            get
-            {
-                return (int)(((flags & BYTES_STORED) + 1) * 8 - ((flags & SHIFT_MASK) >> SHIFT_LSB));
-            }
-        }
+        public int BitsPerSample => (int)(((flags & BYTES_STORED) + 1) * 8 - ((flags & SHIFT_MASK) >> SHIFT_LSB));
 
         #endregion
 
@@ -302,7 +268,9 @@ namespace TagLib.WavPack
         public override bool Equals(object other)
         {
             if (!(other is StreamHeader))
+            {
                 return false;
+            }
 
             return Equals((StreamHeader)other);
         }

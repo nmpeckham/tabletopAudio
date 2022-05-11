@@ -38,14 +38,20 @@ namespace Id3.Frames
             set
             {
                 if (string.IsNullOrEmpty(value))
+                {
                     Value = null;
+                }
                 else
                 {
                     if (!DateTime.TryParseExact(value, DateTimeFormat, CultureInfo.InvariantCulture,
                         DateTimeStyles.AllowWhiteSpaces, out DateTime dateTime))
+                    {
                         Value = null;
+                    }
                     else
+                    {
                         Value = dateTime;
+                    }
                 }
             }
         }

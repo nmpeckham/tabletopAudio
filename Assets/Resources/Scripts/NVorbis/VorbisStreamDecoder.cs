@@ -13,7 +13,7 @@ using System.Text;
 
 namespace NVorbis
 {
-    class VorbisStreamDecoder : IVorbisStreamStatus, IDisposable
+    internal class VorbisStreamDecoder : IVorbisStreamStatus, IDisposable
     {
         internal int _upperBitrate;
         internal int _nominalBitrate;
@@ -33,8 +33,7 @@ namespace NVorbis
         internal VorbisResidue[] Residues;
         internal VorbisMapping[] Maps;
         internal VorbisMode[] Modes;
-
-        int _modeFieldBits;
+        private int _modeFieldBits;
 
         #region Stat Fields
 
@@ -61,15 +60,12 @@ namespace NVorbis
 
         #endregion
 
-        IPacketProvider _packetProvider;
-        DataPacket _parameterChangePacket;
-
-        List<int> _pagesSeen;
-        int _lastPageSeen;
-
-        bool _eosFound;
-
-        object _seekLock = new object();
+        private IPacketProvider _packetProvider;
+        private DataPacket _parameterChangePacket;
+        private readonly List<int> _pagesSeen;
+        private int _lastPageSeen;
+        private bool _eosFound;
+        private readonly object _seekLock = new object();
 
         internal VorbisStreamDecoder(IPacketProvider packetProvider)
         {
@@ -113,7 +109,7 @@ namespace NVorbis
             return true;
         }
 
-        void SetParametersChanging(object sender, ParameterChangeEventArgs e)
+        private void SetParametersChanging(object sender, ParameterChangeEventArgs e)
         {
             _parameterChangePacket = e.FirstPacket;
         }
@@ -131,7 +127,7 @@ namespace NVorbis
 
         #region Header Decode
 
-        void ProcessParameterChange(DataPacket packet)
+        private void ProcessParameterChange(DataPacket packet)
         {
             _parameterChangePacket = null;
 
@@ -144,7 +140,10 @@ namespace NVorbis
                 wasPeek = true;
                 doFullReset = true;
                 packet = _packetProvider.PeekNextPacket();
-                if (packet == null) throw new InvalidDataException("Couldn't get next packet!");
+                if (packet == null)
+                {
+                    throw new InvalidDataException("Couldn't get next packet!");
+                }
             }
 
             // try to do a comment header...
@@ -160,7 +159,10 @@ namespace NVorbis
                 }
                 wasPeek = true;
                 packet = _packetProvider.PeekNextPacket();
-                if (packet == null) throw new InvalidDataException("Couldn't get next packet!");
+                if (packet == null)
+                {
+                    throw new InvalidDataException("Couldn't get next packet!");
+                }
             }
 
             // try to do a book header...
@@ -179,7 +181,7 @@ namespace NVorbis
             ResetDecoder(doFullReset);
         }
 
-        bool ProcessStreamHeader(DataPacket packet)
+        private bool ProcessStreamHeader(DataPacket packet)
         {
             if (!packet.ReadBytes(7).SequenceEqual(new byte[] { 0x01, 0x76, 0x6f, 0x72, 0x62, 0x69, 0x73 }))
             {
@@ -188,13 +190,19 @@ namespace NVorbis
                 return false;
             }
 
-            if (!_pagesSeen.Contains((_lastPageSeen = packet.PageSequenceNumber))) _pagesSeen.Add(_lastPageSeen);
+            if (!_pagesSeen.Contains((_lastPageSeen = packet.PageSequenceNumber)))
+            {
+                _pagesSeen.Add(_lastPageSeen);
+            }
 
             _glueBits += 56;
 
             var startPos = packet.BitsRead;
 
-            if (packet.ReadInt32() != 0) throw new InvalidDataException("Only Vorbis stream version 0 is supported.");
+            if (packet.ReadInt32() != 0)
+            {
+                throw new InvalidDataException("Only Vorbis stream version 0 is supported.");
+            }
 
             _channels = packet.ReadByte();
             _sampleRate = packet.ReadInt32();
@@ -220,14 +228,17 @@ namespace NVorbis
             return true;
         }
 
-        bool LoadComments(DataPacket packet)
+        private bool LoadComments(DataPacket packet)
         {
             if (!packet.ReadBytes(7).SequenceEqual(new byte[] { 0x03, 0x76, 0x6f, 0x72, 0x62, 0x69, 0x73 }))
             {
                 return false;
             }
 
-            if (!_pagesSeen.Contains((_lastPageSeen = packet.PageSequenceNumber))) _pagesSeen.Add(_lastPageSeen);
+            if (!_pagesSeen.Contains((_lastPageSeen = packet.PageSequenceNumber)))
+            {
+                _pagesSeen.Add(_lastPageSeen);
+            }
 
             _glueBits += 56;
 
@@ -245,14 +256,17 @@ namespace NVorbis
             return true;
         }
 
-        bool LoadBooks(DataPacket packet)
+        private bool LoadBooks(DataPacket packet)
         {
             if (!packet.ReadBytes(7).SequenceEqual(new byte[] { 0x05, 0x76, 0x6f, 0x72, 0x62, 0x69, 0x73 }))
             {
                 return false;
             }
 
-            if (!_pagesSeen.Contains((_lastPageSeen = packet.PageSequenceNumber))) _pagesSeen.Add(_lastPageSeen);
+            if (!_pagesSeen.Contains((_lastPageSeen = packet.PageSequenceNumber)))
+            {
+                _pagesSeen.Add(_lastPageSeen);
+            }
 
             var bits = packet.BitsRead;
 
@@ -318,7 +332,10 @@ namespace NVorbis
             _modeHdrBits += packet.BitsRead - bits;
 
             // check the framing bit
-            if (!packet.ReadBit()) throw new InvalidDataException();
+            if (!packet.ReadBit())
+            {
+                throw new InvalidDataException();
+            }
 
             ++_glueBits;
 
@@ -333,26 +350,23 @@ namespace NVorbis
 
         #region Data Decode
 
-        float[] _prevBuffer;
-        RingBuffer _outputBuffer;
-        Queue<int> _bitsPerPacketHistory;
-        Queue<int> _sampleCountHistory;
-        int _preparedLength;
+        private float[] _prevBuffer;
+        private RingBuffer _outputBuffer;
+        private Queue<int> _bitsPerPacketHistory;
+        private Queue<int> _sampleCountHistory;
+        private int _preparedLength;
         internal bool _clipped = false;
+        private Stack<DataPacket> _resyncQueue;
+        private long _currentPosition;
+        private long _reportedPosition;
+        private VorbisMode _mode;
+        private bool _prevFlag, _nextFlag;
+        private bool[] _noExecuteChannel;
+        private VorbisFloor.PacketData[] _floorData;
+        private float[][] _residue;
+        private bool _isParameterChange;
 
-        Stack<DataPacket> _resyncQueue;
-
-        long _currentPosition;
-        long _reportedPosition;
-
-        VorbisMode _mode;
-        bool _prevFlag, _nextFlag;
-        bool[] _noExecuteChannel;
-        VorbisFloor.PacketData[] _floorData;
-        float[][] _residue;
-        bool _isParameterChange;
-
-        void InitDecoder()
+        private void InitDecoder()
         {
             _currentPosition = 0L;
 
@@ -364,7 +378,7 @@ namespace NVorbis
             ResetDecoder(true);
         }
 
-        void ResetDecoder(bool isFullReset)
+        private void ResetDecoder(bool isFullReset)
         {
             // this is called when:
             //  - init (true)
@@ -389,8 +403,10 @@ namespace NVorbis
                     _residue[i] = new float[Block1Size];
                 }
 
-                _outputBuffer = new RingBuffer(Block1Size * 2 * _channels);
-                _outputBuffer.Channels = _channels;
+                _outputBuffer = new RingBuffer(Block1Size * 2 * _channels)
+                {
+                    Channels = _channels
+                };
             }
             else
             {
@@ -399,14 +415,14 @@ namespace NVorbis
             _preparedLength = 0;
         }
 
-        void SaveBuffer()
+        private void SaveBuffer()
         {
             var buf = new float[_preparedLength * _channels];
             ReadSamples(buf, 0, buf.Length);
             _prevBuffer = buf;
         }
 
-        bool UnpackPacket(DataPacket packet)
+        private bool UnpackPacket(DataPacket packet)
         {
             // make sure we're on an audio packet
             if (packet.ReadBit())
@@ -429,7 +445,10 @@ namespace NVorbis
                 _prevFlag = _nextFlag = false;
             }
 
-            if (packet.IsShort) return false;
+            if (packet.IsShort)
+            {
+                return false;
+            }
 
             var startBits = packet.BitsRead;
 
@@ -491,7 +510,7 @@ namespace NVorbis
             return true;
         }
 
-        void DecodePacket()
+        private void DecodePacket()
         {
             // inverse coupling
             var steps = _mode.Mapping.CouplingSteps;
@@ -559,7 +578,7 @@ namespace NVorbis
             }
         }
 
-        int OverlapSamples()
+        private int OverlapSamples()
         {
             // window
             var window = _mode.GetWindow(_prevFlag, _nextFlag);
@@ -608,7 +627,7 @@ namespace NVorbis
             return samplesDecoded;
         }
 
-        void UpdatePosition(int samplesDecoded, DataPacket packet)
+        private void UpdatePosition(int samplesDecoded, DataPacket packet)
         {
             _samples += samplesDecoded;
 
@@ -667,7 +686,7 @@ namespace NVorbis
             }
         }
 
-        void DecodeNextPacket()
+        private void DecodeNextPacket()
         {
             _sw.Start();
 
@@ -689,7 +708,10 @@ namespace NVorbis
                 }
 
                 // keep our page count in sync
-                if (!_pagesSeen.Contains((_lastPageSeen = packet.PageSequenceNumber))) _pagesSeen.Add(_lastPageSeen);
+                if (!_pagesSeen.Contains((_lastPageSeen = packet.PageSequenceNumber)))
+                {
+                    _pagesSeen.Add(_lastPageSeen);
+                }
 
                 // check for resync
                 if (packet.IsResync)
@@ -757,20 +779,38 @@ namespace NVorbis
         internal int GetPacketLength(DataPacket curPacket, DataPacket lastPacket)
         {
             // if we don't have a previous packet, or we're re-syncing, this packet has no audio data to return
-            if (lastPacket == null || curPacket.IsResync) return 0;
+            if (lastPacket == null || curPacket.IsResync)
+            {
+                return 0;
+            }
 
             // make sure they are audio packets
-            if (curPacket.ReadBit()) return 0;
-            if (lastPacket.ReadBit()) return 0;
+            if (curPacket.ReadBit())
+            {
+                return 0;
+            }
+
+            if (lastPacket.ReadBit())
+            {
+                return 0;
+            }
 
             // get the current packet's information
             var modeIdx = (int)curPacket.ReadBits(_modeFieldBits);
-            if (modeIdx < 0 || modeIdx >= Modes.Length) return 0;
+            if (modeIdx < 0 || modeIdx >= Modes.Length)
+            {
+                return 0;
+            }
+
             var mode = Modes[modeIdx];
 
             // get the last packet's information
             modeIdx = (int)lastPacket.ReadBits(_modeFieldBits);
-            if (modeIdx < 0 || modeIdx >= Modes.Length) return 0;
+            if (modeIdx < 0 || modeIdx >= Modes.Length)
+            {
+                return 0;
+            }
+
             var prevMode = Modes[modeIdx];
 
             // now calculate the totals...
@@ -845,30 +885,40 @@ namespace NVorbis
 
         internal bool IsParameterChange
         {
-            get { return _isParameterChange; }
+            get => _isParameterChange;
             set
             {
-                if (value) throw new InvalidOperationException("Only clearing is supported!");
+                if (value)
+                {
+                    throw new InvalidOperationException("Only clearing is supported!");
+                }
+
                 _isParameterChange = value;
             }
         }
 
-        internal bool CanSeek
-        {
-            get { return _packetProvider.CanSeek; }
-        }
+        internal bool CanSeek => _packetProvider.CanSeek;
 
         internal void SeekTo(long granulePos)
         {
-            if (!_packetProvider.CanSeek) throw new NotSupportedException();
+            if (!_packetProvider.CanSeek)
+            {
+                throw new NotSupportedException();
+            }
 
-            if (granulePos < 0) throw new ArgumentOutOfRangeException("granulePos");
+            if (granulePos < 0)
+            {
+                throw new ArgumentOutOfRangeException("granulePos");
+            }
 
             DataPacket packet;
             if (granulePos > 0)
             {
                 packet = _packetProvider.FindPacket(granulePos, GetPacketLength);
-                if (packet == null) throw new ArgumentOutOfRangeException("granulePos");
+                if (packet == null)
+                {
+                    throw new ArgumentOutOfRangeException("granulePos");
+                }
             }
             else
             {
@@ -895,7 +945,11 @@ namespace NVorbis
                     while (cnt > 0)
                     {
                         var temp = ReadSamples(seekBuffer, 0, cnt);
-                        if (temp == 0) break;   // we're at the end...
+                        if (temp == 0)
+                        {
+                            break;   // we're at the end...
+                        }
+
                         cnt -= temp;
                     }
                 }
@@ -904,7 +958,7 @@ namespace NVorbis
 
         internal long CurrentPosition
         {
-            get { return _reportedPosition; }
+            get => _reportedPosition;
             private set
             {
                 _reportedPosition = value;
@@ -922,10 +976,7 @@ namespace NVorbis
             return _packetProvider.GetGranuleCount();
         }
 
-        internal long ContainerBits
-        {
-            get { return _packetProvider.ContainerBits; }
-        }
+        internal long ContainerBits => _packetProvider.ContainerBits;
 
         public void ResetStats()
         {
@@ -946,7 +997,10 @@ namespace NVorbis
         {
             get
             {
-                if (_samples == 0L) return 0;
+                if (_samples == 0L)
+                {
+                    return 0;
+                }
 
                 var decodedSeconds = (double)(_currentPosition - _preparedLength) / _sampleRate;
 
@@ -970,59 +1024,20 @@ namespace NVorbis
             }
         }
 
-        public TimeSpan PageLatency
-        {
-            get
-            {
-                return TimeSpan.FromTicks(_sw.ElapsedTicks / PagesRead);
-            }
-        }
+        public TimeSpan PageLatency => TimeSpan.FromTicks(_sw.ElapsedTicks / PagesRead);
 
-        public TimeSpan PacketLatency
-        {
-            get
-            {
-                return TimeSpan.FromTicks(_sw.ElapsedTicks / _packetCount);
-            }
-        }
+        public TimeSpan PacketLatency => TimeSpan.FromTicks(_sw.ElapsedTicks / _packetCount);
 
-        public TimeSpan SecondLatency
-        {
-            get
-            {
-                return TimeSpan.FromTicks((_sw.ElapsedTicks / _samples) * _sampleRate);
-            }
-        }
+        public TimeSpan SecondLatency => TimeSpan.FromTicks((_sw.ElapsedTicks / _samples) * _sampleRate);
 
-        public long OverheadBits
-        {
-            get
-            {
-                return _glueBits + _metaBits + _timeHdrBits + _wasteHdrBits + _wasteBits + _packetProvider.ContainerBits;
-            }
-        }
+        public long OverheadBits => _glueBits + _metaBits + _timeHdrBits + _wasteHdrBits + _wasteBits + _packetProvider.ContainerBits;
 
-        public long AudioBits
-        {
-            get
-            {
-                return _bookBits + _floorHdrBits + _resHdrBits + _mapHdrBits + _modeHdrBits + _modeBits + _floorBits + _resBits;
-            }
-        }
+        public long AudioBits => _bookBits + _floorHdrBits + _resHdrBits + _mapHdrBits + _modeHdrBits + _modeBits + _floorBits + _resBits;
 
-        public int PagesRead
-        {
-            get { return _pagesSeen.IndexOf(_lastPageSeen) + 1; }
-        }
+        public int PagesRead => _pagesSeen.IndexOf(_lastPageSeen) + 1;
 
-        public int TotalPages
-        {
-            get { return _packetProvider.GetTotalPageCount(); }
-        }
+        public int TotalPages => _packetProvider.GetTotalPageCount();
 
-        public bool Clipped
-        {
-            get { return _clipped; }
-        }
+        public bool Clipped => _clipped;
     }
 }

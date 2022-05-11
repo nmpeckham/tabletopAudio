@@ -49,32 +49,32 @@ namespace TagLib.Riff
         /// <summary>
         ///  Contains all the tags of the file.
         /// </summary>
-        readonly CombinedTag tag = new CombinedTag();
+        private readonly CombinedTag tag = new CombinedTag();
 
         /// <summary>
         ///  Contains the INFO tag.
         /// </summary>
-        InfoTag info_tag;
+        private InfoTag info_tag;
 
         /// <summary>
         ///  Contains the MovieID tag.
         /// </summary>
-        MovieIdTag mid_tag;
+        private MovieIdTag mid_tag;
 
         /// <summary>
         ///  Contains the DivX tag.
         /// </summary>
-        DivXTag divx_tag;
+        private DivXTag divx_tag;
 
         /// <summary>
         ///  Contains the Id3v2 tag.
         /// </summary>
-        Id3v2.Tag id32_tag;
+        private Id3v2.Tag id32_tag;
 
         /// <summary>
         ///  Contains the media properties.
         /// </summary>
-        Properties properties;
+        private Properties properties;
 
         #endregion
 
@@ -203,10 +203,7 @@ namespace TagLib.Riff
         ///    A <see cref="TagLib.Tag" /> object representing all tags
         ///    stored in the current instance.
         /// </value>
-        public override Tag Tag
-        {
-            get { return tag; }
-        }
+        public override Tag Tag => tag;
 
         /// <summary>
         ///    Gets the media properties of the file represented by the
@@ -217,10 +214,7 @@ namespace TagLib.Riff
         ///    media properties of the file represented by the current
         ///    instance.
         /// </value>
-        public override Properties Properties
-        {
-            get { return properties; }
-        }
+        public override Properties Properties => properties;
 
         #endregion
 
@@ -250,7 +244,10 @@ namespace TagLib.Riff
                     if (tag_data.Count > 10)
                     {
                         if (tag_data.Count % 2 == 1)
+                        {
                             tag_data.Add(0);
+                        }
+
                         data.Add("id3 ");
                         data.Add(ByteVector.FromUInt((uint)tag_data.Count, false));
                         data.Add(tag_data);
@@ -259,11 +256,15 @@ namespace TagLib.Riff
 
                 // Embed "INFO" as the second tag.
                 if (info_tag != null)
+                {
                     data.Add(info_tag.RenderEnclosed());
+                }
 
                 // Embed "MID " as the third tag.
                 if (mid_tag != null)
+                {
                     data.Add(mid_tag.RenderEnclosed());
+                }
 
                 // Embed the DivX tag in "IDVX and embed it as
                 // the fourth tag.
@@ -280,7 +281,9 @@ namespace TagLib.Riff
                 // If tagging info cannot be found, place it at
                 // the end of the file.
                 if (tag_start < 12 || tag_end < tag_start)
+                {
                     tag_start = tag_end = Length;
+                }
 
                 int length = (int)(tag_end - tag_start);
 
@@ -291,8 +294,9 @@ namespace TagLib.Riff
                 {
                     int padding_size = length - data.Count - 8;
                     if (padding_size < 0)
+                    {
                         padding_size = 1024;
-
+                    }
 
                     data.Add("JUNK");
                     data.Add(ByteVector.FromUInt((uint)padding_size, false));
@@ -306,7 +310,9 @@ namespace TagLib.Riff
                 // data is within the RIFF portion of the file,
                 // update the riff size.
                 if (data.Count - length != 0 && tag_start <= riff_size)
+                {
                     Insert(ByteVector.FromUInt((uint)(riff_size + data.Count - length), false), 4, 4);
+                }
 
                 // Update the tag types.
                 TagTypesOnDisk = TagTypes;
@@ -331,13 +337,24 @@ namespace TagLib.Riff
         public override void RemoveTags(TagTypes types)
         {
             if ((types & TagTypes.Id3v2) != TagTypes.None)
+            {
                 id32_tag = null;
+            }
+
             if ((types & TagTypes.RiffInfo) != TagTypes.None)
+            {
                 info_tag = null;
+            }
+
             if ((types & TagTypes.MovieId) != TagTypes.None)
+            {
                 mid_tag = null;
+            }
+
             if ((types & TagTypes.DivX) != TagTypes.None)
+            {
                 divx_tag = null;
+            }
 
             tag.SetTags(id32_tag, info_tag, mid_tag, divx_tag);
         }
@@ -369,8 +386,10 @@ namespace TagLib.Riff
                 case TagTypes.Id3v2:
                     if (id32_tag == null && create)
                     {
-                        id32_tag = new Id3v2.Tag();
-                        id32_tag.Version = 4;
+                        id32_tag = new Id3v2.Tag
+                        {
+                            Version = 4
+                        };
                         id32_tag.Flags |= Id3v2.HeaderFlags.FooterPresent;
                         this.tag.CopyTo(id32_tag, true);
                     }
@@ -450,11 +469,13 @@ namespace TagLib.Riff
         ///    The file does not begin with <see cref="FileIdentifier"
         ///    />.
         /// </exception>
-        void Read(bool read_tags, ReadStyle style, out uint riff_size, out long tag_start, out long tag_end)
+        private void Read(bool read_tags, ReadStyle style, out uint riff_size, out long tag_start, out long tag_end)
         {
             Seek(0);
             if (ReadBlock(4) != FileIdentifier)
+            {
                 throw new CorruptFileException("File does not begin with RIFF identifier");
+            }
 
             riff_size = ReadBlock(4).ToUInt(false);
             ByteVector stream_format = ReadBlock(4);
@@ -476,7 +497,9 @@ namespace TagLib.Riff
                 // This is done when the previous chunk size was an odd number.
                 // If this is not done, the chunk being read after the odd chunk will not be read.
                 if (position > 12 && (position & 1) != 0)
+                {
                     position++;
+                }
 
                 Seek(position);
                 string fourcc = ReadBlock(4).ToString(StringType.UTF8);
@@ -489,7 +512,9 @@ namespace TagLib.Riff
                     // WaveFormatEx structure.
                     case "fmt ":
                         if (style == ReadStyle.None || stream_format != "WAVE")
+                        {
                             break;
+                        }
 
                         Seek(position + 8);
                         codecs = new ICodec[] {
@@ -504,7 +529,9 @@ namespace TagLib.Riff
                     // appear after "fmt ".
                     case "data":
                         if (stream_format != "WAVE")
+                        {
                             break;
+                        }
 
                         InvariantStartPosition = position;
                         InvariantEndPosition = position + size;
@@ -512,7 +539,9 @@ namespace TagLib.Riff
                         if (style == ReadStyle.None ||
                             codecs.Length != 1 ||
                             !(codecs[0] is WaveFormatEx))
+                        {
                             break;
+                        }
 
                         duration += TimeSpan.FromSeconds(size / (double)((WaveFormatEx)codecs[0]).AverageBytesPerSecond);
 
@@ -530,7 +559,9 @@ namespace TagLib.Riff
                                 // and WaveFormatEx structures.
                                 case "hdrl":
                                     if (style == ReadStyle.None || stream_format != "AVI ")
+                                    {
                                         continue;
+                                    }
 
                                     var header_list = new AviHeaderList(this, position + 12, (int)(size - 4));
                                     duration = header_list.Header.Duration;
@@ -541,7 +572,9 @@ namespace TagLib.Riff
                                 // the InfoTag class.
                                 case "INFO":
                                     if (read_tags && info_tag == null)
+                                    {
                                         info_tag = new InfoTag(this, position + 12, (int)(size - 4));
+                                    }
 
                                     tag_found = true;
                                     break;
@@ -550,7 +583,9 @@ namespace TagLib.Riff
                                 // the MovieIdTag class.
                                 case "MID ":
                                     if (read_tags && mid_tag == null)
+                                    {
                                         mid_tag = new MovieIdTag(this, position + 12, (int)(size - 4));
+                                    }
 
                                     tag_found = true;
                                     break;
@@ -560,7 +595,9 @@ namespace TagLib.Riff
                                 // the invariant portion of the file.
                                 case "movi":
                                     if (stream_format != "AVI ")
+                                    {
                                         break;
+                                    }
 
                                     InvariantStartPosition = position;
                                     InvariantEndPosition = position + size;
@@ -576,7 +613,9 @@ namespace TagLib.Riff
                     case "ID3 ":
                     case "ID32":
                         if (read_tags && id32_tag == null)
+                        {
                             id32_tag = new Id3v2.Tag(this, position + 8, style);
+                        }
 
                         tag_found = true;
                         break;
@@ -585,7 +624,9 @@ namespace TagLib.Riff
                     // style tag.
                     case "IDVX":
                         if (read_tags && divx_tag == null)
+                        {
                             divx_tag = new DivXTag(this, position + 8);
+                        }
 
                         tag_found = true;
                         break;
@@ -594,7 +635,10 @@ namespace TagLib.Riff
                     // associated with tag data.
                     case "JUNK":
                         if (tag_end == position)
+                        {
                             tag_end = position + 8 + size;
+                        }
+
                         break;
                 }
 
@@ -622,14 +666,18 @@ namespace TagLib.Riff
             if (style != ReadStyle.None)
             {
                 if (codecs.Length == 0)
+                {
                     throw new UnsupportedFormatException("Unsupported RIFF type.");
+                }
 
                 properties = new Properties(duration, codecs);
             }
 
             // If we're reading tags, update the combined tag.
             if (read_tags)
+            {
                 tag.SetTags(id32_tag, info_tag, mid_tag, divx_tag);
+            }
         }
 
         #endregion

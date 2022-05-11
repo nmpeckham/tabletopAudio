@@ -39,12 +39,12 @@ namespace TagLib.Asf
         /// <summary>
         ///    Contains the reserved header data.
         /// </summary>
-        readonly ByteVector reserved;
+        private readonly ByteVector reserved;
 
         /// <summary>
         ///    Contains the child objects.
         /// </summary>
-        readonly List<Object> children;
+        private readonly List<Object> children;
 
         #endregion
 
@@ -80,10 +80,14 @@ namespace TagLib.Asf
             : base(file, position)
         {
             if (!Guid.Equals(Asf.Guid.AsfHeaderObject))
+            {
                 throw new CorruptFileException("Object GUID incorrect.");
+            }
 
             if (OriginalSize < 26)
+            {
                 throw new CorruptFileException("Object size too small.");
+            }
 
             children = new List<Object>();
 
@@ -114,8 +118,13 @@ namespace TagLib.Asf
             get
             {
                 foreach (Object child in children)
+                {
                     if (child is HeaderExtensionObject)
+                    {
                         return child as HeaderExtensionObject;
+                    }
+                }
+
                 return null;
             }
         }
@@ -127,10 +136,7 @@ namespace TagLib.Asf
         ///    A <see cref="T:System.Collections.Generic.IEnumerable`1" /> object enumerating
         ///    through the children of the current instance.
         /// </value>
-        public IEnumerable<Object> Children
-        {
-            get { return children; }
-        }
+        public IEnumerable<Object> Children => children;
 
         /// <summary>
         ///    Gets the media properties contained within the current
@@ -180,9 +186,13 @@ namespace TagLib.Asf
             get
             {
                 foreach (Object child in children)
+                {
                     if (child.Guid == Asf.Guid.AsfContentDescriptionObject ||
                         child.Guid == Asf.Guid.AsfExtendedContentDescriptionObject)
+                    {
                         return true;
+                    }
+                }
 
                 return false;
             }
@@ -207,11 +217,13 @@ namespace TagLib.Asf
             uint child_count = 0;
 
             foreach (var child in children)
+            {
                 if (child.Guid != Asf.Guid.AsfPaddingObject)
                 {
                     output.Add(child.Render());
                     child_count++;
                 }
+            }
 
             long size_diff = (long)output.Count + 30 -
                 (long)OriginalSize;
@@ -252,11 +264,13 @@ namespace TagLib.Asf
         public void AddUniqueObject(Object obj)
         {
             for (int i = 0; i < children.Count; i++)
+            {
                 if (children[i].Guid == obj.Guid)
                 {
                     children[i] = obj;
                     return;
                 }
+            }
 
             children.Add(obj);
         }
@@ -268,9 +282,13 @@ namespace TagLib.Asf
         public void RemoveContentDescriptors()
         {
             for (int i = children.Count - 1; i >= 0; i--)
+            {
                 if (children[i].Guid == Asf.Guid.AsfContentDescriptionObject ||
                     children[i].Guid == Asf.Guid.AsfExtendedContentDescriptionObject)
+                {
                     children.RemoveAt(i);
+                }
+            }
         }
 
         #endregion

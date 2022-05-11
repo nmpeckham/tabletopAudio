@@ -38,7 +38,9 @@ namespace Id3.v1
         internal override byte[] GetTagBytes(Stream stream)
         {
             if (!HasTag(stream))
+            {
                 return null;
+            }
 
             stream.Seek(-128, SeekOrigin.End);
             byte[] tagBytes = new byte[128];
@@ -49,7 +51,9 @@ namespace Id3.v1
         internal override bool HasTag(Stream stream)
         {
             if (stream.Length < 128)
+            {
                 return false;
+            }
 
             stream.Seek(-128, SeekOrigin.End);
             byte[] magicBytes = new byte[3];
@@ -63,7 +67,9 @@ namespace Id3.v1
             additionalData = null;
 
             if (!HasTag(stream))
+            {
                 return null;
+            }
 
             stream.Seek(-125, SeekOrigin.End);
             byte[] tagBytes = new byte[125];
@@ -133,12 +139,19 @@ namespace Id3.v1
                 Array.Copy(itemBytes, 0, bytes, 97, Math.Min(maxCommentLength, itemBytes.Length));
             }
             if (tag.Track.Value >= 0)
+            {
                 bytes[126] = (byte)tag.Track.Value;
+            }
 
             if (HasTag(stream))
+            {
                 stream.Seek(-128, SeekOrigin.End);
+            }
             else
+            {
                 stream.Seek(0, SeekOrigin.End);
+            }
+
             stream.Write(bytes, 0, bytes.Length);
 
             return true;
@@ -162,7 +175,10 @@ namespace Id3.v1
         {
             int endIndex = ByteArrayHelper.LocateSequence(bytes, index, length, new byte[] { 0 });
             if (endIndex == -1 || endIndex <= index)
+            {
                 endIndex = index + length;
+            }
+
             string tagString = TextEncodingHelper.GetDefaultString(bytes, index, endIndex - index).Trim();
             return tagString;
         }

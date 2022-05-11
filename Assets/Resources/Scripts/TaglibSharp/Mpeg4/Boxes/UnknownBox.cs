@@ -36,7 +36,7 @@ namespace TagLib.Mpeg4
         /// <summary>
         ///    Contains the box's data.
         /// </summary>
-        ByteVector data;
+        private ByteVector data;
 
         #endregion
 
@@ -67,7 +67,9 @@ namespace TagLib.Mpeg4
         public UnknownBox(BoxHeader header, TagLib.File file, IsoHandlerBox handler) : base(header, handler)
         {
             if (file == null)
+            {
                 throw new ArgumentNullException(nameof(file));
+            }
 
             data = file.ReadBlock(DataSize > 0 ? DataSize : 0);
         }
@@ -88,8 +90,8 @@ namespace TagLib.Mpeg4
         /// </value>
         public override ByteVector Data
         {
-            get { return data; }
-            set { data = value; }
+            get => data;
+            set => data = value;
         }
 
         #endregion

@@ -64,7 +64,9 @@ namespace TagLib.Id3v2
             : base(FrameType.UFID, 4)
         {
             if (owner == null)
+            {
                 throw new ArgumentNullException(nameof(owner));
+            }
 
             Owner = owner;
             Identifier = identifier;
@@ -204,14 +206,20 @@ namespace TagLib.Id3v2
                 ufid = frame as UniqueFileIdentifierFrame;
 
                 if (ufid == null)
+                {
                     continue;
+                }
 
                 if (ufid.Owner == owner)
+                {
                     return ufid;
+                }
             }
 
             if (!create)
+            {
                 return null;
+            }
 
             ufid = new UniqueFileIdentifierFrame(owner, null);
             tag.AddFrame(ufid);
@@ -238,10 +246,12 @@ namespace TagLib.Id3v2
         /// </param>
         protected override void ParseFields(ByteVector data, byte version)
         {
-            var fields = ByteVectorCollection.Split(data, (byte)0);
+            var fields = ByteVectorCollection.Split(data, 0);
 
             if (fields.Count != 2)
+            {
                 return;
+            }
 
             Owner = fields[0].ToString(StringType.Latin1);
             Identifier = fields[1];
@@ -287,7 +297,10 @@ namespace TagLib.Id3v2
         {
             var frame = new UniqueFileIdentifierFrame(Owner);
             if (Identifier != null)
+            {
                 frame.Identifier = new ByteVector(Identifier);
+            }
+
             return frame;
         }
 

@@ -68,10 +68,7 @@ namespace TagLib.Image.NoMetadata
         ///    media properties of the file represented by the current
         ///    instance.
         /// </value>
-        public override Properties Properties
-        {
-            get { return null; }
-        }
+        public override Properties Properties => null;
 
         /// <summary>
         ///    Indicates if tags can be written back to the current file or not
@@ -80,10 +77,7 @@ namespace TagLib.Image.NoMetadata
         ///    A <see cref="bool" /> which is true if tags can be written to the
         ///    current file, otherwise false.
         /// </value>
-        public override bool Writeable
-        {
-            get { return false; }
-        }
+        public override bool Writeable => false;
 
         #endregion
 

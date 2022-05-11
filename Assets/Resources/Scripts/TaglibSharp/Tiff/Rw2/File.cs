@@ -45,7 +45,7 @@ namespace TagLib.Tiff.Rw2
         /// <summary>
         ///    The Properties of the image
         /// </summary>
-        Properties properties;
+        private Properties properties;
 
         #endregion
 
@@ -60,10 +60,7 @@ namespace TagLib.Tiff.Rw2
         ///    media properties of the file represented by the current
         ///    instance.
         /// </value>
-        public override Properties Properties
-        {
-            get { return properties; }
-        }
+        public override Properties Properties => properties;
 
         /// <summary>
         ///    Indicates if tags can be written back to the current file or not
@@ -72,10 +69,7 @@ namespace TagLib.Tiff.Rw2
         ///    A <see cref="bool" /> which is true if tags can be written to the
         ///    current file, otherwise false.
         /// </value>
-        public override bool Writeable
-        {
-            get { return false; }
-        }
+        public override bool Writeable => false;
 
         /// <summary>
         ///     The JPEG file that's embedded in the RAW file.
@@ -211,10 +205,14 @@ namespace TagLib.Tiff.Rw2
             }
 
             if (!create || (type & ImageTag.AllowedTypes) == 0)
+            {
                 return null;
+            }
 
             if (type != TagTypes.TiffIFD)
+            {
                 return base.GetTag(type, create);
+            }
 
             ImageTag new_tag = new IFDTag(this);
             ImageTag.AddTag(new_tag);
@@ -233,7 +231,7 @@ namespace TagLib.Tiff.Rw2
         ///    of accuracy to read the media properties, or <see
         ///    cref="ReadStyle.None" /> to ignore the properties.
         /// </param>
-        void Read(ReadStyle propertiesStyle)
+        private void Read(ReadStyle propertiesStyle)
         {
             Mode = AccessMode.Read;
             try
@@ -245,8 +243,9 @@ namespace TagLib.Tiff.Rw2
                 TagTypesOnDisk = TagTypes;
 
                 if ((propertiesStyle & ReadStyle.Average) != 0)
+                {
                     properties = ExtractProperties();
-
+                }
             }
             finally
             {
@@ -257,7 +256,7 @@ namespace TagLib.Tiff.Rw2
         /// <summary>
         ///    Parses the RW2 file
         /// </summary>
-        void ReadFile()
+        private void ReadFile()
         {
             // A RW2 file starts with a Tiff header followed by a RW2 header
             uint first_ifd_offset = ReadHeader();
@@ -273,7 +272,7 @@ namespace TagLib.Tiff.Rw2
         /// <returns>
         ///    A <see cref="System.UInt32"/> with the offset to the IFD with the RAW data.
         /// </returns>
-        uint ReadAdditionalRW2Header()
+        private uint ReadAdditionalRW2Header()
         {
             // RW2 Header
             //
@@ -282,7 +281,9 @@ namespace TagLib.Tiff.Rw2
             ByteVector header = ReadBlock(16);
 
             if (header.Count != 16)
+            {
                 throw new CorruptFileException("Unexpected end of RW2 header");
+            }
 
             return (uint)Tell;
         }
@@ -296,7 +297,7 @@ namespace TagLib.Tiff.Rw2
         ///    at the right values. When no guess at all can be made,
         ///    <see langword="null" /> is returned.
         /// </returns>
-        Properties ExtractProperties()
+        private Properties ExtractProperties()
         {
             int width = 0, height = 0;
 
@@ -308,7 +309,10 @@ namespace TagLib.Tiff.Rw2
 
             var vendor = ImageTag.Make;
             if (vendor == "LEICA")
+            {
                 vendor = "Leica";
+            }
+
             var desc = $"{vendor} RAW File";
 
             if (width > 0 && height > 0)
