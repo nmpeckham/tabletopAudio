@@ -6,15 +6,14 @@ using UnityEngine.UI;
 public class DarkModeController : MonoBehaviour
 {
     private MusicController mc;
-    private MainAppController mac;
     public Material crossfadeMaterial;
     private SFXPageController spc;
     internal void SwapDarkMode(bool enable)
     {
         mc = GetComponent<MusicController>();
-        mac = GetComponent<MainAppController>();
         spc = GetComponent<SFXPageController>();
         
+        //Light to Dark
         if (enable)
         {
             GameObject[] imgToChange = GameObject.FindGameObjectsWithTag("imageChangeOnDarkMode");
@@ -27,6 +26,7 @@ public class DarkModeController : MonoBehaviour
             foreach (GameObject obj in textToChange)
             {
                 obj.GetComponent<TMP_Text>().color = ResourceManager.lightModeGrey;
+                obj.GetComponent<TMP_Text>().material.DisableKeyword("UNDERLAY_ON");
             }
 
             GameObject[] sfxTextToChange = GameObject.FindGameObjectsWithTag("sfxText");
@@ -98,8 +98,13 @@ public class DarkModeController : MonoBehaviour
                 catch (NullReferenceException) { }
                 crossfadeMaterial.SetColor("ButtonColor", ResourceManager.darkModeGrey);
             }
+            foreach(GameObject go in GameObject.FindGameObjectsWithTag("sfxSubcontrolButton"))
+            {
+                go.GetComponent<Image>().color = Color.white;
+            }
         }
 
+        //Dark to Light
         else
         {
             GameObject[] imgToChange = GameObject.FindGameObjectsWithTag("imageChangeOnDarkMode");
@@ -112,12 +117,14 @@ public class DarkModeController : MonoBehaviour
             foreach (GameObject obj in textToChange)
             {
                 obj.GetComponent<TMP_Text>().color = Color.black;
+                obj.GetComponent<TMP_Text>().material.EnableKeyword("UNDERLAY_ON");
             }
 
             GameObject[] sfxTextToChange = GameObject.FindGameObjectsWithTag("sfxText");
             foreach (GameObject obj in sfxTextToChange)
             {
                 obj.GetComponent<TMP_Text>().color = Color.black;
+
             }
 
             spc.pageParents.ForEach(pp =>
@@ -172,7 +179,7 @@ public class DarkModeController : MonoBehaviour
                         buttonImg.color = ResourceManager.orange;
                     }
                 }
-                catch (NullReferenceException) { }
+                catch (NullReferenceException) { } 
                 try
                 {
                     int pageId = obj.GetComponent<PageButton>().id;
@@ -183,6 +190,10 @@ public class DarkModeController : MonoBehaviour
                 }
                 catch (NullReferenceException) { }
                 crossfadeMaterial.SetColor("ButtonColor", ResourceManager.lightModeGrey);
+            }
+            foreach (GameObject go in GameObject.FindGameObjectsWithTag("sfxSubcontrolButton"))
+            {
+                go.GetComponent<Image>().color = Color.black;
             }
         }
     }

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 //Controls the reordering of songs in the playlist
 public class MoveMusicButton : MonoBehaviour, IPointerDownHandler, IPointerExitHandler
@@ -11,37 +12,61 @@ public class MoveMusicButton : MonoBehaviour, IPointerDownHandler, IPointerExitH
     private RectTransform buttonRectTransform;
     public Transform buttonTransform;
     private static MusicController mc;
+    private Image buttonImage;
+    private Button moveButton;
 
     //public int siblingIndex = -1;
-    // Start is called before the first frame update
     private void Awake()
     {
+        moveButton = this.GetComponent<Button>();
         musicButton = GetComponentInParent<MusicButton>().gameObject;
         buttonRectTransform = musicButton.GetComponent<RectTransform>();
         buttonTransform = musicButton.transform;
         mc = Camera.main.GetComponent<MusicController>();
+        buttonImage = buttonTransform.GetComponent<Image>();
+        moveButton.onClick.AddListener(UpdateSongPosition);
     }
 
     // Update is called once per frame
-    private void FixedUpdate()
-    {
-        UpdateSongPosition();
-    }
+    //private void FixedUpdate()
+    //{
+    //    UpdateSongPosition();
+    //}
     internal void UpdateSongPosition()
     {
+        StartCoroutine(CheckMousePos());
 
-        if (buttonWithMouse == buttonTransform.GetSiblingIndex() && Input.GetMouseButton(0))
+    }
+
+    IEnumerator CheckMousePos()
+    {
+        Color originalColor = buttonImage.color;
+        while (Input.GetMouseButton(0))
         {
-            if ((Input.mousePosition.y - mouseYPos) > buttonRectTransform.rect.height)
+            //mouseYPos = Input.mousePosition.y;
+            if (buttonWithMouse == buttonTransform.GetSiblingIndex())
             {
-                MoveSongUp(1);
-            }
+                buttonImage.color = Color.red;
+                float difference = Input.mousePosition.y - mouseYPos;
+                print(difference);
+                if (difference > buttonRectTransform.rect.height)
+                {
+                    MoveSongUp((int)(difference / buttonRectTransform.rect.height));
+                    //mouseYPos += (int)(difference / buttonRectTransform.rect.height);
 
-            if ((Input.mousePosition.y - mouseYPos) < -buttonRectTransform.rect.height)
-            {
-                MoveSongDown(1);
+                    //mouseYPos += difference % buttonRectTransform.rect.height;
+                }
+                if (difference < -buttonRectTransform.rect.height)
+                {
+                    MoveSongDown(-(int)(difference / buttonRectTransform.rect.height));
+                    //mouseYPos -= (int)(difference / buttonRectTransform.rect.height);
+
+                    //mouseYPos -= difference % buttonRectTransform.rect.height;
+                }
             }
+            yield return null;
         }
+        buttonImage.color = originalColor;
         //siblingIndex = buttonTransform.GetSiblingIndex();
     }
 
@@ -102,6 +127,7 @@ public class MoveMusicButton : MonoBehaviour, IPointerDownHandler, IPointerExitH
     {
         mouseYPos = Input.mousePosition.y;
         buttonWithMouse = buttonTransform.GetSiblingIndex();
+        StartCoroutine(CheckMousePos());
 
     }
 

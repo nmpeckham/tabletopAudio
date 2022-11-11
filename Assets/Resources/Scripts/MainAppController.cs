@@ -113,6 +113,7 @@ public class MainAppController : MonoBehaviour
     // Start is called before the first frame update
     public void Start()
     {
+        PlayerPrefs.DeleteAll();
         //PlayerPrefs.DeleteKey()
         Application.targetFrameRate = Screen.currentResolution.refreshRate;
         Prefabs.LoadAll();
@@ -168,7 +169,7 @@ public class MainAppController : MonoBehaviour
             darkModeEnabled = Convert.ToBoolean(PlayerPrefs.GetString("darkMode"));
         }
         catch (FormatException) { }
-        SwapDarkLightMode(darkModeEnabled);
+        EnableDarkMode(darkModeEnabled);
         StartCoroutine(LoadQrdObjects());
 
         MakeCategoryColors();
@@ -523,7 +524,7 @@ public class MainAppController : MonoBehaviour
         return altKeys.Any(key => Input.GetKey(key));
     }
 
-    public void SwapDarkLightMode(bool enable)
+    public void EnableDarkMode(bool enable)
     {
         darkModeEnabled = enable;
         dmc.SwapDarkMode(darkModeEnabled);
@@ -574,4 +575,6 @@ public class MainAppController : MonoBehaviour
         discoModeAvailable = !discoModeAvailable;
         dm.SetDiscoMode(false);
     }
+
+
 }

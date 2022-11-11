@@ -259,6 +259,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: d7c298c9fa553ca4c93170a0c4a20c1f, type: 3}
   - {fileID: 21300000, guid: 062722d9055a88f4eb3027d6f31ca291, type: 3}
   - {fileID: 21300000, guid: defccbd934827344ba02d2f04fe85cec, type: 3}
+  - {fileID: 21300000, guid: caa236e94f635d447bbe888ce207751c, type: 3}
   - {fileID: 21300000, guid: 2cb07c0a08781654e9465354069a645b, type: 3}
   - {fileID: 21300000, guid: cd353f0a1e80f3244ba9e1f88e26beed, type: 3}
   - {fileID: 21300000, guid: 68a3421a14e7258469381d45fe933267, type: 3}
@@ -301,6 +302,7 @@ SpriteAtlas:
   - {fileID: 21300000, guid: ac1842bb791d00346a19fb5dd727bb3a, type: 3}
   - {fileID: 21300000, guid: 4343cfcb1d8cd2640bac13aca3ad0b5a, type: 3}
   - {fileID: 21300000, guid: e68812eb304dc724595a6d1aa9507dc7, type: 3}
+  - {fileID: 21300000, guid: ef30c8eb40400df4ea2d975e5b7cfb6d, type: 3}
   - {fileID: 21300000, guid: 5b3957fbd28dc7d419ced86d38e11f88, type: 3}
   - {fileID: 21300000, guid: f9be230c5da83c94892c4e003198eec6, type: 3}
   - {fileID: 21300000, guid: 49fb780c184d40348864f4de9fd25980, type: 3}
@@ -607,6 +609,7 @@ SpriteAtlas:
   - Blank_Black_Normal
   - frame-51
   - C_Key_Dark
+  - open_in_new_FILL0_wght400_GRAD0_opsz48
   - frame-37
   - O_Key_Dark
   - F10_Key_Dark
@@ -649,6 +652,7 @@ SpriteAtlas:
   - X_Key_Light
   - frame-33
   - Tilda_Key_Light
+  - Background-Custom-NoFill
   - frame-64
   - I_Key_Dark
   - sliderHandle

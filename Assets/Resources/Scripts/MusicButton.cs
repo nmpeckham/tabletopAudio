@@ -31,6 +31,7 @@ public class MusicButton : MonoBehaviour, IPointerClickHandler, IComparable
     private static PlaylistRightClickController prcc;
     private static MusicController mc;
     private static readonly float doubleClickTime = 0.4f;
+    private static MusicButton lastClickedButton = null;
     private static float timeSinceClick = -1;
     internal MoveMusicButton mmb;
 
@@ -45,13 +46,16 @@ public class MusicButton : MonoBehaviour, IPointerClickHandler, IComparable
 
     private void ItemSelected(int type)
     {
+        
         if (type == 0)
         {
-            if (Time.realtimeSinceStartup - timeSinceClick < doubleClickTime)
+            
+            if (Time.realtimeSinceStartup - timeSinceClick < doubleClickTime && lastClickedButton == this)
             {
                 mc.PlaylistItemSelected(this);
             }
             timeSinceClick = Time.realtimeSinceStartup;
+            lastClickedButton = this;
         }
         else if (type == 1)
         {

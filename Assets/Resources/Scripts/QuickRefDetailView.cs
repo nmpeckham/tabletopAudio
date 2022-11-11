@@ -50,8 +50,6 @@ public class QuickRefDetailView : MonoBehaviour
 
     internal void ItemSelected(string category, string item)
     {
-        print(category);
-        print(item);
         DestroyAllAttributeItems();
         System.Text.Json.JsonElement extractedJsonValue;
         string categoryFileName = category.Replace(" ", "-");
@@ -213,6 +211,7 @@ public class QuickRefDetailView : MonoBehaviour
             quickRefObj.SetActive(true);
             titleText.text = listItem["name"].ToString();
             descriptionPanel.SetActive(false);
+            attributesPanel.SetActive(true);
             if (listItem.ContainsKey("speed"))
             {
                 listItem["speed"].TryGetProperty("quantity", out extractedJsonValue);
@@ -415,6 +414,7 @@ public class QuickRefDetailView : MonoBehaviour
         {//AC, Resistances, Hit dice/hp, immunities, speed, vulnerabilities, condition immunities, type & subtype, CR/xp, languages
             quickRefObj.SetActive(true);
             attributesPanel.SetActive(true);
+            descriptionPanel.SetActive(true);
             Dictionary<string, dynamic> listItem = LoadedFilesData.qrdFiles[category][item];
             titleText.text = listItem["name"].ToString();
             attributes.Add("Size", listItem["size"].ToString());
@@ -496,6 +496,7 @@ public class QuickRefDetailView : MonoBehaviour
         {
             quickRefObj.SetActive(true);
             descriptionPanel.SetActive(true);
+            attributesPanel.SetActive(false);
             Dictionary<string, dynamic> listItem = LoadedFilesData.qrdFiles[category][item];
             titleText.text = listItem["name"].ToString();
 
@@ -785,6 +786,7 @@ public class QuickRefDetailView : MonoBehaviour
         {
             Dictionary<string, dynamic> listItem = LoadedFilesData.qrdFiles[category][item];
 
+            attributesPanel.SetActive(false);
             quickRefObj.SetActive(true);
             descriptionPanel.SetActive(true);
             titleText.text = listItem["name"].ToString();
@@ -812,7 +814,7 @@ public class QuickRefDetailView : MonoBehaviour
             }
             descriptionText.text += Body(skillText);
         }
-        else if (category == "Race")
+        else if (category == "Race" || category == "Subrace")
         {
             quickRefObj.SetActive(true);
             Dictionary<string, dynamic> listItem = LoadedFilesData.qrdFiles[category][item];
@@ -821,25 +823,53 @@ public class QuickRefDetailView : MonoBehaviour
             string raceName = listItem["name"].ToString();
             titleText.text = raceName;
 
-            string speed = listItem["speed"].ToString();
-            attributes.Add("Speed", speed + "ft");
-
-            string size = listItem["size"].ToString();
-            attributes.Add("Size", size);
-
             string formattedDescText = "";
 
-            formattedDescText += Title("Age");
-            formattedDescText += Body(listItem["age"].ToString());
-
-            formattedDescText += Title("Alignment");
-            formattedDescText += Body(listItem["alignment"].ToString());
-
-
-
-
-            try
+            if (category == "Subrace")
             {
+                listItem["race"].TryGetProperty("name", out extractedJsonValue);
+
+                string races = extractedJsonValue.ToString();
+                attributes.Add("Race", races);
+            }
+
+            if(listItem.ContainsKey("desc"))
+            {
+                formattedDescText += Title("Description");
+                formattedDescText += Body(listItem["desc"].ToString());
+            }
+
+
+            if (listItem.ContainsKey("speed")) {
+                string speed = listItem["speed"].ToString();
+                attributes.Add("Speed", speed + "ft");
+            }
+
+            if(listItem.ContainsKey("size"))
+            {
+                string size = listItem["size"].ToString();
+                attributes.Add("Size", size);
+            }
+
+
+            if(listItem.ContainsKey("age"))
+            {
+                formattedDescText += Title("Age");
+                formattedDescText += Body(listItem["age"].ToString());
+            }
+
+            if (listItem.ContainsKey("alignment"))
+            {
+                formattedDescText += Title("Alignment");
+                formattedDescText += Body(listItem["alignment"].ToString());
+            }
+
+
+
+
+
+            //try
+            //{
                 foreach (var desc in listItem["ability_bonuses"].EnumerateArray())
                 {
                     desc.TryGetProperty("name", out extractedJsonValue);
@@ -848,13 +878,17 @@ public class QuickRefDetailView : MonoBehaviour
                     desc.TryGetProperty("bonus", out extractedJsonValue);
                     string bonus = extractedJsonValue.ToString();
 
-                    attributes.Add(name, "+" + bonus);
+                    attributes.Add(name + " Bonus", "+" + bonus);
                 }
-            }
-            catch (System.InvalidOperationException) { }
+            //}
+            //catch (System.InvalidOperationException) { }
 
-            formattedDescText += Title("Languages");
-            formattedDescText += Body(listItem["language_desc"].ToString());
+            if(listItem.ContainsKey("language_desc"))
+            {
+                formattedDescText += Title("Languages");
+                formattedDescText += Body(listItem["language_desc"].ToString());
+            }
+            
 
             listItem["language_options"].TryGetProperty("choose", out extractedJsonValue);
             string number = extractedJsonValue.ToString();
@@ -913,34 +947,94 @@ public class QuickRefDetailView : MonoBehaviour
                 }
                 formattedDescText += Body(proficencyChoices);
             }
-
-            i = 0;
-            string subraceText = "";
-            foreach(var subrace in listItem["subraces"].EnumerateArray())
+            if (listItem.ContainsKey("racial_trait_options"))
             {
-                if (i > 0) subraceText += ", ";
-                subrace.TryGetProperty("name", out extractedJsonValue);
-                subraceText += extractedJsonValue.ToString();
+                listItem["racial_trait_options"].TryGetProperty("choose", out extractedJsonValue);
+                string count = extractedJsonValue.ToString();
+                i = 0;
+                if(!string.IsNullOrWhiteSpace(count))
+                {
+                    string racialTraits = "";
+                    listItem["racial_trait_options"].TryGetProperty("from", out extractedJsonValue);
+                    foreach (var racialTrait in extractedJsonValue.EnumerateArray())
+                    {
+                        if (i > 0)
+                        {
+                            racialTraits += ", ";
+                        }
+                        racialTrait.TryGetProperty("name", out extractedJsonValue);
+
+                        racialTraits += extractedJsonValue.ToString();
+                        i++;
+                    }
+                    if (!string.IsNullOrWhiteSpace(racialTraits))
+                    {
+                        formattedDescText += Title("Racial Trait Options");
+                        formattedDescText += Body("Choose " + count + " from: " + racialTraits.ToString());
+                    }
+                }
+                
             }
-            if(!string.IsNullOrWhiteSpace(subraceText))
+
+            if (listItem.ContainsKey("racial_traits"))
             {
-                formattedDescText += Title("Subraces");
-                formattedDescText += Body(subraceText);
+                i = 0;
+                string racialTraits = "";
+                foreach (var racialTrait in listItem["racial_traits"].EnumerateArray())
+                {
+                    if (i > 0)
+                    {
+                        racialTraits += ", ";
+                    }
+                    racialTrait.TryGetProperty("name", out extractedJsonValue);
+
+                    racialTraits += extractedJsonValue.ToString();
+                    i++;
+                }
+                if (!string.IsNullOrWhiteSpace(racialTraits))
+                {
+                    formattedDescText += Title("Racial Traits");
+                    formattedDescText += Body(racialTraits.ToString());
+                }
+            }
+
+            
+
+
+            if (listItem.ContainsKey("subraces"))
+            {
+                i = 0;
+                string subraceText = "";
+                foreach (var subrace in listItem["subraces"].EnumerateArray())
+                {
+                    if (i > 0) subraceText += ", ";
+                    subrace.TryGetProperty("name", out extractedJsonValue);
+                    subraceText += extractedJsonValue.ToString();
+                }
+                if (!string.IsNullOrWhiteSpace(subraceText))
+                {
+                    formattedDescText += Title("Subraces");
+                    formattedDescText += Body(subraceText);
+                }
             }
 
 
-            string traits = "";
-            i = 0;
-            foreach (var trait in listItem["traits"].EnumerateArray())
+            if(listItem.ContainsKey("traits"))
             {
-                if (i == 0) formattedDescText += Title("Traits");
-                trait.TryGetProperty("name", out extractedJsonElement2);
-                string traitName = extractedJsonElement2.ToString();
-                if (i > 0) traits += ", ";
-                traits += traitName;
-                i++;
+                string traits = "";
+                i = 0;
+                foreach (var trait in listItem["traits"].EnumerateArray())
+                {
+                    if (i == 0) formattedDescText += Title("Traits");
+                    trait.TryGetProperty("name", out extractedJsonElement2);
+                    string traitName = extractedJsonElement2.ToString();
+                    if (i > 0) traits += ", ";
+                    traits += traitName;
+                    i++;
+                }
+                if (!string.IsNullOrWhiteSpace(traits)) formattedDescText += Body(traits);
             }
-            if(!string.IsNullOrWhiteSpace(traits)) formattedDescText += Body(traits);
+
 
             if(listItem.ContainsKey("trait_options"))
             {
@@ -975,44 +1069,150 @@ public class QuickRefDetailView : MonoBehaviour
             foreach (var bonus in listItem["ability_bonuses"].EnumerateArray())
             {
                 if (i == 0) formattedDescText += Title("Ability Bonuses");
-                print(bonus.ToString());
                 bonus.TryGetProperty("name", out extractedJsonElement2);
                 string bonusName = extractedJsonElement2.ToString();
+                bonus.TryGetProperty("bonus", out extractedJsonElement2);
+                string bonusAmount = extractedJsonElement2.ToString();
                 if (i > 0) abiliity_bonuses += ", ";
-                abiliity_bonuses += bonusName;
+                abiliity_bonuses += bonusName + "+" + bonusAmount;
                 i++;
             }
             if (!string.IsNullOrWhiteSpace(abiliity_bonuses)) formattedDescText += Body(abiliity_bonuses);
 
-            listItem["ability_bonus_options"].TryGetProperty("choose", out extractedJsonValue);
-            number = extractedJsonValue.ToString();
-            i = 0;
-            if (!string.IsNullOrEmpty(number))
+            if(listItem.ContainsKey("ability_bonus_options"))
             {
-                formattedDescText += Title("Ability Bonus Choice");
-                formattedDescText += Subtitle("Choose " + number + " from: ");
-                listItem["ability_bonus_options"].TryGetProperty("from", out extractedJsonValue);
-
-                string abilityBonusChoices = "";
+                listItem["ability_bonus_options"].TryGetProperty("choose", out extractedJsonValue);
+                number = extractedJsonValue.ToString();
                 i = 0;
-                foreach (var bonusChoice in extractedJsonValue.EnumerateArray())
+                if (!string.IsNullOrEmpty(number))
                 {
-                    bonusChoice.TryGetProperty("name", out extractedJsonElement2);
-                    string proficiencyName = extractedJsonElement2.ToString();
-                    if (i > 0) abilityBonusChoices += ", ";
-                    abilityBonusChoices += proficiencyName;
-                    i++;
+                    formattedDescText += Title("Ability Bonus Choice");
+                    formattedDescText += Subtitle("Choose " + number + " from: ");
+                    listItem["ability_bonus_options"].TryGetProperty("from", out extractedJsonValue);
+
+                    string abilityBonusChoices = "";
+                    i = 0;
+                    foreach (var bonusChoice in extractedJsonValue.EnumerateArray())
+                    {
+                        bonusChoice.TryGetProperty("name", out extractedJsonElement2);
+                        string proficiencyName = extractedJsonElement2.ToString();
+                        if (i > 0) abilityBonusChoices += ", ";
+                        abilityBonusChoices += proficiencyName;
+                        i++;
+                    }
+                    formattedDescText += Body(abilityBonusChoices);
                 }
-                formattedDescText += Body(abilityBonusChoices);
             }
+            
 
             //ability bonus + options
 
-            formattedDescText += Title("Size");
-            formattedDescText += Body(listItem["size_description"].ToString());
+            if(listItem.ContainsKey("size_description"))
+            {
+                formattedDescText += Title("Size");
+                formattedDescText += Body(listItem["size_description"].ToString());
+            }
+
 
             descriptionText.text = formattedDescText;
         }
+        //else if(category == "Subrace")
+        //{
+        //    attributesPanel.SetActive(true);
+        //    descriptionPanel.SetActive(true);
+        //    quickRefObj.SetActive(true);
+        //    Dictionary<string, dynamic> listItem = LoadedFilesData.qrdFiles[category][item];
+        //    System.Text.Json.JsonElement extractedJsonElement2;
+
+        //    titleText.text = listItem["name"].ToString();
+        //    descriptionText.text += Title("Description");
+        //    descriptionText.text += Body(listItem["desc"].ToString());
+
+        //    listItem["race"].TryGetProperty("name", out extractedJsonValue);
+
+        //    string races = extractedJsonValue.ToString();
+        //    attributes.Add("Race", races);
+
+        //    int i = 0;
+        //    descriptionText.text += Title("Ability Score Bonuses");
+        //    string bonuses = "";
+        //    foreach (var abilityBonus in listItem["ability_bonuses"].EnumerateArray())
+        //    {
+        //        if (i > 0)
+        //        {
+        //            bonuses += ", ";
+        //        }
+        //        abilityBonus.TryGetProperty("name", out extractedJsonValue);
+        //        abilityBonus.TryGetProperty("bonus", out extractedJsonElement2);
+
+        //        bonuses += extractedJsonValue.ToString() + "+" + extractedJsonElement2.ToString();
+        //        attributes.Add(extractedJsonValue.ToString() + " Bonus", "+" + extractedJsonElement2.ToString());
+        //        i++;
+        //    }
+        //    descriptionText.text += Body(bonuses);
+
+        //    i = 0;
+        //    string racialTraits = "";
+        //    foreach (var racialTrait in listItem["racial_traits"].EnumerateArray())
+        //    {
+        //        if (i > 0)
+        //        {
+        //            racialTraits += ", ";
+        //        }
+        //        racialTrait.TryGetProperty("name", out extractedJsonValue);
+
+        //        racialTraits += extractedJsonValue.ToString();
+        //        i++;
+        //    }
+        //    if(!string.IsNullOrWhiteSpace(racialTraits))
+        //    {
+        //        descriptionText.text += Title("Racial Traits");
+        //        descriptionText.text += Body(racialTraits.ToString());
+        //    }
+
+        //    i = 0;
+        //    string proficiencies = "";
+        //    foreach(var proficiency in listItem["starting_proficiencies"].EnumerateArray())
+        //    {
+        //        if (i > 0) proficiencies += ", ";
+        //        proficiency.TryGetProperty("name", out extractedJsonValue);
+        //        proficiencies += extractedJsonValue.ToString();
+        //        i++;
+        //    }
+        //    if (!string.IsNullOrWhiteSpace(proficiencies))
+        //    {
+        //        descriptionText.text += Title("Starting Proficiencies");
+        //        descriptionText.text += Body(proficiencies);
+        //    }
+
+
+        //    listItem["language_options"].TryGetProperty("choose", out extractedJsonValue);
+        //    string number = extractedJsonValue.ToString();
+        //    i = 0;
+        //    if (!string.IsNullOrEmpty(number))
+        //    {
+        //        descriptionText.text += Title("Language Choice");
+        //        descriptionText.text += Subtitle("Choose " + number + " from: ");
+        //        listItem["language_options"].TryGetProperty("from", out extractedJsonValue);
+
+        //        string languageChoices = "";
+        //        i = 0;
+        //        foreach (var languageOption in extractedJsonValue.EnumerateArray())
+        //        {
+        //            languageOption.TryGetProperty("name", out extractedJsonElement2);
+        //            string languageName = extractedJsonElement2.ToString();
+        //            if (i > 0) languageChoices += ", ";
+        //            languageChoices += languageName;
+        //            i++;
+        //        }
+        //        descriptionText.text += Body(languageChoices);
+        //        if (!string.IsNullOrWhiteSpace(languageChoices))
+        //        {
+        //            descriptionText.text += Title("Language Options");
+        //            descriptionText.text += Body(languageChoices);
+        //        }
+        //    }
+        //}
         else
         {
             quickRefObj.SetActive(false);
@@ -1023,13 +1223,13 @@ public class QuickRefDetailView : MonoBehaviour
             CreateAttributeItem(attr.Key, attr.Value);
         }
         string unformattedDescText = descriptionText.text;
-        Regex rx = new(@"(\d)*d(\d)+( )*(\+)*( )*(\d)*");       //matches xdx + x \ xdx+x: 5d8, 12d100, 4d10, 2d6, 3d10+5, 4d4 + 2, etc
+        Regex rx = new(@"(\d)*d(\d)+( )*(\+)*( )*(\d)*");       //matches xdy + z \ xdy+z: 5d8, 12d100, 4d10, 2d6, 3d10+5, 4d4 + 2, etc
         MatchCollection matches = rx.Matches(unformattedDescText);
         foreach (var match in matches)
         {
             unformattedDescText = unformattedDescText.Replace(match.ToString(), "<b><u>" + match.ToString() + "</b></u>");
         }
-        rx = new Regex(@"(\d)*d*(\d)+( |-)(feet|foot|mile)(( |-)(cube|radius|sphere|line|cone|cylinder))*");      //matches x( |-)(foot|feet)( |-)(y): 150 feet cube, 10-mile sphere, 5 foot sphere, 1543-mile line, 20-foot-radius, 5-feet-sphere, etc
+        rx = new Regex(@"(\d)*d*(\d)+( |-)(feet|foot|mile)(( |-)(cube|radius|sphere|line|cone|cylinder))*");      //matches x( |-)(foot|feet|mile)( |-)(y): 150 feet cube, 10-mile sphere, 5 foot sphere, 1543-mile line, 20-foot-radius, 5-feet-sphere, etc
         matches = rx.Matches(unformattedDescText);
         foreach (var match in matches)
         {
@@ -1054,9 +1254,6 @@ public class QuickRefDetailView : MonoBehaviour
             unformattedDescText = unformattedDescText.Replace(match.ToString(), "<b><u>" + match.ToString() + "</b></u>");
         }
         descriptionText.text = unformattedDescText;
-
-
-
     }
 
     private void CreateAttributeItem(string title, string detail)
@@ -1097,7 +1294,7 @@ public class QuickRefDetailView : MonoBehaviour
 
     private string Title(string titleString)
     {
-        return "<b><u><line-height=2000%><size=20>" + titleString + "</b></u></line-height></size>\n";
+        return "<b><u><line-height=150%><size=20>" + titleString + "</b></u></size>\n</line-height>";
     }
 
     private string Subtitle(string subtitleString)

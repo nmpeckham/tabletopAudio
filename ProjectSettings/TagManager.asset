@@ -25,6 +25,9 @@ TagManager:
   - sfxPage5
   - sfxPage6
   - sfxPage7
+  - mainCanvas
+  - sfxSubcontrolButton
+  - sfxSubcontrolButtons
   layers:
   - Default
   - TransparentFX

@@ -283,15 +283,12 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
                     StopCoroutine(activeFadeOutRoutine);
                     activeFadeOutRoutine = null;
                 }
-                if (activeFadeInRoutine == null)
-                {
-                    activeFadeInRoutine = StartCoroutine(FadeInRoutine());
-                }
-                else
+                if (activeFadeInRoutine != null)
                 {
                     StopCoroutine(activeFadeInRoutine);
                     activeFadeInRoutine = null;
                 }
+                activeFadeInRoutine = StartCoroutine(FadeInRoutine());
             }
             else if (type == "out")
             {
@@ -300,15 +297,12 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
                     StopCoroutine(activeFadeInRoutine);
                     activeFadeInRoutine = null;
                 }
-                if (activeFadeOutRoutine == null)
-                {
-                    activeFadeOutRoutine = StartCoroutine(FadeOutRoutine());
-                }
-                else
+                if (activeFadeOutRoutine != null)
                 {
                     StopCoroutine(activeFadeOutRoutine);
                     activeFadeOutRoutine = null;
                 }
+                activeFadeOutRoutine = StartCoroutine(FadeOutRoutine());
             }
         }
     }

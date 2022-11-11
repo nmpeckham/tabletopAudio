@@ -19,7 +19,7 @@ internal static class ResourceManager
     internal static Color black = Color.black;
     internal static Color orange = new(1, 0.56f, 0, 1);
     internal static Color grey = new(0.878f, 0.878f, 0.878f, 1f);
-    internal static Color musicButtonGrey = new(0.294f, 0.294f, 0.294f, 1f);
+    internal static Color musicButtonGrey = new(0.294f, 0.294f, 0.294f, 0.69f);
 
     internal static Color lightModeGrey = new(200 / 255f, 200 / 255f, 200 / 255f);
     internal static Color darkModeGrey = new(36 / 255f, 36 / 255f, 36 / 255f);

@@ -22,7 +22,7 @@ public class SearchFoldersController : MonoBehaviour
     {
         mac = GetComponent<MainAppController>();
         closeButton.onClick.AddListener(CloseButtonClicked);
-        ItemToggled(true, MainAppController.workingDirectories["musicDirectory"]);
+        //ItemToggled(true, MainAppController.workingDirectories["musicDirectory"]);
         ShowDriveListing();
     }
 

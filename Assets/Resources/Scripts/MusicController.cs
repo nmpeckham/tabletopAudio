@@ -477,12 +477,14 @@ public class MusicController : MonoBehaviour
         int fftSize = 4096;
         float[] data0 = new float[fftSize];
         float[] data1 = new float[fftSize];
+        //TODO readjust (first and last band show nothing... :/
         int[] segments = new int[41] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 13, 16, 20, 25, 32, 40, 51, 64, 81, 102, 128, 161, 203, 256, 322, 406, 512, 645, 812, 1024, 1290, 1457, 1625, 1840, 2048, 2314, 2580, 2916, 3251, 3674, 4096 }; // Don't ask...
         double sum;
         int maxVal;
         int startVal;
         while (true)
         {
+            //Sacrifice fft for framerate;
             if (mac.currentFPS < 30)
             {
                 yield return null;
@@ -1364,8 +1366,19 @@ public class MusicController : MonoBehaviour
         }
     }
 
+    internal void StartNewFile()
+    {
+        Shuffle = false;
+        Crossfade = false;
+        AutoCheckForNewFiles = true;
+        fileType = FileTypes.none;
+        playbackScrubber.SetValueWithoutNotify(0f);
+        print("doneeeee");
+    }
+
     public void RefreshSongOrder(int oldID, int newID)
     {
+        print(newID);
         MusicButton item = PlaylistTabs.selectedTab.MusicButtons[oldID];
 
         PlaylistTabs.selectedTab.MusicButtons[newID].buttonId = oldID;
@@ -1376,14 +1389,19 @@ public class MusicController : MonoBehaviour
 
         if (PlaylistTabs.selectedTab == nowPlayingTab)
         {
-            if (newID == nowPlayingButton.buttonId)
+            print(PlaylistTabs.selectedTab) ;
+            if(nowPlayingButton != null)
             {
-                nowPlayingButton.buttonId = oldID;
+                if (newID == nowPlayingButton.buttonId)
+                {
+                    nowPlayingButton.buttonId = oldID;
+                }
+                else if (oldID == nowPlayingButton.buttonId)
+                {
+                    nowPlayingButton.buttonId = newID;
+                }
             }
-            else if (oldID == nowPlayingButton.buttonId)
-            {
-                nowPlayingButton.buttonId = newID;
-            }
+
         }
 
         PlaylistTabs.selectedTab.MusicButtons.Remove(item);
@@ -1413,7 +1431,7 @@ public class MusicController : MonoBehaviour
     {
         if (nextDelayTimer == 0 && val >= 0)
         {
-            nextDelayTimer = 6;
+            nextDelayTimer = 3;
             AudioSource sourceToUse = usingInactiveAudioSource ? inactiveAudioSource : activeAudioSource;
             if (fileType == FileTypes.mp3)
             {
@@ -1489,6 +1507,10 @@ public class MusicController : MonoBehaviour
             {
                 percentPlayed = streamToUse.DecodedPosition / (float)streamToUse.TotalSamples;
             }
+            else
+            {
+                percentPlayed = 0f;
+            }
         }
         catch (NullReferenceException e)
         {
@@ -1538,10 +1560,11 @@ public class MusicController : MonoBehaviour
         {
             return usingInactiveAudioSource ? inactiveMp3Stream : activeMp3Stream;
         }
-        else
+        else if (fileType == FileTypes.ogg)
         {
             return usingInactiveAudioSource ? inactiveVorbisStream : activeVorbisStream;
         }
+        return null;
     }
 
     void UpdatePlaybackTimeText()

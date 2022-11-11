@@ -173,9 +173,7 @@ public class OptionsMenuController : MonoBehaviour
         LoadedFilesData.songs.Clear();
         LoadedFilesData.sfxClips.Clear();
         LoadedFilesData.deletedMusicClips.Clear();
-        mc.Shuffle = false;
-        mc.Crossfade = false;
-        mc.AutoCheckForNewFiles = true;
+        mc.StartNewFile();
     }
 
     internal void CancelNewFile()
@@ -198,7 +196,7 @@ public class OptionsMenuController : MonoBehaviour
 
     private void DarkModeChanged(bool value)
     {
-        mac.SwapDarkLightMode(value);
+        mac.EnableDarkMode(value);
     }
 
     private void CrossfadeTimeChanged(string value)
@@ -513,7 +511,7 @@ public class OptionsMenuController : MonoBehaviour
         }
         if (MainAppController.darkModeEnabled)
         {
-            mac.SwapDarkLightMode(true);
+            mac.EnableDarkMode(true);
         }
 
         StartCoroutine(RebuildLayout());

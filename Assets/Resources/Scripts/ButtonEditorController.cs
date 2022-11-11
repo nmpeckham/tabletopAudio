@@ -132,13 +132,12 @@ public class ButtonEditorController : MonoBehaviour
     {
         imageColor = changeColorButton.GetComponent<Image>().color;
         previewColorImage.color = imageColor;
-        redValue = imageColor.r;
-        greenValue = imageColor.g;
-        blueValue = imageColor.b;
-        redSlider.SetValueWithoutNotify(redValue);
-        greenSlider.SetValueWithoutNotify(greenValue);
-        blueSlider.SetValueWithoutNotify(blueValue);
-
+        //redValue = imageColor.r;
+        //greenValue = imageColor.g;
+        //blueValue = imageColor.b;
+        redSlider.SetValueWithoutNotify(imageColor.r);
+        greenSlider.SetValueWithoutNotify(imageColor.g);
+        blueSlider.SetValueWithoutNotify(imageColor.b);
         UpdateColorSliderLabels();
         buttonColorPanel.SetActive(true);
     }
