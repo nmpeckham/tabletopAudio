@@ -50,6 +50,4 @@ public class SearchFolderListItem : MonoBehaviour
     {
         sfc.ItemClicked(this);
     }
-
-
 }

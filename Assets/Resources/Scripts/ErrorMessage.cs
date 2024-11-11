@@ -6,6 +6,8 @@ using UnityEngine.UI;
 //Class for error message objects
 public class ErrorMessage : MonoBehaviour
 {
+
+    public GameObject Spinner;
     public TMP_Text thisText;
     private Image thisImage;
     public Image typeImage;
@@ -14,12 +16,13 @@ public class ErrorMessage : MonoBehaviour
     internal void Init()
     {
         thisImage = GetComponent<Image>();
-        StartCoroutine("FadeOut");
+        StartCoroutine(FadeOut());
     }
 
-    private IEnumerator FadeOut()
+    private IEnumerator FadeOut(bool waitForDelayTime = true)
     {
-        yield return new WaitForSecondsRealtime(delayTime);
+        yield return null;
+        if(waitForDelayTime) yield return new WaitForSecondsRealtime(delayTime);
         while (thisText.color.a > 0)
         {
             thisText.color = new Color(thisText.color.r, thisText.color.g, thisText.color.b, thisText.color.a - 0.01f); ;
@@ -28,5 +31,10 @@ public class ErrorMessage : MonoBehaviour
             yield return null;
         }
         Destroy(gameObject);
+    }
+
+    internal void StartFadeOutNow()
+    {
+        StartCoroutine(FadeOut(false));
     }
 }

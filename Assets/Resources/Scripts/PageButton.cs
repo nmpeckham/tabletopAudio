@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using System.Collections;
 
 //Class to take commands from page buttons, including menu and "Stop SFX" buttons
 public class PageButton : MonoBehaviour, IPointerDownHandler
@@ -11,7 +12,7 @@ public class PageButton : MonoBehaviour, IPointerDownHandler
 
     public int id;
     private static MainAppController mac;
-    private TMP_Text label;
+    public TMP_Text label;
     public Button playAllButton;
     public Button stopAllButton;
     public Button fadeInButton;
@@ -50,7 +51,6 @@ public class PageButton : MonoBehaviour, IPointerDownHandler
     // Start is called before the first frame update
     internal void Init()
     {
-        label = GetComponentInChildren<TMP_Text>();
         mac = Camera.main.GetComponent<MainAppController>();
         playAllButton.onClick.AddListener(PlayAll);
         stopAllButton.onClick.AddListener(StopAll);
@@ -58,15 +58,10 @@ public class PageButton : MonoBehaviour, IPointerDownHandler
         fadeOutButton.onClick.AddListener(FadeOut);
         spc = Camera.main.GetComponent<SFXPageController>();
 
-        if (id == -2 && gameObject.transform.GetSiblingIndex() != MainAppController.NUMPAGES + 1)
+        if (id == -2)
         {
-            gameObject.transform.SetSiblingIndex(MainAppController.NUMPAGES + 1);
+            gameObject.transform.SetSiblingIndex(100); // 100 is arbitrary. Just tomake sure it's at the end.
         }
-
-        //if (id == 0)
-        //{
-        //    SFXPageController.activePage = this;
-        //}
     }
 
     private void PlayAll()
@@ -144,6 +139,12 @@ public class PageButton : MonoBehaviour, IPointerDownHandler
         {
             mac.ControlButtonClicked("OPTIONS");
         }
+    }
+
+    internal IEnumerator StartTimerToMakeInactive()
+    {
+        yield return null;
+        this.gameObject.SetActive(false);
     }
 }
 

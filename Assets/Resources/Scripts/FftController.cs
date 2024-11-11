@@ -20,10 +20,12 @@ public class FftController : MonoBehaviour
     public FftBar[] pieces;
     private static Material[] fftBarMaterials;
 
-    internal static float[] fadeTargets = new float[40];
-    private static readonly float[] fftOneFrameAgo = new float[10]; // values one frame ago
-    private static readonly float[] fftTwoFrameAgo = new float[10];    //values two frames ago
-    private static readonly float[] fftThreeFrameAgo = new float[10];    //values two frames ago
+    internal const int binSize = 4;
+    internal static float[] fadeTargets;
+    private static float[] fftOneFrameAgo;   // values one frame ago
+    private static float[] fftTwoFrameAgo;   //values two frames ago
+    private static float[] fftThreeFrameAgo; //values three frames ago
+    private static float[] fftFourFrameAgo;  //values four frames ago
 
 
     public Image spectrumImage;
@@ -62,6 +64,12 @@ public class FftController : MonoBehaviour
         }
         discoModeController = GetComponent<DiscoMode>();
 
+        fftOneFrameAgo = new float[pieces.Length];
+        fftTwoFrameAgo = new float[pieces.Length];
+        fftThreeFrameAgo = new float[pieces.Length];
+        fftFourFrameAgo = new float[pieces.Length];
+        fadeTargets = new float[pieces.Length * binSize];
+
         StartCoroutine(AdjustScale());
         if (PlayerPrefs.GetInt("fftType") == 1)
         {
@@ -72,7 +80,7 @@ public class FftController : MonoBehaviour
     private IEnumerator AdjustScale()
     {
         float totalSum = 0;
-        float temp;
+        float currentFFT;
 
         float r;
         float g;
@@ -95,27 +103,36 @@ public class FftController : MonoBehaviour
                     Transform obj = pieces[i].transform;
 
                     //sum bands into bins of 4
-                    temp = (fadeTargets[4 * i] + fadeTargets[4 * i + 1] + fadeTargets[4 * i + 2] + fadeTargets[4 * i + 3]) / 4;
-                    temp *= (-(i - 11f) / freqVal) + 1f; //frequency correction
-                    temp = (Mathf.Sqrt(temp / ampVal)); // intensity correction
+                    currentFFT = (fadeTargets[4 * i] + fadeTargets[4 * i + 1] + fadeTargets[4 * i + 2] + fadeTargets[4 * i + 3]) / 4;
+                    currentFFT *=  ((-i + 11f) / freqVal) + 1f; //frequency correction
+                    currentFFT = (Mathf.Sqrt(currentFFT / ampVal)); // intensity correction
 
 
-                    temp = Mathf.Min(temp, 1);
-                    if (temp < fftOneFrameAgo[i])
+                    
+                    //Strong average if intensity is descending
+                    if (currentFFT < fftOneFrameAgo[i])
                     {
-                        temp = (temp * 0.5f) + (fftOneFrameAgo[i] * 0.25f) + (fftTwoFrameAgo[i] * 0.15f) + (fftThreeFrameAgo[i] * 0.1f); // average over 4 frames
+                        currentFFT = (currentFFT * 0.3f) + (fftOneFrameAgo[i] * 0.25f) + (fftTwoFrameAgo[i] * 0.2f) + (fftThreeFrameAgo[i] * 0.15f) + (fftFourFrameAgo[i] * 0.1f); // average over 4 previous frames
                     }
-                    temp = temp < 0.02f ? 0f : temp;
-                    obj.localScale = new Vector3(1, temp, 1);
+                    //Weak average if ascending
+                    else
+                    {
+                        currentFFT = (currentFFT * 0.8f) + (fftOneFrameAgo[i] * 0.2f); // average over 2 frames
+
+                    }
+                    currentFFT = currentFFT < 0.02f ? 0f : currentFFT;
+                    currentFFT = Mathf.Min(currentFFT, 1);  //prevent scale > 1
+                    obj.localScale = new Vector3(1, currentFFT, 1);
                     if (i < discoModeNumFreq)
                     {
-                        totalSum += temp;
+                        totalSum += currentFFT;
                     }
 
-                    fftBarMaterials[i].SetFloat("Height", temp);
-                    fftOneFrameAgo[i] = temp;
-                    fftTwoFrameAgo[i] = fftOneFrameAgo[i];
-                    fftThreeFrameAgo[i] = fftTwoFrameAgo[i];
+                    fftBarMaterials[i].SetFloat("Height", currentFFT);
+                    fftOneFrameAgo  [i] = currentFFT;
+                    fftTwoFrameAgo  [i] = fftOneFrameAgo  [i];
+                    fftThreeFrameAgo[i] = fftTwoFrameAgo  [i];
+                    fftFourFrameAgo [i] = fftThreeFrameAgo[i];
                 }
             }
             else
@@ -132,9 +149,10 @@ public class FftController : MonoBehaviour
                     }
                     for (int i = 0; i < fadeTargets.Length; i++)
                     {
-                        b = (fadeTargets[i] > 0.05f) ? 0.5f / fadeTargets[i] : 0f;
-                        g = fadeTargets[i] > 0.2f ? (fadeTargets[i] - 0.2f) * 1.5f : 0f;
-                        r = fadeTargets[i] * 2f;
+                        float temp = fadeTargets[i] * ((-i / 40f) + 2f); //frequency correction
+                        b = (temp > 0.05f) ? 0.5f / temp : 0f;
+                        g = temp > 0.2f ? (temp - 0.2f) * 1.5f : 0f;
+                        r = temp * 2f;
                         a = (r + g + b);
 
                         spectrumTex.SetPixel(spectrumTex.width - 1, i, new Color(r, g, b, a));

@@ -1112,9 +1112,55 @@ public class QuickRefDetailView : MonoBehaviour
                 formattedDescText += Title("Size");
                 formattedDescText += Body(listItem["size_description"].ToString());
             }
-
-
             descriptionText.text = formattedDescText;
+        }
+        else if (category == "Subclass")
+        {
+            System.Text.Json.JsonElement extractedJsonElement2;
+            Dictionary<string, dynamic> listItem = LoadedFilesData.qrdFiles[category][item];
+
+            attributesPanel.SetActive(true);
+            quickRefObj.SetActive(true);
+            descriptionPanel.SetActive(true);
+            titleText.text = listItem["name"].ToString();
+
+            string descText = "";
+            foreach (var descriptionPart in listItem["desc"].EnumerateArray())
+            {
+                descText += descriptionPart.ToString() + "\n\n";
+            }
+            descriptionText.text += Body(descText);
+
+            listItem["class"].TryGetProperty("name", out extractedJsonValue);
+            attributes.Add("Class", extractedJsonValue.ToString());
+
+            if(listItem.ContainsKey("spells"))
+            {
+                descriptionText.text += Subtitle("Spells");
+                //listItem["spells"].TryGetProperty("spells", out extractedJsonValue);
+                //attributes.Add("Class", extractedJsonValue.ToString());
+
+                foreach(var spellItem in listItem["spells"].EnumerateArray())
+                {
+                    //TODO Left off here!
+                    extractedJsonValue.TryGetProperty("spell", out extractedJsonElement2);
+                    print(extractedJsonElement2.ToString());
+
+                }
+
+                //listItem["spells"].TryGetProperty("from", out extractedJsonValue);
+
+                //string abilityBonusChoices = "";
+                //i = 0;
+                //foreach (var bonusChoice in extractedJsonValue.EnumerateArray())
+                //{
+                //    bonusChoice.TryGetProperty("name", out extractedJsonElement2);
+                //    string proficiencyName = extractedJsonElement2.ToString();
+                //    if (i > 0) abilityBonusChoices += ", ";
+                //    abilityBonusChoices += proficiencyName;
+                //    i++;
+                //}
+            } 
         }
         //else if(category == "Subrace")
         //{

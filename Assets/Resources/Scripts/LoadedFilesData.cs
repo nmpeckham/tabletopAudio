@@ -5,7 +5,12 @@ using UnityEngine;
 public static class LoadedFilesData
 {
     public static List<Song> songs = new();
-    public static List<string> deletedMusicClips = new();
+    private static List<string> deletedMusicClips = new();
+    public static List<string> DeletedMusicClips
+    {
+        get { return deletedMusicClips; }
+        set { deletedMusicClips = value;}
+    }  
     public static Dictionary<string, AudioClip> sfxClips = new();
 
     // Category, item name, item attributes

@@ -212,9 +212,12 @@ public class ButtonEditorController : MonoBehaviour
     {
         //Applies all changed settings
         SFXButton button = spc.pageParents[SFXPageController.activePage].buttons[buttonID].GetComponent<SFXButton>();
-        button.Stop();
 
-        button.FileName = clipID;
+        if(clipID != button.FileName)
+        {
+            button.FileName = clipID;
+        }
+
         button.LoopEnabled = loopButton.isOn;
         button.RandomizeLoopDelay = randomizeLoopButton.isOn;
         button.MinLoopDelay = Convert.ToInt32(minLoopDelay.text);

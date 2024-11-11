@@ -9,6 +9,7 @@ public class Tooltip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     static private GameObject tooltip;
     static private Canvas mainCanvas;
     public string tooltipText;
+    public bool spawnLeft = false;
     private static MainAppController mac;
 
     void Start()
@@ -21,6 +22,7 @@ public class Tooltip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         if(tooltip != null) Destroy(tooltip);
         tooltip = Instantiate(Prefabs.tooltipPrefab, Input.mousePosition, Quaternion.identity, MainAppController.tooltipParent);
+        if (spawnLeft) tooltip.GetComponent<RectTransform>().pivot = Vector2.right;
         tooltip.GetComponentInChildren<TMP_Text>().text = tooltipText;
         if (tooltip)
         {
@@ -36,6 +38,7 @@ public class Tooltip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         tooltip = null;
     }
 
+    //TODO: Causes huge framerate drops :(
     private IEnumerator UpdateTooltipPosition()
     {
         Color oldImageColor = tooltip.GetComponent<Image>().color;

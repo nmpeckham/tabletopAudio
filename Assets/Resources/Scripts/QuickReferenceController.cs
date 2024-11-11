@@ -190,7 +190,7 @@ public class QuickReferenceController : MonoBehaviour
                         {
                             searchMatches.Add(matchScore);
                         }
-                        if (mac.currentFPS < 10)
+                        if (mac.currentFPS < 30)
                         {
                             yield return null;
                         }

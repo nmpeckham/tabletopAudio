@@ -1,6 +1,7 @@
 using Amazon.DynamoDBv2;
 using Extensions;
 using System.Collections.Generic;
+using System.Drawing.Printing;
 using System.IO;
 using System.Text.Json;
 using UnityEngine;
@@ -9,8 +10,9 @@ public static class NowPlayingWebpage
 {
     private static AmazonDynamoDBClient client;
     private static bool goodConfig = false;
-    private static string tableName;
-    private static string id;
+    private static string songDataTableName;
+    private static string statusTableName;
+    private static string userId;
 
     internal static void Init()
     {
@@ -30,8 +32,9 @@ public static class NowPlayingWebpage
                 accessKeyId = data["accessKeyId"];
                 secretAccessKey = data["secretAccessKey"];
                 region = Amazon.RegionEndpoint.GetBySystemName(data["region"]);
-                tableName = data["tableName"];
-                id = data["id"];
+                songDataTableName = data["dataTableName"];
+                statusTableName = data["statusTableName"];
+                userId = data["id"];
                 Amazon.Runtime.CredentialManagement.CredentialProfileOptions options = new Amazon.Runtime.CredentialManagement.CredentialProfileOptions
                 {
                     AccessKey = accessKeyId,
@@ -55,6 +58,7 @@ public static class NowPlayingWebpage
         {
             try
             {
+                Debug.Log("song changed");
                 Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> item = new Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>();
                 var titleAttribute = new Amazon.DynamoDBv2.Model.AttributeValue(song.title);
                 var artistAttribute = new Amazon.DynamoDBv2.Model.AttributeValue(song.artist);
@@ -66,7 +70,7 @@ public static class NowPlayingWebpage
                 {
                     N = System.DateTime.UtcNow.ToUnixTime().ToString("F1") //Set as number, fixed-point with one decimal place
                 };
-                var idAttribute = new Amazon.DynamoDBv2.Model.AttributeValue(id);
+                var idAttribute = new Amazon.DynamoDBv2.Model.AttributeValue(userId);
 
                 item.Add("id", idAttribute);
                 item.Add("s", titleAttribute);
@@ -77,7 +81,7 @@ public static class NowPlayingWebpage
 
                 item.Add("d", durationAttribute);
                 item.Add("t", startTimeAttribute);
-                await client.PutItemAsync("nowPlayingSong", item);
+                await client.PutItemAsync(songDataTableName, item);
 
                 item = new Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>();
 
@@ -87,7 +91,7 @@ public static class NowPlayingWebpage
                 item.Add("z", typeAttribute);
                 item.Add("t", startTimeAttribute);
 
-                await client.PutItemAsync("nowPlayingStatus", item);
+                await client.PutItemAsync(statusTableName, item);
 
 
             }
@@ -103,7 +107,7 @@ public static class NowPlayingWebpage
     {
         if (goodConfig)
         {
-            var idAttribute = new Amazon.DynamoDBv2.Model.AttributeValue(id);
+            var idAttribute = new Amazon.DynamoDBv2.Model.AttributeValue(userId);
             Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> item = new Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>();
             var startTimeAttribute = new Amazon.DynamoDBv2.Model.AttributeValue
             {
@@ -128,7 +132,7 @@ public static class NowPlayingWebpage
     {
         if (goodConfig)
         {
-            var idAttribute = new Amazon.DynamoDBv2.Model.AttributeValue(id);
+            var idAttribute = new Amazon.DynamoDBv2.Model.AttributeValue(userId);
             Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> item = new();
             var startTimeAttribute = new Amazon.DynamoDBv2.Model.AttributeValue
             {
@@ -147,7 +151,7 @@ public static class NowPlayingWebpage
     {
         if (goodConfig)
         {
-            var idAttribute = new Amazon.DynamoDBv2.Model.AttributeValue(id);
+            var idAttribute = new Amazon.DynamoDBv2.Model.AttributeValue(userId);
             Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> item = new Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>();
             var startTimeAttribute = new Amazon.DynamoDBv2.Model.AttributeValue
             {
@@ -171,7 +175,7 @@ public static class NowPlayingWebpage
     {
         if (goodConfig)
         {
-            var idAttribute = new Amazon.DynamoDBv2.Model.AttributeValue(id);
+            var idAttribute = new Amazon.DynamoDBv2.Model.AttributeValue(userId);
             Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue> item = new Dictionary<string, Amazon.DynamoDBv2.Model.AttributeValue>();
             var startTimeAttribute = new Amazon.DynamoDBv2.Model.AttributeValue
             {

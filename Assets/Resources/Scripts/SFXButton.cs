@@ -18,6 +18,8 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         get => fileName;
         set
         {
+            print(FileName);
+            print(value);
             if (string.IsNullOrEmpty(value) && playbackBarRect.gameObject.activeSelf)
             {
                 playbackBarRect.gameObject.SetActive(false);
@@ -29,6 +31,7 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
             if (FileName != value)
             {
+                print("Stopping");
                 Stop();
             }
 
@@ -288,7 +291,10 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
                     StopCoroutine(activeFadeInRoutine);
                     activeFadeInRoutine = null;
                 }
-                activeFadeInRoutine = StartCoroutine(FadeInRoutine());
+                else
+                {
+                    activeFadeInRoutine = StartCoroutine(FadeInRoutine());
+                }
             }
             else if (type == "out")
             {
@@ -302,7 +308,10 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
                     StopCoroutine(activeFadeOutRoutine);
                     activeFadeOutRoutine = null;
                 }
-                activeFadeOutRoutine = StartCoroutine(FadeOutRoutine());
+                else
+                {
+                    activeFadeOutRoutine = StartCoroutine(FadeOutRoutine());
+                }
             }
         }
     }
@@ -335,7 +344,7 @@ public class SFXButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         yield break;
     }
 
-    private void Clicked()
+    internal void Clicked()
     {
         if (!stopped)
         {

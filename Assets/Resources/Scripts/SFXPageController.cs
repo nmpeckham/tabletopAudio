@@ -16,6 +16,8 @@ public class SFXPageController : MonoBehaviour
     public Button optionsMenuButton;
     public Button stopSFXButton;
 
+    private static int pagesMade;
+
 
     // Start is called before the first frame update
     internal void Init()
@@ -51,41 +53,65 @@ public class SFXPageController : MonoBehaviour
 
         pageButtons.Clear();
         pageParents = new List<SFXPage>();
-        for (int i = 0; i < MainAppController.NUMPAGES; i++)
+        for (pagesMade = 0; pagesMade < MainAppController.NUMPAGES;)    // + 1 to add page for remote trigger page;
         {
-            GameObject pageButton = Instantiate(Prefabs.pageButtonPrefab, pageButtonParent.transform);
-            pageButton.GetComponentInChildren<TMP_Text>().text = (i + 1).ToString();
-            pageButton.GetComponent<PageButton>().id = i;
-            pageButton.GetComponent<PageButton>().Init();
+            MakePage();
+        }
+    }
 
-            pageButtons.Add(pageButton);
-            pageButton.transform.SetSiblingIndex(i + 1);
+    private void MakePage()
+    {
+        GameObject pageButton = Instantiate(Prefabs.pageButtonPrefab, pageButtonParent.transform);
 
-            GameObject pp = Instantiate(Prefabs.pageParentPrefab, pageParentParent.transform);
-            pp.name += " " + i;
-            pp.GetComponent<SFXPage>().pageId = i;
-            pageParents.Add(pp.GetComponent<SFXPage>());
+        PageButton pb = pageButton.GetComponent<PageButton>();
+        pb.id = pagesMade;
+        pb.Init();
 
-            for (int j = 0; j < MainAppController.NUMBUTTONS; j++)
-            {
-                GameObject button = Instantiate(Prefabs.sfxButtonPrefab, pageParents[i].transform);
-                SFXButton btn = button.GetComponent<SFXButton>();
-                btn.id = j;
-                btn.page = i;
-                btn.Init();
+        pb.Label = (pagesMade + 1).ToString();
 
-                pp.GetComponent<SFXPage>().buttons.Add(button);
-            }
-            if (i == 0)
-            {
-                pageButton.GetComponent<Image>().color = Color.red;
-            }
+
+
+        pageButtons.Add(pageButton);
+        pageButton.transform.SetSiblingIndex(pagesMade + 1);
+
+        GameObject pp = Instantiate(Prefabs.pageParentPrefab, pageParentParent.transform);
+
+        pp.name += " " + pagesMade;
+        pp.GetComponent<SFXPage>().pageId = pagesMade;
+        pageParents.Add(pp.GetComponent<SFXPage>());
+
+        for (int j = 0; j < MainAppController.NUMBUTTONS; j++)
+        {
+            GameObject button = Instantiate(Prefabs.sfxButtonPrefab, pageParents[pagesMade].transform);
+            SFXButton btn = button.GetComponent<SFXButton>();
+            btn.id = j;
+            btn.page = pagesMade;
+            btn.Init();
+
+            pp.GetComponent<SFXPage>().buttons.Add(button);
+        }
+        if (pagesMade == 0)
+        {
+            pageButton.GetComponent<Image>().color = Color.red;
         }
         optionsMenuButton.GetComponent<PageButton>().RefreshOrder();
         stopSFXButton.GetComponent<PageButton>().RefreshOrder();
+
         optionsMenuButton.GetComponent<PageButton>().Init();
         stopSFXButton.GetComponent<PageButton>().Init();
 
+        if (pagesMade == MainAppController.NUMPAGES - 1)
+        {
+            pb.Label = "Remote Triggers";
+            //print("assigning page parent");
+            //print(pp.name);
+            GetComponent<RemoteTriggerController>().remoteTriggerPage = pageButton;
+            GetComponent<RemoteTriggerController>().pageParent = pp;
+
+            StartCoroutine(pb.StartTimerToMakeInactive());
+        }
+
+        pagesMade++;
     }
 
     internal void StopAll()

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Drawing.Printing;
 
 namespace NLayer.Decoder
 {
@@ -162,18 +164,21 @@ namespace NLayer.Decoder
 
         public void SkipBits(int count)
         {
-            if (count > 0)
-            {
-                // make sure we have enough bits to skip
-                if (count > BitsAvailable) throw new ArgumentOutOfRangeException("count");
 
-                // now calculate the new positions
-                var offset = (8 - _bitsLeft) + count;
-                _start = ((offset / 8) + _start) % _buf.Length;
-                _bitsLeft = 8 - (offset % 8);
+            //if (count > 0)
+            //{
+            //    //Debug.Print(count.ToString());
+            //    //Debug.Print(BitsAvailable.ToString());
+            //    // make sure we have enough bits to skip
+            if (count > BitsAvailable) throw new ArgumentOutOfRangeException("count");
 
-                _bitsRead += count;
-            }
+            // now calculate the new positions
+            var offset = (8 - _bitsLeft) + count;
+            _start = ((offset / 8) + _start) % _buf.Length;
+            _bitsLeft = 8 - (offset % 8);
+
+            _bitsRead += count;
+            //}
         }
 
         public void RewindBits(int count)

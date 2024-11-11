@@ -15,7 +15,6 @@ public class MoveMusicButton : MonoBehaviour, IPointerDownHandler, IPointerExitH
     private Image buttonImage;
     private Button moveButton;
 
-    //public int siblingIndex = -1;
     private void Awake()
     {
         moveButton = this.GetComponent<Button>();
@@ -27,11 +26,6 @@ public class MoveMusicButton : MonoBehaviour, IPointerDownHandler, IPointerExitH
         moveButton.onClick.AddListener(UpdateSongPosition);
     }
 
-    // Update is called once per frame
-    //private void FixedUpdate()
-    //{
-    //    UpdateSongPosition();
-    //}
     internal void UpdateSongPosition()
     {
         StartCoroutine(CheckMousePos());
@@ -41,57 +35,28 @@ public class MoveMusicButton : MonoBehaviour, IPointerDownHandler, IPointerExitH
     IEnumerator CheckMousePos()
     {
         Color originalColor = buttonImage.color;
+        mouseYPos = Input.mousePosition.y;
         while (Input.GetMouseButton(0))
         {
-            //mouseYPos = Input.mousePosition.y;
+            
             if (buttonWithMouse == buttonTransform.GetSiblingIndex())
             {
-                buttonImage.color = Color.red;
+                buttonImage.color = new Color(originalColor.r + 0.12f, originalColor.g + 0.12f, originalColor.b + 0.12f);
                 float difference = Input.mousePosition.y - mouseYPos;
-                print(difference);
+                //print(difference);
                 if (difference > buttonRectTransform.rect.height)
                 {
                     MoveSongUp((int)(difference / buttonRectTransform.rect.height));
-                    //mouseYPos += (int)(difference / buttonRectTransform.rect.height);
-
-                    //mouseYPos += difference % buttonRectTransform.rect.height;
                 }
-                if (difference < -buttonRectTransform.rect.height)
+                else if (difference < -buttonRectTransform.rect.height)
                 {
                     MoveSongDown(-(int)(difference / buttonRectTransform.rect.height));
-                    //mouseYPos -= (int)(difference / buttonRectTransform.rect.height);
-
-                    //mouseYPos -= difference % buttonRectTransform.rect.height;
                 }
             }
             yield return null;
         }
         buttonImage.color = originalColor;
-        //siblingIndex = buttonTransform.GetSiblingIndex();
     }
-
-    //internal void MoveSongToPosition(int newIndex)
-    //{
-    //    int oldIndex = musicButton.GetComponent<MusicButton>().buttonId;
-    //    mc.RefreshSongOrder(oldIndex, newIndex);
-    //    buttonTransform.SetSiblingIndex(newIndex);
-    //}
-
-    //internal void MoveSongByPlaces(int numPlaces)
-    //{
-    //    if(numPlaces != 0)
-    //    {
-    //        if (numPlaces < 0)
-    //        {
-    //            MoveSongUp(Mathf.Abs(numPlaces));
-    //        }
-    //        else
-    //        {
-    //            MoveSongDown(numPlaces);
-    //        }
-    //    }
-
-    //}
 
     internal void MoveSongDown(int numPlaces = 1)
     {
@@ -99,13 +64,13 @@ public class MoveMusicButton : MonoBehaviour, IPointerDownHandler, IPointerExitH
         {
             if ((buttonTransform.GetSiblingIndex() + 1) <= buttonTransform.parent.childCount - 1)
             {
-                mouseYPos = Input.mousePosition.y;
                 int newIndex = buttonTransform.GetSiblingIndex() + 1;
                 mc.RefreshSongOrder(newIndex - 1, newIndex);
                 buttonTransform.SetSiblingIndex(newIndex);
                 buttonWithMouse++;
             }
         }
+        mouseYPos = Input.mousePosition.y;
     }
 
     internal void MoveSongUp(int numPlaces = 1)
@@ -114,13 +79,13 @@ public class MoveMusicButton : MonoBehaviour, IPointerDownHandler, IPointerExitH
         {
             if ((buttonTransform.GetSiblingIndex() - 1) >= 0)
             {
-                mouseYPos = Input.mousePosition.y;
                 int newIndex = buttonTransform.GetSiblingIndex() - 1;
                 mc.RefreshSongOrder(newIndex + 1, newIndex);
                 buttonTransform.SetSiblingIndex(newIndex);
                 buttonWithMouse--;
             }
         }
+        mouseYPos = Input.mousePosition.y;
     }
 
     public void OnPointerDown(PointerEventData eventData)

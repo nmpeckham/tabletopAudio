@@ -27,7 +27,7 @@ namespace Extensions
         {
             if (volume == 0)
             {
-                return -100f;    //log(x) is undefined for x = 0
+                return -1000f;    //log(x) is undefined for x = 0
             }
 
             return 20f * Mathf.Log(volume);

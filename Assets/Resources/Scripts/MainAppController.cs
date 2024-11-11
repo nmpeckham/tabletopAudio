@@ -14,7 +14,7 @@ using System.Linq;
 public class MainAppController : MonoBehaviour
 {
     public Canvas mainCanvas;
-    internal const int NUMPAGES = 10;
+    internal const int NUMPAGES = 11;
     internal const int NUMBUTTONS = 35;
     internal string VERSION;  //save version
 
@@ -28,8 +28,6 @@ public class MainAppController : MonoBehaviour
         { "saveDirectory", Path.Combine(mainDirectory, "saves") },
         { "logsDirectory", Path.Combine(mainDirectory, "logs") },
     };
-
-    //internal int activePage = 0;
 
     private MusicController mc;
     private EditPageLabel epl;
@@ -80,9 +78,18 @@ public class MainAppController : MonoBehaviour
         editTabLabel,
         shortcutView,
         searchFoldersMenu,
+        secretSettingsMenu
     }
+    private MenuState CurrentMenuState;
 
-    internal MenuState currentMenuState;
+    internal MenuState currentMenuState
+    {
+        set { 
+            CurrentMenuState = value;
+            MenuStateChanged();
+        }
+        get { return CurrentMenuState; }
+    }
 
     private int thankyouMessagesShown = 0;
     internal static Transform tooltipParent;
@@ -111,15 +118,23 @@ public class MainAppController : MonoBehaviour
 
 
     // Start is called before the first frame update
+
+    public void MenuStateChanged()
+    {
+        GetComponent<AppStateViewDebug>().MenuStateChanged(currentMenuState.ToString());
+    }
     public void Start()
     {
-        PlayerPrefs.DeleteAll();
-        //PlayerPrefs.DeleteKey()
-        Application.targetFrameRate = Screen.currentResolution.refreshRate;
+        //if(!Application.isEditor)
+        //{
+        //    //PlayerPrefs.DeleteAll();
+        //    Application.targetFrameRate = Screen.currentResolution.refreshRate;
+        //}
+
         Prefabs.LoadAll();
         if (PlayerPrefs.GetFloat("Crossfade") == 0)
         {
-            PlayerPrefs.SetFloat("Crossfade", 10);
+            PlayerPrefs.SetFloat("Crossfade", 3);
         }
         bool shortcutsShown = false;
         try
@@ -145,8 +160,6 @@ public class MainAppController : MonoBehaviour
         {
             PlayerPrefs.SetString("darkMode", "true");
         }
-
-
 
         epl = GetComponent<EditPageLabel>();
         mc = GetComponent<MusicController>();
@@ -183,6 +196,7 @@ public class MainAppController : MonoBehaviour
 
         JobsUtility.JobWorkerCount = SystemInfo.processorCount - 1; // boosts fps by 100% :/
         Screen.fullScreenMode = FullScreenMode.Windowed;
+
     }
 
     private void MakeCategoryColors()
@@ -270,7 +284,9 @@ public class MainAppController : MonoBehaviour
         epl.StartEditing();
     }
 
-    internal void ShowErrorMessage(string message, int level = 0, int time = 8)
+
+
+    internal GameObject ShowErrorMessage(string message, int level = 0, int time = 8, bool sticky = false)
     {
         //level 0 = error, 1 = warn, 2 = info
         GameObject error = Instantiate(Prefabs.errorPrefab, errorMessagesPanel.transform);
@@ -278,6 +294,8 @@ public class MainAppController : MonoBehaviour
         em.Init();
         TMP_Text messageText = em.thisText;
         Image messageTypeImage = em.typeImage;
+        //means show song loading message and spinner
+
         if (level == 0)
         {
             Debug.LogError(message);
@@ -301,11 +319,25 @@ public class MainAppController : MonoBehaviour
             messageText.color = Color.white;
             messageTypeImage.sprite = ResourceManager.infoImage;
         }
+        if (sticky)
+        {
+            messageText.text = "     " + message;
+            error.GetComponent<ErrorMessage>().Spinner.SetActive(true);
+        }
+        else
+        {
+            error.transform.SetSiblingIndex(0);
+        }
         error.GetComponentInChildren<ErrorMessage>().delayTime = time;
+        return error;
     }
 
     private void Update()
     {
+        if(Input.GetKeyDown(KeyCode.Z) && ControlKeyPressed() && ShiftKeyPressed() && currentMenuState == MenuState.mainAppView)
+        {
+            omc.ShowSecretSettings();
+        }
         if (Input.GetKeyDown(KeyCode.Q) && ControlKeyPressed())
         {
             fpsParent.SetActive(!fpsParent.activeSelf);
@@ -313,6 +345,7 @@ public class MainAppController : MonoBehaviour
         //Save current file
         if (Input.GetKeyDown(KeyCode.S) && ControlKeyPressed())
         {
+            print(omc.currentSaveName);
             if (!string.IsNullOrEmpty(omc.currentSaveName))
             {
                 omc.AcceptSaveName(true);
@@ -370,7 +403,7 @@ public class MainAppController : MonoBehaviour
                     ControlButtonClicked("OPTIONS");
                     break;
                 case MenuState.optionsMenu:
-                    omc.Close();
+                    omc.CloseOptionsMenu();
                     break;
                 case MenuState.aboutMenu:
                     omc.CloseAboutMenu();
@@ -448,50 +481,54 @@ public class MainAppController : MonoBehaviour
                     break;
             }
         }
-        if (Input.GetKeyDown(KeyCode.Space) && currentMenuState == MenuState.mainAppView)
+        if(currentMenuState == MenuState.mainAppView)
         {
-            mc.SpacebarPressed();
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                mc.SpacebarPressed();
+            }
+            if ((Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1)))
+            {
+                spc.ChangeSFXPage(0);
+            }
+            if ((Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Keypad2)))
+            {
+                spc.ChangeSFXPage(1);
+            }
+            if ((Input.GetKeyDown(KeyCode.Alpha3) || Input.GetKeyDown(KeyCode.Keypad3)))
+            {
+                spc.ChangeSFXPage(2);
+            }
+            if ((Input.GetKeyDown(KeyCode.Alpha4) || Input.GetKeyDown(KeyCode.Keypad4)))
+            {
+                spc.ChangeSFXPage(3);
+            }
+            if ((Input.GetKeyDown(KeyCode.Alpha5) || Input.GetKeyDown(KeyCode.Keypad5)))
+            {
+                spc.ChangeSFXPage(4);
+            }
+            if ((Input.GetKeyDown(KeyCode.Alpha6) || Input.GetKeyDown(KeyCode.Keypad6)))
+            {
+                spc.ChangeSFXPage(5);
+            }
+            if ((Input.GetKeyDown(KeyCode.Alpha7) || Input.GetKeyDown(KeyCode.Keypad7)))
+            {
+                spc.ChangeSFXPage(6);
+            }
+            if ((Input.GetKeyDown(KeyCode.Alpha8) || Input.GetKeyDown(KeyCode.Keypad8)))
+            {
+                spc.ChangeSFXPage(7);
+            }
+            if ((Input.GetKeyDown(KeyCode.Alpha9) || Input.GetKeyDown(KeyCode.Keypad9)))
+            {
+                spc.ChangeSFXPage(8);
+            }
+            if ((Input.GetKeyDown(KeyCode.Alpha0) || Input.GetKeyDown(KeyCode.Keypad0)))
+            {
+                spc.ChangeSFXPage(9);
+            }
         }
-        if ((Input.GetKeyDown(KeyCode.Alpha1) || Input.GetKeyDown(KeyCode.Keypad1)) && currentMenuState == MenuState.mainAppView)
-        {
-            spc.ChangeSFXPage(0);
-        }
-        if ((Input.GetKeyDown(KeyCode.Alpha2) || Input.GetKeyDown(KeyCode.Keypad2)) && currentMenuState == MenuState.mainAppView)
-        {
-            spc.ChangeSFXPage(1);
-        }
-        if ((Input.GetKeyDown(KeyCode.Alpha3) || Input.GetKeyDown(KeyCode.Keypad3)) && currentMenuState == MenuState.mainAppView)
-        {
-            spc.ChangeSFXPage(2);
-        }
-        if ((Input.GetKeyDown(KeyCode.Alpha4) || Input.GetKeyDown(KeyCode.Keypad4)) && currentMenuState == MenuState.mainAppView)
-        {
-            spc.ChangeSFXPage(3);
-        }
-        if ((Input.GetKeyDown(KeyCode.Alpha5) || Input.GetKeyDown(KeyCode.Keypad5)) && currentMenuState == MenuState.mainAppView)
-        {
-            spc.ChangeSFXPage(4);
-        }
-        if ((Input.GetKeyDown(KeyCode.Alpha6) || Input.GetKeyDown(KeyCode.Keypad6)) && currentMenuState == MenuState.mainAppView)
-        {
-            spc.ChangeSFXPage(5);
-        }
-        if ((Input.GetKeyDown(KeyCode.Alpha7) || Input.GetKeyDown(KeyCode.Keypad7)) && currentMenuState == MenuState.mainAppView)
-        {
-            spc.ChangeSFXPage(6);
-        }
-        if ((Input.GetKeyDown(KeyCode.Alpha8) || Input.GetKeyDown(KeyCode.Keypad8)) && currentMenuState == MenuState.mainAppView)
-        {
-            spc.ChangeSFXPage(7);
-        }
-        if ((Input.GetKeyDown(KeyCode.Alpha9) || Input.GetKeyDown(KeyCode.Keypad9)) && currentMenuState == MenuState.mainAppView)
-        {
-            spc.ChangeSFXPage(8);
-        }
-        if ((Input.GetKeyDown(KeyCode.Alpha0) || Input.GetKeyDown(KeyCode.Keypad0)) && currentMenuState == MenuState.mainAppView)
-        {
-            spc.ChangeSFXPage(9);
-        }
+        
         if (ControlKeyPressed() && Input.GetKeyDown(KeyCode.D) && discoModeAvailable)
         {
             dm.SetDiscoMode(!dm.discoModeActive); //terribly disgusting. Please fix :/
@@ -512,6 +549,11 @@ public class MainAppController : MonoBehaviour
             ShowErrorMessage("Thanks for using TableTopAudio for 60 minutes! I'm always looking to improve it.\n Please send me an email at me@nathanpeckham.com with any feedback you have", 2, 10);
             thankyouMessagesShown = 2;
         }
+    }
+
+    private bool ShiftKeyPressed()
+    {
+        return shiftKeys.Any(key => Input.GetKey(key));
     }
 
     private bool ControlKeyPressed()

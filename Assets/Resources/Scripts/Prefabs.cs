@@ -20,6 +20,7 @@ public static class Prefabs
     internal static GameObject addToMenuItemPrefab;
     internal static GameObject playlistTabPrefab;
     internal static GameObject searchFolderListItemPrefab;
+    internal static GameObject LoadingSpinnerAnimatedMessage;
     internal static void LoadAll()
     {
         rightClickMenuPrefab = Resources.Load<GameObject>("Prefabs/RightClickMenu");
@@ -39,5 +40,6 @@ public static class Prefabs
         addToMenuItemPrefab = Resources.Load<GameObject>("Prefabs/AddToItemPrefab");
         playlistTabPrefab = Resources.Load<GameObject>("Prefabs/PlaylistTabPrefab");
         searchFolderListItemPrefab = Resources.Load<GameObject>("Prefabs/SearchFolderListItem");
+        LoadingSpinnerAnimatedMessage = Resources.Load<GameObject>("Prefabs/LoadingSpinnerAnimatedMessage");
     }
 }

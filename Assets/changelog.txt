@@ -6,13 +6,10 @@ Add search folders for music
 
 v1.1 "Inveniet" - Added DnD 5e quick reference tool
 
+//TODO: Sort albums by track number, instead of alphabetically.
 //TODO: Fix ogg files not being disposed on close // Fixed?
-//TODO: option to make search results a playlist	Done
-//TODO: option to add search folders for music (instead of using music/TTM folder)	Done
-//TODO: Check if folder already exists in searchFolders before Adding	Done
-//Make song deletion checking async. Somehow...	Won't do
-//TODO: Fix characters not supported in random songs. Jonathon Groff and Cast... Won't fix
 //TODO: Subclass, language description.
+//TODO: Fix "... file is open in TableTopManager"
 
  - Name Change: TableTopAudio is now TableTopManager! Also check out the OG TableTop Audio: https://tabletopaudio.com/
 
@@ -26,7 +23,7 @@ v1.1 "Inveniet" - Added DnD 5e quick reference tool
 
  - Updated Unity to 2021.2.7f1
 
- - Switched UI font to Lato. Lato includes 2163 font glyphs, reducing occurence of boxes in place of unsupported characters
+ - Switched UI font to Lato. Lato includes 2163 font glyphs, reducing occurence of replacement glyphs (?) in place of unsupported characters
 
  - Added option to switch fullscreen mode between windowed, fullscreen windowed, and fullscreen exclusive
 
@@ -76,9 +73,13 @@ v1.1 "Inveniet" - Added DnD 5e quick reference tool
 
  - New shortcut: ctrl/cmd+q shows/hides fps
 
- - Fixed bug where warning to overwrite save file wouldn't be show if capitalization was different
+ - Fixed bug where warning to overwrite save file wouldn't be shown if capitalization was different (platform specific)
 
- - Fixed bug where crossfade times were consistently longer by a factor of 1.2f
+ - Fixed bug where files with encoding errors would cause the buffer to play repeatedly
+
+ - Fixed bug where file lock would not be released after playing a song until program was closed
+
+ - Fixed bug where crossfade times were consistently longer by a factor of 1.2 seconds
 
  - Fixed bug where renaming a song in it's folder would cause music incorrect song to pley when selecting an item
 
@@ -109,6 +110,8 @@ v1.1 "Inveniet" - Added DnD 5e quick reference tool
  - Fixed bug that would cause music playlist audio to become glitched if crossfade was changed to disabled while crossfade was in progress and another song was immediately started. This was an absolute nightmare to trackdown and fix
 
  - Fixed bug where text input wasn't assumed on all fields when editing
+
+ - Fixed bug where mp3 encoding errors could cause audio samples to loop repeatedly
 
  - Fixed many, many more bugs. Added a few to fix in the future.
 

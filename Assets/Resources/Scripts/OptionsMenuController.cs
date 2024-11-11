@@ -33,6 +33,7 @@ public class OptionsMenuController : MonoBehaviour
     private static MusicController mc;
     private static SearchFoldersController sfc;
     private static SFXPageController spc;
+    private static RemoteTriggerController rtc;
 
     public TMP_Text saveErrorText;
 
@@ -69,6 +70,14 @@ public class OptionsMenuController : MonoBehaviour
 
     public TMP_Dropdown fullscreenModeDropdown;
 
+    public Button InitialPlaylistAddMusicButton;
+
+    public GameObject secretSettingsPanel;
+    public Toggle enableRemoteTriggerToggle;
+    public Button closeRemoteTriggerPanelButton;
+    public Button exitRemoteTriggerPanelButton;
+    public Button assignButtonsButton;
+
     // Start is called before the first frame update
 
     private void Start()
@@ -83,11 +92,15 @@ public class OptionsMenuController : MonoBehaviour
         mac = GetComponent<MainAppController>();
         sfc = GetComponent<SearchFoldersController>();
         spc = GetComponent<SFXPageController>();
+        rtc = GetComponent<RemoteTriggerController>();
+
         darkModeToggle.onValueChanged.AddListener(DarkModeChanged);
         autoUpdatePlaylistToggle.onValueChanged.AddListener(AutoUpdateChanged);
         crossfadeField.onValueChanged.AddListener(CrossfadeTimeChanged);
         darkModeToggle.SetIsOnWithoutNotify(MainAppController.darkModeEnabled);
         fullscreenModeDropdown.onValueChanged.AddListener(FullScreenModeChanged);
+        enableRemoteTriggerToggle.onValueChanged.AddListener(RemoteTriggerToggled);
+        InitialPlaylistAddMusicButton.onClick.AddListener(PlaylistAddMusicButtonClicked);
         float val = PlayerPrefs.GetFloat("Crossfade");
         if (val == 0)
         {
@@ -101,6 +114,14 @@ public class OptionsMenuController : MonoBehaviour
         gmfb = GetComponent<GenerateMusicFFTBackgrounds>();
         pt = GetComponent<PlaylistTabs>();
     }
+
+    private void PlaylistAddMusicButtonClicked()
+    {
+        OptionMenuButtonClicked("show search folders");
+        InitialPlaylistAddMusicButton.transform.parent.gameObject.SetActive(false);
+    }
+
+
 
     //0 = Windowed, 1 = Fullscreen Windowed, 2 = Fullscreen Exclusive
     private void FullScreenModeChanged(int idSelected)
@@ -172,7 +193,7 @@ public class OptionsMenuController : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         LoadedFilesData.songs.Clear();
         LoadedFilesData.sfxClips.Clear();
-        LoadedFilesData.deletedMusicClips.Clear();
+        LoadedFilesData.DeletedMusicClips.Clear();
         mc.StartNewFile();
     }
 
@@ -242,8 +263,10 @@ public class OptionsMenuController : MonoBehaviour
 
     internal void AcceptSaveName(bool overwrite = false)
     {
+
         bool errorFound = false;
         string text = saveNameField.text;
+        print("saving " + text);
         foreach (char item in bannedCharacters)
         {
             if (text.Contains(item))
@@ -299,7 +322,7 @@ public class OptionsMenuController : MonoBehaviour
         mac.currentMenuState = MainAppController.MenuState.optionsMenu;
     }
 
-    internal void Close()
+    internal void CloseOptionsMenu()
     {
         optionsPanel.SetActive(false);
         mac.currentMenuState = MainAppController.MenuState.mainAppView;
@@ -337,10 +360,34 @@ public class OptionsMenuController : MonoBehaviour
         }
 
     }
+    #region SecretSettings
+    internal void ShowSecretSettings()
+    {
+        secretSettingsPanel.SetActive(true);
+        mac.currentMenuState = MainAppController.MenuState.secretSettingsMenu;
+    }
+
+    internal void CloseSecretSettings()
+    {
+        secretSettingsPanel.SetActive(false);
+        mac.currentMenuState = MainAppController.MenuState.mainAppView;
+    }
+
+    private void RemoteTriggerToggled(bool state)
+    {
+        if (state)
+        {
+            rtc.Init();
+        }
+        else
+        {
+            rtc.Close();
+        }
+    }
+    #endregion
 
     public void LoadItemSelected(string fileLocation)
     {
-
         currentSaveName = Path.GetFileName(fileLocation).Replace(Path.GetExtension(fileLocation), "");
         mc.AutoCheckForNewFiles = false;
         autoUpdatePlaylistToggle.isOn = false;
@@ -352,7 +399,7 @@ public class OptionsMenuController : MonoBehaviour
         pt.DeleteAllTabs();
         MusicController.fileType = MusicController.FileTypes.none;
         mc.ChangePlaybackScrubberActive(false);
-        sfc.searchFolders.Clear();
+        sfc.ClearSearchFolders();
 
         XmlDocument file = new();
         try
@@ -366,7 +413,7 @@ public class OptionsMenuController : MonoBehaviour
             {
                 LoadedFilesData.songs.Clear();
                 LoadedFilesData.sfxClips.Clear();
-                LoadedFilesData.deletedMusicClips.Clear();
+                LoadedFilesData.DeletedMusicClips.Clear();
 
                 float masterVolume = Convert.ToSingle(file.SelectSingleNode(appLocation + "/masterVolume").InnerText);
                 float musicVolume = Convert.ToSingle(file.SelectSingleNode(appLocation + "/musicVolume").InnerText);
@@ -384,7 +431,7 @@ public class OptionsMenuController : MonoBehaviour
                 print(watchFolders.Count);
                 foreach(XmlNode p in watchFolders)
                 {
-                    sfc.searchFolders.Add(p.InnerText);
+                    sfc.AddSearchFolderItem(p.InnerText);
                 }
 
                 XmlNodeList pages = file.SelectNodes(appLocation + "/SFX-Buttons/page");
@@ -477,7 +524,15 @@ public class OptionsMenuController : MonoBehaviour
 
                     }
                 }
-                LoadedFilesData.deletedMusicClips.Clear();
+                LoadedFilesData.DeletedMusicClips.Clear();
+                XmlNodeList deleted = file.SelectNodes(appLocation + "/removed/a");
+                mc.AutoCheckForNewFiles = true;
+                foreach (XmlNode d in deleted)
+                {
+                    LoadedFilesData.DeletedMusicClips.Add(d.InnerText);
+                    print("added " + d.InnerText);
+                }
+                //print(LoadedFilesData.DeletedMusicClips[0]);
                 int tabId = 0;
                 foreach (XmlNode n in file.SelectNodes(appLocation + "/playlist/tab"))
                 {
@@ -499,7 +554,8 @@ public class OptionsMenuController : MonoBehaviour
                     tabId++;
                 }
                 loadGameSelectionView.SetActive(false);
-                mc.AutoCheckForNewFiles = true;
+
+                InitialPlaylistAddMusicButton.transform.parent.gameObject.SetActive(false);
                 autoUpdatePlaylistToggle.isOn = true;
                 spc.pageParents[0].gameObject.transform.SetSiblingIndex(MainAppController.NUMPAGES);
                 mac.currentMenuState = MainAppController.MenuState.optionsMenu;
@@ -513,9 +569,9 @@ public class OptionsMenuController : MonoBehaviour
         {
             mac.EnableDarkMode(true);
         }
-
+        saveNameField.text = currentSaveName;
         StartCoroutine(RebuildLayout());
-        Close();
+        CloseOptionsMenu();
     }
 
     private IEnumerator RebuildLayout()
@@ -631,6 +687,15 @@ public class OptionsMenuController : MonoBehaviour
                         }
                     }
                     writer.WriteEndElement();
+                    writer.WriteStartElement("removed");
+                    {
+                        print(LoadedFilesData.DeletedMusicClips.Count);
+                        foreach(string s in LoadedFilesData.DeletedMusicClips)
+                        {
+                                writer.WriteElementString("a", s);
+                        }
+                    }
+                    writer.WriteEndElement();
                 }
                 writer.WriteEndDocument();
             }
@@ -654,7 +719,7 @@ public class OptionsMenuController : MonoBehaviour
                 GetComponent<ShortcutViewController>().ShowShortcuts();
                 break;
             case "close":
-                Close();
+                CloseOptionsMenu();
                 break;
             case "load":
                 Load();
@@ -715,16 +780,38 @@ public class OptionsMenuController : MonoBehaviour
             case "show search folders":
                 ShowSearchFolders();
                 break;
-
+            case "reset removed songs":
+                ResetRemovedSongs();
+                break;
+            case "close secret settings":
+                CloseSecretSettings();
+                break;
+            case "assignRemoteButtons":
+                AssignRemoteButtons();
+                break;
             default:
                 print("No action for button " + id);
                 break;
         }
     }
 
+    private void AssignRemoteButtons()
+    {
+        
+    }
+
+    private void ResetRemovedSongs()
+    {
+       print("resetting");
+       LoadedFilesData.DeletedMusicClips.Clear();
+    }
+
     private void ShowSearchFolders()
     {
+        CloseOptionsMenu();
+        InitialPlaylistAddMusicButton.transform.parent.gameObject.SetActive(false);
         GetComponent<ShortcutViewController>().CloseShortcuts();
         GetComponent<SearchFoldersController>().ShowSearchFolderMenu();
+        
     }
 }

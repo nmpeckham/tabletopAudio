@@ -19,7 +19,7 @@ public class ScrollNowPlayingTitle : MonoBehaviour
         {
             yield return new WaitForSecondsRealtime(3);
             float amt = Mathf.Abs(rate / (scrollArea.content.rect.width - 390));// width of container (390px) must be subtracted for smooth scrolling
-            while (scrollArea.horizontalNormalizedPosition < 1)
+            while (scrollArea.horizontalNormalizedPosition < 0.99f)
             {
                 scrollArea.horizontalNormalizedPosition += amt;
                 yield return null;

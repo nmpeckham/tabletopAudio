@@ -377,6 +377,11 @@ PrefabInstance:
       propertyPath: m_Color.r
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 5073017128516442655, guid: 17ea4418c9625ee4d8164124389d46ef,
+        type: 3}
+      propertyPath: m_PixelsPerUnitMultiplier
+      value: 1.5
+      objectReference: {fileID: 0}
     - target: {fileID: 6674413647118620973, guid: 17ea4418c9625ee4d8164124389d46ef,
         type: 3}
       propertyPath: m_Pivot.x
@@ -490,12 +495,6 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 4556106069459354167}
   m_PrefabAsset: {fileID: 0}
---- !u!224 &7177274965092604698 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 6674413647118620973, guid: 17ea4418c9625ee4d8164124389d46ef,
-    type: 3}
-  m_PrefabInstance: {fileID: 4556106069459354167}
-  m_PrefabAsset: {fileID: 0}
 --- !u!114 &6454185771105659814
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -509,3 +508,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   folderImage: {fileID: 8513502641790474492}
+--- !u!224 &7177274965092604698 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 6674413647118620973, guid: 17ea4418c9625ee4d8164124389d46ef,
+    type: 3}
+  m_PrefabInstance: {fileID: 4556106069459354167}
+  m_PrefabAsset: {fileID: 0}

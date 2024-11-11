@@ -33,7 +33,7 @@ public class PlaylistTabs : MonoBehaviour
     public GameObject editTabLabelPanel;
     private int tabsCreated = 1;
     public DisableClickDragScroll dcds;
-    public GameObject musicLoadingAnimation;
+    public GameObject musicLoadingSpinner;
     public Button sortButton;
 
     internal PlaylistTab NowEditing
@@ -53,7 +53,7 @@ public class PlaylistTabs : MonoBehaviour
         mc = GetComponent<MusicController>();
         cancelButton.onClick.AddListener(CancelNameChange);
         confirmButton.onClick.AddListener(ConfirmNameChange);
-        musicLoadingAnimation.SetActive(true);
+        //musicLoadingSpinner.SetActive(true);
 
     }
     internal void TabClicked(int id)
@@ -192,7 +192,7 @@ public class PlaylistTabs : MonoBehaviour
 
     internal void AddSongToPlaylist(int tabId, Song song, int positionToInsertAt = -1)
     {
-        musicLoadingAnimation.SetActive(false);
+        //musicLoadingSpinner.SetActive(false);
         GameObject mbObj = Instantiate(Prefabs.musicButtonPrefab, tabs[tabId].musicContentView.transform);
         MusicButton mb = mbObj.GetComponent<MusicButton>();
         mb.Init();
